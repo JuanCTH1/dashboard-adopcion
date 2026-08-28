@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Users, UserCheck, Activity, Target, ChevronRight } from 'lucide-react';
+import { Users, UserCheck, Activity, Target, ChevronRight, ChevronsRight } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 
 export function ExecutiveRibbon({ metricasGlobales }) {
@@ -168,20 +168,20 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                 </div>
               </div>
 
-              {/* DIRECTIONAL FLOW BADGE IN THE SEPARATION GAP */}
+              {/* DIRECTIONAL FLOW VECTOR BADGE IN THE SEPARATION GAP */}
               {!isLast && st.nextDrop !== undefined && (
-                <div className="shrink-0 flex items-center justify-center -mx-1 z-10">
+                <div className="shrink-0 flex items-center justify-center -mx-1.5 z-10">
                   <div
                     className={cn(
-                      "flex items-center gap-0.5 px-2 py-1 rounded-full border shadow-2xs tabular-nums text-[9px] font-black font-mono shrink-0 transition-all cursor-default",
+                      "flex items-center gap-1 px-2.5 py-1 rounded-lg border shadow-xs tabular-nums text-[9.5px] font-black font-mono shrink-0 transition-all cursor-default select-none",
                       st.isBottleneck
-                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/25 ring-2 ring-rose-500/20"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-border hover:bg-slate-200 dark:hover:bg-slate-700"
+                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/30 ring-2 ring-rose-500/25 animate-pulse-subtle"
+                        : "bg-card/95 backdrop-blur-xs text-foreground border-border hover:border-primary/50 shadow-2xs"
                     )}
-                    title={`Funnel conversion drop: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}
+                    title={`Funnel conversion drop to next stage: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}
                   >
-                    <ChevronRight className={cn("w-3 h-3 stroke-[3]", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
-                    <span>-{st.nextDrop.toFixed(0)}%</span>
+                    <ChevronsRight className={cn("w-3.5 h-3.5 stroke-[2.5] shrink-0", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
+                    <span className="tracking-tight">-{st.nextDrop.toFixed(0)}%</span>
                   </div>
                 </div>
               )}

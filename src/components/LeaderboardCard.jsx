@@ -125,7 +125,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
         <div className="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-border flex flex-col min-h-0 overflow-hidden">
           <div className="flex items-center gap-1.5 pb-1.5 mb-1 border-b border-border/80 text-[10.5px] font-black uppercase text-emerald-700 dark:text-emerald-400 shrink-0">
             <UserCheck className="w-3.5 h-3.5" />
-            <span>Onboarding Ranking</span>
+            <span>Onboarding</span>
           </div>
 
           <div className="overflow-y-auto max-h-[160px] flex-1 scrollbar-thin">
@@ -167,9 +167,9 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
 
         {/* RANKING 2: DIGITAL ADOPTION */}
         <div className="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-border flex flex-col min-h-0 overflow-hidden">
-          <div className="flex items-center gap-1.5 pb-1.5 mb-1 border-b border-border/80 text-[10.5px] font-black uppercase text-primary shrink-0">
+          <div className="flex items-center gap-1.5 pb-1.5 mb-1 border-b border-border/80 text-[10.5px] font-black uppercase text-indigo-600 dark:text-indigo-400 shrink-0">
             <Target className="w-3.5 h-3.5" />
-            <span>Orders Adoption Ranking</span>
+            <span>Orders Adoption</span>
           </div>
 
           <div className="overflow-y-auto max-h-[160px] flex-1 scrollbar-thin">
