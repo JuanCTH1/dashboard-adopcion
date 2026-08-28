@@ -25,6 +25,12 @@ import {
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
 
+// Smooth cubic-bezier curve ("fluida como el agua")
+const SMOOTH_FLUID_TRANSITION = {
+  duration: 0.35,
+  ease: [0.16, 1, 0.3, 1]
+};
+
 export function ProgressiveHierarchy({
   filtrosCompuestos,
   onHierarchyFilterChange,
@@ -174,10 +180,10 @@ export function ProgressiveHierarchy({
         </Button>
       </div>
 
-      {/* HORIZONTAL CASCADED COLUMNS WITH FLUID FRAMER-MOTION ANIMATIONS */}
-      <motion.div layout className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px]">
-        {/* LEVEL 0: COUNTRY (VERTICALLY CENTERED) */}
-        <motion.div layout className="w-36 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
+      {/* HORIZONTAL CASCADED COLUMNS WITH FLUID HARDWARE-ACCELERATED TRANSITIONS */}
+      <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px] relative">
+        {/* LEVEL 0: COUNTRY */}
+        <div className="w-36 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
           <div className="text-[10px] font-bold uppercase text-primary flex items-center gap-1 pb-1 border-b border-border">
             <Globe className="w-3 h-3" />
             <span>Country</span>
@@ -206,20 +212,20 @@ export function ProgressiveHierarchy({
           <div className="text-[9px] text-muted-foreground pt-1.5 border-t border-border/80 text-center">
             {isUsaSelected ? "VPs Open ➔" : "Click to Open"}
           </div>
-        </motion.div>
+        </div>
 
-        {/* LEVEL 1: VICE PRESIDENCIES BY BUSINESS LINE */}
-        <AnimatePresence mode="popLayout">
+        {/* LEVEL 1: VICE PRESIDENCIES */}
+        <AnimatePresence>
           {isUsaSelected && (
             <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.95, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.95, x: 20 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
+              key="vp-col"
+              initial={{ opacity: 0, width: 0, marginRight: 0 }}
+              animate={{ opacity: 1, width: 176, marginRight: 10 }}
+              exit={{ opacity: 0, width: 0, marginRight: 0 }}
+              transition={SMOOTH_FLUID_TRANSITION}
+              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
-              <div className="text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
+              <div className="w-[156px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
                 <div className="flex items-center gap-1">
                   <Building className="w-3 h-3" />
                   <span>VP Divisions</span>
@@ -231,7 +237,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+              <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
                 {vps.map(vp => {
                   const isSelected = selectedVpIds.includes(vp.id);
                   return (
@@ -262,17 +268,17 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 2: REGIONAL DIRECTORS */}
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {selectedVpIds.length > 0 && (
             <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.95, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.95, x: 20 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
+              key="dir-col"
+              initial={{ opacity: 0, width: 0, marginRight: 0 }}
+              animate={{ opacity: 1, width: 176, marginRight: 10 }}
+              exit={{ opacity: 0, width: 0, marginRight: 0 }}
+              transition={SMOOTH_FLUID_TRANSITION}
+              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
-              <div className="text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
+              <div className="w-[156px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
                 <div className="flex items-center gap-1">
                   <Briefcase className="w-3 h-3" />
                   <span>Directors</span>
@@ -284,7 +290,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+              <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
                 {directores.map(dir => {
                   const isSelected = selectedDirIds.includes(dir.id);
                   const parentVp = vps.find(v => v.id === dir.parentId);
@@ -320,17 +326,17 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 3: PLAZA MANAGERS */}
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {selectedDirIds.length > 0 && (
             <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.95, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.95, x: 20 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
+              key="ger-col"
+              initial={{ opacity: 0, width: 0, marginRight: 0 }}
+              animate={{ opacity: 1, width: 176, marginRight: 10 }}
+              exit={{ opacity: 0, width: 0, marginRight: 0 }}
+              transition={SMOOTH_FLUID_TRANSITION}
+              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
-              <div className="text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
+              <div className="w-[156px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
                 <div className="flex items-center gap-1">
                   <Users className="w-3 h-3" />
                   <span>Managers</span>
@@ -342,7 +348,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+              <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
                 {gerentes.map(ger => {
                   const isSelected = selectedGerIds.includes(ger.id);
                   const parentDir = directores.find(d => d.id === ger.parentId);
@@ -378,17 +384,17 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 4: SALES REPRESENTATIVES */}
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {selectedGerIds.length > 0 && (
             <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.95, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.95, x: 20 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
+              key="rep-col"
+              initial={{ opacity: 0, width: 0, marginRight: 0 }}
+              animate={{ opacity: 1, width: 192, marginRight: 10 }}
+              exit={{ opacity: 0, width: 0, marginRight: 0 }}
+              transition={SMOOTH_FLUID_TRANSITION}
+              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
-              <div className="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
+              <div className="w-[172px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
                 <div className="flex items-center gap-1">
                   <User className="w-3 h-3" />
                   <span>Sales Reps</span>
@@ -400,7 +406,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+              <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
                 {vendedores.map(rep => {
                   const isSelected = selectedRepIds.includes(rep.id);
                   return (
@@ -432,10 +438,10 @@ export function ProgressiveHierarchy({
           )}
         </AnimatePresence>
 
-        {/* RIGHT HAND PERMANENT TABLE: SMOOTH PUSH ANIMATION AND VISUAL MICRO-PILL BADGES */}
+        {/* RIGHT HAND PERMANENT TABLE: SMOOTH POSITIONAL TRANSITION ("FLUIDA COMO EL AGUA") */}
         <motion.div
-          layout
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          layout="position"
+          transition={SMOOTH_FLUID_TRANSITION}
           className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
         >
           <div>
@@ -614,7 +620,7 @@ export function ProgressiveHierarchy({
             </div>
           </div>
         </motion.div>
-      </motion.div>
+      </div>
     </Card>
   );
 }
