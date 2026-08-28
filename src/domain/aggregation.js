@@ -17,6 +17,9 @@ export function calculateAggregations(transacciones = [], clientes = []) {
   let volAgregadosTotal = 0;
   let volAgregadosDig = 0;
 
+  const periodClientIds = new Set();
+  const digitalClientIds = new Set();
+
   transacciones.forEach(t => {
     pedidosTotales += t.pedidosTotales;
     pedidosDigitales += t.pedidosDigitales;
@@ -24,6 +27,11 @@ export function calculateAggregations(transacciones = [], clientes = []) {
     pedidosWeb += t.pedidosWeb;
     pedidosApp += t.pedidosApp;
     pedidosEdi += t.pedidosEdi;
+
+    periodClientIds.add(t.clienteId);
+    if (t.pedidosDigitales > 0) {
+      digitalClientIds.add(t.clienteId);
+    }
 
     if (t.lineaNegocio === 'readymix') {
       volConcretoTotal += t.volumenTotal;
@@ -37,10 +45,18 @@ export function calculateAggregations(transacciones = [], clientes = []) {
     }
   });
 
-  const totalAsignados = clientes.length;
-  const totalOnboarded = clientes.filter(c => c.estaIncorporado).length;
-  const totalActivos = clientes.filter(c => c.esActivo).length;
-  const totalRevertidos = clientes.filter(c => c.esRevertido).length;
+  const hasTxFilter = transacciones.length > 0 && periodClientIds.size < clientes.length;
+
+  const filteredClientsInPeriod = hasTxFilter
+    ? clientes.filter(c => periodClientIds.has(c.id))
+    : clientes;
+
+  const totalAsignados = filteredClientsInPeriod.length || clientes.length;
+  const totalOnboarded = filteredClientsInPeriod.filter(c => c.estaIncorporado).length;
+  const totalActivos = hasTxFilter
+    ? clientes.filter(c => digitalClientIds.has(c.id)).length
+    : clientes.filter(c => c.esActivo).length;
+  const totalRevertidos = filteredClientsInPeriod.filter(c => c.esRevertido).length;
 
   const pctAdopcionPedidos = pedidosTotales > 0 ? (pedidosDigitales / pedidosTotales) * 100 : 0;
   const pctAdopcionClientes = totalAsignados > 0 ? (totalActivos / totalAsignados) * 100 : 0;
@@ -72,51 +88,51 @@ export function calculateAggregations(transacciones = [], clientes = []) {
   };
 }
 
-export function buildFunnel(metricasGlobales) {
-  const c = metricasGlobales.clientes;
-  const p = metricasGlobales.pedidos;
+export function buildFunnel(actual = {}) {
+  const c = actual.clientes || {};
+  const p = actual.pedidos || {};
+
+  const asignados = c.asignados || 0;
+  const onboarded = c.onboarded || 0;
+  const activos = c.activos || 0;
+  const pctAdopcion = p.pctAdopcion || 0;
+
+  const dropOffStage1 = asignados > 0 ? ((asignados - onboarded) / asignados) * 100 : 0;
+  const dropOffStage2 = onboarded > 0 ? ((onboarded - activos) / onboarded) * 100 : 0;
 
   return [
     {
-      paso: 1,
-      titulo: '1. Client Universe',
-      subtitulo: 'Total assigned accounts under management',
-      valor: c.asignados,
-      pctBase: 100.0,
-      tipo: 'absoluto',
-      unidad: 'accounts'
+      id: 'universo',
+      stepName: '1. Assigned Universe',
+      count: asignados,
+      unit: 'Accounts',
+      dropOffPct: Number(dropOffStage1.toFixed(1)),
+      subLabel: `${p.totales || 0} Total Orders`
     },
     {
-      paso: 2,
-      titulo: '2. Onboarded Clients',
-      subtitulo: 'Registered with active digital credentials',
-      valor: c.onboarded,
-      pctBase: c.pctOnboarding,
-      tipo: 'porcentaje',
-      unidad: 'accounts',
-      fuga: c.asignados - c.onboarded,
-      pctFuga: Number((100 - c.pctOnboarding).toFixed(1))
+      id: 'onboarded',
+      stepName: '2. Onboarded CX App',
+      count: onboarded,
+      unit: 'Accounts',
+      pctOfUniverse: Number((c.pctOnboarding || 0).toFixed(1)),
+      dropOffPct: Number(dropOffStage2.toFixed(1)),
+      subLabel: `${c.pctOnboarding || 0}% Onboarding Rate`
     },
     {
-      paso: 3,
-      titulo: '3. Active Digital Clients',
-      subtitulo: 'Placed digital transactions in period',
-      valor: c.activos,
-      pctBase: c.pctAdopcion,
-      tipo: 'porcentaje',
-      unidad: 'accounts',
-      fuga: c.onboarded - c.activos,
-      pctFuga: Number((c.onboarded > 0 ? ((c.onboarded - c.activos) / c.onboarded) * 100 : 0).toFixed(1))
+      id: 'activos',
+      stepName: '3. Active Buyers',
+      count: activos,
+      unit: 'Accounts',
+      pctOfUniverse: Number((c.pctAdopcion || 0).toFixed(1)),
+      subLabel: `${p.digitales || 0} Digital Orders`
     },
     {
-      paso: 4,
-      titulo: '4. Transactional Adoption',
-      subtitulo: 'Digital orders share vs 90.0% Goal',
-      valor: p.pctAdopcion,
-      pctBase: p.pctAdopcion,
-      tipo: 'porcentaje_final',
-      unidad: '% orders',
-      meta: 90.0
+      id: 'adopcion',
+      stepName: '4. Digital Adoption Rate',
+      count: pctAdopcion,
+      unit: '% Adoption',
+      isDominant: true,
+      subLabel: `${p.digitales || 0} / ${p.totales || 0} Digital Orders`
     }
   ];
 }

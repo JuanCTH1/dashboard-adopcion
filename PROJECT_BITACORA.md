@@ -569,3 +569,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Encuadre de Cuentas por Periodo Temporal (`_filtrar` en `adopcionRepo.js`):**
   - Se implementó la intersección del universo de cuentas con las transacciones activas del periodo seleccionado (`hasTimeFilter`).
   - **Resultado:** Al seleccionar un año específico (ej. 2024 o 2025) o mes(es) específico(s) en el sidebar, **todas las métricas del Ribbon (Total Customers, Onboarded, Active, Digital Adoption y sus 3 conectores de porcentaje)** se recalculan verdaderamente al universo de cuentas y transacciones del periodo elegido.
+---
+
+## 🎯 Versión 2.50 - Agregación Dinámica de Clientes Activos y Asignados por Periodo (`aggregation.js`)
+
+- **Conteo Dinámico de Cuentas Activas y Asignadas en `calculateAggregations` (`aggregation.js`):**
+  - Se corrigió el cálculo de `totalActivos`, `totalOnboarded` y `totalAsignados` para que compute las cuentas con transacciones digitales reales en las transacciones del periodo filtrado (`digitalClientIds`).
+  - **Resultado:** Al filtrar por cualquier Año, Mes, Onboarded o Activos en el sidebar, las tarjetas del Ribbon actualizan en tiempo real tanto el conteo de clientes como el número de órdenes y la tasa de adopción digital del periodo.
