@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { adopcionRepo } from '@/domain/adopcionRepo';
 import { Sidebar } from '@/components/Sidebar';
 import { AppHeader } from '@/components/AppHeader';
@@ -17,19 +17,33 @@ export function App() {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [isDark, setIsDark] = useState(false);
 
-  // 2. Multidimensional Filters
-  const [filtros, setFiltros] = useState({
+  // 2. Multidimensional Context Filters (Sidebar)
+  const [filtrosContexto, setFiltrosContexto] = useState({
     anios: [2026],
     meses: ['Aug'],
-    lineasNegocio: [],
-    regionIds: [],
-    plazas: []
+    lineasNegocio: []
   });
 
-  // 3. Modals
+  // 3. Hierarchy Active Selection (Tree Canvas)
+  const [filtrosJerarquia, setFiltrosJerarquia] = useState({
+    vpIds: [],
+    directorIds: [],
+    gerenteIds: [],
+    vendedorIds: []
+  });
+
+  // 4. Modals
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isActionDrawerOpen, setIsActionDrawerOpen] = useState(false);
   const [nodoAccion, setNodoAccion] = useState(null);
+
+  // Combinación unificada de filtros para todo el tablero
+  const filtrosCompuestos = useMemo(() => {
+    return {
+      ...filtrosContexto,
+      ...filtrosJerarquia
+    };
+  }, [filtrosContexto, filtrosJerarquia]);
 
   // Sync Dark Mode Class
   useEffect(() => {
@@ -53,59 +67,56 @@ export function App() {
   }, []);
 
   const handleFiltroChange = (key, val) => {
-    setFiltros(prev => ({ ...prev, [key]: val }));
+    setFiltrosContexto(prev => ({ ...prev, [key]: val }));
   };
 
   const handleResetFiltros = () => {
-    setFiltros({
+    setFiltrosContexto({
       anios: [2026],
       meses: ['Aug'],
-      lineasNegocio: [],
-      regionIds: [],
-      plazas: []
+      lineasNegocio: []
     });
   };
+
+  const handleHierarchyFilterChange = useCallback((jerarquiaSelection) => {
+    setFiltrosJerarquia(jerarquiaSelection);
+  }, []);
 
   // Removable Active Chips
   const activeChips = useMemo(() => {
     const chips = [];
-    if (filtros.anios?.length) {
-      chips.push({ key: 'anios', label: 'Years', value: filtros.anios.join(', ') });
+    if (filtrosContexto.anios?.length) {
+      chips.push({ key: 'anios', label: 'Years', value: filtrosContexto.anios.join(', ') });
     }
-    if (filtros.meses?.length) {
-      chips.push({ key: 'meses', label: 'Months', value: filtros.meses.join(', ') });
+    if (filtrosContexto.meses?.length) {
+      chips.push({ key: 'meses', label: 'Months', value: filtrosContexto.meses.join(', ') });
     }
-    if (filtros.lineasNegocio?.length) {
-      const labels = filtros.lineasNegocio.map(id => filtrosDisponibles.lineasNegocio.find(l => l.id === id)?.label || id);
-      chips.push({ key: 'lineasNegocio', label: 'Lines', value: labels.join(', ') });
+    if (filtrosJerarquia.vpIds?.length) {
+      chips.push({ key: 'vps', label: 'VPs', value: `${filtrosJerarquia.vpIds.length} active` });
     }
-    if (filtros.regionIds?.length) {
-      const labels = filtros.regionIds.map(id => filtrosDisponibles.regiones.find(r => r.id === id)?.nombre || id);
-      chips.push({ key: 'regionIds', label: 'Regions', value: labels.join(', ') });
-    }
-    if (filtros.plazas?.length) {
-      chips.push({ key: 'plazas', label: 'Cities', value: filtros.plazas.join(', ') });
+    if (filtrosJerarquia.directorIds?.length) {
+      chips.push({ key: 'directors', label: 'Directors', value: `${filtrosJerarquia.directorIds.length} active` });
     }
     return chips;
-  }, [filtros, filtrosDisponibles]);
+  }, [filtrosContexto, filtrosJerarquia]);
 
   const handleRemoveChip = (key) => {
-    if (key === 'anios') setFiltros(prev => ({ ...prev, anios: [2026] }));
-    else if (key === 'meses') setFiltros(prev => ({ ...prev, meses: ['Aug'] }));
-    else setFiltros(prev => ({ ...prev, [key]: [] }));
+    if (key === 'anios') setFiltrosContexto(prev => ({ ...prev, anios: [2026] }));
+    else if (key === 'meses') setFiltrosContexto(prev => ({ ...prev, meses: ['Aug'] }));
+    else setFiltrosContexto(prev => ({ ...prev, [key]: [] }));
   };
 
-  // Data Queries
+  // Data Queries UNIFICADAS QUE AFECTAN TODO EL TABLERO
   const metricasGlobales = useMemo(() => {
-    return adopcionRepo.getMetricasGlobales(filtros);
-  }, [filtros]);
+    return adopcionRepo.getMetricasGlobales(filtrosCompuestos);
+  }, [filtrosCompuestos]);
 
   const funnelSteps = useMemo(() => {
-    return adopcionRepo.getFunnel(filtros, 'clientes');
-  }, [filtros]);
+    return adopcionRepo.getFunnel(filtrosCompuestos, 'clientes');
+  }, [filtrosCompuestos]);
 
   const clientesAccion = useMemo(() => {
-    let fAccion = { ...filtros };
+    let fAccion = { ...filtrosCompuestos };
     if (nodoAccion) {
       if (nodoAccion.tipo === 'VP') fAccion.vpId = nodoAccion.id;
       else if (nodoAccion.tipo === 'Director') fAccion.directorId = nodoAccion.id;
@@ -113,7 +124,7 @@ export function App() {
       else if (nodoAccion.tipo === 'Vendedor') fAccion.vendedorId = nodoAccion.id;
     }
     return adopcionRepo.getTopClientesAccion(fAccion, 10);
-  }, [filtros, nodoAccion]);
+  }, [filtrosCompuestos, nodoAccion]);
 
   const handleOpenActionDrawer = (nodo) => {
     setNodoAccion(nodo);
@@ -121,7 +132,7 @@ export function App() {
   };
 
   const handleExportGlobalCsv = () => {
-    const clientes = adopcionRepo._filtrar(filtros).clientes;
+    const clientes = adopcionRepo._filtrar(filtrosCompuestos).clientes;
     exportToCsv(`CX_Adoption_Account_Report`, clientes, [
       { key: 'id', label: 'Account ID' },
       { key: 'nombreEmpresa', label: 'Company Name' },
@@ -140,7 +151,7 @@ export function App() {
       <Sidebar
         isOpen={desktopSidebarOpen}
         onToggle={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
-        filtros={filtros}
+        filtros={filtrosContexto}
         onFiltroChange={handleFiltroChange}
         onResetFiltros={handleResetFiltros}
         filtrosDisponibles={filtrosDisponibles}
@@ -174,7 +185,7 @@ export function App() {
             <div className="lg:col-span-7 flex flex-col">
               <AdoptionTrendCard
                 serieHistorica={metricasGlobales.serieHistorica}
-                filtros={filtros}
+                filtros={filtrosCompuestos}
               />
             </div>
 
@@ -188,7 +199,8 @@ export function App() {
 
           {/* ROW 3: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
           <ProgressiveHierarchy
-            filtrosCompuestos={filtros}
+            filtrosCompuestos={filtrosCompuestos}
+            onHierarchyFilterChange={handleHierarchyFilterChange}
             onOpenActionDrawer={handleOpenActionDrawer}
             onExportCsv={handleExportGlobalCsv}
           />

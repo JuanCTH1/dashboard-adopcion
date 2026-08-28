@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,13 +19,15 @@ import {
   PhoneCall,
   Laptop,
   Smartphone,
-  Server
+  Server,
+  Clock
 } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
 
 export function ProgressiveHierarchy({
   filtrosCompuestos,
+  onHierarchyFilterChange,
   onOpenActionDrawer,
   onExportCsv
 }) {
@@ -38,6 +40,18 @@ export function ProgressiveHierarchy({
 
   // Expandable table rows state
   const [expandedRowIds, setExpandedRowIds] = useState(new Set());
+
+  // Propagar selección al tablero completo (Dashboard Global Slicer)
+  useEffect(() => {
+    if (onHierarchyFilterChange) {
+      onHierarchyFilterChange({
+        vpIds: selectedVpIds,
+        directorIds: selectedDirIds,
+        gerenteIds: selectedGerIds,
+        vendedorIds: selectedRepIds
+      });
+    }
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, onHierarchyFilterChange]);
 
   const toggleRowExpanded = (id) => {
     setExpandedRowIds(prev => {
@@ -86,7 +100,7 @@ export function ProgressiveHierarchy({
     };
 
     let titulo = "USA National Scope";
-    if (selectedRepIds.length) titulo = `${selectedRepIds.length} Representative(s)`;
+    if (selectedRepIds.length) titulo = `${selectedRepIds.length} Sales Rep(s)`;
     else if (selectedGerIds.length) titulo = `${selectedGerIds.length} Manager(s)`;
     else if (selectedDirIds.length) titulo = `${selectedDirIds.length} Director(s)`;
     else if (selectedVpIds.length) titulo = `${selectedVpIds.length} VP Division(s)`;
@@ -139,10 +153,10 @@ export function ProgressiveHierarchy({
         <div>
           <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-primary" />
-            <span>Hierarchy Navigation & Account Portfolio (Order-Based)</span>
+            <span>Interactive Organizational Hierarchy (Global Dashboard Filter)</span>
           </div>
           <div className="text-xs font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
-            <span>Active Scope:</span>
+            <span>Selected Scope:</span>
             <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30">
               {activeContext.titulo} ({totalesCartera?.totalClientes || 0} Accounts · {formatNumber(totalesCartera?.totalPedidos || 0)} Total Orders)
             </Badge>
@@ -160,10 +174,10 @@ export function ProgressiveHierarchy({
         </Button>
       </div>
 
-      {/* HORIZONTAL CASCADED COLUMNS WITH RIGHT-HAND EXPANDABLE TABLE */}
-      <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px]">
+      {/* HORIZONTAL CASCADED COLUMNS WITH FLUID FRAMER-MOTION ANIMATIONS */}
+      <motion.div layout className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px]">
         {/* LEVEL 0: COUNTRY (VERTICALLY CENTERED) */}
-        <div className="w-36 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
+        <motion.div layout className="w-36 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
           <div className="text-[10px] font-bold uppercase text-primary flex items-center gap-1 pb-1 border-b border-border">
             <Globe className="w-3 h-3" />
             <span>Country</span>
@@ -192,15 +206,17 @@ export function ProgressiveHierarchy({
           <div className="text-[9px] text-muted-foreground pt-1.5 border-t border-border/80 text-center">
             {isUsaSelected ? "VPs Open ➔" : "Click to Open"}
           </div>
-        </div>
+        </motion.div>
 
         {/* LEVEL 1: VICE PRESIDENCIES BY BUSINESS LINE */}
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {isUsaSelected && (
             <motion.div
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 15 }}
+              layout
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95, x: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
             >
               <div className="text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
@@ -246,12 +262,14 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 2: REGIONAL DIRECTORS */}
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {selectedVpIds.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 15 }}
+              layout
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95, x: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
             >
               <div className="text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
@@ -302,12 +320,14 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 3: PLAZA MANAGERS */}
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {selectedDirIds.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 15 }}
+              layout
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95, x: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
             >
               <div className="text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
@@ -358,12 +378,14 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 4: SALES REPRESENTATIVES */}
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {selectedGerIds.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 15 }}
+              layout
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95, x: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
             >
               <div className="text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
@@ -410,8 +432,12 @@ export function ProgressiveHierarchy({
           )}
         </AnimatePresence>
 
-        {/* RIGHT HAND PERMANENT TABLE: ACCOUNT PORTFOLIO WITH EXPANDABLE ROWS AND ACCURATE MATCHING */}
-        <div className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
+        {/* RIGHT HAND PERMANENT TABLE: SMOOTH PUSH ANIMATION AND VISUAL MICRO-PILL BADGES */}
+        <motion.div
+          layout
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
+        >
           <div>
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
               <div>
@@ -420,7 +446,7 @@ export function ProgressiveHierarchy({
                   <span>Account Portfolio ({activeContext.cartera.length} Accounts)</span>
                 </div>
                 <div className="text-[10px] text-muted-foreground mt-0.5">
-                  Order-based adoption breakdown with expandable digital vs offline channels
+                  Order-based adoption breakdown with instant visual channel badges
                 </div>
               </div>
 
@@ -434,7 +460,7 @@ export function ProgressiveHierarchy({
               </Button>
             </div>
 
-            {/* EXPANDABLE TABLE */}
+            {/* EXPANDABLE TABLE WITH SCANNABLE MICRO-PILLS */}
             <div className="overflow-y-auto max-h-[310px] scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
@@ -512,49 +538,39 @@ export function ProgressiveHierarchy({
                           </td>
                         </tr>
 
-                        {/* EXPANDABLE NESTED DRAWER ROW */}
+                        {/* EXPANDABLE DRAWER ROW WITH HIGH-CONTRAST VISUAL MICRO-PILLS */}
                         {isExpanded && (
                           <tr className="bg-slate-100/90 dark:bg-slate-950 border-b border-border">
-                            <td colSpan={6} className="p-3">
-                              <div className="grid grid-cols-2 gap-3 text-xs bg-card p-3 rounded-lg border border-border shadow-2xs">
-                                {/* Digital Orders Breakdown */}
-                                <div>
-                                  <div className="text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 mb-1.5 flex items-center gap-1">
-                                    <Laptop className="w-3 h-3" />
-                                    <span>Digital Orders ({cli.pedidosDigitales} total)</span>
-                                  </div>
-                                  <div className="space-y-1 text-[11px]">
-                                    <div className="flex justify-between text-muted-foreground">
-                                      <span>Web Portal:</span>
-                                      <b className="text-foreground">{cli.pedidosWeb} orders</b>
-                                    </div>
-                                    <div className="flex justify-between text-muted-foreground">
-                                      <span>Mobile App:</span>
-                                      <b className="text-foreground">{cli.pedidosApp} orders</b>
-                                    </div>
-                                    <div className="flex justify-between text-muted-foreground">
-                                      <span>EDI Integration:</span>
-                                      <b className="text-foreground">{cli.pedidosEdi} orders</b>
-                                    </div>
-                                  </div>
+                            <td colSpan={6} className="p-2.5">
+                              <div className="bg-card p-3 rounded-lg border border-border shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
+                                {/* Digital Channel Pills */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Digital Channels:</span>
+                                  <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                    <Laptop className="w-3 h-3 text-sky-500" />
+                                    <span>Web: <b>{cli.pedidosWeb}</b></span>
+                                  </Badge>
+                                  <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30">
+                                    <Smartphone className="w-3 h-3 text-indigo-500" />
+                                    <span>App: <b>{cli.pedidosApp}</b></span>
+                                  </Badge>
+                                  <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
+                                    <Server className="w-3 h-3 text-emerald-500" />
+                                    <span>EDI: <b>{cli.pedidosEdi}</b></span>
+                                  </Badge>
                                 </div>
 
-                                {/* Analog / Offline Orders Breakdown */}
-                                <div className="border-l border-border pl-3">
-                                  <div className="text-[10px] font-bold uppercase text-amber-600 dark:text-amber-400 mb-1.5 flex items-center gap-1">
-                                    <PhoneCall className="w-3 h-3" />
-                                    <span>Offline / Analog Orders ({cli.pedidosAnalogos} total)</span>
-                                  </div>
-                                  <div className="space-y-1 text-[11px]">
-                                    <div className="flex justify-between text-muted-foreground">
-                                      <span>Phone / Sales Desk:</span>
-                                      <b className="text-foreground">{cli.pedidosAnalogos} orders</b>
-                                    </div>
-                                    <div className="flex justify-between text-muted-foreground">
-                                      <span>First Tx FTTV:</span>
-                                      <b className="text-foreground">{cli.fttv ? `${cli.fttv} days` : 'Pending'}</b>
-                                    </div>
-                                  </div>
+                                {/* Offline & FTTV Pills */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
+                                  <Badge variant="outline" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
+                                    <PhoneCall className="w-3 h-3 text-amber-500" />
+                                    <span>Phone: <b>{cli.pedidosAnalogos}</b></span>
+                                  </Badge>
+                                  <Badge variant="outline" className="gap-1 text-[11px] font-bold py-0.5 px-2 text-muted-foreground border-border">
+                                    <Clock className="w-3 h-3 text-primary" />
+                                    <span>FTTV: <b>{cli.fttv ? `${cli.fttv} days` : 'Pending'}</b></span>
+                                  </Badge>
                                 </div>
                               </div>
                             </td>
@@ -565,7 +581,7 @@ export function ProgressiveHierarchy({
                   })}
                 </tbody>
 
-                {/* FOOTER ROW FOR WEIGHTED TOTALS (ENGLISH) */}
+                {/* FOOTER ROW FOR WEIGHTED TOTALS */}
                 {totalesCartera && (
                   <tfoot className="sticky bottom-0 z-10 bg-slate-200 dark:bg-slate-800 font-bold border-t-2 border-primary/40 text-foreground text-xs shadow-md">
                     <tr>
@@ -597,8 +613,8 @@ export function ProgressiveHierarchy({
               </table>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </Card>
   );
 }
