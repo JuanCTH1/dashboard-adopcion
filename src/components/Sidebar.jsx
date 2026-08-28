@@ -46,29 +46,34 @@ export function Sidebar({
     (filtros.regionIds?.length || 0) +
     (filtros.plazas?.length || 0);
 
-  const plazasDisponibles = useMemo(() => {
+  // Plazas posibles según la región seleccionada (asociatividad)
+  const plazasPosibles = useMemo(() => {
     if (!filtros.regionIds?.length) return regiones.flatMap(r => r.plazas);
     return regiones
       .filter(r => filtros.regionIds.includes(r.id))
       .flatMap(r => r.plazas);
   }, [filtros.regionIds, regiones]);
 
+  const todasLasPlazas = useMemo(() => {
+    return regiones.flatMap(r => r.plazas);
+  }, [regiones]);
+
   return (
     <aside
       className={cn(
-        "h-screen h-[100dvh] flex flex-col bg-card border-r border-border shadow-xs transition-all duration-300 z-40 shrink-0 select-none overflow-hidden",
+        "h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs transition-all duration-300 z-40 shrink-0 select-none overflow-hidden",
         isOpen ? "w-72" : "w-14"
       )}
     >
       {/* 1. Header del Sidebar */}
-      <div className="h-12 px-3.5 border-b border-border flex items-center justify-between bg-slate-50 dark:bg-slate-900 shrink-0">
+      <div className="h-12 px-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
         <div className={cn("flex items-center gap-2.5 overflow-hidden transition-opacity", !isOpen && "opacity-0 pointer-events-none")}>
           <div className="w-6 h-6 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-xs">
             <Layers className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <div className="font-extrabold text-xs tracking-tight text-foreground font-sans">ADOPCIÓN CX</div>
-            <div className="text-[9px] text-muted-foreground font-bold">FILTROS CON ARRASTRE</div>
+            <div className="font-extrabold text-xs tracking-tight text-slate-800 dark:text-slate-100 font-sans">ADOPCIÓN CX</div>
+            <div className="text-[9px] text-muted-foreground font-bold">FILTROS ASOCIATIVOS</div>
           </div>
         </div>
 
@@ -76,7 +81,7 @@ export function Sidebar({
           variant="ghost"
           size="icon"
           onClick={onToggle}
-          className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
           title={isOpen ? "Colapsar Barra Lateral" : "Expandir Barra Lateral"}
         >
           {isOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4 text-primary" />}
@@ -85,10 +90,10 @@ export function Sidebar({
 
       {/* 2. Contenido con FilterListbox Multiselección & Arrastre */}
       {isOpen && (
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-50 dark:bg-slate-950">
           {/* Cabecera de Conteo y Limpieza */}
-          <div className="px-3.5 py-2 border-b border-border flex items-center justify-between bg-slate-100/70 dark:bg-slate-900/60 text-xs">
-            <div className="flex items-center gap-1.5 font-bold text-foreground text-[11px]">
+          <div className="px-3.5 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100/80 dark:bg-slate-900/80 text-xs">
+            <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-[11px]">
               <Filter className="w-3 h-3 text-primary" />
               <span>Panel de Filtros</span>
               {totalActiveFilters > 0 && (
@@ -101,7 +106,7 @@ export function Sidebar({
             {totalActiveFilters > 0 && (
               <button
                 onClick={onResetFiltros}
-                className="text-[10px] text-primary hover:underline font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[10px] text-primary dark:text-sky-400 hover:underline font-bold flex items-center gap-1 cursor-pointer"
               >
                 <RotateCcw className="w-2.5 h-2.5" />
                 Limpiar ({totalActiveFilters})
@@ -112,11 +117,11 @@ export function Sidebar({
           {/* Lista scrolleable de Bloques Asociativos */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3.5 text-left scrollbar-thin">
             {/* GRUPO 1: PERIODO (AÑO Y MES CON ARRASTRE MULTISELECCIÓN) */}
-            <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
               <button
                 type="button"
                 onClick={() => toggleSection("periodo")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-primary" />
@@ -126,7 +131,7 @@ export function Sidebar({
               </button>
 
               {openSections.periodo && (
-                <div className="p-2.5 space-y-2.5 bg-card">
+                <div className="p-2.5 space-y-2.5 bg-white dark:bg-slate-900">
                   {/* Año con Drag-to-Select */}
                   <FilterListbox
                     label="Año"
@@ -152,11 +157,11 @@ export function Sidebar({
             </div>
 
             {/* GRUPO 2: LÍNEAS DE NEGOCIO */}
-            <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
               <button
                 type="button"
                 onClick={() => toggleSection("lineas")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Building2 className="w-3.5 h-3.5 text-primary" />
@@ -166,7 +171,7 @@ export function Sidebar({
               </button>
 
               {openSections.lineas && (
-                <div className="p-2.5 bg-card">
+                <div className="p-2.5 bg-white dark:bg-slate-900">
                   <FilterListbox
                     label="Líneas de Negocio"
                     options={lineasNegocio.map(l => l.id)}
@@ -182,11 +187,11 @@ export function Sidebar({
             </div>
 
             {/* GRUPO 3: GEOGRAFÍA (REGIÓN Y PLAZA) */}
-            <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
               <button
                 type="button"
                 onClick={() => toggleSection("geografia")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5 text-primary" />
@@ -196,7 +201,7 @@ export function Sidebar({
               </button>
 
               {openSections.geografia && (
-                <div className="p-2.5 space-y-2.5 bg-card">
+                <div className="p-2.5 space-y-2.5 bg-white dark:bg-slate-900">
                   <FilterListbox
                     label="Región"
                     options={regiones.map(r => r.id)}
@@ -212,7 +217,8 @@ export function Sidebar({
 
                   <FilterListbox
                     label="Plaza"
-                    options={plazasDisponibles}
+                    options={todasLasPlazas}
+                    possibleValues={plazasPosibles}
                     value={filtros.plazas || []}
                     onChange={(val) => onFiltroChange("plazas", val)}
                     showSearch={true}

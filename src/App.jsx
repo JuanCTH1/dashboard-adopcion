@@ -3,9 +3,9 @@ import { adopcionRepo } from '@/domain/adopcionRepo';
 import { Sidebar } from '@/components/Sidebar';
 import { AppHeader } from '@/components/AppHeader';
 import { ExecutiveRibbon } from '@/components/ExecutiveRibbon';
-import { AdoptionFunnelStrip } from '@/components/AdoptionFunnelStrip';
 import { AdoptionTrendCard } from '@/components/AdoptionTrendCard';
-import { HierarchyTable } from '@/components/HierarchyTable';
+import { VerticalFunnelCard } from '@/components/VerticalFunnelCard';
+import { ProgressiveHierarchy } from '@/components/ProgressiveHierarchy';
 import { ActionDrawer } from '@/components/ActionDrawer';
 import { CommandPalette } from '@/components/CommandPalette';
 import { exportToCsv } from '@/lib/exportCsv';
@@ -17,7 +17,7 @@ export function App() {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [isDark, setIsDark] = useState(false);
 
-  // 2. Filtros Multidimensionales (Arrays)
+  // 2. Filtros Multidimensionales
   const [filtros, setFiltros] = useState({
     anios: [2026],
     meses: ['Ago'],
@@ -147,7 +147,7 @@ export function App() {
 
       {/* 2. CONTENIDO PRINCIPAL */}
       <main className="flex-1 min-w-0 flex flex-col relative h-full overflow-hidden">
-        {/* HEADER MULTICAPA */}
+        {/* HEADER MULTICAPA CON BÚSQUEDA Y CHIPS */}
         <AppHeader
           sidebarOpen={desktopSidebarOpen}
           onToggleSidebar={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
@@ -160,25 +160,33 @@ export function App() {
           onExportCsv={handleExportGlobalCsv}
         />
 
-        {/* WORKSTATION */}
+        {/* WORKSTATION PRINCIPAL CON EL LAYOUT EXACTO SOLICITADO */}
         <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4">
-          {/* SECCIÓN 1: KPIS EJECUTIVOS DE ALTO CONTRASTE */}
+          {/* FILA 1: FILA HORIZONTAL DE KPIS DE ADOPCIÓN */}
           <ExecutiveRibbon
             metricasGlobales={metricasGlobales}
           />
 
-          {/* SECCIÓN 2: EMBUDO CÓNICO REAL CON POLÍGONOS CONECTADOS */}
-          <AdoptionFunnelStrip
-            funnelSteps={funnelSteps}
-          />
+          {/* FILA 2: DOS COLUMNAS (IZQUIERDA: TENDENCIA TEMPORAL, DERECHA: EMBUDO VERTICAL) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+            {/* Columna Izquierda (7 de 12 Cols): Gráfica de Evolución */}
+            <div className="lg:col-span-7 flex flex-col">
+              <AdoptionTrendCard
+                serieHistorica={metricasGlobales.serieHistorica}
+                filtros={filtros}
+              />
+            </div>
 
-          {/* SECCIÓN 3: TENDENCIA TEMPORAL HISTÓRICA RECHARTS (24 MESES) */}
-          <AdoptionTrendCard
-            serieHistorica={metricasGlobales.serieHistorica}
-          />
+            {/* Columna Derecha (5 de 12 Cols): Embudo Vertical */}
+            <div className="lg:col-span-5 flex flex-col">
+              <VerticalFunnelCard
+                funnelSteps={funnelSteps}
+              />
+            </div>
+          </div>
 
-          {/* SECCIÓN 4: EXPLORADOR DE ÁRBOL JERÁRQUICO MULTICOLUMNA (MILLER COLUMNS) */}
-          <HierarchyTable
+          {/* FILA 3: NAVEGACIÓN PROGRESIVA EN CASCADA (PAÍS ➔ VP ➔ DIR ➔ GER ➔ VEND + TABLA) */}
+          <ProgressiveHierarchy
             filtrosCompuestos={filtros}
             onOpenActionDrawer={handleOpenActionDrawer}
             onExportCsv={handleExportGlobalCsv}

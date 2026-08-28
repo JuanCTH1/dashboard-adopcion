@@ -1,12 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine, CartesianGrid } from 'recharts';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { useChartTheme } from '@/lib/theme';
 
-export function AdoptionTrendCard({ serieHistorica = [] }) {
+export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
   const [metricMode, setMetricMode] = useState('adopcion'); // 'adopcion' | 'concreto' | 'cemento'
   const { isDark } = useChartTheme();
+
+  // Filtrar los datos de la gráfica según los años y meses seleccionados
+  const filteredData = useMemo(() => {
+    if (!serieHistorica || serieHistorica.length === 0) return [];
+    
+    // Si no hay filtro específico, mostrar todo
+    const anios = filtros?.anios?.length ? filtros.anios.map(Number) : [2024, 2025, 2026];
+    const meses = filtros?.meses?.length ? filtros.meses : null;
+
+    return serieHistorica.filter(item => {
+      const [y, m] = item.periodo.split("-");
+      const anioNum = parseInt(y, 10);
+      const yearMatch = anios.includes(anioNum);
+      const monthMatch = !meses || meses.some(mName => item.label.startsWith(mName));
+      return yearMatch && monthMatch;
+    });
+  }, [serieHistorica, filtros]);
 
   const dataKey = metricMode === 'adopcion'
     ? 'pctAdopcionPedidos'
@@ -21,20 +38,20 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
     : '#f59e0b';
 
   return (
-    <Card className="p-5 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none">
+    <Card className="p-5 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none flex flex-col justify-between h-full">
       {/* Barra de acento */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-sky-400 via-blue-600 to-indigo-600" />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-primary" />
             <h3 className="text-xs font-black uppercase tracking-wider text-foreground font-sans">
-              Tendencia Histórica de Adopción (2024 - 2026)
+              Tendencia de Evolución Temporal
             </h3>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
-            Curva de penetración digital a lo largo de 24 meses (de 12% inicial a 75%+ con estacionalidad).
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">
+            Mostrando {filteredData.length} periodos seleccionados con variabilidad mensual
           </p>
         </div>
 
@@ -44,7 +61,7 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
             type="button"
             onClick={() => setMetricMode('adopcion')}
             className={cn(
-              "px-2.5 py-1 rounded-md transition-all cursor-pointer",
+              "px-2 py-1 text-[11px] rounded-md transition-all cursor-pointer",
               metricMode === 'adopcion' ? "bg-card text-primary font-bold shadow-xxs" : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -54,7 +71,7 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
             type="button"
             onClick={() => setMetricMode('concreto')}
             className={cn(
-              "px-2.5 py-1 rounded-md transition-all cursor-pointer",
+              "px-2 py-1 text-[11px] rounded-md transition-all cursor-pointer",
               metricMode === 'concreto' ? "bg-card text-emerald-600 font-bold shadow-xxs" : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -64,7 +81,7 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
             type="button"
             onClick={() => setMetricMode('cemento')}
             className={cn(
-              "px-2.5 py-1 rounded-md transition-all cursor-pointer",
+              "px-2 py-1 text-[11px] rounded-md transition-all cursor-pointer",
               metricMode === 'cemento' ? "bg-card text-amber-600 font-bold shadow-xxs" : "text-muted-foreground hover:text-foreground"
             )}
           >
@@ -74,11 +91,11 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
       </div>
 
       {/* Gráfica Recharts */}
-      <div className="h-56 w-full pt-2">
+      <div className="h-64 w-full pt-1 flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={serieHistorica} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart data={filteredData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
             <defs>
-              <linearGradient id="trend-grad" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="trend-grad-dynamic" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={strokeColor} stopOpacity={0.35} />
                 <stop offset="100%" stopColor={strokeColor} stopOpacity={0.0} />
               </linearGradient>
@@ -89,7 +106,6 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
               tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b' }}
               axisLine={{ stroke: isDark ? '#334155' : '#cbd5e1' }}
               tickLine={false}
-              interval={2}
             />
             <YAxis
               tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b' }}
@@ -122,8 +138,8 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
               dataKey={dataKey}
               stroke={strokeColor}
               strokeWidth={2.5}
-              fill="url(#trend-grad)"
-              dot={{ r: 2, fill: strokeColor }}
+              fill="url(#trend-grad-dynamic)"
+              dot={{ r: 3, fill: strokeColor }}
               activeDot={{ r: 5, fill: strokeColor }}
             />
           </AreaChart>

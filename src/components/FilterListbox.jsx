@@ -8,9 +8,9 @@ const GRID_COLS_CLASS = { 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4", 
 export function FilterListbox({
   label,
   options = [],
-  value = [], // Array de strings seleccionados
-  onChange,   // Recibe array de strings seleccionados
-  possibleValues = null, // Set o Array de opciones posibles (asociativas)
+  value = [],
+  onChange,
+  possibleValues = null,
   grid = false,
   gridCols = 4,
   showSearch = false,
@@ -118,27 +118,31 @@ export function FilterListbox({
     if (isSelected) return "selected";
 
     if (possibleSet && !possibleSet.has(optStr)) {
-      return "excluded"; // Excluido por filtros asociativos (Gris)
+      return "excluded"; // Gris asociativo
     }
 
     return "possible";
   };
 
   return (
-    <div className={cn("p-2.5 bg-card rounded-xl border border-border select-none shadow-2xs", className)}>
-      <div className="flex justify-between items-center mb-1.5 shrink-0">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</span>
+    <div className={cn("p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 select-none shadow-2xs", className)}>
+      {/* Cabecera sin encimarse */}
+      <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">
+            {label}
+          </span>
           {selectedSet.size > 0 && (
-            <Badge variant="default" className="text-[9px] px-1.5 py-0 font-bold h-4">
+            <Badge variant="default" className="text-[9px] px-1.5 py-0 font-bold h-4 shrink-0">
               {selectedSet.size}
             </Badge>
           )}
         </div>
         {selectedSet.size > 0 && (
           <button
+            type="button"
             onClick={() => onChange([])}
-            className="text-[9px] text-primary hover:underline font-bold cursor-pointer"
+            className="text-[10px] text-primary dark:text-sky-400 hover:underline font-bold shrink-0 cursor-pointer"
           >
             Limpiar
           </button>
@@ -151,7 +155,7 @@ export function FilterListbox({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder={`Buscar ${label.toLowerCase()}...`}
-            className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-border bg-slate-50 dark:bg-slate-900 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-xxs"
+            className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary shadow-xxs"
           />
         </div>
       )}
@@ -164,11 +168,11 @@ export function FilterListbox({
             const isSelected = state === "selected";
             const isExcluded = state === "excluded";
 
-            let btnClass = "bg-slate-50 dark:bg-slate-900 text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border font-semibold";
+            let btnClass = "bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 font-semibold";
             if (isSelected) {
               btnClass = "bg-primary text-primary-foreground border-primary font-bold shadow-xs";
             } else if (isExcluded) {
-              btnClass = "bg-slate-100 dark:bg-slate-950/60 text-slate-400 dark:text-slate-600 border-slate-200/50 dark:border-slate-800/60 font-normal";
+              btnClass = "bg-slate-100 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600 border-slate-200/40 dark:border-slate-900 font-normal opacity-60";
             }
 
             return (
@@ -196,11 +200,11 @@ export function FilterListbox({
             const isSelected = state === "selected";
             const isExcluded = state === "excluded";
 
-            let btnClass = "bg-slate-50 dark:bg-slate-900 text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border font-medium";
+            let btnClass = "bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 font-medium";
             if (isSelected) {
               btnClass = "bg-primary text-primary-foreground border-primary font-bold shadow-xs";
             } else if (isExcluded) {
-              btnClass = "bg-slate-100 dark:bg-slate-950/60 text-slate-400 dark:text-slate-600 border-slate-200/50 dark:border-slate-800/60 font-normal";
+              btnClass = "bg-slate-100 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600 border-slate-200/40 dark:border-slate-900 font-normal opacity-60";
             }
 
             return (
