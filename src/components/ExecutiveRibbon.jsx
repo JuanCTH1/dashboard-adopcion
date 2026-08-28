@@ -134,11 +134,6 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                       <span className="text-[10px] font-black uppercase tracking-wider text-foreground truncate">
                         {st.title}
                       </span>
-                      {st.isDominant && (
-                        <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 shrink-0">
-                          Final KPI
-                        </span>
-                      )}
                     </div>
                     <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
                       <Icon className="w-3 h-3" />

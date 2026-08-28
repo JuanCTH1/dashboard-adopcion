@@ -134,7 +134,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                 <tr className="text-[9px] font-extrabold uppercase text-muted-foreground border-b border-border/60">
                   <th className="py-1 px-1 w-6 text-center">#</th>
                   <th className="py-1 px-1">Entity</th>
-                  <th className="py-1 px-1 text-right">Onb %</th>
+                  <th className="py-1 px-1 text-right whitespace-nowrap">Onboarded %</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40">
@@ -178,7 +178,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                 <tr className="text-[9px] font-extrabold uppercase text-muted-foreground border-b border-border/60">
                   <th className="py-1 px-1 w-6 text-center">#</th>
                   <th className="py-1 px-1">Entity</th>
-                  <th className="py-1 px-1 text-right">Adop %</th>
+                  <th className="py-1 px-1 text-right whitespace-nowrap">Adoption %</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40">

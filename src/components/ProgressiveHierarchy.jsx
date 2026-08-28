@@ -509,16 +509,6 @@ export function ProgressiveHierarchy({
               </>
             )}
           </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onExportCsv}
-            className="gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground shadow-xxs"
-          >
-            <Download className="w-3.5 h-3.5 text-primary" />
-            <span>Export Portfolio CSV</span>
-          </Button>
         </div>
       </div>
 
