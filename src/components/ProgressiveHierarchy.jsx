@@ -20,7 +20,8 @@ import {
   Laptop,
   Smartphone,
   Server,
-  Clock
+  Clock,
+  Info
 } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
@@ -47,6 +48,9 @@ export function ProgressiveHierarchy({
 
   // Drag-to-select state
   const [isDragging, setIsDragging] = useState(false);
+
+  // Fixed body-level popover state (100% immune to clipping)
+  const [hoveredPopover, setHoveredPopover] = useState(null);
 
   useEffect(() => {
     const handleMouseUp = () => setIsDragging(false);
@@ -220,7 +224,7 @@ export function ProgressiveHierarchy({
               <span>Country</span>
             </div>
 
-            <div className="flex-1 flex flex-col justify-center py-2">
+            <div className="flex-1 flex flex-col justify-start py-2">
               <button
                 onClick={() => setIsUsaSelected(!isUsaSelected)}
                 className={cn(
@@ -263,14 +267,14 @@ export function ProgressiveHierarchy({
                     <span>VP Division</span>
                   </div>
                   {selectedVpIds.length > 0 && (
-                    <button onClick={() => startTransition(() => setSelectedVpIds([]))} className="text-[9px] text-primary hover:underline font-bold">
+                    <button onClick={() => startTransition(() => setSelectedVpIds([]))} className="text-[9px] text-primary hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
                 </div>
 
-                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
-                  {vps.map((vp, idx) => {
+                <div className="w-[172px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
+                  {vps.map((vp) => {
                     const isSelected = selectedVpIds.includes(vp.id);
                     return (
                       <button
@@ -324,8 +328,8 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin select-none">
-                {directores.map((dir, idx) => {
+              <div className="w-[188px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
+                {directores.map((dir) => {
                   const isSelected = selectedDirIds.includes(dir.id);
                   return (
                     <div key={dir.id} className="relative group">
@@ -341,7 +345,48 @@ export function ProgressiveHierarchy({
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-[11px] truncate">{dir.nombre}</span>
-                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                          <div className="flex items-center gap-1">
+                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                            <button
+                              type="button"
+                              onMouseEnter={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover({
+                                  title: `${dir.nombre} Region`,
+                                  tipo: 'Leadership',
+                                  personasDetalle: dir.personasDetalle,
+                                  totales: dir.metricas.pedidos.totales,
+                                  pctAdopcion: dir.metricas.pedidos.pctAdopcion,
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              onMouseLeave={() => setHoveredPopover(null)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover(prev => prev ? null : {
+                                  title: `${dir.nombre} Region`,
+                                  tipo: 'Leadership',
+                                  personasDetalle: dir.personasDetalle,
+                                  totales: dir.metricas.pedidos.totales,
+                                  pctAdopcion: dir.metricas.pedidos.pctAdopcion,
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              className={cn(
+                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                isSelected ? "hover:bg-indigo-700 text-indigo-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
+                              )}
+                              title="Leadership Breakdown"
+                            >
+                              <Info className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
 
                         {dir.isSingleVp ? (
@@ -374,34 +419,6 @@ export function ProgressiveHierarchy({
                           </div>
                         )}
                       </button>
-
-                      {/* EXECUTIVE RICH TOOLTIP ON HOVER WITH SMART NON-CLIPPING POSITIONING */}
-                      <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200",
-                        idx === 0 ? "top-full mt-2" : "bottom-full mb-2"
-                      )}>
-                        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
-                          <span>{dir.nombre} Region</span>
-                          <span className="text-slate-400 font-normal">Leadership</span>
-                        </div>
-
-                        <div className="space-y-1 mb-2">
-                          {dir.personasDetalle?.map(p => (
-                            <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
-                              <span className="font-bold text-slate-300 flex items-center gap-1">
-                                <span className="text-[8px] font-black px-1 py-0.2 rounded bg-slate-800 text-sky-300">{p.bl}</span>
-                                <span className="truncate max-w-[90px]">{p.blFull}:</span>
-                              </span>
-                              <span className="font-semibold text-emerald-400 truncate max-w-[85px]">{p.persona}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="pt-1.5 border-t border-slate-800 text-[9px] text-slate-400 flex items-center justify-between">
-                          <span>{formatNumber(dir.metricas.pedidos.totales)} Total Orders</span>
-                          <span className="font-bold text-emerald-400">{formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
-                        </div>
-                      </div>
                     </div>
                   );
                 })}
@@ -434,8 +451,8 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin select-none">
-                {gerentes.map((ger, idx) => {
+              <div className="w-[188px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
+                {gerentes.map((ger) => {
                   const isSelected = selectedGerIds.includes(ger.id);
                   return (
                     <div key={ger.id} className="relative group">
@@ -451,7 +468,48 @@ export function ProgressiveHierarchy({
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-[11px] truncate">{ger.nombre}</span>
-                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                          <div className="flex items-center gap-1">
+                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                            <button
+                              type="button"
+                              onMouseEnter={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover({
+                                  title: `${ger.nombre} Market`,
+                                  tipo: 'Managers',
+                                  personasDetalle: ger.personasDetalle,
+                                  totales: ger.metricas.pedidos.totales,
+                                  pctAdopcion: ger.metricas.pedidos.pctAdopcion,
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              onMouseLeave={() => setHoveredPopover(null)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover(prev => prev ? null : {
+                                  title: `${ger.nombre} Market`,
+                                  tipo: 'Managers',
+                                  personasDetalle: ger.personasDetalle,
+                                  totales: ger.metricas.pedidos.totales,
+                                  pctAdopcion: ger.metricas.pedidos.pctAdopcion,
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              className={cn(
+                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                isSelected ? "hover:bg-sky-700 text-sky-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
+                              )}
+                              title="Managers Breakdown"
+                            >
+                              <Info className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
 
                         {ger.isSingleVp ? (
@@ -484,34 +542,6 @@ export function ProgressiveHierarchy({
                           </div>
                         )}
                       </button>
-
-                      {/* EXECUTIVE RICH TOOLTIP ON HOVER WITH SMART NON-CLIPPING POSITIONING */}
-                      <div className={cn(
-                        "absolute left-1/2 -translate-x-1/2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200",
-                        idx === 0 ? "top-full mt-2" : "bottom-full mb-2"
-                      )}>
-                        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
-                          <span>{ger.nombre} Market</span>
-                          <span className="text-slate-400 font-normal">Managers</span>
-                        </div>
-
-                        <div className="space-y-1 mb-2">
-                          {ger.personasDetalle?.map(p => (
-                            <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
-                              <span className="font-bold text-slate-300 flex items-center gap-1">
-                                <span className="text-[8px] font-black px-1 py-0.2 rounded bg-slate-800 text-sky-300">{p.bl}</span>
-                                <span className="truncate max-w-[90px]">{p.blFull}:</span>
-                              </span>
-                              <span className="font-semibold text-emerald-400 truncate max-w-[85px]">{p.persona}</span>
-                            </div>
-                          ))}
-                        </div>
-
-                        <div className="pt-1.5 border-t border-slate-800 text-[9px] text-slate-400 flex items-center justify-between">
-                          <span>{formatNumber(ger.metricas.pedidos.totales)} Total Orders</span>
-                          <span className="font-bold text-emerald-400">{formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
-                        </div>
-                      </div>
                     </div>
                   );
                 })}
@@ -759,6 +789,41 @@ export function ProgressiveHierarchy({
         </motion.div>
       </div>
     </LayoutGroup>
+
+    {/* ZERO-CLIPPING VIEWPORT FIXED POPOVER */}
+    {hoveredPopover && (
+      <div
+        style={{
+          position: 'fixed',
+          left: `${hoveredPopover.x}px`,
+          top: `${hoveredPopover.y}px`,
+          transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
+        }}
+        className="z-[9999] w-60 p-3 bg-slate-900/95 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
+      >
+        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
+          <span>{hoveredPopover.title}</span>
+          <span className="text-slate-400 font-normal">{hoveredPopover.tipo}</span>
+        </div>
+
+        <div className="space-y-1 my-1.5">
+          {hoveredPopover.personasDetalle?.map(p => (
+            <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
+              <span className="font-bold text-slate-300 flex items-center gap-1">
+                <span className="text-[8px] font-black px-1 py-0.2 rounded bg-slate-800 text-sky-300">{p.bl}</span>
+                <span className="truncate max-w-[90px]">{p.blFull}:</span>
+              </span>
+              <span className="font-semibold text-emerald-400 truncate max-w-[100px]">{p.persona}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="pt-1.5 border-t border-slate-800 text-[9px] text-slate-400 flex items-center justify-between">
+          <span>{formatNumber(hoveredPopover.totales)} Total Orders</span>
+          <span className="font-bold text-emerald-400">{formatPct(hoveredPopover.pctAdopcion)}</span>
+        </div>
+      </div>
+    )}
   </Card>
   );
 }
