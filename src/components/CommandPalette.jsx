@@ -51,7 +51,7 @@ export function CommandPalette({
     <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-start justify-center pt-16 px-4 animate-in fade-in-0 duration-150">
       <div className="w-full max-w-lg bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-150">
         {/* Input de Búsqueda */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border/80 bg-slate-50/50 dark:bg-slate-850/50">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border/80 bg-slate-50/50 dark:bg-slate-800/50">
           <Search className="w-4 h-4 text-muted-foreground shrink-0" />
           <input
             type="text"
@@ -182,7 +182,7 @@ export function CommandPalette({
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-2 border-t border-border/80 bg-slate-50/80 dark:bg-slate-850/80 text-[10px] text-muted-foreground flex items-center justify-between">
+        <div className="px-4 py-2 border-t border-border/80 bg-slate-50/80 dark:bg-slate-800/80 text-[10px] text-muted-foreground flex items-center justify-between">
           <span>Navega con teclado o clic</span>
           <span>Presiona <b>ESC</b> para cerrar</span>
         </div>

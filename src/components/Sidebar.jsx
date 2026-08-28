@@ -100,7 +100,7 @@ export function Sidebar({
               <button
                 type="button"
                 onClick={() => toggleSection("periodo")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-primary" />

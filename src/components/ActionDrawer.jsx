@@ -43,7 +43,7 @@ export function ActionDrawer({
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-card border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 font-sans select-none">
       {/* Header */}
-      <div className="p-4 border-b border-border/80 bg-slate-50/80 dark:bg-slate-850/80 flex items-start justify-between gap-3">
+      <div className="p-4 border-b border-border/80 bg-slate-50/80 dark:bg-slate-800/80 flex items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
@@ -72,7 +72,7 @@ export function ActionDrawer({
       {/* Content Tabs */}
       <div className="p-4 flex-1 overflow-y-auto">
         <Tabs value={tabActiva} onValueChange={setTabActiva} className="w-full">
-          <TabsList className="grid grid-cols-2 w-full mb-3 bg-slate-100 dark:bg-slate-850 p-1 rounded-xl">
+          <TabsList className="grid grid-cols-2 w-full mb-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <TabsTrigger value="sinIncorporar" className="text-xs font-bold gap-1.5 py-1.5">
               <UserX className="w-3.5 h-3.5 text-rose-500" />
               <span>No Account ({sinIncorporar.length})</span>
@@ -85,7 +85,7 @@ export function ActionDrawer({
 
           {/* Tab 1: Accounts without Digital Account */}
           <TabsContent value="sinIncorporar" className="space-y-2.5 mt-0">
-            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-850 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
+            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <span>
                 High-volume priority accounts pending registration. <b>Owner: Sales Rep.</b>
@@ -121,7 +121,7 @@ export function ActionDrawer({
 
           {/* Tab 2: Inactive / Reverted Accounts */}
           <TabsContent value="inactivos" className="space-y-2.5 mt-0">
-            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-850 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
+            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
               <span>
                 Registered accounts that relapsed to phone/offline ordering in this period. <b>Owner: CX & Sales Rep.</b>
@@ -158,7 +158,7 @@ export function ActionDrawer({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border/80 bg-slate-50/90 dark:bg-slate-850/90 flex items-center gap-2">
+      <div className="p-4 border-t border-border/80 bg-slate-50/90 dark:bg-slate-800/90 flex items-center gap-2">
         <Button
           variant="default"
           size="sm"

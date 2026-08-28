@@ -31,7 +31,7 @@ export function LensSelector({ activeLens, onLensChange, volumeCompatible, volum
   ];
 
   return (
-    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-850 p-1 rounded-xl border border-border/80 select-none">
+    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-border/80 select-none">
       <div className="text-[10px] font-bold text-muted-foreground uppercase px-2 tracking-wider hidden sm:block">
         Lente:
       </div>

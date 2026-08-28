@@ -21,7 +21,8 @@ import {
   Smartphone,
   Server,
   Clock,
-  Info
+  Info,
+  ArrowRight
 } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
@@ -245,7 +246,15 @@ export function ProgressiveHierarchy({
             </div>
 
             <div className="text-[9px] text-muted-foreground pt-1.5 border-t border-border/80 text-center">
-              {isUsaSelected ? "VPs Open ➔" : "Click to Open"}
+              {isUsaSelected ? (
+                <span className="flex items-center justify-center gap-1 font-semibold text-primary">
+                  VPs Open <ArrowRight className="w-3 h-3 inline" />
+                </span>
+              ) : (
+                <span className="flex items-center justify-center gap-1">
+                  Click to Open <ArrowRight className="w-3 h-3 text-muted-foreground inline" />
+                </span>
+              )}
             </div>
           </div>
 
@@ -637,7 +646,7 @@ export function ProgressiveHierarchy({
             <div className="overflow-x-auto overflow-y-auto max-h-[320px] scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                 <thead>
-                  <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-850 sticky top-0 z-10">
+                  <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
                     <th className="py-2 px-2 w-8"></th>
                     <th className="py-2 px-2 whitespace-nowrap font-bold">Account / Company</th>
                     <th className="py-2 px-2 text-right font-bold whitespace-nowrap">Total Orders</th>
@@ -654,7 +663,7 @@ export function ProgressiveHierarchy({
 
                     return (
                       <React.Fragment key={cli.id}>
-                        <tr className={cn("hover:bg-card transition-colors cursor-pointer", isExpanded && "bg-slate-100/80 dark:bg-slate-850")} onClick={() => toggleRowExpanded(cli.id)}>
+                        <tr className={cn("hover:bg-card transition-colors cursor-pointer", isExpanded && "bg-slate-100/80 dark:bg-slate-800")} onClick={() => toggleRowExpanded(cli.id)}>
                           <td className="py-2 px-1 text-center">
                             <button
                               type="button"
@@ -802,9 +811,9 @@ export function ProgressiveHierarchy({
           top: `${hoveredPopover.y}px`,
           transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
         }}
-        className="z-[9999] w-64 p-3 bg-slate-950 text-slate-100 rounded-xl shadow-2xl text-[10px] border border-slate-700/80 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
+        className="z-[9999] w-64 p-3 bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded-xl shadow-xl dark:shadow-2xl border border-slate-700/80 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
       >
-        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] pb-1 border-b border-slate-800 flex items-center justify-between">
+        <div className="font-extrabold text-sky-400 dark:text-sky-300 uppercase tracking-wider text-[9px] pb-1 border-b border-slate-800 dark:border-slate-700 flex items-center justify-between">
           <span>{hoveredPopover.title}</span>
           <span className="text-slate-400 font-normal">{hoveredPopover.tipo}</span>
         </div>

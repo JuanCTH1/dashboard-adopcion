@@ -83,7 +83,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground truncate">
                   {card.titulo}
                 </span>
-                <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-slate-850 ${card.accentColor}`}>
+                <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 ${card.accentColor}`}>
                   <Icon className="w-4 h-4" />
                 </div>
               </div>

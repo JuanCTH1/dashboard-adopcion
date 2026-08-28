@@ -24,7 +24,7 @@ export function FilterSidebar({
   return (
     <div className="fixed inset-y-0 left-0 z-50 w-full max-w-xs bg-card border-r border-border shadow-2xl flex flex-col animate-in slide-in-from-left duration-300">
       {/* Header */}
-      <div className="p-4 border-b border-border/80 bg-slate-50/80 dark:bg-slate-850/80 flex items-center justify-between">
+      <div className="p-4 border-b border-border/80 bg-slate-50/80 dark:bg-slate-800/80 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-primary" />
           <h2 className="text-sm font-bold text-foreground">Filtros Avanzados</h2>
@@ -111,7 +111,7 @@ export function FilterSidebar({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border/80 bg-slate-50/90 dark:bg-slate-850/90 flex items-center gap-2">
+      <div className="p-4 border-t border-border/80 bg-slate-50/90 dark:bg-slate-800/90 flex items-center gap-2">
         <Button
           variant="outline"
           size="sm"

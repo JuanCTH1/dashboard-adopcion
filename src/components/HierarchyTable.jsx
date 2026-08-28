@@ -277,7 +277,7 @@ export function HierarchyTable({
           <div className="flex-1 overflow-y-auto max-h-[300px] scrollbar-thin">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-border text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-850 sticky top-0 z-10">
+                <tr className="border-b border-border text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
                   <th className="py-1.5 px-2">Cliente</th>
                   <th className="py-1.5 px-2 text-right">Volumen</th>
                   <th className="py-1.5 px-2 text-center">Onboarding</th>
