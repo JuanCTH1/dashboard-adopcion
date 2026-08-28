@@ -642,3 +642,13 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Recorte de Sufijos en Métricas de Tarjetas (`ProgressiveHierarchy.jsx`):**
   - Se recortó `onboarded` a **`onboard`** y `adopted` a **`adopt`** en los 4 niveles de tarjetas de navegación (VP, Director Region, Manager Market, Sales Rep).
   - **Resultado:** Etiquetas ultracompactas (`XX.X% onboard` y `XX.X% adopt`) para un ajuste visual perfecto.
+---
+
+## 🎯 Versión 2.59 - Unidad "customers" en Ribbon y Formateo Compacto en "K" con Tooltip Exacto (`ExecutiveRibbon.jsx`, `ProgressiveHierarchy.jsx`, `utils.js`)
+
+- **Cambio de Unidad en Ribbon (`ExecutiveRibbon.jsx`):**
+  - Se cambió `accounts` por **`customers`** en las unidades primarias del Ribbon.
+- **Formateo Compacto en "K" con 1 Decimal para Órdenes > 1,000 (`utils.js`):**
+  - Se implementó `formatCompactNumber(num)` (ej. 178,684 $\rightarrow$ **`178.7k orders`**).
+  - Se aplicó al Ribbon y a los 4 niveles de tarjetas (VP, Region, Market, Sales Rep).
+  - Se agregó atributo `title` con cursor de ayuda (`cursor-help`) para mostrar el conteo exacto de órdenes formateado con comas al posar el cursor (`title="178,684 total orders"`).

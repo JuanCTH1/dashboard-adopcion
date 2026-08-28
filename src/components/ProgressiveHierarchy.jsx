@@ -26,7 +26,7 @@ import {
   Maximize2,
   Minimize2
 } from 'lucide-react';
-import { formatNumber, formatPct, cn } from '@/lib/utils';
+import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
 
 // Unified single-clock FLIP transition
@@ -341,7 +341,7 @@ export function ProgressiveHierarchy({
                             <span className="font-bold shrink-0">{formatPct(vp.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-white/80" : "text-muted-foreground")}>{formatNumber(vp.metricas.pedidos?.totales || 0)} orders</span>
+                            <span className={cn("truncate cursor-help", isSelected ? "text-white/80" : "text-muted-foreground")} title={`${formatNumber(vp.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(vp.metricas.pedidos?.totales || 0)} orders</span>
                             <span className="font-bold shrink-0">{formatPct(vp.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
@@ -470,7 +470,7 @@ export function ProgressiveHierarchy({
                             <span className="font-bold shrink-0">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{formatNumber(dir.metricas.pedidos?.totales || 0)} orders</span>
+                            <span className={cn("truncate cursor-help", isSelected ? "text-indigo-200" : "text-muted-foreground")} title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)} orders</span>
                             <span className="font-bold shrink-0">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
@@ -600,7 +600,7 @@ export function ProgressiveHierarchy({
                             <span className="font-bold shrink-0">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{formatNumber(ger.metricas.pedidos?.totales || 0)} orders</span>
+                            <span className={cn("truncate cursor-help", isSelected ? "text-sky-200" : "text-muted-foreground")} title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)} orders</span>
                             <span className="font-bold shrink-0">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
@@ -681,7 +681,7 @@ export function ProgressiveHierarchy({
                             <span className="font-bold shrink-0">{formatPct(rep.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-emerald-200" : "text-muted-foreground")}>{formatNumber(rep.metricas.pedidos?.totales || 0)} orders</span>
+                            <span className={cn("truncate cursor-help", isSelected ? "text-emerald-200" : "text-muted-foreground")} title={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)} orders</span>
                             <span className="font-bold shrink-0">{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>

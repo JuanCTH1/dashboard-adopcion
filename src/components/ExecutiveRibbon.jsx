@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Users, UserCheck, Activity, Target, ChevronRight } from 'lucide-react';
-import { formatNumber, formatPct, cn } from '@/lib/utils';
+import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 
 export function ExecutiveRibbon({ metricasGlobales }) {
   if (!metricasGlobales || !metricasGlobales.actual) return null;
@@ -20,14 +20,17 @@ export function ExecutiveRibbon({ metricasGlobales }) {
   if (maxDrop === dropOffStage2) worstBottleneck = 2;
   if (maxDrop === dropOffStage3) worstBottleneck = 3;
 
+  const onboardedOrders = Math.round(p.totales * (c.pctOnboarding / 100));
+
   const STAGES = [
     {
       id: 'universo',
       stepNumber: '01',
       title: 'Total Customers',
       primaryLabel: `${formatNumber(c.asignados)}`,
-      primaryUnit: 'accounts',
-      secondaryLabel: `${formatNumber(p.totales)} total orders`,
+      primaryUnit: 'customers',
+      secondaryLabel: `${formatCompactNumber(p.totales)} total orders`,
+      exactTooltip: `${formatNumber(p.totales)} total orders`,
       icon: Users,
       colorGrad: 'from-blue-600 to-indigo-700',
       accentBg: 'bg-blue-600/10 text-blue-700 dark:text-blue-400',
@@ -40,8 +43,9 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       stepNumber: '02',
       title: 'Onboarded',
       primaryLabel: `${formatNumber(c.onboarded)}`,
-      primaryUnit: 'accounts',
-      secondaryLabel: `${formatNumber(Math.round(p.totales * (c.pctOnboarding / 100)))} onboarded orders`,
+      primaryUnit: 'customers',
+      secondaryLabel: `${formatCompactNumber(onboardedOrders)} onboarded orders`,
+      exactTooltip: `${formatNumber(onboardedOrders)} onboarded orders`,
       icon: UserCheck,
       colorGrad: 'from-emerald-600 to-teal-700',
       accentBg: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-400',
@@ -55,8 +59,9 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       stepNumber: '03',
       title: 'Active',
       primaryLabel: `${formatNumber(c.activos)}`,
-      primaryUnit: 'accounts',
-      secondaryLabel: `${formatNumber(p.digitales)} active orders`,
+      primaryUnit: 'customers',
+      secondaryLabel: `${formatCompactNumber(p.digitales)} active orders`,
+      exactTooltip: `${formatNumber(p.digitales)} active orders`,
       icon: Activity,
       colorGrad: 'from-sky-500 to-blue-600',
       accentBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-400',
@@ -71,7 +76,8 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       title: 'Digital Adoption',
       primaryLabel: `${formatPct(p.pctAdopcion)}`,
       primaryUnit: '',
-      secondaryLabel: `${formatNumber(p.digitales)} / ${formatNumber(p.totales)} digital orders`,
+      secondaryLabel: `${formatCompactNumber(p.digitales)} / ${formatCompactNumber(p.totales)} digital orders`,
+      exactTooltip: `${formatNumber(p.digitales)} / ${formatNumber(p.totales)} digital orders`,
       icon: Target,
       colorGrad: 'from-amber-500 to-orange-600',
       accentBg: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
@@ -128,8 +134,11 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                   )}
                 </div>
 
-                {/* Subtitle Footer */}
-                <div className="text-[9.5px] font-medium text-muted-foreground truncate flex items-center justify-between border-t border-border/40 pt-1">
+                {/* Subtitle Footer with Exact Value Tooltip */}
+                <div
+                  className="text-[9.5px] font-medium text-muted-foreground truncate flex items-center justify-between border-t border-border/40 pt-1 cursor-help"
+                  title={st.exactTooltip}
+                >
                   <span className="truncate">{st.secondaryLabel}</span>
                   {st.isDominant && <span className="text-[8.5px] font-bold text-primary shrink-0 ml-1">vs 90% Goal</span>}
                 </div>
