@@ -67,39 +67,26 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     }
   ];
 
+  const dropOffs = [dropOffStage1, dropOffStage2, null];
+
   return (
-    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md pt-1 pb-2 -mx-1 px-1 transition-all shadow-xs border-b border-border/40 font-sans select-none">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 relative">
+    <div className="bg-background/95 backdrop-blur-md py-1.5 transition-all font-sans select-none">
+      <div className="flex items-stretch gap-0 relative">
         {STAGES.map((st, idx) => {
           const Icon = st.icon;
           const isLast = idx === STAGES.length - 1;
-
-          // Drop-off connector info
-          let connectorLabel = null;
-          let isBottleneck = false;
-
-          if (idx === 0) {
-            connectorLabel = `-${dropOffStage1.toFixed(1)}% caída`;
-            isBottleneck = worstBottleneck === 1;
-          } else if (idx === 1) {
-            connectorLabel = `-${dropOffStage2.toFixed(1)}% caída`;
-            isBottleneck = worstBottleneck === 2;
-          }
+          const isBottleneck = (idx === 0 && worstBottleneck === 1) || (idx === 1 && worstBottleneck === 2);
 
           return (
-            <Card
-              key={st.id}
-              className={cn(
-                "p-3.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between",
-                st.isDominant ? "border-primary/50 shadow-xs ring-1 ring-primary/20" : "border-border"
-              )}
-            >
-              {/* Top Accent Line */}
-              <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
-
-              <div>
-                {/* Header */}
-                <div className="flex items-center justify-between gap-2 mb-1.5">
+            <React.Fragment key={st.id}>
+              <Card
+                className={cn(
+                  "flex-1 min-w-0 p-3 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-center",
+                  st.isDominant ? "border-primary/50 shadow-xs ring-1 ring-primary/20" : "border-border"
+                )}
+              >
+                <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
+                <div className="flex items-center justify-between gap-2 mb-1">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground truncate">
                     {st.title}
                   </span>
@@ -107,63 +94,41 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                     <Icon className="w-3.5 h-3.5" />
                   </div>
                 </div>
-
-                {/* Primary Metric Renglón 1 */}
-                <div className="flex items-baseline gap-1.5">
-                  <span className={cn(
-                    "font-black tracking-tight tabular-nums",
-                    st.isDominant ? "text-2xl text-primary" : "text-xl text-foreground"
-                  )}>
+                <div className="flex items-baseline gap-1.5 flex-wrap">
+                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-2xl text-primary" : "text-xl text-foreground")}>
                     {st.primaryLabel}
                   </span>
-                  {st.primaryUnit && (
-                    <span className="text-[10px] font-medium text-muted-foreground">
-                      {st.primaryUnit}
-                    </span>
-                  )}
+                  {st.primaryUnit && <span className="text-[10px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
                   {st.flowDelta && (
                     <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
                       {st.flowDelta}
                     </span>
                   )}
                 </div>
-
-                {/* Secondary Metric Renglón 2 */}
                 <div className="text-[10px] font-medium text-muted-foreground mt-0.5 truncate">
                   {st.secondaryLabel}
                 </div>
-              </div>
+                {st.isDominant && (
+                  <div className="text-[9px] font-bold text-primary mt-0.5">vs 90.0% Meta</div>
+                )}
+              </Card>
 
-              {/* Inter-stage Drop-off / Connection Indicator */}
-              {!isLast && connectorLabel && (
-                <div className="mt-2 pt-2 border-t border-border/60 flex items-center justify-between text-[9.5px]">
-                  <span className="text-muted-foreground font-semibold flex items-center gap-1">
-                    <ArrowRight className="w-3 h-3 text-muted-foreground/70" />
-                    Transición {idx + 1}→{idx + 2}
-                  </span>
-                  <span className={cn(
-                    "px-1.5 py-0.2 rounded font-bold border tabular-nums",
+              {!isLast && (
+                <div className="flex flex-col items-center justify-center w-14 shrink-0 z-10 -mx-3">
+                  <div className={cn(
+                    "flex flex-col items-center justify-center w-11 h-11 rounded-full border-2 shadow-md tabular-nums",
                     isBottleneck
-                      ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30 animate-pulse"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700"
+                      ? "bg-rose-500 border-rose-300 text-white animate-pulse"
+                      : "bg-card border-border text-muted-foreground"
                   )}>
-                    {connectorLabel}
-                  </span>
+                    <ArrowRight className="w-3 h-3 opacity-70 -mb-0.5" />
+                    <span className="text-[10px] font-black leading-none">
+                      -{(idx === 0 ? dropOffStage1 : dropOffStage2).toFixed(0)}%
+                    </span>
+                  </div>
                 </div>
               )}
-
-              {st.isDominant && (
-                <div className="mt-2 pt-2 border-t border-border/60 flex items-center justify-between text-[9.5px]">
-                  <span className="text-muted-foreground font-semibold flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3 text-emerald-500" />
-                    Meta Global
-                  </span>
-                  <span className="font-bold text-primary px-1.5 py-0.2 rounded bg-primary/10 border border-primary/20">
-                    90.0% Goal
-                  </span>
-                </div>
-              )}
-            </Card>
+            </React.Fragment>
           );
         })}
       </div>

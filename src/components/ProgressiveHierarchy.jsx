@@ -212,17 +212,11 @@ export function ProgressiveHierarchy({
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
-        <div>
-          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
-            <Layers className="w-3.5 h-3.5 text-primary" />
-            <span>Interactive Organizational Hierarchy (Global Dashboard Filter)</span>
-          </div>
-          <div className="text-xs font-semibold text-foreground flex items-center gap-1.5 flex-wrap">
-            <span>Selected Scope:</span>
-            <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30">
-              {activeContext.titulo} ({totalesCartera?.totalClientes || 0} Accounts · {formatNumber(totalesCartera?.totalPedidos || 0)} Total Orders)
-            </Badge>
-          </div>
+        <div className="flex items-center gap-2">
+          <Layers className="w-3.5 h-3.5 text-primary shrink-0" />
+          <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30">
+            {activeContext.titulo} · {totalesCartera?.totalClientes || 0} cuentas · {formatNumber(totalesCartera?.totalPedidos || 0)} órdenes
+          </Badge>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -748,18 +742,13 @@ export function ProgressiveHierarchy({
           <motion.div
             layout
             transition={FLIP_TRANSITION}
-            className="flex-1 min-w-[380px] h-[365px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs overflow-hidden"
+            className="flex-1 min-w-[380px] h-full bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
           >
-          <div className="flex-1 flex flex-col justify-between overflow-hidden">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
-              <div>
-                <div className="text-xs font-black text-foreground flex items-center gap-2">
-                  <ShoppingCart className="w-4 h-4 text-primary" />
-                  <span>Account Portfolio ({activeContext.cartera.length} Accounts)</span>
-                </div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">
-                  Order-based adoption breakdown with instant visual channel badges
-                </div>
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between pb-2 mb-2 border-b border-border shrink-0">
+              <div className="text-xs font-black text-foreground flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 text-primary" />
+                <span>Account Portfolio ({activeContext.cartera.length} Accounts)</span>
               </div>
 
               <Button
@@ -773,7 +762,7 @@ export function ProgressiveHierarchy({
             </div>
 
             {/* EXPANDABLE TABLE WITH ZERO HORIZONTAL SCROLLBARS */}
-            <div className="overflow-y-auto h-[255px] max-h-[255px] scrollbar-thin flex-1">
+            <div className="overflow-y-auto scrollbar-thin flex-1 min-h-0">
               <table className="w-full text-left text-xs border-collapse table-fixed">
                 <thead>
                   <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
