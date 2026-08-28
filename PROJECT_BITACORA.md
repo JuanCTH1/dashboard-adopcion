@@ -233,3 +233,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se removió la barra de scroll horizontal (overflow-x-auto) de la tabla derecha.
   - Se optimizaron los anchos de las columnas de la jerarquía (w-44 / 176px), liberando más de 200px de espacio horizontal.
   - La tabla utiliza w-full table-fixed con proporciones porcentuales para que el portafolio de cuentas se visualice fluido, amplio y sin ningún empaquetamiento ni barra de desplazamiento horizontal.
+---
+
+## 🎯 Versión 2.15 - Tarjeta USA Simplificada & Solución Definitiva al Bug de Métricas en 0 en Mercados/Tabla
+
+- **Simplificación de la Tarjeta USA:**
+  - Se modificó la tarjeta del país para mostrar un título limpio de 3 renglones: USA en el renglón 1, National en el renglón 2, y 119,005 ord | 51.0% en el renglón 3.
+- **Corrección de Bug de Datos en 0 (Mercados, Vendedores y Tabla):**
+  - **Causa Raíz:** Al filtrar por el nombre del mercado (ej. ['New York']) o región (ej. ['Atlantic']), el método _filtrar en dopcionRepo.js buscaba únicamente por c.gerenteId (ej. 'ger-1'), el cual no coincidía con la cadena 'New York', provocando que la consulta devolviera 0 cuentas y 0 órdenes.
+  - **Solución:** Se actualizó _filtrar para evaluar tanto directorId como egionNombre, y tanto gerenteId como plaza. Ahora, seleccionar cualquier mercado o región recupera el 100% de las cuentas reales de la cartera con sus órdenes y adopción calculadas con precisión.
