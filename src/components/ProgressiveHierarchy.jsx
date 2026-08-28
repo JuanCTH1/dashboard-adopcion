@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, startTransition, useDeferredValue } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,10 +25,11 @@ import {
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
 
-// High-speed fluid transition (0ms startup, GPU hardware-accelerated)
-const INSTANT_FLUID_TRANSITION = {
-  duration: 0.28,
-  ease: [0.16, 1, 0.3, 1]
+// Unified single-clock FLIP transition
+const FLIP_TRANSITION = {
+  type: 'spring',
+  stiffness: 350,
+  damping: 30
 };
 
 export function ProgressiveHierarchy({
@@ -187,272 +188,275 @@ export function ProgressiveHierarchy({
         </Button>
       </div>
 
-      {/* HORIZONTAL CASCADED COLUMNS WITH FLUID HARDWARE-ACCELERATED TRANSITIONS */}
-      <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px] relative">
-        {/* LEVEL 0: COUNTRY */}
-        <div className="w-36 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
-          <div className="text-[10px] font-bold uppercase text-primary flex items-center gap-1 pb-1 border-b border-border">
-            <Globe className="w-3 h-3" />
-            <span>Country</span>
+      {/* HORIZONTAL CASCADED COLUMNS UNIFIED WITH LAYOUTGROUP AND POPLAYOUT */}
+      <LayoutGroup>
+        <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px] relative">
+          {/* LEVEL 0: COUNTRY */}
+          <div className="w-36 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
+            <div className="text-[10px] font-bold uppercase text-primary flex items-center gap-1 pb-1 border-b border-border">
+              <Globe className="w-3 h-3" />
+              <span>Country</span>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center py-2">
+              <button
+                onClick={() => setIsUsaSelected(!isUsaSelected)}
+                className={cn(
+                  "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs",
+                  isUsaSelected
+                    ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                    : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[11px]">USA National</span>
+                  {isUsaSelected && <Check className="w-3 h-3 text-white" />}
+                </div>
+                <div className={cn("text-[9px]", isUsaSelected ? "text-white/90" : "text-muted-foreground")}>
+                  3 Product VPs · 1,288 Cli.
+                </div>
+              </button>
+            </div>
+
+            <div className="text-[9px] text-muted-foreground pt-1.5 border-t border-border/80 text-center">
+              {isUsaSelected ? "VPs Open ➔" : "Click to Open"}
+            </div>
           </div>
 
-          <div className="flex-1 flex flex-col justify-center py-2">
-            <button
-              onClick={() => setIsUsaSelected(!isUsaSelected)}
-              className={cn(
-                "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs",
-                isUsaSelected
-                  ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                  : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[11px]">USA National</span>
-                {isUsaSelected && <Check className="w-3 h-3 text-white" />}
-              </div>
-              <div className={cn("text-[9px]", isUsaSelected ? "text-white/90" : "text-muted-foreground")}>
-                3 Product VPs · 1,288 Cli.
-              </div>
-            </button>
-          </div>
-
-          <div className="text-[9px] text-muted-foreground pt-1.5 border-t border-border/80 text-center">
-            {isUsaSelected ? "VPs Open ➔" : "Click to Open"}
-          </div>
-        </div>
-
-        {/* LEVEL 1: VICE PRESIDENCIES */}
-        <AnimatePresence mode="sync">
-          {isUsaSelected && (
-            <motion.div
-              key="vp-col"
-              initial={{ opacity: 0, width: 0, marginRight: 0 }}
-              animate={{ opacity: 1, width: 176, marginRight: 10 }}
-              exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={INSTANT_FLUID_TRANSITION}
-              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
-              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-            >
-              <div className="w-[156px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
-                <div className="flex items-center gap-1">
-                  <Building className="w-3 h-3" />
-                  <span>VP Divisions</span>
-                </div>
-                {selectedVpIds.length > 0 && (
-                  <button onClick={() => startTransition(() => setSelectedVpIds([]))} className="text-[9px] text-primary hover:underline font-bold">
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
-                {vps.map(vp => {
-                  const isSelected = selectedVpIds.includes(vp.id);
-                  return (
-                    <button
-                      key={vp.id}
-                      onClick={() => toggleSelection(setSelectedVpIds, selectedVpIds, vp.id)}
-                      className={cn(
-                        "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
-                        isSelected
-                          ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                          : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[10px] truncate">{vp.nombre}</span>
-                        {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                      </div>
-                      <div className={cn("text-[9px] flex items-center justify-between", isSelected ? "text-white/90" : "text-muted-foreground")}>
-                        <span>{formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
-                        <span>{vp.metricas.clientes.asignados} cli.</span>
-                      </div>
+          {/* LEVEL 1: VICE PRESIDENCIES */}
+          <AnimatePresence mode="popLayout">
+            {isUsaSelected && (
+              <motion.div
+                layout
+                key="vp-col"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={FLIP_TRANSITION}
+                className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+              >
+                <div className="w-[156px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
+                  <div className="flex items-center gap-1">
+                    <Building className="w-3 h-3" />
+                    <span>VP Divisions</span>
+                  </div>
+                  {selectedVpIds.length > 0 && (
+                    <button onClick={() => startTransition(() => setSelectedVpIds([]))} className="text-[9px] text-primary hover:underline font-bold">
+                      Clear
                     </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* LEVEL 2: REGIONAL DIRECTORS */}
-        <AnimatePresence mode="sync">
-          {selectedVpIds.length > 0 && (
-            <motion.div
-              key="dir-col"
-              initial={{ opacity: 0, width: 0, marginRight: 0 }}
-              animate={{ opacity: 1, width: 176, marginRight: 10 }}
-              exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={INSTANT_FLUID_TRANSITION}
-              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
-              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-            >
-              <div className="w-[156px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
-                <div className="flex items-center gap-1">
-                  <Briefcase className="w-3 h-3" />
-                  <span>Directors</span>
+                  )}
                 </div>
-                {selectedDirIds.length > 0 && (
-                  <button onClick={() => startTransition(() => setSelectedDirIds([]))} className="text-[9px] text-indigo-600 hover:underline font-bold">
-                    Clear
-                  </button>
-                )}
-              </div>
 
-              <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
-                {directores.map(dir => {
-                  const isSelected = selectedDirIds.includes(dir.id);
-                  const parentVp = vps.find(v => v.id === dir.parentId);
-                  return (
-                    <button
-                      key={dir.id}
-                      onClick={() => toggleSelection(setSelectedDirIds, selectedDirIds, dir.id)}
-                      className={cn(
-                        "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
-                        isSelected
-                          ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
-                          : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[10px] truncate">{dir.nombre}</span>
-                        {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                      </div>
-                      <div className="flex items-center justify-between gap-1">
-                        <span className={cn("text-[8px] px-1 rounded font-bold uppercase truncate max-w-[70px]", isSelected ? "bg-indigo-700 text-white" : "bg-muted text-muted-foreground")}>
-                          {parentVp?.lineaNegocio || dir.parentId}
-                        </span>
-                        <span className={cn("text-[9px]", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
-                          {formatPct(dir.metricas.pedidos.pctAdopcion)}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* LEVEL 3: PLAZA MANAGERS */}
-        <AnimatePresence mode="sync">
-          {selectedDirIds.length > 0 && (
-            <motion.div
-              key="ger-col"
-              initial={{ opacity: 0, width: 0, marginRight: 0 }}
-              animate={{ opacity: 1, width: 176, marginRight: 10 }}
-              exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={INSTANT_FLUID_TRANSITION}
-              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
-              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-            >
-              <div className="w-[156px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
-                <div className="flex items-center gap-1">
-                  <Users className="w-3 h-3" />
-                  <span>Managers</span>
-                </div>
-                {selectedGerIds.length > 0 && (
-                  <button onClick={() => startTransition(() => setSelectedGerIds([]))} className="text-[9px] text-sky-600 hover:underline font-bold">
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
-                {gerentes.map(ger => {
-                  const isSelected = selectedGerIds.includes(ger.id);
-                  const parentDir = directores.find(d => d.id === ger.parentId);
-                  return (
-                    <button
-                      key={ger.id}
-                      onClick={() => toggleSelection(setSelectedGerIds, selectedGerIds, ger.id)}
-                      className={cn(
-                        "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
-                        isSelected
-                          ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
-                          : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[10px] truncate">{ger.nombre}</span>
-                        {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                      </div>
-                      <div className="flex items-center justify-between gap-1">
-                        <span className={cn("text-[8px] px-1 rounded font-bold uppercase truncate max-w-[70px]", isSelected ? "bg-sky-700 text-white" : "bg-muted text-muted-foreground")}>
-                          {parentDir?.nombre?.split(' ')[1] || ger.parentId}
-                        </span>
-                        <span className={cn("text-[9px]", isSelected ? "text-sky-100" : "text-muted-foreground")}>
-                          {formatPct(ger.metricas.pedidos.pctAdopcion)}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* LEVEL 4: SALES REPRESENTATIVES */}
-        <AnimatePresence mode="sync">
-          {selectedGerIds.length > 0 && (
-            <motion.div
-              key="rep-col"
-              initial={{ opacity: 0, width: 0, marginRight: 0 }}
-              animate={{ opacity: 1, width: 192, marginRight: 10 }}
-              exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={INSTANT_FLUID_TRANSITION}
-              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
-              className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-            >
-              <div className="w-[172px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
-                <div className="flex items-center gap-1">
-                  <User className="w-3 h-3" />
-                  <span>Sales Reps</span>
-                </div>
-                {selectedRepIds.length > 0 && (
-                  <button onClick={() => startTransition(() => setSelectedRepIds([]))} className="text-[9px] text-emerald-600 hover:underline font-bold">
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
-                {vendedores.map(rep => {
-                  const isSelected = selectedRepIds.includes(rep.id);
-                  return (
-                    <button
-                      key={rep.id}
-                      onClick={() => toggleSelection(setSelectedRepIds, selectedRepIds, rep.id)}
-                      className={cn(
-                        "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
-                        isSelected
-                          ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
-                          : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 truncate">
-                          <span className="font-bold text-[10px] truncate">{rep.nombre}</span>
+                <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                  {vps.map(vp => {
+                    const isSelected = selectedVpIds.includes(vp.id);
+                    return (
+                      <button
+                        key={vp.id}
+                        onClick={() => toggleSelection(setSelectedVpIds, selectedVpIds, vp.id)}
+                        className={cn(
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[10px] truncate">{vp.nombre}</span>
+                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
-                        {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                      </div>
-                      <div className={cn("text-[9px] flex items-center justify-between", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
-                        <span className="truncate max-w-[80px]">{rep.plaza}</span>
-                        <span>{formatPct(rep.metricas.pedidos.pctAdopcion)}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                        <div className={cn("text-[9px] flex items-center justify-between", isSelected ? "text-white/90" : "text-muted-foreground")}>
+                          <span>{formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
+                          <span>{vp.metricas.clientes.asignados} cli.</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* RIGHT HAND PERMANENT TABLE: NATIVE CSS GPU COMPOSITED TRANSITION (ZERO JS MEASUREMENT STUTTER) */}
-        <div
-          className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-        >
+          {/* LEVEL 2: REGIONAL DIRECTORS */}
+          <AnimatePresence mode="popLayout">
+            {selectedVpIds.length > 0 && (
+              <motion.div
+                layout
+                key="dir-col"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={FLIP_TRANSITION}
+                className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+              >
+                <div className="w-[156px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
+                  <div className="flex items-center gap-1">
+                    <Briefcase className="w-3 h-3" />
+                    <span>Directors</span>
+                  </div>
+                  {selectedDirIds.length > 0 && (
+                    <button onClick={() => startTransition(() => setSelectedDirIds([]))} className="text-[9px] text-indigo-600 hover:underline font-bold">
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                  {directores.map(dir => {
+                    const isSelected = selectedDirIds.includes(dir.id);
+                    const parentVp = vps.find(v => v.id === dir.parentId);
+                    return (
+                      <button
+                        key={dir.id}
+                        onClick={() => toggleSelection(setSelectedDirIds, selectedDirIds, dir.id)}
+                        className={cn(
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          isSelected
+                            ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
+                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[10px] truncate">{dir.nombre}</span>
+                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                        </div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className={cn("text-[8px] px-1 rounded font-bold uppercase truncate max-w-[70px]", isSelected ? "bg-indigo-700 text-white" : "bg-muted text-muted-foreground")}>
+                            {parentVp?.lineaNegocio || dir.parentId}
+                          </span>
+                          <span className={cn("text-[9px]", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                            {formatPct(dir.metricas.pedidos.pctAdopcion)}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* LEVEL 3: PLAZA MANAGERS */}
+          <AnimatePresence mode="popLayout">
+            {selectedDirIds.length > 0 && (
+              <motion.div
+                layout
+                key="ger-col"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={FLIP_TRANSITION}
+                className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+              >
+                <div className="w-[156px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    <span>Managers</span>
+                  </div>
+                  {selectedGerIds.length > 0 && (
+                    <button onClick={() => startTransition(() => setSelectedGerIds([]))} className="text-[9px] text-sky-600 hover:underline font-bold">
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                  {gerentes.map(ger => {
+                    const isSelected = selectedGerIds.includes(ger.id);
+                    const parentDir = directores.find(d => d.id === ger.parentId);
+                    return (
+                      <button
+                        key={ger.id}
+                        onClick={() => toggleSelection(setSelectedGerIds, selectedGerIds, ger.id)}
+                        className={cn(
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          isSelected
+                            ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
+                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[10px] truncate">{ger.nombre}</span>
+                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                        </div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className={cn("text-[8px] px-1 rounded font-bold uppercase truncate max-w-[70px]", isSelected ? "bg-sky-700 text-white" : "bg-muted text-muted-foreground")}>
+                            {parentDir?.nombre?.split(' ')[1] || ger.parentId}
+                          </span>
+                          <span className={cn("text-[9px]", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                            {formatPct(ger.metricas.pedidos.pctAdopcion)}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* LEVEL 4: SALES REPRESENTATIVES */}
+          <AnimatePresence mode="popLayout">
+            {selectedGerIds.length > 0 && (
+              <motion.div
+                layout
+                key="rep-col"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={FLIP_TRANSITION}
+                className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+              >
+                <div className="w-[172px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
+                  <div className="flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    <span>Sales Reps</span>
+                  </div>
+                  {selectedRepIds.length > 0 && (
+                    <button onClick={() => startTransition(() => setSelectedRepIds([]))} className="text-[9px] text-emerald-600 hover:underline font-bold">
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                  {vendedores.map(rep => {
+                    const isSelected = selectedRepIds.includes(rep.id);
+                    return (
+                      <button
+                        key={rep.id}
+                        onClick={() => toggleSelection(setSelectedRepIds, selectedRepIds, rep.id)}
+                        className={cn(
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          isSelected
+                            ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
+                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1 truncate">
+                            <span className="font-bold text-[10px] truncate">{rep.nombre}</span>
+                          </div>
+                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                        </div>
+                        <div className={cn("text-[9px] flex items-center justify-between", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
+                          <span className="truncate max-w-[80px]">{rep.plaza}</span>
+                          <span>{formatPct(rep.metricas.pedidos.pctAdopcion)}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* RIGHT HAND PERMANENT TABLE: UNIFIED FRAMER MOTION FLIP SYSTEM */}
+          <motion.div
+            layout
+            transition={FLIP_TRANSITION}
+            className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
+          >
           <div>
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
               <div>
@@ -628,8 +632,9 @@ export function ProgressiveHierarchy({
               </table>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </Card>
+    </LayoutGroup>
+  </Card>
   );
 }
