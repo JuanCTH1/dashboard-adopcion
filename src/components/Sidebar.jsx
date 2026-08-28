@@ -55,7 +55,7 @@ export function Sidebar({
             <Layers className="w-3 h-3" />
           </div>
           <div className="truncate">
-            <div className="font-extrabold text-[10px] tracking-tight text-slate-800 dark:text-slate-100 font-sans truncate">CX ADOPTION</div>
+            <div className="font-extrabold text-[10px] tracking-tight text-slate-800 dark:text-slate-100 font-sans truncate">ADOPTION</div>
             <div className="text-[7.5px] text-muted-foreground font-bold uppercase truncate">FILTERS</div>
           </div>
         </div>

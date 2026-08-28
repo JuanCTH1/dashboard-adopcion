@@ -859,3 +859,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
     - **`DigitalChampion`:** Adopción digital masiva (86%), pero oportunidad en registro de clientes offline.
     - **`Traditionalist`:** Resistencia tradicional con mayor uso de pedidos por teléfono.
   - **Extrapolación Jerárquica a Mercados y Regiones:** Al agregar vendedores en cada ciudad/plaza, cada **Mercado** despliega un diagnóstico ejecutivo único en el embudo, permitiendo comparar problemas operativos distintos entre plazas (ej. Boston vs Dallas vs Chicago).
+---
+
+## 🎯 Versión 2.86 - Estandarización de Marca e Identidad Header a `ADOPTION` (`AppLogo.jsx`, `Sidebar.jsx`, `index.html`)
+
+- **Actualización de Títulos e Identidad:**
+  - Se simplificaron los textos del logotipo y encabezados laterales de `ADOPCIÓN CX` / `CX ADOPTION` a estrictamente **`ADOPTION`** en [AppLogo.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ui/AppLogo.jsx) y [Sidebar.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/Sidebar.jsx).
+  - Se actualizó la etiqueta de título HTML a `Adoption Dashboard` en `index.html`.

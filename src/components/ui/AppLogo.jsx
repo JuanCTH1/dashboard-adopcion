@@ -11,7 +11,7 @@ export function AppLogo({ className }) {
       <div>
         <div className="flex items-center gap-1.5 leading-none">
           <span className="font-extrabold text-sm tracking-tight text-foreground font-sans">
-            ADOPCIÓN CX
+            ADOPTION
           </span>
           <span className="text-[9px] font-bold text-primary px-1.5 py-0.2 rounded-full bg-primary/10 border border-primary/20">
             PRO
