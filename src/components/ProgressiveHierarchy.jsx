@@ -42,6 +42,15 @@ const FLIP_TRANSITION = {
   damping: 30
 };
 
+const BL_SHORT = {
+  'readymix': 'RMX',
+  'cemento': 'CEM',
+  'agregados': 'AGG',
+  'Ready-Mix Concrete': 'RMX',
+  'Cement Bulk': 'CEM',
+  'Aggregates': 'AGG'
+};
+
 export function ProgressiveHierarchy({
   filtrosCompuestos = {},
   onHierarchyFilterChange,
