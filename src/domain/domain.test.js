@@ -160,6 +160,35 @@ describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
     expect(dallas.actual.clientes.asignados).toBeGreaterThan(saltLake.actual.clientes.asignados);
     expect(dallas.actual.pedidos.totales).toBeGreaterThan(saltLake.actual.pedidos.totales);
   });
+
+  it('12. Component individual renders', async () => {
+    const { renderToString } = await import('react-dom/server');
+    const React = await import('react');
+    const { ExecutiveRibbon } = await import('../components/ExecutiveRibbon.jsx');
+    const { AdoptionTrendCard } = await import('../components/AdoptionTrendCard.jsx');
+    const { LeaderboardCard } = await import('../components/LeaderboardCard.jsx');
+    const { ProgressiveHierarchy } = await import('../components/ProgressiveHierarchy.jsx');
+
+    const metricas = adopcionRepo.getMetricasGlobales({});
+    const serie = adopcionRepo.getSerieHistorica({});
+    const leaderboard = adopcionRepo.getLeaderboard({});
+
+    console.log('Rendering ExecutiveRibbon...');
+    const h1 = renderToString(React.createElement(ExecutiveRibbon, { metricasGlobales: metricas }));
+    expect(h1.length).toBeGreaterThan(0);
+
+    console.log('Rendering AdoptionTrendCard...');
+    const h2 = renderToString(React.createElement(AdoptionTrendCard, { serieHistorica: serie }));
+    expect(h2.length).toBeGreaterThan(0);
+
+    console.log('Rendering LeaderboardCard...');
+    const h3 = renderToString(React.createElement(LeaderboardCard, { leaderboardData: leaderboard }));
+    expect(h3.length).toBeGreaterThan(0);
+
+    console.log('Rendering ProgressiveHierarchy...');
+    const h4 = renderToString(React.createElement(ProgressiveHierarchy, { filtrosCompuestos: {} }));
+    expect(h4.length).toBeGreaterThan(0);
+  });
 });
 
 
