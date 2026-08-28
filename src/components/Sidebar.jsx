@@ -45,18 +45,18 @@ export function Sidebar({
     <aside
       className={cn(
         "h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs transition-all duration-300 z-40 shrink-0 select-none overflow-hidden font-sans",
-        isOpen ? "w-48" : "w-12"
+        isOpen ? "w-[168px]" : "w-11"
       )}
     >
       {/* 1. Sidebar Header */}
-      <div className="h-12 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
-        <div className={cn("flex items-center gap-2 overflow-hidden transition-opacity", !isOpen && "opacity-0 pointer-events-none")}>
-          <div className="w-5.5 h-5.5 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
-            <Layers className="w-3.5 h-3.5" />
+      <div className="h-11 px-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
+        <div className={cn("flex items-center gap-1.5 overflow-hidden transition-opacity min-w-0", !isOpen && "opacity-0 pointer-events-none")}>
+          <div className="w-5 h-5 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+            <Layers className="w-3 h-3" />
           </div>
           <div className="truncate">
-            <div className="font-extrabold text-[11px] tracking-tight text-slate-800 dark:text-slate-100 font-sans">CX ADOPTION PRO</div>
-            <div className="text-[8px] text-muted-foreground font-bold uppercase">GLOBAL FILTERS</div>
+            <div className="font-extrabold text-[10px] tracking-tight text-slate-800 dark:text-slate-100 font-sans truncate">CX ADOPTION</div>
+            <div className="text-[7.5px] text-muted-foreground font-bold uppercase truncate">FILTERS</div>
           </div>
         </div>
 

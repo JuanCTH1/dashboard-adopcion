@@ -500,3 +500,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Optimización de Altura para Cero Scroll Vertical:**
   - Se compactó la altura del Ribbon (`py-1`, `text-lg`).
   - Se estableció un límite de altura `max-h-[190px]` en la tabla de cartera ([ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx)), logrando que todo el tablero encaje perfectamente en la pantalla sin necesidad de scroll vertical.
+---
+
+## 🎯 Versión 2.41 - Reducción Extra de Ancho del Sidebar (w-[168px])
+
+- **Ajuste Fino de Ancho del Sidebar (`Sidebar.jsx`):**
+  - Se ajustó el ancho del sidebar lateral a `w-[168px]` (168px) desplegado y `w-11` (44px) colapsado, otorgando mayor espacio horizontal al área principal de trabajo.
+  - Se formateó la tipografía y paddings del encabezado del sidebar (`text-[10px]`, `px-2 py-2`) para un encuadre ultra limpio sin desbordes.
