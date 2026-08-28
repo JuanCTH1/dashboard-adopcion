@@ -293,3 +293,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - La tabla derecha (Account Portfolio) no se tocó en absoluto.
   - Se configuró la fila contenedora con items-stretch para que los bordes inferiores de **todas las columnas de la izquierda** (Country, VP Division, Regions, Markets y Sales Reps) se estiren exactamente hasta la misma línea de base horizontal que la tabla.
   - Se asignó lex-1 a los contenedores internos de tarjetas para que ocupen todo el alto útil disponible sin dejar descalces ni espacios sueltos.
+---
+
+## 🎯 Versión 2.22 - Restricción de Altura Estricta (max-h-[365px]) e Inmunidad a Crecimiento Vertical
+
+- **Causa Raíz Resuelta:** Al no tener una restricción de altura máxima fija (max-h) en los contenedores de columna ni en la tabla, seleccionar 4 o más regiones provocaba que la columna de **Markets** generara 8 tarjetas, expandiendo su altura a más de 550px y estirando la tabla y todo el dashboard verticalmente de forma desmedida.
+- **Solución Definitiva:**
+  - Se asignó un tope estricto e infranqueable de max-h-[365px] a todos los contenedores de columna (VP Division, Regions, Markets, Sales Reps) y a la tabla (Account Portfolio).
+  - Los contenedores internos de tarjetas tienen su límite interno en max-h-[315px].
+  - Ahora, sin importar cuántas regiones (1, 3, 5) o cuántos mercados (2, 8, 15) estén seleccionados, **la gráfica y la tabla mantienen SIEMPRE su altura máxima de 365px**, mostrando las primeras 5 tarjetas y activando un scroll vertical limpio para el resto.
