@@ -224,19 +224,26 @@ export function App() {
             metricasGlobales={metricasGlobales}
           />
 
-          {/* ROW 2: HISTORICAL ADOPTION TREND */}
-          <AdoptionTrendCard
-            serieHistorica={metricasGlobales.serieHistorica}
-            filtros={filtrosCompuestos}
-          />
+          {/* ROW 2: DUAL COLUMNS (LEFT: HISTORICAL TREND, RIGHT: COMMERCIAL LEADERBOARD) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+            {/* Left Column (6 of 12 Cols): Adoption Trend */}
+            <div className="lg:col-span-6 flex flex-col">
+              <AdoptionTrendCard
+                serieHistorica={metricasGlobales.serieHistorica}
+                filtros={filtrosCompuestos}
+              />
+            </div>
 
-          {/* ROW 3: COMMERCIAL LEADERBOARD & BENCHMARK */}
-          <LeaderboardCard
-            leaderboardData={leaderboardData}
-            onOpenActionDrawer={handleOpenActionDrawer}
-          />
+            {/* Right Column (6 of 12 Cols): Commercial Leaderboard */}
+            <div className="lg:col-span-6 flex flex-col">
+              <LeaderboardCard
+                leaderboardData={leaderboardData}
+                onOpenActionDrawer={handleOpenActionDrawer}
+              />
+            </div>
+          </div>
 
-          {/* ROW 4: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
+          {/* ROW 3: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
           <ProgressiveHierarchy
             filtrosCompuestos={filtrosCompuestos}
             onHierarchyFilterChange={handleHierarchyFilterChange}

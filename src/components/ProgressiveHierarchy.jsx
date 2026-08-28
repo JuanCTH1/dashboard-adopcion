@@ -391,15 +391,15 @@ export function ProgressiveHierarchy({
                           {vp.persona}
                         </div>
 
-                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
-                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-white/20 text-white" : "border-border/60 text-foreground")}>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Onb {formatPct(vp.metricas.clientes?.pctOnboarding || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-white/80" : "text-muted-foreground")}>({vp.metricas.clientes?.onboarded || 0}/{vp.metricas.clientes?.asignados || 0} cli)</span>
+                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
+                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-white/20 text-white" : "border-border/60 text-foreground")}>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-white/80" : "text-muted-foreground")}>{vp.metricas.clientes?.asignados || 0} cli</span>
+                            <span className="font-bold shrink-0">{formatPct(vp.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Adop {formatPct(vp.metricas.pedidos?.pctAdopcion || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-white/80" : "text-muted-foreground")}>({formatNumber(vp.metricas.pedidos?.totales || 0)} ord)</span>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-white/80" : "text-muted-foreground")}>{formatNumber(vp.metricas.pedidos?.totales || 0)} ord</span>
+                            <span className="font-bold shrink-0">{formatPct(vp.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
                           </div>
                         </div>
                       </button>
@@ -521,15 +521,15 @@ export function ProgressiveHierarchy({
                           </div>
                         )}
 
-                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
-                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Onb {formatPct(dir.metricas.clientes?.pctOnboarding || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-indigo-200" : "text-muted-foreground")}>({dir.metricas.clientes?.onboarded || 0}/{dir.metricas.clientes?.asignados || 0} cli)</span>
+                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
+                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{dir.metricas.clientes?.asignados || 0} cli</span>
+                            <span className="font-bold shrink-0">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Adop {formatPct(dir.metricas.pedidos?.pctAdopcion || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-indigo-200" : "text-muted-foreground")}>({formatNumber(dir.metricas.pedidos?.totales || 0)} ord)</span>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{formatNumber(dir.metricas.pedidos?.totales || 0)} ord</span>
+                            <span className="font-bold shrink-0">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
                           </div>
                         </div>
                       </button>
@@ -652,15 +652,15 @@ export function ProgressiveHierarchy({
                           </div>
                         )}
 
-                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
-                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Onb {formatPct(ger.metricas.clientes?.pctOnboarding || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-sky-200" : "text-muted-foreground")}>({ger.metricas.clientes?.onboarded || 0}/{ger.metricas.clientes?.asignados || 0} cli)</span>
+                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
+                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{ger.metricas.clientes?.asignados || 0} cli</span>
+                            <span className="font-bold shrink-0">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Adop {formatPct(ger.metricas.pedidos?.pctAdopcion || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-sky-200" : "text-muted-foreground")}>({formatNumber(ger.metricas.pedidos?.totales || 0)} ord)</span>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{formatNumber(ger.metricas.pedidos?.totales || 0)} ord</span>
+                            <span className="font-bold shrink-0">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
                           </div>
                         </div>
                       </button>
@@ -722,15 +722,15 @@ export function ProgressiveHierarchy({
                           {rep.plaza} · <b className="uppercase">{rep.bl}</b>
                         </div>
 
-                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
-                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Onb {formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-emerald-200" : "text-muted-foreground")}>({rep.metricas.clientes?.onboarded || 0}/{rep.metricas.clientes?.asignados || 0} cli)</span>
+                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
+                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-emerald-200" : "text-muted-foreground")}>{rep.metricas.clientes?.asignados || 0} cli</span>
+                            <span className="font-bold shrink-0">{formatPct(rep.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">Adop {formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
-                            <span className={cn("text-[8px]", isSelected ? "text-emerald-200" : "text-muted-foreground")}>({formatNumber(rep.metricas.pedidos?.totales || 0)} ord)</span>
+                          <div className="truncate flex items-center justify-between gap-1">
+                            <span className={cn("truncate", isSelected ? "text-emerald-200" : "text-muted-foreground")}>{formatNumber(rep.metricas.pedidos?.totales || 0)} ord</span>
+                            <span className="font-bold shrink-0">{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
                           </div>
                         </div>
                       </button>

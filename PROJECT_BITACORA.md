@@ -443,10 +443,21 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Enfoque Exclusivo en Porcentajes:**
   - Clasificación y ordenamiento exclusivo por métricas de porcentaje: **`Order Adoption %`** y **`Onboarding %`** (sin métricas de volumen ni velocidad para mantener máxima claridad).
 - **Gamificación Comercial & Alertas:**
-  - **Medallas de Podio (🥇 🥈 🥉):** Destacan visualmente el Top 3 de cada dimensión.
+  - **Medallas de Podio (🥇  🥈 🥉):** Destacan visualmente el Top 3 de cada dimensión.
   - **Alerta de Rezagados (⚠️ Lagging):** Marca en rojo/rosa sutil el **Bottom 20%** para enfocar la acción comercial directiva.
   - **Bullet Graph Benchmark:** Muestra la comparación visual respecto al objetivo global del 90.0%.
 - **Integración con Action Drawer:**
   - Al hacer clic en cualquier fila del ranking, se abre el [ActionDrawer.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ActionDrawer.jsx) con la cartera de clientes pendientes de esa entidad específica.
 - **Generación de Datos en Repositorio:**
   - Se agregó el método `getLeaderboard()` en [adopcionRepo.js](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/domain/adopcionRepo.js) para calcular los datos del ranking en tiempo real según los filtros activos.
+---
+
+## 🎯 Versión 2.37 - Disposición Side-by-Side en Fila 2 & Formato Densa de Tarjetas
+
+- **Rediseño Side-by-Side de la Fila 2:**
+  - En [App.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/App.jsx) se colocó la Gráfica de Tendencia ([AdoptionTrendCard.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/AdoptionTrendCard.jsx)) a la **izquierda** (6 cols) y el Leaderboard ([LeaderboardCard.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/LeaderboardCard.jsx)) a la **derecha** (6 cols), manteniendo **misma altura pareja**.
+  - La tabla del Leaderboard se ajustó a `max-h-[195px]` para mostrar exactamente **~4 filas visibles** con scroll interno, permitiendo ver la Jerarquía directamente debajo sin hacer scroll vertical en la página.
+- **Formato Limpio de 2 Renglones en Tarjetas de Jerarquía:**
+  - En [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx) (VPs, Regiones, Mercados y Vendedores), Renglón 3 se formateó en 2 líneas limpias sin desbordes:
+    - **Línea 1:** `28 cli` (izq) | `67.2% onboarded` (der).
+    - **Línea 2:** `1,260 ord` (izq) | `54.1% adopted` (der).

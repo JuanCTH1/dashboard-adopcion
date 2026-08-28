@@ -58,35 +58,35 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
   }, [leaderboardData, dimension, sortBy, searchTerm]);
 
   return (
-    <Card className="p-4 sm:p-5 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none font-sans">
+    <Card className="p-4 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none font-sans h-full flex flex-col justify-between">
       {/* Top Accent Bar */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-500 via-primary to-emerald-500" />
 
       {/* HEADER & CONTROLS */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3.5 mb-3.5 border-b border-border">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
             <Trophy className="w-4 h-4 text-amber-500" />
             <h3 className="text-xs font-black uppercase tracking-wider text-foreground font-sans">
-              Commercial Leaderboard & Adoption Benchmark
+              Commercial Leaderboard & Benchmark
             </h3>
           </div>
           <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">
-            Cross-entity ranking based exclusively on Onboarding & Order Adoption rates
+            Ranking by Onboarding & Adoption rates
           </p>
         </div>
 
         {/* CONTROLS ROW */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
           {/* Search Box */}
-          <div className="relative min-w-[150px]">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative min-w-[120px]">
+            <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search entity..."
+              placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg border border-border bg-slate-50 dark:bg-slate-900 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-full pl-7 pr-2 py-0.5 text-[11px] rounded-lg border border-border bg-slate-50 dark:bg-slate-900 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
@@ -96,27 +96,27 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('market_line')}
               className={cn(
-                "px-2 py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer",
+                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'market_line' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              Market & Line
+              Line
             </button>
             <button
               type="button"
               onClick={() => setDimension('sales_reps')}
               className={cn(
-                "px-2 py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer",
+                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'sales_reps' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              Sales Reps
+              Reps
             </button>
             <button
               type="button"
               onClick={() => setDimension('markets')}
               className={cn(
-                "px-2 py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer",
+                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'markets' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -126,7 +126,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('regions')}
               className={cn(
-                "px-2 py-1 text-[10px] font-bold rounded-md transition-all cursor-pointer",
+                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'regions' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -140,47 +140,46 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setSortBy('adopcion')}
               className={cn(
-                "px-2 py-1 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 cursor-pointer",
+                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
                 sortBy === 'adopcion' ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <ShoppingCart className="w-3 h-3" />
-              <span>Adoption %</span>
+              <ShoppingCart className="w-2.5 h-2.5" />
+              <span>Adop %</span>
             </button>
             <button
               type="button"
               onClick={() => setSortBy('onboarding')}
               className={cn(
-                "px-2 py-1 text-[10px] font-bold rounded-md transition-all flex items-center gap-1 cursor-pointer",
+                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
                 sortBy === 'onboarding' ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <UserCheck className="w-3 h-3" />
-              <span>Onboarding %</span>
+              <UserCheck className="w-2.5 h-2.5" />
+              <span>Onb %</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* LEADERBOARD TABLE */}
-      <div className="overflow-x-auto max-h-[340px] overflow-y-auto scrollbar-thin">
+      {/* LEADERBOARD TABLE (~4 ROWS VISIBLE) */}
+      <div className="overflow-x-auto max-h-[195px] overflow-y-auto scrollbar-thin flex-1">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="border-b border-border text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-slate-100/80 dark:bg-slate-800/80 sticky top-0 z-10">
-              <th className="py-2 px-3 w-14 text-center">Rank</th>
-              <th className="py-2 px-3">Entity / Scope</th>
-              <th className="py-2 px-3 w-20">Line</th>
-              <th className="py-2 px-3">Leader / Owner</th>
-              <th className="py-2 px-3 w-36">Onboarding %</th>
-              <th className="py-2 px-3 w-36">Order Adoption %</th>
-              <th className="py-2 px-3 w-40 text-center">Visual Benchmark</th>
-              <th className="py-2 px-3 w-10 text-center"></th>
+            <tr className="border-b border-border text-[9.5px] font-bold uppercase tracking-wider text-muted-foreground bg-slate-100/80 dark:bg-slate-800/80 sticky top-0 z-10">
+              <th className="py-1.5 px-2 w-10 text-center">Rank</th>
+              <th className="py-1.5 px-2">Entity / Scope</th>
+              <th className="py-1.5 px-2 w-12">Line</th>
+              <th className="py-1.5 px-2 w-28">Onboarded</th>
+              <th className="py-1.5 px-2 w-28">Adopted</th>
+              <th className="py-1.5 px-2 w-28 text-center">Benchmark</th>
+              <th className="py-1.5 px-2 w-6 text-center"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60">
             {processedData.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-8 text-center text-xs text-muted-foreground">
+                <td colSpan={7} className="py-8 text-center text-xs text-muted-foreground">
                   No ranking entities match the current filter criteria.
                 </td>
               </tr>
@@ -198,25 +197,25 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                     )}
                   >
                     {/* Rank Badge */}
-                    <td className="py-2.5 px-3 text-center">
+                    <td className="py-1.5 px-2 text-center">
                       {item.rank === 1 && (
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-black text-xs border border-amber-500/30">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-black text-[11px] border border-amber-500/30">
                           🥇
                         </span>
                       )}
                       {item.rank === 2 && (
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-black text-xs border border-slate-300 dark:border-slate-600">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-black text-[11px] border border-slate-300 dark:border-slate-600">
                           🥈
                         </span>
                       )}
                       {item.rank === 3 && (
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-700/20 text-amber-800 dark:text-amber-300 font-black text-xs border border-amber-700/30">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-700/20 text-amber-800 dark:text-amber-300 font-black text-[11px] border border-amber-700/30">
                           🥉
                         </span>
                       )}
                       {item.rank > 3 && (
                         <span className={cn(
-                          "text-xs font-bold tabular-nums",
+                          "text-[11px] font-bold tabular-nums",
                           item.isBottom20 ? "text-rose-600 dark:text-rose-400" : "text-muted-foreground"
                         )}>
                           #{item.rank}
@@ -225,21 +224,21 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                     </td>
 
                     {/* Entity Name */}
-                    <td className="py-2.5 px-3">
-                      <div className="font-bold text-xs text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
-                        <span>{item.nombre}</span>
+                    <td className="py-1.5 px-2">
+                      <div className="font-bold text-[11px] text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
+                        <span className="truncate max-w-[120px]">{item.nombre}</span>
                         {item.isBottom20 && (
-                          <Badge variant="danger" className="text-[8px] py-0 px-1 font-bold">
-                            ⚠️ Lagging
+                          <Badge variant="danger" className="text-[7.5px] py-0 px-0.5 font-bold shrink-0">
+                            ⚠️
                           </Badge>
                         )}
                       </div>
                     </td>
 
                     {/* Line Badge */}
-                    <td className="py-2.5 px-3">
+                    <td className="py-1.5 px-2">
                       <span className={cn(
-                        "text-[9px] font-black px-1.5 py-0.5 rounded border uppercase",
+                        "text-[8.5px] font-black px-1 py-0.2 rounded border uppercase",
                         item.lineaNegocio === 'readymix' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                         item.lineaNegocio === 'cemento' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                         item.lineaNegocio === 'agregados' ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30" :
@@ -249,33 +248,28 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                       </span>
                     </td>
 
-                    {/* Leader / Owner */}
-                    <td className="py-2.5 px-3 text-xs font-medium text-muted-foreground truncate max-w-[140px]">
-                      {item.persona || 'Commercial Scope'}
-                    </td>
-
                     {/* Onboarding % (Headline + Raw Count) */}
-                    <td className="py-2.5 px-3 font-mono">
-                      <div className="text-xs font-bold text-foreground tabular-nums">
+                    <td className="py-1.5 px-2 font-mono">
+                      <div className="text-[11px] font-bold text-foreground tabular-nums">
                         {formatPct(item.onboardingPct)}
                       </div>
-                      <div className="text-[9px] text-muted-foreground">
+                      <div className="text-[8.5px] text-muted-foreground">
                         ({item.onboardedCount}/{item.assignedCount} cli)
                       </div>
                     </td>
 
                     {/* Order Adoption % (Headline + Raw Count) */}
-                    <td className="py-2.5 px-3 font-mono">
-                      <div className="text-xs font-bold text-primary tabular-nums">
+                    <td className="py-1.5 px-2 font-mono">
+                      <div className="text-[11px] font-bold text-primary tabular-nums">
                         {formatPct(item.adopcionPct)}
                       </div>
-                      <div className="text-[9px] text-muted-foreground">
+                      <div className="text-[8.5px] text-muted-foreground">
                         ({formatNumber(item.digitalOrders)} ord)
                       </div>
                     </td>
 
                     {/* Visual Benchmark Bullet Graph */}
-                    <td className="py-2.5 px-3">
+                    <td className="py-1.5 px-2">
                       <BulletGraph
                         actual={activeVal}
                         target={90.0}
@@ -284,8 +278,8 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                     </td>
 
                     {/* Arrow Action */}
-                    <td className="py-2.5 px-3 text-right">
-                      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <td className="py-1.5 px-2 text-right">
+                      <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
                     </td>
                   </tr>
                 );
