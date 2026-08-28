@@ -69,43 +69,63 @@ export function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Global Keyboard Navigation (Arrow Keys, PageUp/Down scroll the dashboard canvas)
+  // Fast, beautiful smooth scroll animation (easeOutQuart, ~280ms)
+  const smoothScrollTo = useCallback((element, targetY, duration = 280) => {
+    if (!element) return;
+    const startY = element.scrollTop;
+    const diff = targetY - startY;
+    if (Math.abs(diff) < 2) return;
+
+    const startTime = performance.now();
+    const easeOutQuart = (x) => 1 - Math.pow(1 - x, 4);
+
+    const step = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      element.scrollTop = startY + diff * easeOutQuart(progress);
+
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    requestAnimationFrame(step);
+  }, []);
+
+  // Global Keyboard Navigation (Arrow Keys animate directly to top/bottom with snappy curve)
   useEffect(() => {
     const handleGlobalNavKeys = (e) => {
       if (isSearchOpen || isActionDrawerOpen) return;
       const tag = document.activeElement?.tagName?.toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
 
+      const el = mainScrollRef.current;
+      if (!el) return;
+
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        if (mainScrollRef.current) {
-          mainScrollRef.current.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'auto' });
-        }
+        smoothScrollTo(el, el.scrollHeight - el.clientHeight, 280);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        if (mainScrollRef.current) {
-          mainScrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
-        }
+        smoothScrollTo(el, 0, 280);
       } else if (e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
         e.preventDefault();
-        mainScrollRef.current?.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'auto' });
+        smoothScrollTo(el, Math.min(el.scrollTop + 500, el.scrollHeight - el.clientHeight), 220);
       } else if (e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
         e.preventDefault();
-        mainScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+        smoothScrollTo(el, Math.max(el.scrollTop - 500, 0), 220);
       } else if (e.key === 'Home') {
         e.preventDefault();
-        mainScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+        smoothScrollTo(el, 0, 280);
       } else if (e.key === 'End') {
         e.preventDefault();
-        if (mainScrollRef.current) {
-          mainScrollRef.current.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'auto' });
-        }
+        smoothScrollTo(el, el.scrollHeight - el.clientHeight, 280);
       }
     };
 
     window.addEventListener('keydown', handleGlobalNavKeys);
     return () => window.removeEventListener('keydown', handleGlobalNavKeys);
-  }, [isSearchOpen, isActionDrawerOpen]);
+  }, [isSearchOpen, isActionDrawerOpen, smoothScrollTo]);
 
   const handleFiltroChange = (key, val) => {
     setFiltrosContexto(prev => ({ ...prev, [key]: val }));
