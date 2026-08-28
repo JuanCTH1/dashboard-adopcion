@@ -1,5 +1,5 @@
 /**
- * GENERADOR DETERMINISTA DE DATOS SINTÉTICOS DE ADOPCIÓN CX - USA GEOGRAPHY
+ * GENERADOR DETERMINISTA DE DATOS SINTÉTICOS DE ADOPCIÓN CX - REALISTIC B2B COMPANIES & USA GEOGRAPHY
  * PRNG Mulberry32 para reproducibilidad exacta
  */
 
@@ -105,6 +105,22 @@ export function generateDataset(seed = 20260828) {
     }
   });
 
+  // Lista de Nombres de Empresas Corporativas Realistas de Construcción e Infraestructura
+  const BASE_COMPANY_NAMES = [
+    'Apex Construction LLC', 'Turner Heavy Infra', 'Skanska USA Built', 'Bechtel Concrete Works',
+    'PCL Construction Corp', 'Fluor Industrial Inc', 'Kiewit Infrastructure', 'Walsh Heavy Materials',
+    'Balfour Beatty US', 'Gilbane Building Co', 'AECOM Structures', 'Mortenson Construction',
+    'Hensel Phelps Builders', 'Clark Construction Group', 'Suffolk Heavy Build', 'Whiting-Turner Co',
+    'Granite Construction', 'Structure Tone Global', 'Clayco Commercial Works', 'Sundt Infrastructure',
+    'Austin Commercial LLC', 'Webcor Builders', 'McCarthy Building Co', 'Lendlease Americas',
+    'DPR Construction', 'Brasfield & Gorrie', 'JE Dunn Construction', 'Rodgers Builders Inc',
+    'Robins & Morton', 'Barton Malow Co', 'Ryan Companies US', 'Pepper Construction',
+    'Crossland Heavy Corp', 'Swinerton Builders', 'Hoar Construction', 'Hardin Construction',
+    'Zachry Industrial', 'Manhattan Construction', 'LDF Built Corp', 'Holder Construction'
+  ];
+
+  const COMPANY_SUFFIXES = ['East Site', 'West Div', 'Metro Project', 'Plant #2', 'Hub', 'Venture', 'Site A', 'South Park'];
+
   const LINEAS_LIST = [
     { id: 'readymix', label: 'Concreto / Readymix', unidad: 'cu yd', peso: 0.45 },
     { id: 'cemento', label: 'Cemento a Granel', unidad: 'tons', peso: 0.35 },
@@ -119,6 +135,9 @@ export function generateDataset(seed = 20260828) {
 
     for (let i = 0; i < numClientes; i++) {
       const cId = `CLI-${String(cIdx).padStart(5, '0')}`;
+      const baseComp = BASE_COMPANY_NAMES[(cIdx - 1) % BASE_COMPANY_NAMES.length];
+      const suff = COMPANY_SUFFIXES[Math.floor(rand() * COMPANY_SUFFIXES.length)];
+      const nombreEmpresa = `${baseComp} (${suff})`;
       cIdx++;
 
       const lRand = rand();
@@ -142,6 +161,7 @@ export function generateDataset(seed = 20260828) {
 
       CLIENTES.push({
         id: cId,
+        nombreEmpresa,
         vendedorId: rep.id,
         gerenteId: rep.gerenteId,
         directorId: rep.directorId,

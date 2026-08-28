@@ -78,7 +78,6 @@ class AdopcionRepository {
   getMetricasGlobales(filtros = {}) {
     const { clientes, transacciones } = this._filtrar(filtros);
     const metricasActuales = calculateAggregations(transacciones, clientes);
-
     const serieHistorica = this.getSerieHistorica(filtros, 24);
 
     return {
@@ -221,6 +220,7 @@ class AdopcionRepository {
 
       return {
         id: c.id,
+        nombreEmpresa: c.nombreEmpresa || `Company ${c.id}`,
         lineaNegocio: c.lineaNegocio,
         lineaLabel: c.lineaLabel,
         unidad: c.unidad,
@@ -253,6 +253,7 @@ class AdopcionRepository {
       const vol = txMap.get(c.id) || c.volumenBase;
       return {
         id: c.id,
+        nombreEmpresa: c.nombreEmpresa || `Company ${c.id}`,
         vendedorId: c.vendedorId,
         vendedorNombre: this.data.VENDEDORES.find(v => v.id === c.vendedorId)?.nombre || 'Vendedor',
         plaza: c.plaza,
