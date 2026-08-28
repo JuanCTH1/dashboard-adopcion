@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Users, UserCheck, Activity, Target, ChevronRight } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
+import { CustomTooltip } from '@/components/ui/tooltip';
 
 export function ExecutiveRibbon({ metricasGlobales }) {
   if (!metricasGlobales || !metricasGlobales.actual) return null;
@@ -135,12 +136,11 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                 </div>
 
                 {/* Subtitle Footer with Exact Value Tooltip */}
-                <div
-                  className="text-[9.5px] font-medium text-muted-foreground truncate flex items-center justify-between border-t border-border/40 pt-1"
-                  title={st.exactTooltip}
-                >
-                  <span className="truncate">{st.secondaryLabel}</span>
-                </div>
+                <CustomTooltip text={st.exactTooltip}>
+                  <div className="text-[9.5px] font-medium text-muted-foreground truncate border-t border-border/40 pt-1">
+                    <span className="truncate">{st.secondaryLabel}</span>
+                  </div>
+                </CustomTooltip>
               </div>
 
               {/* CHEVRON FLOW BADGE BETWEEN STAGES */}

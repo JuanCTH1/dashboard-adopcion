@@ -779,3 +779,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Estilización Homogénea de Cursors y Celda Vacía (`ProgressiveHierarchy.jsx`, `ExecutiveRibbon.jsx`):**
   - Se removió el guión (`—`) de la celda `Status` en la fila fija de totales (`tfoot`), dejándola completamente limpia e invisible.
   - Se eliminó la clase `cursor-help` (cursor con signo de interrogación `?`) de las celdas con tooltips en la tabla y en los listones superiores, manteniendo la flecha estándar idéntica a las tarjetas de la izquierda.
+---
+
+## 🎯 Versión 2.76 - Implementación de `CustomTooltip` con Diseño Obra/Slate Glassmorphism (`src/components/ui/tooltip.jsx`, `ProgressiveHierarchy.jsx`, `ExecutiveRibbon.jsx`)
+
+- **Tooltips Elegantes Idénticos al Diseño de Tarjetas (`CustomTooltip`):**
+  - Se implementó el componente `<CustomTooltip>` con renderizado por `position: fixed` e insuflado instantáneo (0ms delay) en tema **Dark Slate Glassmorphism** (`bg-slate-900 text-slate-100 rounded-lg shadow-xl border border-slate-700/80 px-2.5 py-1 text-[10px] font-extrabold`).
+  - Se integró `<CustomTooltip>` en todos los contadores en K de la tabla de cartera, totales de encabezado y subtítulos del embudo `ExecutiveRibbon`.

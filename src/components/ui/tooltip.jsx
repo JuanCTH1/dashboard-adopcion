@@ -1,6 +1,52 @@
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import { HelpCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+
+export function CustomTooltip({ text, children, position = "top" }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const triggerRef = useRef(null);
+
+  if (!text) return children;
+
+  const handleMouseEnter = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setCoords({
+        x: rect.left + rect.width / 2,
+        y: position === "bottom" ? rect.bottom + 6 : rect.top - 6
+      });
+    }
+    setIsVisible(true);
+  };
+
+  return (
+    <>
+      <span
+        ref={triggerRef}
+        className="inline-block cursor-default"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={() => setIsVisible(false)}
+      >
+        {children}
+      </span>
+
+      {isVisible && (
+        <div
+          style={{
+            position: "fixed",
+            left: `${coords.x}px`,
+            top: `${coords.y}px`,
+            transform: position === "bottom" ? "translate(-50%, 0)" : "translate(-50%, -100%)"
+          }}
+          className="z-[9999] pointer-events-none whitespace-nowrap rounded-lg bg-slate-900 dark:bg-slate-800 text-slate-100 px-2.5 py-1 text-[10px] font-extrabold shadow-xl border border-slate-700/80 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100"
+        >
+          {text}
+        </div>
+      )}
+    </>
+  );
+}
 
 export function MetricInfoTooltip({ titulo, descripcion, tipo = "propuesta" }) {
   const [isVisible, setIsVisible] = useState(false);
