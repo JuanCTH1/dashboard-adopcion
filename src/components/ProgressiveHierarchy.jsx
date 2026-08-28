@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, startTransition } from 'react';
+import React, { useState, useMemo, useEffect, startTransition, useDeferredValue } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ import { adopcionRepo } from '@/domain/adopcionRepo';
 
 // High-speed fluid transition (0ms startup, GPU hardware-accelerated)
 const INSTANT_FLUID_TRANSITION = {
-  duration: 0.30,
+  duration: 0.28,
   ease: [0.16, 1, 0.3, 1]
 };
 
@@ -123,6 +123,9 @@ export function ProgressiveHierarchy({
       cartera
     };
   }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, filtrosCompuestos]);
+
+  // DEFERRED CARTERA FOR SMOOTH 60FPS COLLAPSE ANIMATION WITHOUT MAIN THREAD DOM THRASHING
+  const deferredCartera = useDeferredValue(activeContext.cartera);
 
   // Weighted totals calculation for footer
   const totalesCartera = useMemo(() => {
@@ -489,7 +492,7 @@ export function ProgressiveHierarchy({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
-                  {activeContext.cartera.slice(0, 50).map(cli => {
+                  {deferredCartera.slice(0, 50).map(cli => {
                     const isExpanded = expandedRowIds.has(cli.id);
                     return (
                       <React.Fragment key={cli.id}>
