@@ -6,7 +6,7 @@ import { HierarchyTable } from '@/components/HierarchyTable';
 import { ActionDrawer } from '@/components/ActionDrawer';
 import { CommandPalette } from '@/components/CommandPalette';
 import { FilterSidebar } from '@/components/FilterSidebar';
-import { BrandRibbon } from '@/components/ui/BrandRibbon';
+import { AppLogo } from '@/components/ui/AppLogo';
 import { exportToCsv } from '@/lib/exportCsv';
 import { Sun, Moon, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -225,17 +225,7 @@ export function App() {
       {/* Barra de Navegación Global */}
       <header className="h-12 border-b border-border/80 bg-card px-4 sm:px-6 flex items-center justify-between shadow-xxs">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2.5">
-            <BrandRibbon />
-            <div>
-              <span className="font-extrabold text-sm tracking-tight text-foreground font-sans">
-                CEMEX
-              </span>
-              <span className="text-[11px] text-muted-foreground ml-1.5 font-medium">
-                Tablero de Adopción Digital CX
-              </span>
-            </div>
-          </div>
+          <AppLogo />
 
           <Badge variant="outline" className="text-[9px] py-0 px-1.5 text-sky-600 dark:text-sky-400 border-sky-500/30 hidden md:flex items-center gap-1">
             <Sparkles className="w-2.5 h-2.5" />
