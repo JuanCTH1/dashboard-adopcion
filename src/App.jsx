@@ -6,8 +6,9 @@ import { HierarchyTable } from '@/components/HierarchyTable';
 import { ActionDrawer } from '@/components/ActionDrawer';
 import { CommandPalette } from '@/components/CommandPalette';
 import { FilterSidebar } from '@/components/FilterSidebar';
+import { BrandRibbon } from '@/components/ui/BrandRibbon';
 import { exportToCsv } from '@/lib/exportCsv';
-import { Sun, Moon, Sparkles, Building2 } from 'lucide-react';
+import { Sun, Moon, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LENTES } from '@/domain/definiciones';
@@ -224,16 +225,14 @@ export function App() {
       {/* Barra de Navegación Global */}
       <header className="h-12 border-b border-border/80 bg-card px-4 sm:px-6 flex items-center justify-between shadow-xxs">
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-xs">
-              <Building2 className="w-4 h-4" />
-            </div>
+          <div className="flex items-center gap-2.5">
+            <BrandRibbon />
             <div>
-              <span className="font-bold text-xs tracking-tight text-foreground">
-                CEMEX CX
+              <span className="font-extrabold text-sm tracking-tight text-foreground font-sans">
+                CEMEX
               </span>
-              <span className="text-[10px] text-muted-foreground ml-1.5 hidden sm:inline font-mono">
-                Tablero de Adopción Digital
+              <span className="text-[11px] text-muted-foreground ml-1.5 font-medium">
+                Tablero de Adopción Digital CX
               </span>
             </div>
           </div>
