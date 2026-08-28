@@ -1,5 +1,5 @@
 /**
- * REPOSITORIO DE DATOS DE ADOPCIÓN CX CON FILTRADO ASOCIATIVO MULTIDIMENSIONAL
+ * REPOSITORIO DE DATOS DE ADOPCIÓN CX CON FILTRADO ASOCIATIVO MULTIDIMENSIONAL (USA GEOGRAPHY)
  */
 
 import { generateDataset } from './mockGenerator.js';
@@ -36,23 +36,23 @@ class AdopcionRepository {
     const lineas = filtros.lineasNegocio?.length ? filtros.lineasNegocio : (filtros.lineaNegocio ? [filtros.lineaNegocio] : []);
     const regiones = filtros.regionIds?.length ? filtros.regionIds : (filtros.regionId ? [filtros.regionId] : []);
     const plazas = filtros.plazas?.length ? filtros.plazas : (filtros.plaza ? [filtros.plaza] : []);
-    const vpId = filtros.vpId;
-    const directorId = filtros.directorId;
-    const gerenteId = filtros.gerenteId;
-    const vendedorId = filtros.vendedorId;
+
+    const vpIds = filtros.vpIds?.length ? filtros.vpIds : (filtros.vpId ? [filtros.vpId] : []);
+    const directorIds = filtros.directorIds?.length ? filtros.directorIds : (filtros.directorId ? [filtros.directorId] : []);
+    const gerenteIds = filtros.gerenteIds?.length ? filtros.gerenteIds : (filtros.gerenteId ? [filtros.gerenteId] : []);
+    const vendedorIds = filtros.vendedorIds?.length ? filtros.vendedorIds : (filtros.vendedorId ? [filtros.vendedorId] : []);
 
     let clientesFiltrados = this.data.CLIENTES;
     if (lineas.length) clientesFiltrados = clientesFiltrados.filter(c => lineas.includes(c.lineaNegocio));
     if (regiones.length) clientesFiltrados = clientesFiltrados.filter(c => regiones.includes(c.regionId));
     if (plazas.length) clientesFiltrados = clientesFiltrados.filter(c => plazas.includes(c.plaza));
-    if (vpId) clientesFiltrados = clientesFiltrados.filter(c => c.vpId === vpId);
-    if (directorId) clientesFiltrados = clientesFiltrados.filter(c => c.directorId === directorId);
-    if (gerenteId) clientesFiltrados = clientesFiltrados.filter(c => c.gerenteId === gerenteId);
-    if (vendedorId) clientesFiltrados = clientesFiltrados.filter(c => c.vendedorId === vendedorId);
+    if (vpIds.length) clientesFiltrados = clientesFiltrados.filter(c => vpIds.includes(c.vpId));
+    if (directorIds.length) clientesFiltrados = clientesFiltrados.filter(c => directorIds.includes(c.directorId));
+    if (gerenteIds.length) clientesFiltrados = clientesFiltrados.filter(c => gerenteIds.includes(c.gerenteId));
+    if (vendedorIds.length) clientesFiltrados = clientesFiltrados.filter(c => vendedorIds.includes(c.vendedorId));
 
     const clientIdsSet = new Set(clientesFiltrados.map(c => c.id));
 
-    // Filtrar periodos válidos según selección multi-año y multi-mes
     const mesesValidosKeys = new Set();
     this.data.MESES.forEach(m => {
       if (anios.includes(m.anio) && mesesNombres.includes(m.nombreMes)) {
@@ -60,7 +60,6 @@ class AdopcionRepository {
       }
     });
 
-    // Si por alguna razón quedó vacío, usar periodo actual
     if (mesesValidosKeys.size === 0) {
       mesesValidosKeys.add(this.data.periodoActual);
     }
@@ -120,8 +119,9 @@ class AdopcionRepository {
     });
   }
 
-  getJerarquia(nivel = 'nacional', parentId = null, filtros = {}) {
+  getJerarquia(nivel = 'nacional', parentIds = [], filtros = {}) {
     let nodos = [];
+    const parentSet = new Set(Array.isArray(parentIds) ? parentIds : [parentIds].filter(Boolean));
 
     if (nivel === 'nacional') {
       nodos = this.data.VPS.map(vp => ({
@@ -133,7 +133,7 @@ class AdopcionRepository {
       }));
     } else if (nivel === 'vp') {
       nodos = this.data.DIRECTORES
-        .filter(d => !parentId || d.vpId === parentId)
+        .filter(d => parentSet.size === 0 || parentSet.has(d.vpId))
         .map(d => ({
           id: d.id,
           nombre: d.nombre,
@@ -143,7 +143,7 @@ class AdopcionRepository {
         }));
     } else if (nivel === 'director') {
       nodos = this.data.GERENTES
-        .filter(g => !parentId || g.directorId === parentId)
+        .filter(g => parentSet.size === 0 || parentSet.has(g.directorId))
         .map(g => ({
           id: g.id,
           nombre: g.nombre,
@@ -153,7 +153,7 @@ class AdopcionRepository {
         }));
     } else if (nivel === 'gerente') {
       nodos = this.data.VENDEDORES
-        .filter(v => !parentId || v.gerenteId === parentId)
+        .filter(v => parentSet.size === 0 || parentSet.has(v.gerenteId))
         .map(v => ({
           id: v.id,
           nombre: v.nombre,
@@ -179,16 +179,15 @@ class AdopcionRepository {
         ...nodo,
         metricas,
         deltaPedidosMoM: 3.2,
-        metaAdopcion: 75.0
+        metaAdopcion: 90.0
       };
     });
   }
 
-  getCartera(vendedorId, filtros = {}) {
-    const { clientes, transacciones } = this._filtrar({ ...filtros, vendedorId });
+  getCartera(vendedorId = null, filtros = {}) {
+    const { clientes, transacciones } = this._filtrar({ ...filtros, ...(vendedorId ? { vendedorId } : {}) });
     const txMap = new Map();
-    
-    // Sumar transacciones si hay múltiples meses seleccionados
+
     transacciones.forEach(t => {
       if (!txMap.has(t.clienteId)) {
         txMap.set(t.clienteId, {
