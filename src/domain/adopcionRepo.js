@@ -1,5 +1,5 @@
 /**
- * REPOSITORIO DE DATOS DE ADOPCIÓN CX CON MEDIDA PRIMARIA DE ÓRDENES / PEDIDOS (USA GEOGRAPHY)
+ * REPOSITORIO DE DATOS DE ADOPCIÓN CX - ENGLISH COPIES & ACCURATE CHANNEL MATCHING
  */
 
 import { generateDataset } from './mockGenerator.js';
@@ -231,6 +231,18 @@ class AdopcionRepository {
         ? (tx.pedidosDigitales / tx.pedidosTotales) * 100
         : 0;
 
+      // Determinación estricta del Canal Principal
+      let primaryChannel = 'Phone / Offline';
+      if (tx.pedidosDigitales > 0) {
+        if (tx.pedidosWeb >= tx.pedidosApp && tx.pedidosWeb >= tx.pedidosEdi) {
+          primaryChannel = 'Web Portal';
+        } else if (tx.pedidosApp >= tx.pedidosWeb && tx.pedidosApp >= tx.pedidosEdi) {
+          primaryChannel = 'Mobile App';
+        } else {
+          primaryChannel = 'EDI Integration';
+        }
+      }
+
       return {
         id: c.id,
         nombreEmpresa: c.nombreEmpresa || `Company ${c.id}`,
@@ -242,6 +254,7 @@ class AdopcionRepository {
         volumenDigital: tx.volumenDigital,
         pedidosTotales: tx.pedidosTotales,
         pedidosDigitales: tx.pedidosDigitales,
+        pedidosAnalogos: tx.pedidosAnalogos,
         pedidosWeb: tx.pedidosWeb,
         pedidosApp: tx.pedidosApp,
         pedidosEdi: tx.pedidosEdi,
@@ -251,7 +264,7 @@ class AdopcionRepository {
         esRevertido: c.esRevertido,
         fttv: c.fttv,
         digitalShare: Number((c.digitalShare * 100).toFixed(1)),
-        canalPreferido: c.canalPreferido,
+        primaryChannel,
         esTopPareto: c.esTopPareto
       };
     });
