@@ -136,7 +136,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
 
                 {/* Subtitle Footer with Exact Value Tooltip */}
                 <div
-                  className="text-[9.5px] font-medium text-muted-foreground truncate flex items-center justify-between border-t border-border/40 pt-1 cursor-help"
+                  className="text-[9.5px] font-medium text-muted-foreground truncate flex items-center justify-between border-t border-border/40 pt-1"
                   title={st.exactTooltip}
                 >
                   <span className="truncate">{st.secondaryLabel}</span>

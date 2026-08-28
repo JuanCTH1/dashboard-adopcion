@@ -216,7 +216,7 @@ export function ProgressiveHierarchy({
           <Layers className="w-3.5 h-3.5 text-primary shrink-0" />
           <h2 className="text-sm font-black text-foreground tracking-tight">
             {activeContext.titulo}
-            <span className="ml-2 text-[11px] font-semibold text-muted-foreground cursor-help" title={`${formatNumber(totalesCartera?.totalPedidos || 0)} total orders`}>
+            <span className="ml-2 text-[11px] font-semibold text-muted-foreground" title={`${formatNumber(totalesCartera?.totalPedidos || 0)} total orders`}>
               {totalesCartera?.totalClientes || 0} customers · {formatCompactNumber(totalesCartera?.totalPedidos || 0)} orders
             </span>
           </h2>
@@ -755,13 +755,13 @@ export function ProgressiveHierarchy({
                             </div>
                             <div className="text-[10px] text-muted-foreground font-mono mt-0.5"><b className="uppercase">{shortBl}</b></div>
                           </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap cursor-help" title={`${formatNumber(cli.pedidosDigitales)} online orders`}>
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap" title={`${formatNumber(cli.pedidosDigitales)} online orders`}>
                             {formatCompactNumber(cli.pedidosDigitales)}
                           </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap cursor-help" title={`${formatNumber(cli.pedidosAnalogos)} offline orders`}>
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap" title={`${formatNumber(cli.pedidosAnalogos)} offline orders`}>
                             {formatCompactNumber(cli.pedidosAnalogos)}
                           </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap cursor-help" title={`${formatNumber(cli.pedidosTotales)} total orders`}>
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap" title={`${formatNumber(cli.pedidosTotales)} total orders`}>
                             {formatCompactNumber(cli.pedidosTotales)}
                           </td>
                           <td className="py-2 px-2 text-right font-bold tabular-nums text-xs whitespace-nowrap">
@@ -838,19 +838,19 @@ export function ProgressiveHierarchy({
                           TOTALS ({totalesCartera.totalClientes} CUSTOMERS)
                         </div>
                       </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-sky-700 dark:text-sky-400 font-black text-xs whitespace-nowrap cursor-help" title={`${formatNumber(totalesCartera.totalDigitales)} total online orders`}>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-sky-700 dark:text-sky-400 font-black text-xs whitespace-nowrap" title={`${formatNumber(totalesCartera.totalDigitales)} total online orders`}>
                         {formatCompactNumber(totalesCartera.totalDigitales)}
                       </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-slate-500 dark:text-slate-400 font-bold text-xs whitespace-nowrap cursor-help" title={`${formatNumber(totalesCartera.totalAnalogos)} total offline orders`}>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-slate-500 dark:text-slate-400 font-bold text-xs whitespace-nowrap" title={`${formatNumber(totalesCartera.totalAnalogos)} total offline orders`}>
                         {formatCompactNumber(totalesCartera.totalAnalogos)}
                       </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-foreground font-black text-xs whitespace-nowrap cursor-help" title={`${formatNumber(totalesCartera.totalPedidos)} total orders`}>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-foreground font-black text-xs whitespace-nowrap" title={`${formatNumber(totalesCartera.totalPedidos)} total orders`}>
                         {formatCompactNumber(totalesCartera.totalPedidos)}
                       </td>
                       <td className="py-1.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-xs whitespace-nowrap">
                         {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
                       </td>
-                      <td className="py-1.5 px-2 text-center text-muted-foreground font-normal">—</td>
+                      <td className="py-1.5 px-2"></td>
                     </tr>
                   </tfoot>
                 )}

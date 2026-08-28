@@ -772,3 +772,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Formateo Compacto de Órdenes en Tabla y Totales (`ProgressiveHierarchy.jsx`):**
   - Se aplicó `formatCompactNumber(num)` a las columnas **Online**, **Offline** y **Total** en las filas de clientes, encabezado del panel y fila inferior de totales (`tfoot`) (ej. 536,785 $\rightarrow$ **`536.8k`**).
   - Se añadieron tooltips flotantes (`title={formatNumber(num)}`) con el cursor `cursor-help` para desplegar la cifra exacta formateada con comas al posar el mouse.
+---
+
+## 🎯 Versión 2.75 - Remoción de Guión de Status y Cursors Nativos Limpios (`ProgressiveHierarchy.jsx`, `ExecutiveRibbon.jsx`)
+
+- **Estilización Homogénea de Cursors y Celda Vacía (`ProgressiveHierarchy.jsx`, `ExecutiveRibbon.jsx`):**
+  - Se removió el guión (`—`) de la celda `Status` en la fila fija de totales (`tfoot`), dejándola completamente limpia e invisible.
+  - Se eliminó la clase `cursor-help` (cursor con signo de interrogación `?`) de las celdas con tooltips en la tabla y en los listones superiores, manteniendo la flecha estándar idéntica a las tarjetas de la izquierda.
