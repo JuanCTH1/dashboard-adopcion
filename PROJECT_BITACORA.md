@@ -269,3 +269,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se ajustó el alto máximo a max-h-[385px]. 
   - Con este valor exacto, **las 5 regiones (o 5 vendedores) caben 100% completas en pantalla sin activar scrollbar alguno**.
   - La barra de scroll vertical solo aparece a partir de la **6ta tarjeta en adelante** en listas largas (como Sales Reps o Markets).
+---
+
+## 🎯 Versión 2.19 - Eliminación del Espacio Vacío Inferior Forzado (items-start & Altura Dinámica)
+
+- **Eliminación del Hueco Blanco/Gris:**
+  - Se identificó que la regla items-stretch min-h-[380px] en el contenedor padre forzaba a todas las columnas cortas (como Markets con 2 tarjetas o VP Division con 3 VPs) a estirarse artificialmente, creando un rectángulo vacío grande debajo de las tarjetas.
+  - Se cambió la alineación del contenedor a items-start y se ajustó la altura máxima a max-h-[350px].
+  - Ahora cada columna **se ajusta dinámicamente a la altura de sus elementos reales sin crear espacios vacíos ficticios**, mientras que las listas largas muestran sus tarjetas holgadas y activan scroll únicamente cuando superan el límite.
