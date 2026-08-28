@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { FilterListbox } from "./FilterListbox";
 import {
   Filter,
   RotateCcw,
@@ -7,12 +8,9 @@ import {
   MapPin,
   ChevronDown,
   ChevronRight,
-  Search,
-  Check,
   PanelLeftClose,
   PanelLeft,
-  Layers,
-  Sparkles
+  Layers
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,41 +35,39 @@ export function Sidebar({
     geografia: true
   });
 
-  const [searchPlaza, setSearchPlaza] = useState("");
-
   const toggleSection = (sec) => {
     setOpenSections(prev => ({ ...prev, [sec]: !prev[sec] }));
   };
 
   const { lineasNegocio, regiones } = filtrosDisponibles;
 
-  // Extraer año y mes del periodo activo (ej. "2026-08")
+  // Extraer año y mes activo
   const [currentYear, currentMonthNum] = useMemo(() => {
     if (!periodo) return [2026, 8];
     const [y, m] = periodo.split("-");
     return [parseInt(y, 10), parseInt(m, 10)];
   }, [periodo]);
 
-  const handleSelectYear = (year) => {
+  const handleYearChange = (valArr) => {
+    const yr = valArr[valArr.length - 1] || currentYear;
     const mm = String(currentMonthNum).padStart(2, "0");
-    onPeriodoChange(`${year}-${mm}`);
+    onPeriodoChange(`${yr}-${mm}`);
   };
 
-  const handleSelectMonth = (monthIdx) => {
-    const mm = String(monthIdx + 1).padStart(2, "0");
+  const handleMonthChange = (valArr) => {
+    const mStr = valArr[valArr.length - 1] || NOMBRES_MESES[currentMonthNum - 1];
+    const mIdx = NOMBRES_MESES.indexOf(mStr);
+    const mm = String(mIdx >= 0 ? mIdx + 1 : currentMonthNum).padStart(2, "0");
     onPeriodoChange(`${currentYear}-${mm}`);
   };
 
   const totalActiveFilters = Object.values(filtros).filter(Boolean).length;
 
   const plazasDisponibles = useMemo(() => {
-    const list = filtros.regionId
+    return filtros.regionId
       ? regiones.find(r => r.id === filtros.regionId)?.plazas || []
       : regiones.flatMap(r => r.plazas);
-    
-    if (!searchPlaza) return list;
-    return list.filter(p => p.toLowerCase().includes(searchPlaza.toLowerCase()));
-  }, [filtros.regionId, regiones, searchPlaza]);
+  }, [filtros.regionId, regiones]);
 
   return (
     <aside
@@ -88,7 +84,7 @@ export function Sidebar({
           </div>
           <div className="truncate">
             <div className="font-extrabold text-xs tracking-tight text-foreground font-sans">ADOPCIÓN CX</div>
-            <div className="text-[9px] text-muted-foreground font-bold">FILTROS ASOCIATIVOS</div>
+            <div className="text-[9px] text-muted-foreground font-bold">FILTRADO CON ARRASTRE</div>
           </div>
         </div>
 
@@ -103,7 +99,7 @@ export function Sidebar({
         </Button>
       </div>
 
-      {/* 2. Contenido con Grid Pills (Estilo Penetron Dash) */}
+      {/* 2. Contenido con FilterListbox (Arrastre y Selección) */}
       {isOpen && (
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Cabecera de Conteo y Limpieza */}
@@ -131,7 +127,7 @@ export function Sidebar({
 
           {/* Lista scrolleable de Bloques Asociativos */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3.5 text-left scrollbar-thin">
-            {/* GRUPO 1: PERIODO (GRID PILLS: AÑOS Y MESES) */}
+            {/* GRUPO 1: PERIODO (AÑO Y MES CON ARRASTRE) */}
             <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
@@ -146,65 +142,32 @@ export function Sidebar({
               </button>
 
               {openSections.periodo && (
-                <div className="p-2.5 space-y-3 bg-card">
-                  {/* Grid de Años (3 Columnas) */}
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                      Año
-                    </div>
-                    <div className="grid grid-cols-3 gap-1">
-                      {ANIOS_DISPONIBLES.map(yr => {
-                        const isSelected = currentYear === yr;
-                        return (
-                          <button
-                            key={yr}
-                            type="button"
-                            onClick={() => handleSelectYear(yr)}
-                            className={cn(
-                              "py-1 text-center text-xs rounded-lg border font-bold transition-all cursor-pointer select-none",
-                              isSelected
-                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
-                            )}
-                          >
-                            '{String(yr).slice(2)}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                <div className="p-2.5 space-y-2.5 bg-card">
+                  {/* Año con Drag-to-Select */}
+                  <FilterListbox
+                    label="Año (Arrastra o Haz Clic)"
+                    options={ANIOS_DISPONIBLES}
+                    value={[currentYear]}
+                    onChange={handleYearChange}
+                    grid={true}
+                    gridCols={3}
+                    formatLabel={yr => `'${String(yr).slice(2)}`}
+                  />
 
-                  {/* Grid de Meses (6 Columnas en 2 Filas, como Penetron Dash) */}
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                      Mes
-                    </div>
-                    <div className="grid grid-cols-6 gap-1">
-                      {NOMBRES_MESES.map((mLabel, idx) => {
-                        const isSelected = currentMonthNum === idx + 1;
-                        return (
-                          <button
-                            key={mLabel}
-                            type="button"
-                            onClick={() => handleSelectMonth(idx)}
-                            className={cn(
-                              "py-1 text-center text-[10px] rounded-lg border font-bold transition-all cursor-pointer select-none",
-                              isSelected
-                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
-                            )}
-                          >
-                            {mLabel}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  {/* Mes con Drag-to-Select (6 Cols en 2 filas) */}
+                  <FilterListbox
+                    label="Mes (Arrastra para Rango)"
+                    options={NOMBRES_MESES}
+                    value={[NOMBRES_MESES[currentMonthNum - 1]]}
+                    onChange={handleMonthChange}
+                    grid={true}
+                    gridCols={6}
+                  />
                 </div>
               )}
             </div>
 
-            {/* GRUPO 2: LÍNEAS DE NEGOCIO */}
+            {/* GRUPO 2: LÍNEAS DE NEGOCIO CON SELECCIÓN */}
             <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
@@ -219,45 +182,22 @@ export function Sidebar({
               </button>
 
               {openSections.lineas && (
-                <div className="p-2 space-y-1 bg-card">
-                  <button
-                    type="button"
-                    onClick={() => onFiltroChange("lineaNegocio", null)}
-                    className={cn(
-                      "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-between cursor-pointer border",
-                      !filtros.lineaNegocio
-                        ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                        : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border"
-                    )}
-                  >
-                    <span>Todas las Líneas</span>
-                    {!filtros.lineaNegocio && <Check className="w-3.5 h-3.5" />}
-                  </button>
-
-                  {lineasNegocio.map(ln => {
-                    const isSelected = filtros.lineaNegocio === ln.id;
-                    return (
-                      <button
-                        key={ln.id}
-                        type="button"
-                        onClick={() => onFiltroChange("lineaNegocio", ln.id)}
-                        className={cn(
-                          "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-between cursor-pointer border",
-                          isSelected
-                            ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border"
-                        )}
-                      >
-                        <span>{ln.label} ({ln.unidad})</span>
-                        {isSelected && <Check className="w-3.5 h-3.5" />}
-                      </button>
-                    );
-                  })}
+                <div className="p-2.5 bg-card">
+                  <FilterListbox
+                    label="Líneas Disponibles"
+                    options={lineasNegocio.map(l => l.id)}
+                    value={filtros.lineaNegocio ? [filtros.lineaNegocio] : []}
+                    onChange={(selected) => onFiltroChange("lineaNegocio", selected[selected.length - 1] || null)}
+                    formatLabel={id => {
+                      const ln = lineasNegocio.find(l => l.id === id);
+                      return ln ? `${ln.label} (${ln.unidad})` : id;
+                    }}
+                  />
                 </div>
               )}
             </div>
 
-            {/* GRUPO 3: GEOGRAFÍA (REGIÓN Y PLAZAS EN PILLS) */}
+            {/* GRUPO 3: GEOGRAFÍA (REGIÓN Y PLAZA) */}
             <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
@@ -273,84 +213,26 @@ export function Sidebar({
 
               {openSections.geografia && (
                 <div className="p-2.5 space-y-2.5 bg-card">
-                  {/* Regiones */}
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                      Región
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      {regiones.map(r => {
-                        const isSelected = filtros.regionId === r.id;
-                        return (
-                          <button
-                            key={r.id}
-                            type="button"
-                            onClick={() => {
-                              onFiltroChange("regionId", isSelected ? null : r.id);
-                              onFiltroChange("plaza", null);
-                            }}
-                            className={cn(
-                              "p-1.5 text-left text-[11px] rounded-lg border font-semibold transition-all cursor-pointer truncate",
-                              isSelected
-                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
-                            )}
-                            title={r.nombre}
-                          >
-                            {r.nombre}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <FilterListbox
+                    label="Región"
+                    options={regiones.map(r => r.id)}
+                    value={filtros.regionId ? [filtros.regionId] : []}
+                    onChange={(selected) => {
+                      onFiltroChange("regionId", selected[selected.length - 1] || null);
+                      onFiltroChange("plaza", null);
+                    }}
+                    grid={true}
+                    gridCols={2}
+                    formatLabel={id => regiones.find(r => r.id === id)?.nombre || id}
+                  />
 
-                  {/* Plazas */}
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 flex items-center justify-between">
-                      <span>Plaza ({plazasDisponibles.length})</span>
-                      {filtros.plaza && (
-                        <button
-                          onClick={() => onFiltroChange("plaza", null)}
-                          className="text-primary hover:underline lowercase font-bold"
-                        >
-                          Limpiar
-                        </button>
-                      )}
-                    </div>
-
-                    <div className="relative mb-1.5">
-                      <Search className="w-3 h-3 text-muted-foreground absolute left-2 top-2" />
-                      <input
-                        type="text"
-                        value={searchPlaza}
-                        onChange={e => setSearchPlaza(e.target.value)}
-                        placeholder="Filtrar plaza..."
-                        className="w-full pl-7 pr-2 py-1 text-[11px] bg-slate-50 dark:bg-slate-900 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary text-foreground"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-1 max-h-32 overflow-y-auto pr-1">
-                      {plazasDisponibles.map(p => {
-                        const isSelected = filtros.plaza === p;
-                        return (
-                          <button
-                            key={p}
-                            type="button"
-                            onClick={() => onFiltroChange("plaza", isSelected ? null : p)}
-                            className={cn(
-                              "px-2 py-1 text-left text-[10px] rounded-md border font-medium transition-all cursor-pointer truncate",
-                              isSelected
-                                ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
-                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
-                            )}
-                            title={p}
-                          >
-                            {p}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <FilterListbox
+                    label="Plaza"
+                    options={plazasDisponibles}
+                    value={filtros.plaza ? [filtros.plaza] : []}
+                    onChange={(selected) => onFiltroChange("plaza", selected[selected.length - 1] || null)}
+                    showSearch={true}
+                  />
                 </div>
               )}
             </div>
