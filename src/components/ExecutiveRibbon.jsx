@@ -100,8 +100,8 @@ export function ExecutiveRibbon({ metricasGlobales }) {
               {/* CHEVRON STAGE CARD */}
               <div
                 className={cn(
-                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[96px]",
-                  st.isDominant ? "border-primary/50 shadow-xs ring-1 ring-primary/20 bg-primary/5" : "border-border"
+                  "flex-1 min-w-0 p-2.5 bg-card border border-border shadow-2xs hover:border-slate-400 dark:hover:border-slate-700 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[96px]",
+                  st.isDominant && "border-amber-500/40 dark:border-amber-500/30 shadow-xs"
                 )}
               >
                 {/* Top Accent Line */}
@@ -116,6 +116,11 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                     <span className="text-[10px] font-black uppercase tracking-wider text-foreground truncate">
                       {st.title}
                     </span>
+                    {st.isDominant && (
+                      <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
+                        Target
+                      </span>
+                    )}
                   </div>
                   <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
                     <Icon className="w-3 h-3" />
@@ -124,7 +129,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
 
                 {/* Primary Metric & Delta */}
                 <div className="flex items-baseline gap-1 flex-wrap">
-                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-primary" : "text-lg text-foreground")}>
+                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-amber-600 dark:text-amber-400" : "text-lg text-foreground")}>
                     {st.primaryLabel}
                   </span>
                   {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
