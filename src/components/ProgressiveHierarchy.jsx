@@ -892,25 +892,22 @@ export function ProgressiveHierarchy({
                 {totalesCartera && (
                   <tfoot className="sticky bottom-0 z-10 bg-slate-200 dark:bg-slate-800 font-bold border-t-2 border-primary/40 text-foreground text-xs shadow-md">
                     <tr>
-                      <td colSpan={2} className="py-2.5 px-2">
-                        <div className="font-black uppercase text-xs text-primary truncate">
+                      <td colSpan={2} className="py-1.5 px-2">
+                        <div className="font-black uppercase text-[11px] text-primary truncate">
                           TOTALS ({totalesCartera.totalClientes} ACCOUNTS)
                         </div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5 whitespace-nowrap">
-                          Onboarding Rate: {totalesCartera.pctOnboarding.toFixed(1)}%
-                        </div>
                       </td>
-                      <td className="py-2.5 px-2 text-right tabular-nums text-foreground font-bold text-xs whitespace-nowrap">
+                      <td className="py-1.5 px-2 text-right tabular-nums text-foreground font-bold text-xs whitespace-nowrap">
                         {formatNumber(totalesCartera.totalPedidos)} <span className="text-[10px] font-normal">total</span>
                       </td>
-                      <td className="py-2.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-sm whitespace-nowrap">
+                      <td className="py-1.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-xs whitespace-nowrap">
                         {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
                       </td>
-                      <td className="py-2.5 px-2 text-center text-[10px] text-muted-foreground whitespace-nowrap">
+                      <td className="py-1.5 px-2 text-center text-[9.5px] text-muted-foreground whitespace-nowrap">
                         Dig: {formatNumber(totalesCartera.totalDigitales)} | Off: {formatNumber(totalesCartera.totalAnalogos)}
                       </td>
-                      <td className="py-2.5 px-2 text-center whitespace-nowrap">
-                        <Badge variant="success" className="text-[10px] py-0.5 px-2 font-bold">
+                      <td className="py-1.5 px-2 text-center whitespace-nowrap">
+                        <Badge variant="success" className="text-[9.5px] py-0 px-1.5 font-bold">
                           {totalesCartera.onboardedCount} / {totalesCartera.totalClientes} Active
                         </Badge>
                       </td>

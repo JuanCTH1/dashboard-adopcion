@@ -476,3 +476,15 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - **Control de Altura (`max-h-[175px]`):** Mantiene exactamente ~4 filas visibles con scroll interno, garantizando 0 scroll vertical innecesario.
 - **Expansión de Tarjeta de Tendencia (`AdoptionTrendCard.jsx`):**
   - Reconvertida en una tarjeta completa con gráfico de área extendido, gradiente y ejes para ocupar la misma altura que la tarjeta de Ranking a su derecha.
+---
+
+## 🎯 Versión 2.39 - Sidebar Angosto en 2 Columnas, Renombrado a "BL" y Poda de Totales
+
+- **Sidebar Más Angosto con Layout de 2 Columnas (`Sidebar.jsx`):**
+  - Se redujo el ancho desplegado a `w-48` (192px).
+  - Se colocaron los filtros de **Onboarded** y **Active** en un contenedor de 2 columnas lado a lado (`grid grid-cols-2 gap-2`).
+  - Se renombró la etiqueta del filtro de "Activo" a **`Active`** en inglés.
+- **Encabezado de Tabla de Ranking (`LeaderboardCard.jsx`):**
+  - Se cambió el encabezado de la columna de línea de negocio de "Line" a **`BL`** (Business Line).
+- **Poda de Fila de Totales en Cartera (`ProgressiveHierarchy.jsx`):**
+  - Se redujo el padding vertical de la fila inferior de totales en la tabla de cartera (`py-1.5 px-2`), eliminando la línea redundante de `Onboarding Rate: XX%` para dejar un pie de tabla compacto y de baja altura.
