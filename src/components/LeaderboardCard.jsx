@@ -62,13 +62,15 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
         {/* CONTROLS ROW */}
         <div className="flex items-center gap-1.5">
           {/* Dimension Tabs */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 rounded-lg border border-border">
             <button
               type="button"
               onClick={() => setDimension('market_line')}
               className={cn(
-                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
-                dimension === 'market_line' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
+                "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
+                dimension === 'market_line'
+                  ? "bg-primary text-primary-foreground font-black shadow-xs"
+                  : "text-muted-foreground hover:text-foreground font-medium"
               )}
             >
               Line
@@ -77,8 +79,10 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('sales_reps')}
               className={cn(
-                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
-                dimension === 'sales_reps' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
+                "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
+                dimension === 'sales_reps'
+                  ? "bg-primary text-primary-foreground font-black shadow-xs"
+                  : "text-muted-foreground hover:text-foreground font-medium"
               )}
             >
               Reps
@@ -87,8 +91,10 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('markets')}
               className={cn(
-                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
-                dimension === 'markets' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
+                "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
+                dimension === 'markets'
+                  ? "bg-primary text-primary-foreground font-black shadow-xs"
+                  : "text-muted-foreground hover:text-foreground font-medium"
               )}
             >
               Markets
@@ -97,8 +103,10 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('regions')}
               className={cn(
-                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
-                dimension === 'regions' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
+                "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
+                dimension === 'regions'
+                  ? "bg-primary text-primary-foreground font-black shadow-xs"
+                  : "text-muted-foreground hover:text-foreground font-medium"
               )}
             >
               Regions
@@ -106,13 +114,15 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
           </div>
 
           {/* Sort By Toggle */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 rounded-lg border border-border">
             <button
               type="button"
               onClick={() => setSortBy('adopcion')}
               className={cn(
-                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
-                sortBy === 'adopcion' ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:text-foreground"
+                "px-2 py-0.5 text-[9.5px] rounded-md transition-all flex items-center gap-1 cursor-pointer",
+                sortBy === 'adopcion'
+                  ? "bg-primary text-primary-foreground font-black shadow-xs"
+                  : "text-muted-foreground hover:text-foreground font-medium"
               )}
             >
               <ShoppingCart className="w-2.5 h-2.5" />
@@ -122,8 +132,10 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setSortBy('onboarding')}
               className={cn(
-                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
-                sortBy === 'onboarding' ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:text-foreground"
+                "px-2 py-0.5 text-[9.5px] rounded-md transition-all flex items-center gap-1 cursor-pointer",
+                sortBy === 'onboarding'
+                  ? "bg-primary text-primary-foreground font-black shadow-xs"
+                  : "text-muted-foreground hover:text-foreground font-medium"
               )}
             >
               <UserCheck className="w-2.5 h-2.5" />

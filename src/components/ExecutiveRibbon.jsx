@@ -20,10 +20,10 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     {
       id: 'universo',
       step: 'Stage 1',
-      title: 'Universo asignado',
+      title: 'Total Customers',
       primaryLabel: `${formatNumber(c.asignados)}`,
-      primaryUnit: 'cuentas',
-      secondaryLabel: `${formatNumber(p.totales)} órdenes totales`,
+      primaryUnit: 'accounts',
+      secondaryLabel: `${formatNumber(p.totales)} total orders`,
       icon: Users,
       colorGrad: 'from-blue-600 to-indigo-700',
       accentBg: 'bg-blue-600/10 text-blue-700 dark:text-blue-400'
@@ -33,32 +33,32 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       step: 'Stage 2',
       title: 'Onboarded',
       primaryLabel: `${formatNumber(c.onboarded)}`,
-      primaryUnit: 'cuentas',
-      secondaryLabel: `${formatNumber(Math.round(p.totales * (c.pctOnboarding / 100)))} órdenes de onboardeados`,
+      primaryUnit: 'accounts',
+      secondaryLabel: `${formatNumber(Math.round(p.totales * (c.pctOnboarding / 100)))} onboarded orders`,
       icon: UserCheck,
       colorGrad: 'from-emerald-600 to-teal-700',
       accentBg: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-400',
-      flowDelta: `▲+${deltas?.clientesMoM || 2.1}% este mes`
+      flowDelta: `▲+${deltas?.clientesMoM || 2.1}% this month`
     },
     {
       id: 'activos',
       step: 'Stage 3',
-      title: 'Activos',
+      title: 'Active',
       primaryLabel: `${formatNumber(c.activos)}`,
-      primaryUnit: 'cuentas',
-      secondaryLabel: `${formatNumber(p.digitales)} órdenes de activos`,
+      primaryUnit: 'accounts',
+      secondaryLabel: `${formatNumber(p.digitales)} active orders`,
       icon: Activity,
       colorGrad: 'from-sky-500 to-blue-600',
       accentBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-400',
-      flowDelta: `▲+1.2% este mes`
+      flowDelta: `▲+1.2% this month`
     },
     {
       id: 'adopcion',
       step: 'Stage 4',
-      title: 'Adopción digital',
+      title: 'Digital Adoption',
       primaryLabel: `${formatPct(p.pctAdopcion)}`,
       primaryUnit: '',
-      secondaryLabel: `${formatNumber(p.digitales)} / ${formatNumber(p.totales)} órdenes digitales`,
+      secondaryLabel: `${formatNumber(p.digitales)} / ${formatNumber(p.totales)} digital orders`,
       icon: Target,
       colorGrad: 'from-amber-500 to-orange-600',
       accentBg: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
@@ -68,17 +68,18 @@ export function ExecutiveRibbon({ metricasGlobales }) {
 
   return (
     <div className="bg-background/95 backdrop-blur-md py-1 transition-all font-sans select-none">
-      <div className="flex items-stretch gap-0 relative">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5 items-center relative">
         {STAGES.map((st, idx) => {
           const Icon = st.icon;
           const isLast = idx === STAGES.length - 1;
           const isBottleneck = (idx === 0 && worstBottleneck === 1) || (idx === 1 && worstBottleneck === 2);
+          const dropPct = (idx === 0 ? dropOffStage1 : dropOffStage2).toFixed(0);
 
           return (
-            <React.Fragment key={st.id}>
+            <div key={st.id} className="relative flex items-center">
               <Card
                 className={cn(
-                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-center",
+                  "w-full p-2.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-center",
                   st.isDominant ? "border-primary/50 shadow-xs ring-1 ring-primary/20" : "border-border"
                 )}
               >
@@ -106,24 +107,27 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                   {st.secondaryLabel}
                 </div>
                 {st.isDominant && (
-                  <div className="text-[8.5px] font-bold text-primary mt-0.5">vs 90.0% Meta</div>
+                  <div className="text-[8.5px] font-bold text-primary mt-0.5">vs 90.0% Goal</div>
                 )}
               </Card>
 
+              {/* INTEGRATED INTER-STAGE CONNECTOR (STATIC, CLEAN, NO OVERLAP) */}
               {!isLast && (
-                <div className="flex items-center justify-center w-11 shrink-0 z-10 -mx-2.5">
-                  <div className={cn(
-                    "flex items-center justify-center gap-0.5 px-2 py-0.5 rounded-full border shadow-2xs tabular-nums text-[9.5px] font-black font-mono shrink-0",
-                    isBottleneck
-                      ? "bg-rose-500 text-white border-rose-400 shadow-rose-500/20"
-                      : "bg-card text-slate-600 dark:text-slate-300 border-border"
-                  )}>
-                    <ArrowRight className="w-2.5 h-2.5 shrink-0 stroke-[2.5]" />
-                    <span>-{(idx === 0 ? dropOffStage1 : dropOffStage2).toFixed(0)}%</span>
+                <div className="hidden md:flex items-center justify-center absolute -right-3.5 z-20 pointer-events-none">
+                  <div
+                    className={cn(
+                      "flex items-center gap-0.5 px-1.5 py-0.5 rounded-md border shadow-xs tabular-nums text-[9px] font-black font-mono shrink-0",
+                      isBottleneck
+                        ? "bg-rose-600 text-white border-rose-700 shadow-rose-600/30"
+                        : "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 border-slate-300 dark:border-slate-700"
+                    )}
+                  >
+                    <ArrowRight className="w-2.5 h-2.5 stroke-[2.5]" />
+                    <span>-{dropPct}%</span>
                   </div>
                 </div>
               )}
-            </React.Fragment>
+            </div>
           );
         })}
       </div>

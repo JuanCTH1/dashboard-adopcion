@@ -371,8 +371,7 @@ export function ProgressiveHierarchy({
                     return (
                       <button
                         key={vp.id}
-                        onMouseDown={(e) => handleCardMouseDown(setSelectedVpIds, selectedVpIds, vp.id, e)}
-                        onMouseEnter={() => handleCardMouseEnter(setSelectedVpIds, selectedVpIds, vp.id)}
+                        onClick={() => toggleSelection(setSelectedVpIds, selectedVpIds, vp.id)}
                         className={cn(
                           "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
@@ -440,8 +439,7 @@ export function ProgressiveHierarchy({
                   return (
                     <div key={dir.id} className="relative group">
                       <button
-                        onMouseDown={(e) => handleCardMouseDown(setSelectedDirIds, selectedDirIds, dir.id, e)}
-                        onMouseEnter={() => handleCardMouseEnter(setSelectedDirIds, selectedDirIds, dir.id)}
+                        onClick={() => toggleSelection(setSelectedDirIds, selectedDirIds, dir.id)}
                         className={cn(
                           "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
@@ -571,8 +569,7 @@ export function ProgressiveHierarchy({
                   return (
                     <div key={ger.id} className="relative group">
                       <button
-                        onMouseDown={(e) => handleCardMouseDown(setSelectedGerIds, selectedGerIds, ger.id, e)}
-                        onMouseEnter={() => handleCardMouseEnter(setSelectedGerIds, selectedGerIds, ger.id)}
+                        onClick={() => toggleSelection(setSelectedGerIds, selectedGerIds, ger.id)}
                         className={cn(
                           "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
@@ -702,8 +699,7 @@ export function ProgressiveHierarchy({
                     return (
                       <button
                         key={rep.id}
-                        onMouseDown={(e) => handleCardMouseDown(setSelectedRepIds, selectedRepIds, rep.id, e)}
-                        onMouseEnter={() => handleCardMouseEnter(setSelectedRepIds, selectedRepIds, rep.id)}
+                        onClick={() => toggleSelection(setSelectedRepIds, selectedRepIds, rep.id)}
                         className={cn(
                           "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected

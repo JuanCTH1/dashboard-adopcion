@@ -507,3 +507,16 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Ajuste Fino de Ancho del Sidebar (`Sidebar.jsx`):**
   - Se ajustó el ancho del sidebar lateral a `w-[168px]` (168px) desplegado y `w-11` (44px) colapsado, otorgando mayor espacio horizontal al área principal de trabajo.
   - Se formateó la tipografía y paddings del encabezado del sidebar (`text-[10px]`, `px-2 py-2`) para un encuadre ultra limpio sin desbordes.
+---
+
+## 🎯 Versión 2.42 - Iluminación de Pestañas de Ranking, Eliminación de Lag en Jerarquía e Inglés Corporativo 100%
+
+- **Iluminación Destacada de Pestañas de Ranking (`LeaderboardCard.jsx`):**
+  - Se corrigió el estilo del selector de dimensión y ordenamiento para que la pestaña activa se ilumine de forma vistosa en **Azul Primario con texto blanco en negrita (`bg-primary text-primary-foreground font-black shadow-xs`)**.
+- **Eliminación de Lag al Hacer Clic en la Jerarquía (`ProgressiveHierarchy.jsx`):**
+  - Se reemplazaron los manejadores de selección por arrastre (`onMouseDown` / `onMouseEnter`) con manejadores síncronos limpios de `onClick`, eliminando la latencia en las tarjetas de VPs, Regiones, Mercados y Vendedores.
+- **Traducción 100% a Inglés Corporativo en Ribbon (`ExecutiveRibbon.jsx`):**
+  - Se renombraron los títulos del embudo: **`Total Customers`**, **`Onboarded`**, **`Active`** y **`Digital Adoption`**.
+  - Se tradujeron todas las etiquetas y deltas secundarios (`accounts`, `total orders`, `onboarded orders`, `active orders`, `digital orders`, `this month`, `vs 90.0% Goal`).
+- **Limpieza de Encabezado en Sidebar (`Sidebar.jsx`):**
+  - Se eliminó el texto redundante `"Time Context"` y el ícono de filtro en la cabecera del sidebar.
