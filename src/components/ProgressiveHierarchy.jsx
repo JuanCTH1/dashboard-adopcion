@@ -158,7 +158,7 @@ export function ProgressiveHierarchy({
       vendedorIds: selectedRepIds
     };
 
-    let titulo = "All Divisions";
+    let titulo = "USA";
     if (selectedRepIds.length) titulo = `${selectedRepIds.length} Sales Rep(s)`;
     else if (selectedGerIds.length) titulo = `${selectedGerIds.length} Manager(s)`;
     else if (selectedDirIds.length) titulo = `${selectedDirIds.length} Director(s)`;

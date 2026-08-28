@@ -613,3 +613,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - **Resultado:** La navegación jerárquica ahora inicia directamente con la 1ra columna **`🌐 VP DIVISION`**, seguida de **`Director Region`**, **`Manager Market`**, **`Sales Rep`** y la tabla de cartera.
 - **Diseño Chevron Estético para las 4 Tarjetas del Ribbon (`ExecutiveRibbon.jsx`):**
   - Se rediseñó el ribbon ejecutivo incorporando insignias de etapa numeradas (`01`, `02`, `03`, `04`) y conectores de flujo `ChevronRight` entre tarjetas para una geometría de embudo ejecutivo altamente pulida.
+---
+
+## 🎯 Versión 2.55 - Título de Cabecera Estandarizado a "USA" (`ProgressiveHierarchy.jsx`)
+
+- **Actualización del Título de Nivel Superior (`ProgressiveHierarchy.jsx`):**
+  - Se cambió el nombre por defecto en el encabezado de `All Divisions` a **`USA`**.
+  - **Resultado:** La cabecera muestra limpiamente **`USA 2164 customers · 536,785 orders`**.
