@@ -1,13 +1,9 @@
 /**
- * REPOSITORIO DE DATOS DE ADOPCIÓN CX (PUERTO DE DATOS)
- * 
- * Regla arquitectónica: NINGÚN componente UI hace fetch directo.
- * Todo pasa por esta interfaz pública adopcionRepo.
- * Hoy corre sobre mockRepo; mañana se conecta a Snowflake cambiando esta implementación.
+ * REPOSITORIO DE DATOS DE ADOPCIÓN CX
  */
 
 import { generateDataset } from './mockGenerator.js';
-import { calculateAggregations, buildFunnel, validateVolumeCompatibility } from './aggregation.js';
+import { calculateAggregations, buildFunnel } from './aggregation.js';
 import { METRIC_DEFINITIONS, LINEAS_NEGOCIO } from './definiciones.js';
 
 class AdopcionRepository {
@@ -32,9 +28,6 @@ class AdopcionRepository {
     };
   }
 
-  /**
-   * Filtra transacciones y clientes según los criterios dados.
-   */
   _filtrar(filtros = {}) {
     const periodo = filtros.periodo || this.data.periodoActual;
     const linea = filtros.lineaNegocio;
@@ -60,7 +53,6 @@ class AdopcionRepository {
       t.periodo === periodo && clientIdsSet.has(t.clienteId)
     );
 
-    // Periodo anterior para cálculo de Deltas MoM
     const mesActualIdx = this.data.MESES.findIndex(m => m.key === periodo);
     let transaccionesPeriodoAnterior = [];
     if (mesActualIdx > 0) {
@@ -78,20 +70,16 @@ class AdopcionRepository {
     };
   }
 
-  /**
-   * Métricas globales para el Sticky Executive Ribbon.
-   */
   getMetricasGlobales(filtros = {}) {
     const { clientes, transacciones, transaccionesAnteriores, periodo } = this._filtrar(filtros);
     const metricasActuales = calculateAggregations(transacciones, clientes);
     const metricasAnteriores = calculateAggregations(transaccionesAnteriores, clientes);
 
-    // Delta MoM
     const deltaAdopcionPedidos = metricasActuales.pedidos.pctAdopcion - metricasAnteriores.pedidos.pctAdopcion;
     const deltaAdopcionClientes = metricasActuales.clientes.pctAdopcion - metricasAnteriores.clientes.pctAdopcion;
-    const deltaAdopcionVolumen = metricasActuales.volumen.pctAdopcion - metricasAnteriores.volumen.pctAdopcion;
+    const deltaConcreto = metricasActuales.volumen.concreto.pctAdopcion - metricasAnteriores.volumen.concreto.pctAdopcion;
+    const deltaCemento = metricasActuales.volumen.cemento.pctAdopcion - metricasAnteriores.volumen.cemento.pctAdopcion;
 
-    // Sparkline de los últimos 12 meses
     const serieHistorica = this.getSerieHistorica(filtros, 12);
 
     return {
@@ -101,16 +89,15 @@ class AdopcionRepository {
       deltas: {
         pedidosMoM: deltaAdopcionPedidos,
         clientesMoM: deltaAdopcionClientes,
-        volumenMoM: deltaAdopcionVolumen
+        concretoMoM: deltaConcreto,
+        cementoMoM: deltaCemento
       },
       sparklineAdopcion: serieHistorica.map(s => s.pctAdopcionPedidos),
-      sparklineVolumen: serieHistorica.map(s => s.volumenDigital)
+      sparklineConcreto: serieHistorica.map(s => s.volumenConcreto),
+      sparklineCemento: serieHistorica.map(s => s.volumenCemento)
     };
   }
 
-  /**
-   * Serie histórica agregada de 12 o 24 meses.
-   */
   getSerieHistorica(filtros = {}, limiteMeses = 24) {
     const meses = this.data.MESES.slice(-limiteMeses);
     const { clientes } = this._filtrar({ ...filtros, periodo: null });
@@ -126,19 +113,14 @@ class AdopcionRepository {
         label: m.label,
         pctAdopcionPedidos: Number(agg.pedidos.pctAdopcion.toFixed(1)),
         pctAdopcionClientes: Number(agg.clientes.pctAdopcion.toFixed(1)),
-        pctAdopcionVolumen: Number(agg.volumen.pctAdopcion.toFixed(1)),
         pedidosTotales: agg.pedidos.totales,
         pedidosDigitales: agg.pedidos.digitales,
-        volumenTotal: agg.volumen.total,
-        volumenDigital: agg.volumen.digital
+        volumenConcreto: agg.volumen.concreto.digital,
+        volumenCemento: agg.volumen.cemento.digital
       };
     });
   }
 
-  /**
-   * Obtiene la estructura jerárquica con métricas de cada nodo según el nivel activo.
-   * Nivel: 'nacional' (muestra VPs), 'vp' (muestra Directores), 'director' (muestra Gerentes), 'gerente' (muestra Vendedores)
-   */
   getJerarquia(nivel = 'nacional', parentId = null, filtros = {}) {
     const periodo = filtros.periodo || this.data.periodoActual;
     let nodos = [];
@@ -185,7 +167,6 @@ class AdopcionRepository {
         }));
     }
 
-    // Calcular métricas agregadas por cada nodo
     return nodos.map(nodo => {
       let nodoFiltro = { ...filtros, periodo };
       if (nodo.tipo === 'VP') nodoFiltro.vpId = nodo.id;
@@ -203,14 +184,11 @@ class AdopcionRepository {
         ...nodo,
         metricas,
         deltaPedidosMoM: Number(deltaPedidos.toFixed(1)),
-        metaAdopcion: 75.0 // Target estándar Stephen Few
+        metaAdopcion: 75.0
       };
     });
   }
 
-  /**
-   * Obtiene la cartera de clientes de un vendedor específico.
-   */
   getCartera(vendedorId, filtros = {}) {
     const { clientes, transacciones } = this._filtrar({ ...filtros, vendedorId });
     const txMap = new Map(transacciones.map(t => [t.clienteId, t]));
@@ -250,9 +228,6 @@ class AdopcionRepository {
     });
   }
 
-  /**
-   * Retorna los clientes prioritarios para el Action Drawer (The Money View)
-   */
   getTopClientesAccion(filtros = {}, limit = 10) {
     const { clientes, transacciones } = this._filtrar(filtros);
     const txMap = new Map(transacciones.map(t => [t.clienteId, t]));
@@ -275,13 +250,11 @@ class AdopcionRepository {
       };
     });
 
-    // 1. Clientes sin incorporar (Onboarding gap) ordenados por mayor volumen
     const sinIncorporar = enriquecidos
       .filter(c => !c.estaIncorporado)
       .sort((a, b) => b.volumen - a.volumen)
       .slice(0, limit);
 
-    // 2. Clientes con cuenta que recayeron en canal analógico o nunca activaron
     const inactivosORevertidos = enriquecidos
       .filter(c => c.estaIncorporado && (!c.esActivo || c.esRevertido))
       .sort((a, b) => b.volumen - a.volumen)
@@ -295,9 +268,6 @@ class AdopcionRepository {
     };
   }
 
-  /**
-   * Funnel de 4 pasos calculado para la selección activa y lente.
-   */
   getFunnel(filtros = {}, lens = 'clientes') {
     const { clientes, transacciones } = this._filtrar(filtros);
     const metricas = calculateAggregations(transacciones, clientes);
@@ -305,6 +275,5 @@ class AdopcionRepository {
   }
 }
 
-// Instancia singleton por defecto
 export const adopcionRepo = new AdopcionRepository();
 export default adopcionRepo;

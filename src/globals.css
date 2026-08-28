@@ -6,8 +6,8 @@
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* PALETA CEMEX OFICIAL: 50% White, 25% Pantone 293c Blue, 14% Pantone Red 032c, 1% Secondary */
-  --background: #f8fafc;
+  /* CONTRASTE PENETRON DASH: Fondo gris contrastado #eef2f6 + Tarjetas blanco puro #ffffff */
+  --background: #eef2f6;
   --foreground: #0f172a;
   
   --card: #ffffff;
@@ -22,8 +22,8 @@
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
   
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted: #e2e8f0;
+  --muted-foreground: #475569;
   
   --accent: #e2e8f0;
   --accent-foreground: #002B99;
@@ -31,8 +31,8 @@
   --destructive: #F22331;
   --destructive-foreground: #ffffff;
   
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #cbd5e1;
+  --input: #cbd5e1;
   --ring: #002B99;
   
   --radius: 0.75rem;

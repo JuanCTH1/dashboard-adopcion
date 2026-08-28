@@ -1,24 +1,25 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useMemo } from "react";
 import {
   Filter,
   RotateCcw,
   Calendar,
   Building2,
   MapPin,
-  Users,
   ChevronDown,
   ChevronRight,
   Search,
   Check,
   PanelLeftClose,
   PanelLeft,
-  SlidersHorizontal,
-  Layers
+  Layers,
+  Sparkles
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+const NOMBRES_MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+const ANIOS_DISPONIBLES = [2024, 2025, 2026];
 
 export function Sidebar({
   isOpen,
@@ -33,40 +34,61 @@ export function Sidebar({
   const [openSections, setOpenSections] = useState({
     periodo: true,
     lineas: true,
-    geografia: true,
-    jerarquia: true
+    geografia: true
   });
 
-  const [searchFilter, setSearchFilter] = useState("");
+  const [searchPlaza, setSearchPlaza] = useState("");
 
   const toggleSection = (sec) => {
     setOpenSections(prev => ({ ...prev, [sec]: !prev[sec] }));
   };
 
-  const { meses, lineasNegocio, regiones, vps, directores, gerentes } = filtrosDisponibles;
+  const { lineasNegocio, regiones } = filtrosDisponibles;
+
+  // Extraer año y mes del periodo activo (ej. "2026-08")
+  const [currentYear, currentMonthNum] = useMemo(() => {
+    if (!periodo) return [2026, 8];
+    const [y, m] = periodo.split("-");
+    return [parseInt(y, 10), parseInt(m, 10)];
+  }, [periodo]);
+
+  const handleSelectYear = (year) => {
+    const mm = String(currentMonthNum).padStart(2, "0");
+    onPeriodoChange(`${year}-${mm}`);
+  };
+
+  const handleSelectMonth = (monthIdx) => {
+    const mm = String(monthIdx + 1).padStart(2, "0");
+    onPeriodoChange(`${currentYear}-${mm}`);
+  };
 
   const totalActiveFilters = Object.values(filtros).filter(Boolean).length;
 
-  const plazasDisponibles = filtros.regionId
-    ? regiones.find(r => r.id === filtros.regionId)?.plazas || []
-    : regiones.flatMap(r => r.plazas);
+  const plazasDisponibles = useMemo(() => {
+    const list = filtros.regionId
+      ? regiones.find(r => r.id === filtros.regionId)?.plazas || []
+      : regiones.flatMap(r => r.plazas);
+    
+    if (!searchPlaza) return list;
+    return list.filter(p => p.toLowerCase().includes(searchPlaza.toLowerCase()));
+  }, [filtros.regionId, regiones, searchPlaza]);
 
   return (
     <aside
       className={cn(
-        "h-screen h-[100dvh] flex flex-col bg-card border-r border-border transition-all duration-300 z-40 shrink-0 select-none overflow-hidden",
+        "h-screen h-[100dvh] flex flex-col bg-card border-r border-border shadow-xs transition-all duration-300 z-40 shrink-0 select-none overflow-hidden",
         isOpen ? "w-72" : "w-14"
       )}
     >
-      {/* 1. Header de Sidebar */}
-      <div className="h-12 px-3.5 border-b border-border/80 flex items-center justify-between bg-slate-50/90 dark:bg-slate-900/90 shrink-0">
+      {/* 1. Header del Sidebar */}
+      <div className="h-12 px-3.5 border-b border-border flex items-center justify-between bg-slate-50 dark:bg-slate-900 shrink-0">
         <div className={cn("flex items-center gap-2.5 overflow-hidden transition-opacity", !isOpen && "opacity-0 pointer-events-none")}>
-          <div className="w-6 h-6 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-xs">
+          <div className="w-6 h-6 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-xs">
             <Layers className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <div className="font-extrabold text-xs tracking-tight text-foreground">ADOPCIÓN CX</div>
-            <div className="text-[9px] text-muted-foreground font-semibold">FILTROS & NAVEGACIÓN</div>
+            <div className="font-extrabold text-xs tracking-tight text-foreground font-sans">ADOPCIÓN CX</div>
+            <div className="text-[9px] text-muted-foreground font-bold">FILTROS ASOCIATIVOS</div>
           </div>
         </div>
 
@@ -74,23 +96,23 @@ export function Sidebar({
           variant="ghost"
           size="icon"
           onClick={onToggle}
-          className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
           title={isOpen ? "Colapsar Barra Lateral" : "Expandir Barra Lateral"}
         >
           {isOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4 text-primary" />}
         </Button>
       </div>
 
-      {/* 2. Contenido Colapsable con Acordeones */}
+      {/* 2. Contenido con Grid Pills (Estilo Penetron Dash) */}
       {isOpen && (
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          {/* Cabecera de Filtros Activos & Reset */}
-          <div className="px-3.5 py-2 border-b border-border/60 flex items-center justify-between bg-slate-100/50 dark:bg-slate-900/40 text-xs">
-            <div className="flex items-center gap-1.5 font-bold text-slate-700 dark:text-slate-300 text-[11px]">
+          {/* Cabecera de Conteo y Limpieza */}
+          <div className="px-3.5 py-2 border-b border-border flex items-center justify-between bg-slate-100/70 dark:bg-slate-900/60 text-xs">
+            <div className="flex items-center gap-1.5 font-bold text-foreground text-[11px]">
               <Filter className="w-3 h-3 text-primary" />
-              <span>Filtros Activos</span>
+              <span>Panel de Filtros</span>
               {totalActiveFilters > 0 && (
-                <Badge variant="info" className="px-1.5 py-0 text-[9px] h-4 min-w-4 justify-center font-bold">
+                <Badge variant="default" className="px-1.5 py-0 text-[9px] h-4 min-w-4 justify-center font-bold">
                   {totalActiveFilters}
                 </Badge>
               )}
@@ -107,66 +129,105 @@ export function Sidebar({
             )}
           </div>
 
-          {/* Lista scrolleable de Acordeones */}
-          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 text-left scrollbar-thin">
-            {/* Acordeón 1: Periodo Mensual */}
-            <div className="rounded-xl border border-border/80 overflow-hidden bg-slate-50/60 dark:bg-slate-900/40">
+          {/* Lista scrolleable de Bloques Asociativos */}
+          <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3.5 text-left scrollbar-thin">
+            {/* GRUPO 1: PERIODO (GRID PILLS: AÑOS Y MESES) */}
+            <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
                 onClick={() => toggleSection("periodo")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-100/70 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-primary" />
-                  <span>Periodo de Corte</span>
+                  <span>Periodo ({currentYear} · {NOMBRES_MESES[currentMonthNum - 1]})</span>
                 </div>
                 {openSections.periodo ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               </button>
 
               {openSections.periodo && (
-                <div className="p-2.5 space-y-2">
-                  <select
-                    value={periodo}
-                    onChange={(e) => onPeriodoChange(e.target.value)}
-                    className="w-full text-xs font-semibold bg-card border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer shadow-xxs"
-                  >
-                    {meses.map(m => (
-                      <option key={m.key} value={m.key}>
-                        {m.label} ({m.key})
-                      </option>
-                    ))}
-                  </select>
+                <div className="p-2.5 space-y-3 bg-card">
+                  {/* Grid de Años (3 Columnas) */}
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                      Año
+                    </div>
+                    <div className="grid grid-cols-3 gap-1">
+                      {ANIOS_DISPONIBLES.map(yr => {
+                        const isSelected = currentYear === yr;
+                        return (
+                          <button
+                            key={yr}
+                            type="button"
+                            onClick={() => handleSelectYear(yr)}
+                            className={cn(
+                              "py-1 text-center text-xs rounded-lg border font-bold transition-all cursor-pointer select-none",
+                              isSelected
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
+                            )}
+                          >
+                            '{String(yr).slice(2)}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Grid de Meses (6 Columnas en 2 Filas, como Penetron Dash) */}
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                      Mes
+                    </div>
+                    <div className="grid grid-cols-6 gap-1">
+                      {NOMBRES_MESES.map((mLabel, idx) => {
+                        const isSelected = currentMonthNum === idx + 1;
+                        return (
+                          <button
+                            key={mLabel}
+                            type="button"
+                            onClick={() => handleSelectMonth(idx)}
+                            className={cn(
+                              "py-1 text-center text-[10px] rounded-lg border font-bold transition-all cursor-pointer select-none",
+                              isSelected
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
+                            )}
+                          >
+                            {mLabel}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Acordeón 2: Línea de Negocio */}
-            <div className="rounded-xl border border-border/80 overflow-hidden bg-slate-50/60 dark:bg-slate-900/40">
+            {/* GRUPO 2: LÍNEAS DE NEGOCIO */}
+            <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
                 onClick={() => toggleSection("lineas")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-100/70 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <Building2 className="w-3.5 h-3.5 text-primary" />
                   <span>Línea de Negocio</span>
                 </div>
-                {filtros.lineaNegocio && (
-                  <Badge variant="default" className="text-[9px] py-0 px-1.5 uppercase">
-                    {filtros.lineaNegocio}
-                  </Badge>
-                )}
                 {openSections.lineas ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               </button>
 
               {openSections.lineas && (
-                <div className="p-2 space-y-1">
+                <div className="p-2 space-y-1 bg-card">
                   <button
                     type="button"
                     onClick={() => onFiltroChange("lineaNegocio", null)}
                     className={cn(
-                      "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between cursor-pointer",
-                      !filtros.lineaNegocio ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted text-foreground"
+                      "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-between cursor-pointer border",
+                      !filtros.lineaNegocio
+                        ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                        : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border"
                     )}
                   >
                     <span>Todas las Líneas</span>
@@ -181,8 +242,10 @@ export function Sidebar({
                         type="button"
                         onClick={() => onFiltroChange("lineaNegocio", ln.id)}
                         className={cn(
-                          "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between cursor-pointer",
-                          isSelected ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted text-foreground"
+                          "w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-between cursor-pointer border",
+                          isSelected
+                            ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border"
                         )}
                       >
                         <span>{ln.label} ({ln.unidad})</span>
@@ -194,60 +257,99 @@ export function Sidebar({
               )}
             </div>
 
-            {/* Acordeón 3: Región y Plaza */}
-            <div className="rounded-xl border border-border/80 overflow-hidden bg-slate-50/60 dark:bg-slate-900/40">
+            {/* GRUPO 3: GEOGRAFÍA (REGIÓN Y PLAZAS EN PILLS) */}
+            <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
                 onClick={() => toggleSection("geografia")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-100/70 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-foreground bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 transition cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3.5 h-3.5 text-primary" />
-                  <span>Geografía</span>
+                  <span>Región & Plaza</span>
                 </div>
-                {(filtros.regionId || filtros.plaza) && (
-                  <Badge variant="info" className="text-[9px] py-0 px-1.5">
-                    Activo
-                  </Badge>
-                )}
                 {openSections.geografia ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               </button>
 
               {openSections.geografia && (
-                <div className="p-2.5 space-y-2.5">
+                <div className="p-2.5 space-y-2.5 bg-card">
+                  {/* Regiones */}
                   <div>
-                    <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider mb-1 block">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
                       Región
-                    </label>
-                    <select
-                      value={filtros.regionId || ""}
-                      onChange={(e) => {
-                        onFiltroChange("regionId", e.target.value || null);
-                        onFiltroChange("plaza", null);
-                      }}
-                      className="w-full text-xs font-medium bg-card border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer shadow-xxs"
-                    >
-                      <option value="">Todas las Regiones</option>
-                      {regiones.map(r => (
-                        <option key={r.id} value={r.id}>{r.nombre}</option>
-                      ))}
-                    </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {regiones.map(r => {
+                        const isSelected = filtros.regionId === r.id;
+                        return (
+                          <button
+                            key={r.id}
+                            type="button"
+                            onClick={() => {
+                              onFiltroChange("regionId", isSelected ? null : r.id);
+                              onFiltroChange("plaza", null);
+                            }}
+                            className={cn(
+                              "p-1.5 text-left text-[11px] rounded-lg border font-semibold transition-all cursor-pointer truncate",
+                              isSelected
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
+                            )}
+                            title={r.nombre}
+                          >
+                            {r.nombre}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
+                  {/* Plazas */}
                   <div>
-                    <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider mb-1 block">
-                      Plaza
-                    </label>
-                    <select
-                      value={filtros.plaza || ""}
-                      onChange={(e) => onFiltroChange("plaza", e.target.value || null)}
-                      className="w-full text-xs font-medium bg-card border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer shadow-xxs"
-                    >
-                      <option value="">Todas las Plazas</option>
-                      {plazasDisponibles.map(p => (
-                        <option key={p} value={p}>{p}</option>
-                      ))}
-                    </select>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 flex items-center justify-between">
+                      <span>Plaza ({plazasDisponibles.length})</span>
+                      {filtros.plaza && (
+                        <button
+                          onClick={() => onFiltroChange("plaza", null)}
+                          className="text-primary hover:underline lowercase font-bold"
+                        >
+                          Limpiar
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="relative mb-1.5">
+                      <Search className="w-3 h-3 text-muted-foreground absolute left-2 top-2" />
+                      <input
+                        type="text"
+                        value={searchPlaza}
+                        onChange={e => setSearchPlaza(e.target.value)}
+                        placeholder="Filtrar plaza..."
+                        className="w-full pl-7 pr-2 py-1 text-[11px] bg-slate-50 dark:bg-slate-900 border border-border rounded-lg focus:outline-none focus:ring-1 focus:ring-primary text-foreground"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1 max-h-32 overflow-y-auto pr-1">
+                      {plazasDisponibles.map(p => {
+                        const isSelected = filtros.plaza === p;
+                        return (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => onFiltroChange("plaza", isSelected ? null : p)}
+                            className={cn(
+                              "px-2 py-1 text-left text-[10px] rounded-md border font-medium transition-all cursor-pointer truncate",
+                              isSelected
+                                ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
+                                : "bg-card text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
+                            )}
+                            title={p}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
@@ -267,7 +369,7 @@ export function Sidebar({
             <Filter className="w-4 h-4" />
           </button>
           {totalActiveFilters > 0 && (
-            <Badge variant="info" className="w-5 h-5 rounded-full p-0 flex items-center justify-center text-[10px] font-bold">
+            <Badge variant="default" className="w-5 h-5 rounded-full p-0 flex items-center justify-center text-[10px] font-bold">
               {totalActiveFilters}
             </Badge>
           )}

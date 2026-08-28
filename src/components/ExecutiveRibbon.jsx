@@ -1,140 +1,31 @@
 import React from 'react';
 import { MetricCard } from './MetricCard';
-import { LensSelector } from './LensSelector';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Search, SlidersHorizontal, ArrowUpRight, Globe, Smartphone, Server } from 'lucide-react';
-import { formatNumber, formatPct, cn } from '@/lib/utils';
-import { METRIC_DEFINITIONS, LENTES } from '@/domain/definiciones';
+import { Globe, Smartphone, Server, Users, Layers, Activity } from 'lucide-react';
+import { formatNumber, formatPct } from '@/lib/utils';
+import { METRIC_DEFINITIONS } from '@/domain/definiciones';
 
 export function ExecutiveRibbon({
   metricasGlobales,
-  activeLens,
-  onLensChange,
-  periodoSeleccionado,
-  mesesDisponibles,
-  onPeriodoChange,
-  onOpenSearch,
-  onToggleFilters,
-  filtrosActivosCount = 0
+  periodoSeleccionado
 }) {
-  const { actual, deltas, sparklineAdopcion, sparklineVolumen } = metricasGlobales;
+  const { actual, deltas, sparklineAdopcion, sparklineConcreto, sparklineCemento } = metricasGlobales;
   const { clientes, pedidos, volumen } = actual;
 
-  // Determinar métrica principal según el lente activo
-  let valorKpiPrincipal = formatPct(pedidos.pctAdopcion);
-  let deltaKpiPrincipal = deltas.pedidosMoM;
-  let tituloKpiPrincipal = '% Adopción Digital';
-  let subKpiPrincipal = `${formatNumber(pedidos.digitales)} de ${formatNumber(pedidos.totales)} pedidos totales`;
-  let sparklineKpi = sparklineAdopcion;
-
-  if (activeLens === LENTES.CLIENTES) {
-    valorKpiPrincipal = formatPct(clientes.pctAdopcion);
-    deltaKpiPrincipal = deltas.clientesMoM;
-    tituloKpiPrincipal = '% Penetración de Clientes';
-    subKpiPrincipal = `${formatNumber(clientes.activos)} de ${formatNumber(clientes.asignados)} clientes activos`;
-  } else if (activeLens === LENTES.VOLUMEN && volumen.compatible) {
-    valorKpiPrincipal = formatPct(volumen.pctAdopcion);
-    deltaKpiPrincipal = deltas.volumenMoM;
-    tituloKpiPrincipal = '% Volumen Digital';
-    subKpiPrincipal = `${formatNumber(volumen.digital)} de ${formatNumber(volumen.total)} ${volumen.unidad}`;
-    sparklineKpi = sparklineVolumen;
-  }
-
   return (
-    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/80 pb-3.5 pt-2 px-4 sm:px-6 shadow-xxs transition-all">
-      {/* Barra de Control Superior */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-              Adopción Digital CX
-            </span>
-          </div>
-
-          <div className="h-4 w-[1px] bg-border hidden sm:block" />
-
-          {/* Selector de Periodo */}
-          <select
-            value={periodoSeleccionado}
-            onChange={(e) => onPeriodoChange(e.target.value)}
-            className="text-xs font-semibold bg-card border border-border rounded-lg px-2.5 py-1 text-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer shadow-xxs"
-          >
-            {mesesDisponibles.map(m => (
-              <option key={m.key} value={m.key}>
-                {m.label} ({m.key})
-              </option>
-            ))}
-          </select>
-
-          {/* Botón de Filtros */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onToggleFilters}
-            className={cn(
-              "gap-1.5 text-xs font-semibold shadow-xxs",
-              filtrosActivosCount > 0 && "border-primary text-primary bg-primary/5"
-            )}
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span>Filtros</span>
-            {filtrosActivosCount > 0 && (
-              <Badge variant="default" className="ml-1 px-1.5 py-0 text-[10px] h-4 min-w-4 justify-center">
-                {filtrosActivosCount}
-              </Badge>
-            )}
-          </Button>
-
-          {/* Acceso Rápido Buscador */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onOpenSearch}
-            className="gap-1.5 text-xs text-muted-foreground hover:text-foreground hidden sm:flex shadow-xxs"
-          >
-            <Search className="w-3.5 h-3.5" />
-            <span>Buscar vendedor / cliente</span>
-            <kbd className="text-[10px] bg-muted px-1.5 py-0.5 rounded border border-border text-muted-foreground font-mono ml-1">
-              Ctrl+K
-            </kbd>
-          </Button>
-        </div>
-
-        {/* Selector Maestro de Triple Lente */}
-        <LensSelector
-          activeLens={activeLens}
-          onLensChange={onLensChange}
-          volumeCompatible={volumen.compatible}
-          volumeMessage={volumen.mensajeIncompatibilidad}
-        />
-      </div>
-
-      {/* Grid de 4 KPIs Ejecutivos Stephen Few / Tufte Style */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* KPI 1: Adopción Digital Principal */}
+    <div className="space-y-3 select-none">
+      {/* 4 Tarjetas de Alto Contraste y Separación Óptica */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        {/* KPI 1: % Adopción en Pedidos */}
         <MetricCard
-          titulo={tituloKpiPrincipal}
-          valorPrincipal={valorKpiPrincipal}
-          subtitulo={subKpiPrincipal}
-          deltaMoM={deltaKpiPrincipal}
-          sparklineData={sparklineKpi}
+          titulo="% Adopción Digital (Pedidos)"
+          valorPrincipal={formatPct(pedidos.pctAdopcion)}
+          subtitulo={`${formatNumber(pedidos.digitales)} de ${formatNumber(pedidos.totales)} pedidos totales`}
+          deltaMoM={deltas.pedidosMoM}
+          sparklineData={sparklineAdopcion}
           tooltipData={METRIC_DEFINITIONS.adopcion_pedidos}
-          accentColor="linear-gradient(to right, #00529B, #38bdf8)"
-        />
-
-        {/* KPI 2: Pedidos y Desglose de Canales */}
-        <MetricCard
-          titulo="Pedidos Digitales"
-          valorPrincipal={`${formatNumber(pedidos.digitales)}`}
-          subtitulo={`de ${formatNumber(pedidos.totales)} pedidos (${formatPct(pedidos.pctAdopcion)})`}
-          tooltipData={METRIC_DEFINITIONS.adopcion_pedidos}
-          accentColor="linear-gradient(to right, #059669, #34d399)"
-          className="relative"
+          accentGradient="from-blue-600 via-sky-400 to-indigo-500"
         >
-          {/* Desglose de Canales */}
-          <div className="mt-2 flex items-center justify-between text-[10px] text-muted-foreground pt-1.5 border-t border-border/60">
+          <div className="mt-2.5 flex items-center justify-between text-[10px] text-muted-foreground pt-1.5 border-t border-border/80 font-medium">
             <span className="flex items-center gap-1">
               <Globe className="w-3 h-3 text-sky-500" /> Web: {formatNumber(pedidos.canales.web)}
             </span>
@@ -147,32 +38,45 @@ export function ExecutiveRibbon({
           </div>
         </MetricCard>
 
-        {/* KPI 3: Embudo de Clientes */}
+        {/* KPI 2: Concreto / Readymix en m³ */}
         <MetricCard
-          titulo="Onboarding & Penetración"
-          valorPrincipal={`${formatNumber(clientes.incorporados)} / ${formatNumber(clientes.asignados)}`}
-          subtitulo={`${formatPct(clientes.pctOnboarding)} Onboarded · ${formatNumber(clientes.activos)} Activos (${formatPct(clientes.pctActivacion)} activ.)`}
-          tooltipData={METRIC_DEFINITIONS.incorporado}
-          accentColor="linear-gradient(to right, #d97706, #fbbf24)"
+          titulo="Volumen Concreto (m³)"
+          valorPrincipal={`${formatNumber(volumen.concreto.digital)} m³`}
+          subtitulo={`${formatPct(volumen.concreto.pctAdopcion)} de ${formatNumber(volumen.concreto.total)} m³ totales`}
+          deltaMoM={deltas.concretoMoM}
+          sparklineData={sparklineConcreto}
+          tooltipData={METRIC_DEFINITIONS.adopcion_volumen}
+          accentGradient="from-emerald-600 via-teal-400 to-green-500"
         />
 
-        {/* KPI 4: Volumen o Indicadores Avanzados */}
+        {/* KPI 3: Cemento & Agregados en Toneladas */}
         <MetricCard
-          titulo={volumen.compatible ? `Volumen Digital (${volumen.unidad})` : "FTTV & Reversión"}
-          valorPrincipal={
-            volumen.compatible
-              ? `${formatNumber(volumen.digital)}`
-              : `${clientes.fttvPromedio || 12} días FTTV`
-          }
-          subtitulo={
-            volumen.compatible
-              ? `${formatPct(volumen.pctAdopcion)} del volumen total (${formatNumber(volumen.total)} ${volumen.unidad})`
-              : `${formatNumber(clientes.revertidos)} clientes con recaída analógica`
-          }
-          deltaMoM={volumen.compatible ? deltas.volumenMoM : null}
-          tooltipData={volumen.compatible ? METRIC_DEFINITIONS.adopcion_volumen : METRIC_DEFINITIONS.fttv}
-          accentColor="linear-gradient(to right, #6366f1, #818cf8)"
+          titulo="Volumen Cemento & Agregados (Tons)"
+          valorPrincipal={`${formatNumber(volumen.cemento.digital)} ton`}
+          subtitulo={`${formatPct(volumen.cemento.pctAdopcion)} de ${formatNumber(volumen.cemento.total)} ton totales`}
+          deltaMoM={deltas.cementoMoM}
+          sparklineData={sparklineCemento}
+          tooltipData={METRIC_DEFINITIONS.adopcion_volumen}
+          accentGradient="from-amber-500 via-orange-400 to-amber-600"
         />
+
+        {/* KPI 4: Onboarding y Cuentas Activas */}
+        <MetricCard
+          titulo="Onboarding de Cartera (Cuentas)"
+          valorPrincipal={`${formatNumber(clientes.activos)} Activos`}
+          subtitulo={`${formatNumber(clientes.incorporados)} con cuenta de ${formatNumber(clientes.asignados)} cartera`}
+          deltaMoM={deltas.clientesMoM}
+          tooltipData={METRIC_DEFINITIONS.incorporado}
+          accentGradient="from-purple-600 via-indigo-400 to-purple-500"
+        >
+          <div className="mt-2.5 flex items-center justify-between text-[10px] text-muted-foreground pt-1.5 border-t border-border/80 font-medium">
+            <span>{formatPct(clientes.pctOnboarding)} Onboarded</span>
+            <span>·</span>
+            <span>{clientes.fttvPromedio || 12}d FTTV</span>
+            <span>·</span>
+            <span className="text-rose-600 dark:text-rose-400 font-bold">{clientes.revertidos} Revertidos</span>
+          </div>
+        </MetricCard>
       </div>
     </div>
   );
