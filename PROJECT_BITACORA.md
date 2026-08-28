@@ -302,3 +302,14 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se asignó un tope estricto e infranqueable de max-h-[365px] a todos los contenedores de columna (VP Division, Regions, Markets, Sales Reps) y a la tabla (Account Portfolio).
   - Los contenedores internos de tarjetas tienen su límite interno en max-h-[315px].
   - Ahora, sin importar cuántas regiones (1, 3, 5) o cuántos mercados (2, 8, 15) estén seleccionados, **la gráfica y la tabla mantienen SIEMPRE su altura máxima de 365px**, mostrando las primeras 5 tarjetas y activando un scroll vertical limpio para el resto.
+---
+
+## 🎯 Versión 2.23 - Reversión Completa al Estado v2.15 (Restauración de Tabla Original)
+
+- **Reversión de Cambios de Altura:**
+  - Se revirtió por completo el archivo ProgressiveHierarchy.jsx a la versión **v2.15**, deshaciendo cualquier alteración sobre la tabla del portafolio y sobre las restricciones de altura de las columnas.
+- **Estado Actual Estable (v2.15/v2.23):**
+  - **Tabla del Portafolio:** Restaurada a su formato, tamaño y altura original perfecta.
+  - **Tarjeta USA:** Simplificada en 3 renglones (USA / National / 119,005 ord | 51.0%).
+  - **Filtro Multi-BL:** Coincidencia por región y plaza 100% funcional y sin datos en 0.
+  - **Modo Oscuro & Iconos:** Auditoría visual completa con contraste adaptativo, scrollbars estilizados e iconos vectoriales SVG.
