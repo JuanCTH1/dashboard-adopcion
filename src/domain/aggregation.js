@@ -152,13 +152,15 @@ export function buildFunnel(actual = {}) {
 
   const dropOffStage1 = asignados > 0 ? ((asignados - onboarded) / asignados) * 100 : 0;
   const dropOffStage2 = onboarded > 0 ? ((onboarded - activos) / onboarded) * 100 : 0;
+  const activeOrders = p.activosTotales > 0 ? p.activosTotales : p.digitales;
+  const dropOffStage3 = activeOrders > 0 ? Math.max(0, ((activeOrders - p.digitales) / activeOrders) * 100) : 0;
 
   return [
     {
       id: 'universo',
       stepName: '1. Assigned Universe',
       count: asignados,
-      unit: 'Accounts',
+      unit: 'Customers',
       dropOffPct: Number(dropOffStage1.toFixed(1)),
       subLabel: `${p.totales || 0} Total Orders`
     },
@@ -166,7 +168,7 @@ export function buildFunnel(actual = {}) {
       id: 'onboarded',
       stepName: '2. Onboarded CX App',
       count: onboarded,
-      unit: 'Accounts',
+      unit: 'Customers',
       pctOfUniverse: Number((c.pctOnboarding || 0).toFixed(1)),
       dropOffPct: Number(dropOffStage2.toFixed(1)),
       subLabel: `${c.pctOnboarding || 0}% Onboarding Rate`
@@ -175,8 +177,9 @@ export function buildFunnel(actual = {}) {
       id: 'activos',
       stepName: '3. Active Buyers',
       count: activos,
-      unit: 'Accounts',
+      unit: 'Customers',
       pctOfUniverse: Number((c.pctAdopcion || 0).toFixed(1)),
+      dropOffPct: Number(dropOffStage3.toFixed(1)),
       subLabel: `${p.digitales || 0} Digital Orders`
     },
     {

@@ -13,7 +13,8 @@ export function ExecutiveRibbon({ metricasGlobales }) {
   // Drop-off calculations between stages
   const dropOffStage1 = c.asignados > 0 ? ((c.asignados - c.onboarded) / c.asignados) * 100 : 0;
   const dropOffStage2 = c.onboarded > 0 ? ((c.onboarded - c.activos) / c.onboarded) * 100 : 0;
-  const dropOffStage3 = p.totales > 0 ? ((p.totales - p.digitales) / p.totales) * 100 : 0;
+  const activeOrders = p.activosTotales > 0 ? p.activosTotales : p.digitales;
+  const dropOffStage3 = activeOrders > 0 ? Math.max(0, ((activeOrders - p.digitales) / activeOrders) * 100) : 0;
 
   const maxDrop = Math.max(dropOffStage1, dropOffStage2, dropOffStage3);
   let worstBottleneck = 1;
