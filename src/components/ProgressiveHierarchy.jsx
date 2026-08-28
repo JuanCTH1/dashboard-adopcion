@@ -722,20 +722,18 @@ export function ProgressiveHierarchy({
                 <thead>
                   <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 h-8">
                     <th className="py-2 px-1 w-[3%]"></th>
-                    <th className="py-2 px-2 w-[27%] font-bold truncate">Account / Company</th>
-                    <th className="py-2 px-2 w-[13%] text-right font-bold truncate text-sky-700 dark:text-sky-400">Online</th>
-                    <th className="py-2 px-2 w-[13%] text-right font-bold truncate text-slate-500 dark:text-slate-400">Offline</th>
-                    <th className="py-2 px-2 w-[13%] text-right font-bold truncate">Total</th>
+                    <th className="py-2 px-2 w-[34%] font-bold truncate">Account / Company</th>
+                    <th className="py-2 px-2 w-[15%] text-right font-bold truncate text-sky-700 dark:text-sky-400">Online</th>
+                    <th className="py-2 px-2 w-[15%] text-right font-bold truncate text-slate-500 dark:text-slate-400">Offline</th>
+                    <th className="py-2 px-2 w-[14%] text-right font-bold truncate">Total</th>
                     <th className="py-2 px-2 w-[11%] text-right font-bold truncate">Adoption %</th>
-                    <th className="py-2 px-2 w-[11%] text-center font-bold truncate">Main Channel</th>
-                    <th className="py-2 px-2 w-[9%] text-center font-bold truncate">Status</th>
+                    <th className="py-2 px-2 w-[8%] text-center font-bold truncate">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
                   {deferredCartera.slice(0, 50).map(cli => {
                     const isExpanded = expandedRowIds.has(cli.id);
                     const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
-                    const shortChannel = cli.primaryChannel === 'Phone / Offline' ? 'Phone' : cli.primaryChannel === 'Web Portal' ? 'Web' : cli.primaryChannel === 'Mobile App' ? 'App' : 'EDI';
 
                     return (
                       <React.Fragment key={cli.id}>
@@ -776,23 +774,6 @@ export function ProgressiveHierarchy({
                             </span>
                           </td>
                           <td className="py-2 px-2 text-center whitespace-nowrap">
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                "text-[10px] py-0.5 px-2 font-bold uppercase gap-1",
-                                shortChannel === 'Phone'
-                                  ? "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700"
-                                  : "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30"
-                              )}
-                            >
-                              {shortChannel === 'Phone' && <PhoneCall className="w-2.5 h-2.5 inline text-amber-500" />}
-                              {shortChannel === 'Web' && <Laptop className="w-2.5 h-2.5 inline text-sky-500" />}
-                              {shortChannel === 'App' && <Smartphone className="w-2.5 h-2.5 inline text-indigo-500" />}
-                              {shortChannel === 'EDI' && <Server className="w-2.5 h-2.5 inline text-emerald-500" />}
-                              {shortChannel}
-                            </Badge>
-                          </td>
-                          <td className="py-2 px-2 text-center whitespace-nowrap">
                             {cli.estaIncorporado ? (
                               <Badge variant="success" className="text-[10px] py-0.5 px-1.5 font-bold">
                                 Active
@@ -808,7 +789,7 @@ export function ProgressiveHierarchy({
                         {/* EXPANDABLE DRAWER ROW WITH HIGH-CONTRAST VISUAL MICRO-PILLS */}
                         {isExpanded && (
                           <tr className="bg-slate-100/90 dark:bg-slate-950 border-b border-border">
-                            <td colSpan={8} className="p-3">
+                            <td colSpan={7} className="p-3">
                               <div className="bg-card p-3 rounded-lg border border-border shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
                                 {/* Digital Channel Pills */}
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -864,9 +845,6 @@ export function ProgressiveHierarchy({
                       </td>
                       <td className="py-1.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-xs whitespace-nowrap">
                         {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
-                      </td>
-                      <td className="py-1.5 px-2 text-center text-[9.5px] text-muted-foreground whitespace-nowrap">
-                        {totalesCartera.totalClientes} Cust
                       </td>
                       <td className="py-1.5 px-2 text-center whitespace-nowrap">
                         <Badge variant="success" className="text-[9.5px] py-0 px-1.5 font-bold">

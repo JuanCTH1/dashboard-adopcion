@@ -735,3 +735,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Limpieza de Identificadores Sintéticos y Métrica FTTV:**
   - Se removió el código inventado `CLI-XXXXX` de los nombres de clientes en la tabla de cartera (`ProgressiveHierarchy.jsx`), ActionDrawer (`ActionDrawer.jsx`) y reporte CSV (`App.jsx`).
   - Se eliminaron las insignias y referencias a la métrica **FTTV** (días a la primera compra) de todo el tablero.
+---
+
+## 🎯 Versión 2.70 - Eliminación de la Columna "Main Channel" en la Tabla Principal (`ProgressiveHierarchy.jsx`)
+
+- **Remoción de Columna Redundante (`ProgressiveHierarchy.jsx`):**
+  - Se eliminó la columna `Main Channel` de la vista principal de la tabla de cartera de clientes.
+  - **Resultado:** El detalle de canales transaccionales (Web, App, EDI, Phone) se consulta al hacer clic para desplegar el drawer de la fila, permitiendo que las columnas principales de pedidos (**Online**, **Offline**, **Total**, **Adoption %**) aprovechen el 100% del ancho del contenedor.
