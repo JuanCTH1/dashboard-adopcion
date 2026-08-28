@@ -678,3 +678,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Subtítulo de Tarjeta 3 (`ExecutiveRibbon.jsx`):**
   - La tarjeta **Active Customers** muestra ahora las **órdenes totales** generadas por esos clientes activos (ej. **`426.7k orders`** en lugar de solo las digitales), respetando su comportamiento híbrido.
   - El tooltip desplegable informa: `426,744 total orders of active customers`.
+---
+
+## 🎯 Versión 2.63 - Homogeneización de Subtítulo en Tarjeta 4 y Remoción de "vs 90% Goal" (`ExecutiveRibbon.jsx`)
+
+- **Subtítulo Limpio en Tarjeta 4 (Orders Adoption):**
+  - Muestra ahora **`XXk orders`** (órdenes digitales transaccionadas) con tooltip desplegable de detalle exacto (`title="276,444 adopted digital orders (out of 536,785 total)"`).
+- **Remoción de Insignia Redundante (`ExecutiveRibbon.jsx`):**
+  - Se eliminó el texto `vs 90% Goal` del pie de la tarjeta 4.
+  - **Resultado:** Las 4 tarjetas del Ribbon mantienen una alineación y formato de subtítulo perfectamente uniforme.

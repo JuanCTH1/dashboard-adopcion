@@ -76,8 +76,8 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       title: 'Orders Adoption',
       primaryLabel: `${formatPct(p.pctAdopcion)}`,
       primaryUnit: '',
-      secondaryLabel: `${formatCompactNumber(p.digitales)} / ${formatCompactNumber(p.totales)} digital orders`,
-      exactTooltip: `${formatNumber(p.digitales)} / ${formatNumber(p.totales)} digital orders`,
+      secondaryLabel: `${formatCompactNumber(p.digitales)} orders`,
+      exactTooltip: `${formatNumber(p.digitales)} adopted digital orders (out of ${formatNumber(p.totales)} total)`,
       icon: Target,
       colorGrad: 'from-amber-500 to-orange-600',
       accentBg: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
@@ -140,7 +140,6 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                   title={st.exactTooltip}
                 >
                   <span className="truncate">{st.secondaryLabel}</span>
-                  {st.isDominant && <span className="text-[8.5px] font-bold text-primary shrink-0 ml-1">vs 90% Goal</span>}
                 </div>
               </div>
 
