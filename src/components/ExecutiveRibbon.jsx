@@ -13,8 +13,12 @@ export function ExecutiveRibbon({ metricasGlobales }) {
   // Drop-off calculations between stages
   const dropOffStage1 = c.asignados > 0 ? ((c.asignados - c.onboarded) / c.asignados) * 100 : 0;
   const dropOffStage2 = c.onboarded > 0 ? ((c.onboarded - c.activos) / c.onboarded) * 100 : 0;
+  const dropOffStage3 = p.totales > 0 ? ((p.totales - p.digitales) / p.totales) * 100 : 0;
 
-  const worstBottleneck = dropOffStage1 >= dropOffStage2 ? 1 : 2;
+  const maxDrop = Math.max(dropOffStage1, dropOffStage2, dropOffStage3);
+  let worstBottleneck = 1;
+  if (maxDrop === dropOffStage2) worstBottleneck = 2;
+  if (maxDrop === dropOffStage3) worstBottleneck = 3;
 
   const STAGES = [
     {
@@ -54,7 +58,9 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       icon: Activity,
       colorGrad: 'from-sky-500 to-blue-600',
       accentBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-400',
-      flowDelta: `▲+1.2% this month`
+      flowDelta: `▲+1.2% this month`,
+      nextDrop: dropOffStage3,
+      isBottleneck: worstBottleneck === 3
     },
     {
       id: 'adopcion',

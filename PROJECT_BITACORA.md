@@ -542,3 +542,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Canal de Conector Inter-Tarjetas Dedicado (`ExecutiveRibbon.jsx`):**
   - Se restauró la presencia visual del conector de transición **ENTRE cada tarjeta**, eliminando la posición absoluta que encimaba los bordes.
   - Se ubicaron como elementos Flex dedicados (`shrink-0 flex items-center justify-center`), logrando una alineación perfecta en altura y centrado exacto entre las 4 tarjetas independientes.
+---
+
+## 🎯 Versión 2.46 - Adición del 3er Conector Inter-Tarjetas (Active ➔ Digital Adoption)
+
+- **3er Conector de Transición en Embudo (`ExecutiveRibbon.jsx`):**
+  - Se agregó el tercer conector de transición entre la Etapa 3 (**Active**) y la Etapa 4 (**Digital Adoption**), mostrando la brecha de ordenes analógicas respecto al 100% de la adopción digital.
+  - Ahora las 3 transiciones intermedias (`Total Customers ➔ Onboarded ➔ Active ➔ Digital Adoption`) cuentan con sus 3 conectores visibles y perfectamente alineados entre tarjetas.
