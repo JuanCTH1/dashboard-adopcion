@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { AppHeader } from '@/components/AppHeader';
 import { ExecutiveRibbon } from '@/components/ExecutiveRibbon';
 import { AdoptionTrendCard } from '@/components/AdoptionTrendCard';
+import { LeaderboardCard } from '@/components/LeaderboardCard';
 import { ProgressiveHierarchy } from '@/components/ProgressiveHierarchy';
 import { ActionDrawer } from '@/components/ActionDrawer';
 import { CommandPalette } from '@/components/CommandPalette';
@@ -21,7 +22,8 @@ export function App() {
     anios: [],
     meses: [],
     lineasNegocio: [],
-    onboarded: []
+    onboarded: [],
+    activos: []
   });
 
   // 3. Hierarchy Active Selection (Tree Canvas)
@@ -75,7 +77,8 @@ export function App() {
       anios: [],
       meses: [],
       lineasNegocio: [],
-      onboarded: []
+      onboarded: [],
+      activos: []
     });
     setFiltrosJerarquia({
       vpIds: [],
@@ -104,6 +107,9 @@ export function App() {
     if (filtrosContexto.onboarded?.length) {
       chips.push({ key: 'onboarded', label: 'Onboarded', value: filtrosContexto.onboarded.join(', ') });
     }
+    if (filtrosContexto.activos?.length) {
+      chips.push({ key: 'activos', label: 'Active', value: filtrosContexto.activos.join(', ') });
+    }
     if (filtrosJerarquia.vpIds?.length) {
       chips.push({ key: 'vps', label: 'VPs', value: `${filtrosJerarquia.vpIds.length} sel` });
     }
@@ -128,6 +134,8 @@ export function App() {
       setFiltrosContexto(prev => ({ ...prev, lineasNegocio: [] }));
     } else if (key === 'onboarded') {
       setFiltrosContexto(prev => ({ ...prev, onboarded: [] }));
+    } else if (key === 'activos') {
+      setFiltrosContexto(prev => ({ ...prev, activos: [] }));
     } else if (key === 'vps') {
       setFiltrosJerarquia(prev => ({ ...prev, vpIds: [] }));
     } else if (key === 'directors') {
@@ -146,6 +154,10 @@ export function App() {
 
   const funnelSteps = useMemo(() => {
     return adopcionRepo.getFunnel(filtrosCompuestos, 'clientes');
+  }, [filtrosCompuestos]);
+
+  const leaderboardData = useMemo(() => {
+    return adopcionRepo.getLeaderboard(filtrosCompuestos);
   }, [filtrosCompuestos]);
 
   const clientesAccion = useMemo(() => {
@@ -218,7 +230,13 @@ export function App() {
             filtros={filtrosCompuestos}
           />
 
-          {/* ROW 3: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
+          {/* ROW 3: COMMERCIAL LEADERBOARD & BENCHMARK */}
+          <LeaderboardCard
+            leaderboardData={leaderboardData}
+            onOpenActionDrawer={handleOpenActionDrawer}
+          />
+
+          {/* ROW 4: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
           <ProgressiveHierarchy
             filtrosCompuestos={filtrosCompuestos}
             onHierarchyFilterChange={handleHierarchyFilterChange}

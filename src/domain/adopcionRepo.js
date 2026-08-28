@@ -59,6 +59,7 @@ class AdopcionRepository {
     const gerenteIds = filtros.gerenteIds?.length ? filtros.gerenteIds : (filtros.gerenteId ? [filtros.gerenteId] : []);
     const vendedorIds = filtros.vendedorIds?.length ? filtros.vendedorIds : (filtros.vendedorId ? [filtros.vendedorId] : []);
     const onboardedFilter = filtros.onboarded?.length ? filtros.onboarded : [];
+    const activosFilter = filtros.activos?.length ? filtros.activos : [];
 
     // 1. FAST CLIENT FILTERING
     let clientesFiltrados = this.data.CLIENTES;
@@ -68,6 +69,10 @@ class AdopcionRepository {
     if (onboardedFilter.length === 1) {
       const isWantOnboarded = onboardedFilter[0] === 'Yes';
       clientesFiltrados = clientesFiltrados.filter(c => c.estaIncorporado === isWantOnboarded);
+    }
+    if (activosFilter.length === 1) {
+      const isWantActivo = activosFilter[0] === 'Yes';
+      clientesFiltrados = clientesFiltrados.filter(c => c.esActivo === isWantActivo);
     }
     const REGION_NAME_TO_ID = {
       'Atlantic': 'reg-1',
@@ -514,6 +519,103 @@ class AdopcionRepository {
     const { clientes, transacciones } = this._filtrar(filtros);
     const metricas = calculateAggregations(transacciones, clientes);
     return buildFunnel(metricas, lens);
+  }
+
+  getLeaderboard(filtros = {}) {
+    const leaderboard = [];
+
+    // 1. MARKET & LINE ENTITIES (e.g. Atlanta Readymix, Atlanta Cement)
+    this.data.GERENTES.forEach(g => {
+      const vpObj = this.data.VPS.find(v => v.id === g.vpId);
+      const mktFiltro = { ...filtros, vpId: g.vpId, gerenteId: g.id };
+      const { clientes, transacciones } = this._filtrar(mktFiltro);
+      const agg = calculateAggregations(transacciones, clientes);
+
+      leaderboard.push({
+        id: `mkt-bl-${g.id}`,
+        tipo: 'market_line',
+        nombre: `${g.nombre} Market`,
+        lineaNegocio: vpObj?.lineaNegocio || 'readymix',
+        persona: g.persona,
+        onboardingPct: agg.clientes.pctOnboarding,
+        onboardedCount: agg.clientes.onboarded,
+        assignedCount: agg.clientes.asignados,
+        adopcionPct: agg.pedidos.pctAdopcion,
+        digitalOrders: agg.pedidos.digitales,
+        totalOrders: agg.pedidos.totales
+      });
+    });
+
+    // 2. SALES REPS (50 Vendedores)
+    this.data.VENDEDORES.forEach(v => {
+      const repFiltro = { ...filtros, vendedorId: v.id };
+      const { clientes, transacciones } = this._filtrar(repFiltro);
+      const agg = calculateAggregations(transacciones, clientes);
+
+      leaderboard.push({
+        id: `rep-${v.id}`,
+        tipo: 'sales_rep',
+        nombre: v.nombre,
+        lineaNegocio: v.lineaNegocio || 'readymix',
+        persona: `${v.plaza} · ${v.gerenteId}`,
+        onboardingPct: agg.clientes.pctOnboarding,
+        onboardedCount: agg.clientes.onboarded,
+        assignedCount: agg.clientes.asignados,
+        adopcionPct: agg.pedidos.pctAdopcion,
+        digitalOrders: agg.pedidos.digitales,
+        totalOrders: agg.pedidos.totales
+      });
+    });
+
+    // 3. MARKETS (12 Mercados)
+    const marketNames = Array.from(new Set(this.data.GERENTES.map(g => g.nombre)));
+    marketNames.forEach((mktName, idx) => {
+      const gerentesOfMkt = this.data.GERENTES.filter(g => g.nombre === mktName);
+      const gerIds = gerentesOfMkt.map(g => g.id);
+      const mktFiltro = { ...filtros, gerenteIds: gerIds };
+      const { clientes, transacciones } = this._filtrar(mktFiltro);
+      const agg = calculateAggregations(transacciones, clientes);
+
+      leaderboard.push({
+        id: `mkt-${idx}`,
+        tipo: 'market',
+        nombre: `${mktName} Market`,
+        lineaNegocio: 'multi',
+        persona: gerentesOfMkt.map(g => g.persona).join(', '),
+        onboardingPct: agg.clientes.pctOnboarding,
+        onboardedCount: agg.clientes.onboarded,
+        assignedCount: agg.clientes.asignados,
+        adopcionPct: agg.pedidos.pctAdopcion,
+        digitalOrders: agg.pedidos.digitales,
+        totalOrders: agg.pedidos.totales
+      });
+    });
+
+    // 4. REGIONS (6 Regiones)
+    const regionNames = Array.from(new Set(this.data.DIRECTORES.map(d => d.nombre)));
+    regionNames.forEach((regName, idx) => {
+      const dirsOfReg = this.data.DIRECTORES.filter(d => d.nombre === regName);
+      const dirIds = dirsOfReg.map(d => d.id);
+      const regFiltro = { ...filtros, directorIds: dirIds };
+      const { clientes, transacciones } = this._filtrar(regFiltro);
+      const agg = calculateAggregations(transacciones, clientes);
+
+      leaderboard.push({
+        id: `reg-${idx}`,
+        tipo: 'region',
+        nombre: `${regName} Region`,
+        lineaNegocio: 'multi',
+        persona: dirsOfReg.map(d => d.persona).join(', '),
+        onboardingPct: agg.clientes.pctOnboarding,
+        onboardedCount: agg.clientes.onboarded,
+        assignedCount: agg.clientes.asignados,
+        adopcionPct: agg.pedidos.pctAdopcion,
+        digitalOrders: agg.pedidos.digitales,
+        totalOrders: agg.pedidos.totales
+      });
+    });
+
+    return leaderboard;
   }
 }
 

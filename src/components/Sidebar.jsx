@@ -38,13 +38,14 @@ export function Sidebar({
   const totalActiveFilters =
     (filtros.anios?.length || 0) +
     (filtros.meses?.length || 0) +
-    (filtros.onboarded?.length || 0);
+    (filtros.onboarded?.length || 0) +
+    (filtros.activos?.length || 0);
 
   return (
     <aside
       className={cn(
         "h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs transition-all duration-300 z-40 shrink-0 select-none overflow-hidden font-sans",
-        isOpen ? "w-72" : "w-14"
+        isOpen ? "w-56" : "w-14"
       )}
     >
       {/* 1. Sidebar Header */}
@@ -96,84 +97,50 @@ export function Sidebar({
             )}
           </div>
 
-          {/* Scrollable Block List */}
+          {/* Scrollable Block List — sin acordeones: son pocos filtros, siempre visibles */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3.5 text-left scrollbar-thin">
-            {/* GROUP 1: TIME PERIOD (YEAR & MONTH WITH DRAG SELECTION) */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => toggleSection("periodo")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-3.5 h-3.5 text-primary" />
-                  <span>Time Period</span>
-                </div>
-                {openSections.periodo ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-              </button>
-
-              {openSections.periodo && (
-                <div className="p-2.5 space-y-2.5 bg-white dark:bg-slate-900">
-                  <FilterListbox
-                    label="Year"
-                    options={ANIOS_DISPONIBLES}
-                    value={filtros.anios || []}
-                    onChange={(val) => onFiltroChange("anios", val)}
-                    grid={true}
-                    gridCols={3}
-                    formatLabel={yr => `'${String(yr).slice(2)}`}
-                  />
-
-                  <FilterListbox
-                    label="Month (Drag Range)"
-                    options={NOMBRES_MESES}
-                    value={filtros.meses || []}
-                    onChange={(val) => onFiltroChange("meses", val)}
-                    grid={true}
-                    gridCols={6}
-                  />
-                </div>
-              )}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs p-2.5 space-y-2.5">
+              <FilterListbox
+                label="Year"
+                options={ANIOS_DISPONIBLES}
+                value={filtros.anios || []}
+                onChange={(val) => onFiltroChange("anios", val)}
+                grid={true}
+                gridCols={3}
+                formatLabel={yr => `'${String(yr).slice(2)}`}
+              />
+              <FilterListbox
+                label="Month"
+                options={NOMBRES_MESES}
+                value={filtros.meses || []}
+                onChange={(val) => onFiltroChange("meses", val)}
+                grid={true}
+                gridCols={6}
+              />
             </div>
 
-            {/* GROUP 2: ONBOARDED (YES / NO) */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
-              <button
-                type="button"
-                onClick={() => toggleSection("onboarding")}
-                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <UserCheck className="w-3.5 h-3.5 text-primary" />
-                  <span>Onboarded</span>
-                </div>
-                {openSections.onboarding ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-              </button>
-
-              {openSections.onboarding && (
-                <div className="p-2.5 bg-white dark:bg-slate-900">
-                  <FilterListbox
-                    label="Onboarded"
-                    options={["Yes", "No"]}
-                    value={filtros.onboarded || []}
-                    onChange={(val) => onFiltroChange("onboarded", val)}
-                    grid={true}
-                    gridCols={2}
-                  />
-                </div>
-              )}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs p-2.5 space-y-2.5">
+              <FilterListbox
+                label="Onboarded"
+                options={["Yes", "No"]}
+                value={filtros.onboarded || []}
+                onChange={(val) => onFiltroChange("onboarded", val)}
+                grid={true}
+                gridCols={2}
+              />
+              <FilterListbox
+                label="Activo"
+                options={["Yes", "No"]}
+                value={filtros.activos || []}
+                onChange={(val) => onFiltroChange("activos", val)}
+                grid={true}
+                gridCols={2}
+              />
             </div>
 
-            {/* GUIDE CARD */}
-            <div className="p-3 rounded-xl border border-primary/20 bg-primary/5 dark:bg-primary/10 text-xs space-y-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-primary">
-                <Network className="w-4 h-4" />
-                <span>Product & Sales Hierarchy</span>
-              </div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Business Line VPs, Regional Directors, and Sales Reps are selected directly in the <b>Cascaded Explorer</b> to filter the entire dashboard.
-              </p>
-            </div>
+            <p className="text-[10.5px] text-muted-foreground leading-relaxed px-0.5">
+              VP, Región, Mercado y Vendedor se seleccionan directo en el explorador de jerarquía de abajo.
+            </p>
           </div>
         </div>
       )}

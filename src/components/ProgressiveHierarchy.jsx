@@ -214,9 +214,12 @@ export function ProgressiveHierarchy({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
         <div className="flex items-center gap-2">
           <Layers className="w-3.5 h-3.5 text-primary shrink-0" />
-          <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30">
-            {activeContext.titulo} · {totalesCartera?.totalClientes || 0} cuentas · {formatNumber(totalesCartera?.totalPedidos || 0)} órdenes
-          </Badge>
+          <h2 className="text-sm font-black text-foreground tracking-tight">
+            {activeContext.titulo}
+            <span className="ml-2 text-[11px] font-semibold text-muted-foreground">
+              {totalesCartera?.totalClientes || 0} cuentas · {formatNumber(totalesCartera?.totalPedidos || 0)} órdenes
+            </span>
+          </h2>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -303,7 +306,7 @@ export function ProgressiveHierarchy({
                   <button
                     onClick={() => setIsUsaSelected(!isUsaSelected)}
                     className={cn(
-                      "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs select-none",
+                      "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                       isUsaSelected
                         ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                         : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -362,7 +365,7 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                   {vps.map((vp) => {
                     const isSelected = selectedVpIds.includes(vp.id);
                     return (
@@ -371,7 +374,7 @@ export function ProgressiveHierarchy({
                         onMouseDown={(e) => handleCardMouseDown(setSelectedVpIds, selectedVpIds, vp.id, e)}
                         onMouseEnter={() => handleCardMouseEnter(setSelectedVpIds, selectedVpIds, vp.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs select-none",
+                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -431,7 +434,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+              <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                 {directores.map((dir) => {
                   const isSelected = selectedDirIds.includes(dir.id);
                   return (
@@ -440,7 +443,7 @@ export function ProgressiveHierarchy({
                         onMouseDown={(e) => handleCardMouseDown(setSelectedDirIds, selectedDirIds, dir.id, e)}
                         onMouseEnter={() => handleCardMouseEnter(setSelectedDirIds, selectedDirIds, dir.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs select-none",
+                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -562,7 +565,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+              <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                 {gerentes.map((ger) => {
                   const isSelected = selectedGerIds.includes(ger.id);
                   return (
@@ -571,7 +574,7 @@ export function ProgressiveHierarchy({
                         onMouseDown={(e) => handleCardMouseDown(setSelectedGerIds, selectedGerIds, ger.id, e)}
                         onMouseEnter={() => handleCardMouseEnter(setSelectedGerIds, selectedGerIds, ger.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs select-none",
+                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -693,7 +696,7 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                   {vendedores.map(rep => {
                     const isSelected = selectedRepIds.includes(rep.id);
                     return (
@@ -702,7 +705,7 @@ export function ProgressiveHierarchy({
                         onMouseDown={(e) => handleCardMouseDown(setSelectedRepIds, selectedRepIds, rep.id, e)}
                         onMouseEnter={() => handleCardMouseEnter(setSelectedRepIds, selectedRepIds, rep.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs select-none",
+                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"

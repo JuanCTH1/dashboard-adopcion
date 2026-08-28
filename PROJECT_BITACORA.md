@@ -426,3 +426,27 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Entre cada etapa se calcula dinámicamente el % de caída. La transición con mayor pérdida se destaca automáticamente en rojo/ámbar (`animate-pulse border-rose-500/30`).
 - **Formato Headline + Conteo en Jerarquía:**
   - Se formateó Renglón 3 en las tarjetas de [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx) con la estructura especificada: `Onb 75% (21/28 cli)` y `Adop 61% (126 ord)`.
+---
+
+## 🎯 Versión 2.35 - Conectores Circulares & Poda de Ruido en Tabla de Jerarquía
+
+- **Conectores Circulares de Transición (Funnel Ribbon):**
+  - Se estilizaron los nodos intermedios de transición en [ExecutiveRibbon.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ExecutiveRibbon.jsx) como insignias circulares flotantes (`w-11 h-11 rounded-full border-2 shadow-md`), destacando en rojo animado (`bg-rose-500 text-white animate-pulse`) la transición del cuello de botella.
+- **Poda Confirmada de Ruido en Encabezado de Tabla:**
+  - Se eliminaron los textos secundarios redundantes (*"Interactive Organizational Hierarchy"*, *"Order-based adoption breakdown with instant visual channel badges"*, *"Selected Scope:"*) en [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx), manteniendo únicamente la insignia limpia con el alcance activo.
+---
+
+## 🎯 Versión 2.36 - Tabla de Ranking Comercial & Gamificación Benchmark (LeaderboardCard)
+
+- **Nuevo Componente `LeaderboardCard.jsx`:**
+  - Se creó el componente [LeaderboardCard.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/LeaderboardCard.jsx) para clasificación y benchmarking entre entidades comerciales (Mercado & Línea, Vendedores, Mercados y Regiones).
+- **Enfoque Exclusivo en Porcentajes:**
+  - Clasificación y ordenamiento exclusivo por métricas de porcentaje: **`Order Adoption %`** y **`Onboarding %`** (sin métricas de volumen ni velocidad para mantener máxima claridad).
+- **Gamificación Comercial & Alertas:**
+  - **Medallas de Podio (🥇 🥈 🥉):** Destacan visualmente el Top 3 de cada dimensión.
+  - **Alerta de Rezagados (⚠️ Lagging):** Marca en rojo/rosa sutil el **Bottom 20%** para enfocar la acción comercial directiva.
+  - **Bullet Graph Benchmark:** Muestra la comparación visual respecto al objetivo global del 90.0%.
+- **Integración con Action Drawer:**
+  - Al hacer clic en cualquier fila del ranking, se abre el [ActionDrawer.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ActionDrawer.jsx) con la cartera de clientes pendientes de esa entidad específica.
+- **Generación de Datos en Repositorio:**
+  - Se agregó el método `getLeaderboard()` en [adopcionRepo.js](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/domain/adopcionRepo.js) para calcular los datos del ranking en tiempo real según los filtros activos.

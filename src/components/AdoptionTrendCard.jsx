@@ -31,16 +31,16 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
           {last ? `${last.pctAdopcionPedidos}%` : '—'} <span className="text-[10px] font-medium text-muted-foreground">últimos {filteredData.length} meses</span>
         </div>
       </div>
-      <div className="flex-1 h-full min-w-[120px]">
+      <div className="flex-1 h-full min-w-[160px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={filteredData} margin={{ top: 6, right: 4, left: 4, bottom: 0 }}>
+          <AreaChart data={filteredData} margin={{ top: 8, right: 6, left: 6, bottom: 2 }}>
             <defs>
               <linearGradient id="trend-grad-mini" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={strokeColor} stopOpacity={0.3} />
                 <stop offset="100%" stopColor={strokeColor} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <YAxis hide domain={[0, 100]} />
+            <YAxis hide domain={['dataMin - 4', 'dataMax + 4']} />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload?.length) {
