@@ -45,6 +45,14 @@ export function calculateAggregations(transacciones = [], clientes = []) {
     }
   });
 
+  // Calculate total orders (digital + analog) placed by Active Customers
+  let pedidosActivosTotales = 0;
+  transacciones.forEach(t => {
+    if (digitalClientIds.has(t.clienteId)) {
+      pedidosActivosTotales += t.pedidosTotales;
+    }
+  });
+
   const hasTxFilter = transacciones.length > 0 && periodClientIds.size < clientes.length;
 
   const filteredClientsInPeriod = hasTxFilter
@@ -70,6 +78,7 @@ export function calculateAggregations(transacciones = [], clientes = []) {
       web: pedidosWeb,
       app: pedidosApp,
       edi: pedidosEdi,
+      activosTotales: pedidosActivosTotales || pedidosTotales,
       pctAdopcion: Number(pctAdopcionPedidos.toFixed(1))
     },
     clientes: {

@@ -669,3 +669,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - **Tarjeta 2 (Onboarded Customers):** `XXk onboarded orders` $\rightarrow$ **`XXk orders`**.
   - **Tarjeta 3 (Active Customers):** `XXk active orders` $\rightarrow$ **`XXk orders`**.
   - **Resultado:** Subtítulos ultracompactos y limpios sin redundancias de calificadores.
+---
+
+## 🎯 Versión 2.62 - Conteo de Órdenes Totales de Clientes Activos (`aggregation.js` & `ExecutiveRibbon.jsx`)
+
+- **Cálculo de Órdenes Totales de Clientes Activos (`aggregation.js`):**
+  - Se agregó `pedidos.activosTotales` en `calculateAggregations`, sumando todas las órdenes (digitales + analógicas) de los clientes que han realizado al menos una compra digital (`digitalClientIds`).
+- **Subtítulo de Tarjeta 3 (`ExecutiveRibbon.jsx`):**
+  - La tarjeta **Active Customers** muestra ahora las **órdenes totales** generadas por esos clientes activos (ej. **`426.7k orders`** en lugar de solo las digitales), respetando su comportamiento híbrido.
+  - El tooltip desplegable informa: `426,744 total orders of active customers`.
