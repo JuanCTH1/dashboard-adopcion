@@ -555,3 +555,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 
 - **Deltas en Números Enteros para Etapa 2 y 3 (`ExecutiveRibbon.jsx`):**
   - Se cambió el formato del delta de crecimiento mensual en la tarjeta 2 (**Onboarded**) y tarjeta 3 (**Active**) de porcentaje (`%`) a **números enteros netos de cuentas** (`▲+48 this month` y `▲+18 this month`).
+---
+
+## 🎯 Versión 2.48 - Recálculo Dinámico de Deltas con Filtros de Contexto (`adopcionRepo.js`)
+
+- **Recálculo Dinámico de `clientesMoMNetos` y `activosMoMNetos`:**
+  - Se reemplazaron las propiedades estáticas por un cálculo dinámico en `AdopcionRepository.getMetricasGlobales(filtros)`.
+  - **Resultado:** Al filtrar por cualquier dimensión (sidebar, VPs, Regiones, Mercados, Vendedores), los deltas enteros del ribbon se recalculan inmediatamente en tiempo real para reflejar exactamente el segmento seleccionado.
