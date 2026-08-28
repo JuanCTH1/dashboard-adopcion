@@ -1203,29 +1203,29 @@ export function ProgressiveHierarchy({
             top: `${hoveredPopover.y}px`,
             transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
           }}
-          className="z-[9999] w-64 p-3 bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded-xl shadow-xl dark:shadow-2xl border border-slate-700/80 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
+          className="z-[9999] w-64 p-3 bg-card/95 text-foreground dark:bg-slate-900/95 dark:text-slate-100 rounded-xl shadow-2xl border border-border/90 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
         >
-          <div className="font-extrabold text-sky-400 dark:text-sky-300 uppercase tracking-wider text-[9px] pb-1 border-b border-slate-800 dark:border-slate-700 flex items-center justify-between">
+          <div className="font-black text-primary dark:text-sky-300 uppercase tracking-wider text-[9.5px] pb-1.5 border-b border-border/70 flex items-center justify-between">
             <span>{hoveredPopover.title}</span>
-            <span className="text-slate-400 font-normal">{hoveredPopover.tipo}</span>
+            <span className="text-muted-foreground font-semibold">{hoveredPopover.tipo}</span>
           </div>
 
           <div className="space-y-1.5 pt-2">
             {hoveredPopover.personasDetalle?.map(p => (
-              <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
-                <span className="font-bold text-slate-200 flex items-center gap-1.5">
+              <div key={p.bl} className="flex items-center justify-between gap-2 text-[10.5px]">
+                <span className="font-bold text-foreground flex items-center gap-1.5 min-w-0">
                   <span className={cn(
-                    "text-[8px] font-black px-1.5 py-0.5 rounded uppercase border",
-                    p.bl === 'RMX' ? "bg-sky-500/20 text-sky-300 border-sky-500/40" :
-                    p.bl === 'CEM' ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" :
-                    "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                    "text-[8px] font-black px-1.5 py-0.2 rounded uppercase border shrink-0",
+                    p.bl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
+                    p.bl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
+                    "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
                   )}>
                     {p.bl}
                   </span>
-                  <span className="truncate max-w-[95px] text-slate-200">{p.persona}</span>
+                  <span className="truncate max-w-[100px] text-foreground">{p.persona}</span>
                 </span>
-                <span className="font-mono text-emerald-400 font-bold shrink-0">
-                  {formatNumber(p.totales)} ord · {formatPct(p.pctAdopcion)}
+                <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold text-[10px] shrink-0">
+                  {formatCompactNumber(p.totales)} ord · {formatPct(p.pctAdopcion)}
                 </span>
               </div>
             ))}

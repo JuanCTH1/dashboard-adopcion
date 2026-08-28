@@ -39,7 +39,7 @@ export function CustomTooltip({ text, children, position = "top" }) {
             top: `${coords.y}px`,
             transform: position === "bottom" ? "translate(-50%, 0)" : "translate(-50%, -100%)"
           }}
-          className="z-[9999] pointer-events-none whitespace-nowrap rounded-lg bg-slate-900 dark:bg-slate-800 text-slate-100 px-2.5 py-1 text-[10px] font-extrabold shadow-xl border border-slate-700/80 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100"
+          className="z-[9999] pointer-events-none whitespace-nowrap rounded-lg bg-card/95 dark:bg-slate-900/95 text-foreground px-2.5 py-1 text-[10.5px] font-bold shadow-xl border border-border/90 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100"
         >
           {text}
         </div>
@@ -66,15 +66,15 @@ export function MetricInfoTooltip({ titulo, descripcion, tipo = "propuesta" }) {
       </button>
 
       {isVisible && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 overflow-hidden rounded-lg bg-slate-900 px-3 py-2 text-xs text-slate-50 shadow-xl border border-slate-700/60 max-w-xs w-64 leading-relaxed pointer-events-none animate-in fade-in-0 zoom-in-95">
-          {titulo && <div className="font-semibold text-[11px] text-sky-400 mb-0.5">{titulo}</div>}
-          <div className="text-[11px] text-slate-200">{descripcion}</div>
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 overflow-hidden rounded-xl bg-card/95 dark:bg-slate-900/95 p-3 text-xs text-foreground shadow-2xl border border-border/90 max-w-xs w-64 leading-relaxed pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95">
+          {titulo && <div className="font-bold text-[11px] text-primary dark:text-sky-400 mb-0.5">{titulo}</div>}
+          <div className="text-[11px] text-muted-foreground">{descripcion}</div>
           {tipo === "propuesta" && (
-            <div className="mt-1 pt-1 border-t border-slate-700/60 text-[9px] text-amber-300 font-medium uppercase tracking-wider">
+            <div className="mt-1.5 pt-1 border-t border-border/60 text-[9px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">
               ⚡ Definición propuesta pendiente de ratificar
             </div>
           )}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-slate-900" />
+          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-card dark:border-t-slate-900" />
         </div>
       )}
     </div>
