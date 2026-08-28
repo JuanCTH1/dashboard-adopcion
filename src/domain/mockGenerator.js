@@ -206,6 +206,7 @@ export function generateDataset(seed = 20260828) {
         directorId: rep.directorId,
         vpId: rep.vpId,
         regionId: rep.regionId,
+        regionNombre: rep.regionNombre,
         plaza: rep.plaza,
         lineaNegocio: rep.lineaNegocio,
         lineaLabel: linea.label,

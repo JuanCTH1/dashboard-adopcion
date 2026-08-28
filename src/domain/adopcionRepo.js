@@ -64,8 +64,23 @@ class AdopcionRepository {
     if (lineas.length) clientesFiltrados = clientesFiltrados.filter(c => lineas.includes(c.lineaNegocio));
     if (regiones.length) clientesFiltrados = clientesFiltrados.filter(c => regiones.includes(c.regionId));
     if (plazas.length) clientesFiltrados = clientesFiltrados.filter(c => plazas.includes(c.plaza));
+    const REGION_NAME_TO_ID = {
+      'Atlantic': 'reg-1',
+      'Sunbelt': 'reg-2',
+      'Midwest': 'reg-3',
+      'Mountain': 'reg-5',
+      'Pacific NW': 'reg-4'
+    };
+
     if (vpIds.length) clientesFiltrados = clientesFiltrados.filter(c => vpIds.includes(c.vpId));
-    if (directorIds.length) clientesFiltrados = clientesFiltrados.filter(c => directorIds.includes(c.directorId) || directorIds.includes(c.regionNombre));
+    if (directorIds.length) {
+      const regionIdsFromNames = directorIds.map(d => REGION_NAME_TO_ID[d]).filter(Boolean);
+      clientesFiltrados = clientesFiltrados.filter(c =>
+        directorIds.includes(c.directorId) ||
+        directorIds.includes(c.regionNombre) ||
+        regionIdsFromNames.includes(c.regionId)
+      );
+    }
     if (gerenteIds.length) clientesFiltrados = clientesFiltrados.filter(c => gerenteIds.includes(c.gerenteId) || gerenteIds.includes(c.plaza));
     if (vendedorIds.length) clientesFiltrados = clientesFiltrados.filter(c => vendedorIds.includes(c.vendedorId));
 
