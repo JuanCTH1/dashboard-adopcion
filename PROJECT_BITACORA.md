@@ -793,3 +793,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Simplificación y Limpieza de Tooltips:**
   - Se removió `CustomTooltip` del listón ejecutivo superior (`ExecutiveRibbon.jsx`), eliminando cualquier encimado o superposición sobre las tarjetas inferiores.
   - En la tabla de cartera de clientes (`ProgressiveHierarchy.jsx`), el tooltip desplegado muestra únicamente el número entero exacto formateado con comas (ej. **`276,444`** en lugar de "276,444 online orders").
+---
+
+## 🎯 Versión 2.78 - Simulación Realista de Volatilidad Mensual de Compras y Estacionalidad (`mockGenerator.js`)
+
+- **Modificación del Generador Sintético (`mockGenerator.js`):**
+  - Se sustituyó la curva sintética plana por una curva macro de 36 meses (`BASE_CURVE_36M`) con fluctuaciones industriales reales (estacionalidad de clima, picos de construcción en verano, bajas de fin de año).
+  - Se añadió la variable de propensión individual `basePropensity` por cliente y un factor de volatilidad mensual de hasta **$\pm 22\%$** (`clientVolatility`).
+  - **Resultado:** El comportamiento mensual de un cliente ya no es lineal. Un cliente puede oscilar de forma orgánica entre **70% $\rightarrow$ 42% $\rightarrow$ 58% $\rightarrow$ 82%** de adopción mensual, reflejando patrones de compra reales del sector B2B con tendencias generales sólidas.

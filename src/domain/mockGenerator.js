@@ -193,6 +193,7 @@ export function generateDataset(seed = 20260828) {
       const esRevertido = estaIncorporado && !esActivo && rand() < 0.30;
 
       const fttv = estaIncorporado ? Math.floor(rand() * 28) + 2 : null;
+      const basePropensity = rand() * 0.45 + 0.45;
       const digitalShare = esActivo ? rand() * 0.45 + 0.50 : 0;
 
       const canalRand = rand();
@@ -218,22 +219,26 @@ export function generateDataset(seed = 20260828) {
         esActivo,
         esRevertido,
         fttv,
+        basePropensity,
         digitalShare,
         canalPreferido
       });
     }
   });
 
-  const BASE_CURVE_24M = [
-    0.122, 0.135, 0.118, 0.149, 0.174, 0.162, 0.201, 0.228, 0.215, 0.254, 0.282, 0.269,
-    0.312, 0.345, 0.331, 0.386, 0.421, 0.408, 0.465, 0.502, 0.489, 0.541, 0.583, 0.569,
-    0.615, 0.648, 0.632, 0.684, 0.721, 0.709, 0.738, 0.754, 0.768, 0.782, 0.795, 0.812
+  const BASE_CURVE_36M = [
+    // 2024: ~22% to ~45% with realistic peaks, dips & weather seasonality
+    0.22, 0.28, 0.21, 0.33, 0.41, 0.36, 0.43, 0.47, 0.39, 0.45, 0.41, 0.32,
+    // 2025: ~38% to ~63% with realistic peaks, dips & weather seasonality
+    0.38, 0.46, 0.41, 0.54, 0.63, 0.56, 0.65, 0.69, 0.60, 0.67, 0.62, 0.51,
+    // 2026: ~53% to ~86% with realistic peaks, dips & weather seasonality
+    0.53, 0.61, 0.57, 0.71, 0.79, 0.74, 0.81, 0.86, 0.78, 0.84, 0.81, 0.73
   ];
 
   const TRANSACCIONES = [];
 
   MESES.forEach((m, mIdx) => {
-    const baseRate = BASE_CURVE_24M[mIdx] || 0.50;
+    const baseRate = BASE_CURVE_36M[mIdx] || 0.55;
 
     CLIENTES.forEach(cli => {
       const seasonality = 1 + (Math.sin(m.mesNum * 0.5) * 0.10);
@@ -246,7 +251,10 @@ export function generateDataset(seed = 20260828) {
       let volAnalogo = volMes;
 
       if (cli.estaIncorporado && cli.esActivo) {
-        const clientAdoptionRate = Math.min(0.98, Math.max(0.12, baseRate * 1.25 + ((rand() - 0.5) * 0.10)));
+        // High realistic monthly volatility per client (+/- 22% variance per month)
+        const clientVolatility = (rand() - 0.5) * 0.44;
+        const clientAdoptionRate = Math.min(0.96, Math.max(0.14, (baseRate * 0.45) + (cli.basePropensity * 0.45) + clientVolatility));
+
         pedidosDigitales = Math.round(pedidosTotales * clientAdoptionRate);
         if (pedidosDigitales > pedidosTotales) pedidosDigitales = pedidosTotales;
         if (pedidosDigitales === 0 && pedidosTotales > 0) pedidosDigitales = 1;
