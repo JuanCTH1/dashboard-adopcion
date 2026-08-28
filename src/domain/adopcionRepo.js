@@ -222,7 +222,7 @@ class AdopcionRepository {
         const personaDisplay = isSingleVp ? singleMatch?.persona : null;
 
         return {
-          id: isSingleVp ? (singleMatch?.id || r.id) : r.id,
+          id: r.nombre,
           directorIds: r.directorIds,
           nombre: r.nombre,
           persona: personaDisplay,
@@ -293,7 +293,7 @@ class AdopcionRepository {
         });
 
         return {
-          id: m.id,
+          id: m.nombre,
           gerenteIds: m.gerenteIds,
           nombre: m.nombre,
           personasDetalle,
