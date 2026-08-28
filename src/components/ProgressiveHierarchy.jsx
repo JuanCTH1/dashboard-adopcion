@@ -218,7 +218,7 @@ export function ProgressiveHierarchy({
           <h2 className="text-sm font-black text-foreground tracking-tight">
             {activeContext.titulo}
             <span className="ml-2 text-[11px] font-semibold text-muted-foreground">
-              {totalesCartera?.totalClientes || 0} customers · <CustomTooltip text={`${formatNumber(totalesCartera?.totalPedidos || 0)} total orders`}><span>{formatCompactNumber(totalesCartera?.totalPedidos || 0)} orders</span></CustomTooltip>
+              {totalesCartera?.totalClientes || 0} customers · <CustomTooltip text={formatNumber(totalesCartera?.totalPedidos || 0)}><span>{formatCompactNumber(totalesCartera?.totalPedidos || 0)} orders</span></CustomTooltip>
             </span>
           </h2>
         </div>
@@ -757,17 +757,17 @@ export function ProgressiveHierarchy({
                             <div className="text-[10px] text-muted-foreground font-mono mt-0.5"><b className="uppercase">{shortBl}</b></div>
                           </td>
                           <td className="py-2 px-2 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap">
-                            <CustomTooltip text={`${formatNumber(cli.pedidosDigitales)} online orders`}>
+                            <CustomTooltip text={formatNumber(cli.pedidosDigitales)}>
                               <span>{formatCompactNumber(cli.pedidosDigitales)}</span>
                             </CustomTooltip>
                           </td>
                           <td className="py-2 px-2 text-right font-bold tabular-nums text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
-                            <CustomTooltip text={`${formatNumber(cli.pedidosAnalogos)} offline orders`}>
+                            <CustomTooltip text={formatNumber(cli.pedidosAnalogos)}>
                               <span>{formatCompactNumber(cli.pedidosAnalogos)}</span>
                             </CustomTooltip>
                           </td>
                           <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap">
-                            <CustomTooltip text={`${formatNumber(cli.pedidosTotales)} total orders`}>
+                            <CustomTooltip text={formatNumber(cli.pedidosTotales)}>
                               <span>{formatCompactNumber(cli.pedidosTotales)}</span>
                             </CustomTooltip>
                           </td>
@@ -846,17 +846,17 @@ export function ProgressiveHierarchy({
                         </div>
                       </td>
                       <td className="py-1.5 px-2 text-right tabular-nums text-sky-700 dark:text-sky-400 font-black text-xs whitespace-nowrap">
-                        <CustomTooltip text={`${formatNumber(totalesCartera.totalDigitales)} total online orders`}>
+                        <CustomTooltip text={formatNumber(totalesCartera.totalDigitales)}>
                           <span>{formatCompactNumber(totalesCartera.totalDigitales)}</span>
                         </CustomTooltip>
                       </td>
                       <td className="py-1.5 px-2 text-right tabular-nums text-slate-500 dark:text-slate-400 font-bold text-xs whitespace-nowrap">
-                        <CustomTooltip text={`${formatNumber(totalesCartera.totalAnalogos)} total offline orders`}>
+                        <CustomTooltip text={formatNumber(totalesCartera.totalAnalogos)}>
                           <span>{formatCompactNumber(totalesCartera.totalAnalogos)}</span>
                         </CustomTooltip>
                       </td>
                       <td className="py-1.5 px-2 text-right tabular-nums text-foreground font-black text-xs whitespace-nowrap">
-                        <CustomTooltip text={`${formatNumber(totalesCartera.totalPedidos)} total orders`}>
+                        <CustomTooltip text={formatNumber(totalesCartera.totalPedidos)}>
                           <span>{formatCompactNumber(totalesCartera.totalPedidos)}</span>
                         </CustomTooltip>
                       </td>

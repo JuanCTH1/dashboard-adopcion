@@ -786,3 +786,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Tooltips Elegantes Idénticos al Diseño de Tarjetas (`CustomTooltip`):**
   - Se implementó el componente `<CustomTooltip>` con renderizado por `position: fixed` e insuflado instantáneo (0ms delay) en tema **Dark Slate Glassmorphism** (`bg-slate-900 text-slate-100 rounded-lg shadow-xl border border-slate-700/80 px-2.5 py-1 text-[10px] font-extrabold`).
   - Se integró `<CustomTooltip>` en todos los contadores en K de la tabla de cartera, totales de encabezado y subtítulos del embudo `ExecutiveRibbon`.
+---
+
+## 🎯 Versión 2.77 - Simplificación de Texto en Tooltip (Solo Número Cifra Exacta) y Remoción de Tooltip del Ribbon (`ProgressiveHierarchy.jsx`, `ExecutiveRibbon.jsx`)
+
+- **Simplificación y Limpieza de Tooltips:**
+  - Se removió `CustomTooltip` del listón ejecutivo superior (`ExecutiveRibbon.jsx`), eliminando cualquier encimado o superposición sobre las tarjetas inferiores.
+  - En la tabla de cartera de clientes (`ProgressiveHierarchy.jsx`), el tooltip desplegado muestra únicamente el número entero exacto formateado con comas (ej. **`276,444`** en lugar de "276,444 online orders").
