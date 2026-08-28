@@ -1,166 +1,329 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { BreadcrumbNav } from './BreadcrumbNav';
 import { BulletGraph } from './BulletGraph';
-import { ChevronRight, ArrowUpDown, Download, CheckCircle2, XCircle, PhoneCall, Layers, UserCheck, ShieldCheck } from 'lucide-react';
+import {
+  ChevronRight,
+  Download,
+  CheckCircle2,
+  XCircle,
+  PhoneCall,
+  Layers,
+  User,
+  Users,
+  Building,
+  Briefcase
+} from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
+import { adopcionRepo } from '@/domain/adopcionRepo';
 
 export function HierarchyTable({
-  nivelActivo,
-  nodosJerarquia = [],
-  breadcrumbs = [],
-  onSelectNodo,
-  onBreadcrumbClick,
+  filtrosCompuestos,
   onOpenActionDrawer,
-  carteraVendedor = null,
   onExportCsv
 }) {
-  const [ordenCampo, setOrdenCampo] = useState('adopcion');
-  const [ordenAsc, setOrdenAsc] = useState(false);
+  // Estados de selección multinivel persistente (Tree Drill-Down)
+  const [selectedVpId, setSelectedVpId] = useState('vp-1');
+  const [selectedDirId, setSelectedDirId] = useState('dir-1');
+  const [selectedGerId, setSelectedGerId] = useState('ger-1');
+  const [selectedRepId, setSelectedRepId] = useState('rep-1');
 
-  const toggleSort = (campo) => {
-    if (ordenCampo === campo) {
-      setOrdenAsc(!ordenAsc);
-    } else {
-      setOrdenCampo(campo);
-      setOrdenAsc(false);
-    }
-  };
+  // Obtener datos dinámicos de cada nivel según filtros
+  const vps = useMemo(() => {
+    return adopcionRepo.getJerarquia('nacional', null, filtrosCompuestos);
+  }, [filtrosCompuestos]);
 
-  const nodosOrdenados = [...nodosJerarquia].sort((a, b) => {
-    let valA = 0;
-    let valB = 0;
+  const directores = useMemo(() => {
+    return adopcionRepo.getJerarquia('vp', selectedVpId, filtrosCompuestos);
+  }, [selectedVpId, filtrosCompuestos]);
 
-    if (ordenCampo === 'nombre') {
-      return ordenAsc ? a.nombre.localeCompare(b.nombre) : b.nombre.localeCompare(a.nombre);
-    } else if (ordenCampo === 'adopcion') {
-      valA = a.metricas?.pedidos?.pctAdopcion || 0;
-      valB = b.metricas?.pedidos?.pctAdopcion || 0;
-    } else if (ordenCampo === 'pedidos') {
-      valA = a.metricas?.pedidos?.totales || 0;
-      valB = b.metricas?.pedidos?.totales || 0;
-    } else if (ordenCampo === 'onboarding') {
-      valA = a.metricas?.clientes?.pctOnboarding || 0;
-      valB = b.metricas?.clientes?.pctOnboarding || 0;
-    }
+  const gerentes = useMemo(() => {
+    return adopcionRepo.getJerarquia('director', selectedDirId, filtrosCompuestos);
+  }, [selectedDirId, filtrosCompuestos]);
 
-    return ordenAsc ? valA - valB : valB - valA;
-  });
+  const vendedores = useMemo(() => {
+    return adopcionRepo.getJerarquia('gerente', selectedGerId, filtrosCompuestos);
+  }, [selectedGerId, filtrosCompuestos]);
 
-  const nivelBadgeLabel = carteraVendedor
-    ? "Nivel 4: Cartera de Clientes"
-    : nivelActivo === 'nacional'
-    ? "Nivel 1: Vicepresidencias"
-    : nivelActivo === 'vp'
-    ? "Nivel 2: Direcciones Regionales"
-    : nivelActivo === 'director'
-    ? "Nivel 3: Gerencias de Plaza"
-    : "Nivel 4: Fuerza de Ventas";
+  const carteraVendedor = useMemo(() => {
+    if (!selectedRepId) return [];
+    return adopcionRepo.getCartera(selectedRepId, filtrosCompuestos);
+  }, [selectedRepId, filtrosCompuestos]);
+
+  const currentRepObj = useMemo(() => {
+    return vendedores.find(v => v.id === selectedRepId) || vendedores[0];
+  }, [vendedores, selectedRepId]);
 
   return (
     <Card className="p-5 bg-card border border-border shadow-xs rounded-xl flex flex-col relative overflow-hidden select-none">
-      {/* Barra superior */}
+      {/* Barra superior de acento */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-700 via-indigo-500 to-sky-400" />
 
-      {/* Encabezado con Nivel y Breadcrumbs */}
+      {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-border">
-        <div className="flex items-center gap-3">
-          <div className="px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20 text-primary font-bold text-xs shrink-0">
-            {nivelBadgeLabel}
+        <div>
+          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+            <Layers className="w-3.5 h-3.5 text-primary" />
+            <span>Navegación en Árbol Jerárquico (Drill-Down Persistente)</span>
           </div>
-          <div className="h-4 w-[1px] bg-border hidden sm:block" />
-          <BreadcrumbNav items={breadcrumbs} onSelectLevel={onBreadcrumbClick} />
+          <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+            <span className="text-primary font-bold">VP</span>
+            <ChevronRight className="w-3 h-3 text-muted-foreground" />
+            <span className="text-indigo-600 dark:text-indigo-400 font-bold">Dirección</span>
+            <ChevronRight className="w-3 h-3 text-muted-foreground" />
+            <span className="text-sky-600 dark:text-sky-400 font-bold">Gerencia</span>
+            <ChevronRight className="w-3 h-3 text-muted-foreground" />
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold">Vendedor & Cartera</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onExportCsv}
-            className="gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground shadow-xxs"
-          >
-            <Download className="w-3.5 h-3.5 text-primary" />
-            <span>Exportar Vista CSV</span>
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onExportCsv}
+          className="gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground shadow-xxs self-start sm:self-auto"
+        >
+          <Download className="w-3.5 h-3.5 text-primary" />
+          <span>Exportar Cartera CSV</span>
+        </Button>
       </div>
 
-      {/* ÁREA DE TABLA ANIMADA CON FRAMER MOTION */}
-      <AnimatePresence mode="wait">
-        {carteraVendedor ? (
-          <motion.div
-            key="cartera-vendedor"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="mt-3.5 overflow-x-auto"
-          >
-            <div className="text-xs font-bold text-foreground mb-2.5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span>Cartera de Clientes ({carteraVendedor.length} cuentas)</span>
+      {/* EXPLORADOR DE ÁRBOL EN COLUMNAS CONECTADAS (Miller Columns) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 mt-4 items-start">
+        {/* COLUMNA 1: Vicepresidencias & Direcciones (3 de 12 Cols) */}
+        <div className="lg:col-span-3 space-y-3 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-border">
+          {/* Nivel 1: Vicepresidencias */}
+          <div>
+            <div className="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 flex items-center gap-1">
+              <Building className="w-3 h-3 text-primary" />
+              <span>Vicepresidencia</span>
+            </div>
+            <div className="space-y-1">
+              {vps.map(vp => {
+                const isSelected = selectedVpId === vp.id;
+                return (
+                  <button
+                    key={vp.id}
+                    onClick={() => {
+                      setSelectedVpId(vp.id);
+                      setSelectedDirId(null);
+                      setSelectedGerId(null);
+                      setSelectedRepId(null);
+                    }}
+                    className={cn(
+                      "w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between cursor-pointer text-xs",
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                        : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                    )}
+                  >
+                    <div className="truncate">
+                      <div>{vp.nombre}</div>
+                      <div className={cn("text-[10px]", isSelected ? "text-white/80" : "text-muted-foreground")}>
+                        {formatPct(vp.metricas.pedidos.pctAdopcion)} adopción · {vp.metricas.clientes.asignados} clientes
+                      </div>
+                    </div>
+                    <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Nivel 2: Direcciones del VP seleccionado */}
+          <div className="pt-2 border-t border-border/80">
+            <div className="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 flex items-center gap-1">
+              <Briefcase className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+              <span>Direcciones Regionales</span>
+            </div>
+            <div className="space-y-1">
+              {directores.map(dir => {
+                const isSelected = selectedDirId === dir.id;
+                return (
+                  <button
+                    key={dir.id}
+                    onClick={() => {
+                      setSelectedDirId(dir.id);
+                      setSelectedGerId(null);
+                      setSelectedRepId(null);
+                    }}
+                    className={cn(
+                      "w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between cursor-pointer text-xs",
+                      isSelected
+                        ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
+                        : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                    )}
+                  >
+                    <div className="truncate">
+                      <div>{dir.nombre}</div>
+                      <div className={cn("text-[10px]", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                        {formatPct(dir.metricas.pedidos.pctAdopcion)} adopción · {dir.metricas.clientes.asignados} clientes
+                      </div>
+                    </div>
+                    <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* COLUMNA 2: Gerencias y Vendedores (3 de 12 Cols) */}
+        <div className="lg:col-span-3 space-y-3 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-border">
+          {/* Nivel 3: Gerencias de Plaza */}
+          <div>
+            <div className="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 flex items-center gap-1">
+              <Users className="w-3 h-3 text-sky-600 dark:text-sky-400" />
+              <span>Gerencias</span>
+            </div>
+            <div className="space-y-1 max-h-40 overflow-y-auto pr-0.5 scrollbar-thin">
+              {gerentes.map(ger => {
+                const isSelected = selectedGerId === ger.id;
+                return (
+                  <button
+                    key={ger.id}
+                    onClick={() => {
+                      setSelectedGerId(ger.id);
+                      setSelectedRepId(null);
+                    }}
+                    className={cn(
+                      "w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between cursor-pointer text-xs",
+                      isSelected
+                        ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
+                        : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                    )}
+                  >
+                    <div className="truncate">
+                      <div>{ger.nombre}</div>
+                      <div className={cn("text-[10px]", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                        {formatPct(ger.metricas.pedidos.pctAdopcion)} adopción
+                      </div>
+                    </div>
+                    <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Nivel 4: Vendedores */}
+          <div className="pt-2 border-t border-border/80">
+            <div className="text-[10px] font-bold uppercase text-muted-foreground mb-1.5 flex items-center gap-1">
+              <User className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+              <span>Vendedores ({vendedores.length})</span>
+            </div>
+            <div className="space-y-1 max-h-56 overflow-y-auto pr-0.5 scrollbar-thin">
+              {vendedores.map(rep => {
+                const isSelected = selectedRepId === rep.id;
+                return (
+                  <button
+                    key={rep.id}
+                    onClick={() => setSelectedRepId(rep.id)}
+                    className={cn(
+                      "w-full text-left p-2 rounded-lg border transition-all flex items-center justify-between cursor-pointer text-xs",
+                      isSelected
+                        ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
+                        : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                    )}
+                  >
+                    <div className="truncate">
+                      <div className="flex items-center gap-1">
+                        <span>{rep.nombre}</span>
+                        {rep.plaza && (
+                          <span className={cn("text-[9px] px-1 rounded", isSelected ? "bg-emerald-700 text-white" : "bg-muted text-muted-foreground")}>
+                            {rep.plaza}
+                          </span>
+                        )}
+                      </div>
+                      <div className={cn("text-[10px]", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
+                        {formatPct(rep.metricas.pedidos.pctAdopcion)} adopción · {rep.metricas.clientes.asignados} clientes
+                      </div>
+                    </div>
+                    <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* COLUMNA 3: DETALLE DE CARTERA DEL VENDEDOR SELECCIONADO (6 de 12 Cols) */}
+        <div className="lg:col-span-6 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-border flex flex-col min-h-[380px]">
+          {/* Header del Vendedor */}
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/80">
+            <div>
+              <div className="text-xs font-black text-foreground flex items-center gap-2">
+                <span>{currentRepObj?.nombre || 'Vendedor'}</span>
+                <Badge variant="outline" className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                  {carteraVendedor.length} Clientes Asignados
+                </Badge>
               </div>
-              <span className="text-[11px] text-muted-foreground font-medium">
-                Prioridad por volumen comercial
-              </span>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                Plaza {currentRepObj?.plaza || 'Nacional'} · Adopción: <b>{formatPct(currentRepObj?.metricas?.pedidos?.pctAdopcion || 0)}</b> (Objetivo 75%)
+              </div>
             </div>
 
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => onOpenActionDrawer(currentRepObj)}
+              className="text-xs font-bold gap-1 shadow-xs"
+            >
+              Plan Acción
+            </Button>
+          </div>
+
+          {/* Tabla de Clientes del Vendedor */}
+          <div className="flex-1 overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-border text-[11px] font-bold text-muted-foreground bg-slate-100/70 dark:bg-slate-900/60">
-                  <th className="py-2.5 px-3">Cliente ID</th>
-                  <th className="py-2.5 px-3">Línea</th>
-                  <th className="py-2.5 px-3 text-right">Volumen Mensual</th>
-                  <th className="py-2.5 px-3 text-center">Onboarding</th>
-                  <th className="py-2.5 px-3 text-center">Uso Digital</th>
-                  <th className="py-2.5 px-3 text-right">Pedidos (Dig / Tot)</th>
-                  <th className="py-2.5 px-3 text-right">% Adopción</th>
-                  <th className="py-2.5 px-3 text-right">FTTV</th>
+                <tr className="border-b border-border text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-850">
+                  <th className="py-2 px-2.5">Cliente ID</th>
+                  <th className="py-2 px-2 text-right">Volumen</th>
+                  <th className="py-2 px-2 text-center">Onboarding</th>
+                  <th className="py-2 px-2 text-center">Estatus</th>
+                  <th className="py-2 px-2 text-right">Pedidos Dig.</th>
+                  <th className="py-2 px-2 text-right">% Adopción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/70">
+              <tbody className="divide-y divide-border/60">
                 {carteraVendedor.map(cli => (
-                  <tr key={cli.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-colors">
-                    <td className="py-2.5 px-3 font-bold font-mono text-foreground flex items-center gap-1.5">
+                  <tr key={cli.id} className="hover:bg-card transition-colors">
+                    <td className="py-2 px-2.5 font-bold font-mono text-foreground flex items-center gap-1.5">
                       {cli.esTopPareto && (
                         <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" title="Cuenta Top Pareto (20% volumen)" />
                       )}
                       <span>{cli.id}</span>
                     </td>
-                    <td className="py-2.5 px-3 text-muted-foreground font-medium">{cli.lineaLabel}</td>
-                    <td className="py-2.5 px-3 text-right font-bold tabular-nums text-foreground">
+                    <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground">
                       {formatNumber(cli.volumenMes)} {cli.unidad}
                     </td>
-                    <td className="py-2.5 px-3 text-center">
+                    <td className="py-2 px-2 text-center">
                       {cli.estaIncorporado ? (
-                        <Badge variant="success" className="gap-1 font-bold">
-                          <CheckCircle2 className="w-3 h-3" /> Onboarded
+                        <Badge variant="success" className="text-[9px] py-0 px-1 font-bold">
+                          ✔ Onboarded
                         </Badge>
                       ) : (
-                        <Badge variant="danger" className="gap-1 font-bold">
-                          <XCircle className="w-3 h-3" /> Sin cuenta
+                        <Badge variant="danger" className="text-[9px] py-0 px-1 font-bold">
+                          Sin cuenta
                         </Badge>
                       )}
                     </td>
-                    <td className="py-2.5 px-3 text-center">
+                    <td className="py-2 px-2 text-center">
                       {cli.esActivo ? (
-                        <Badge variant="success" className="font-bold">Activo</Badge>
+                        <Badge variant="success" className="text-[9px] py-0 px-1 font-bold">Activo</Badge>
                       ) : cli.esRevertido ? (
-                        <Badge variant="warning" className="gap-1 font-bold">
-                          <PhoneCall className="w-3 h-3" /> Revertido
-                        </Badge>
+                        <Badge variant="warning" className="text-[9px] py-0 px-1 font-bold">Revertido</Badge>
                       ) : (
-                        <Badge variant="outline" className="text-muted-foreground">Inactivo</Badge>
+                        <Badge variant="outline" className="text-[9px] py-0 px-1 text-muted-foreground">Inactivo</Badge>
                       )}
                     </td>
-                    <td className="py-2.5 px-3 text-right tabular-nums text-muted-foreground">
+                    <td className="py-2 px-2 text-right tabular-nums text-muted-foreground">
                       <span className="font-bold text-foreground">{cli.pedidosDigitales}</span> / {cli.pedidosTotales}
                     </td>
-                    <td className="py-2.5 px-3 text-right font-bold tabular-nums">
+                    <td className="py-2 px-2 text-right font-bold tabular-nums">
                       <span className={cn(
                         cli.pctAdopcionPedidos >= 75 ? "text-emerald-600 dark:text-emerald-400" :
                         cli.pctAdopcionPedidos >= 40 ? "text-amber-600 dark:text-amber-400" :
@@ -169,155 +332,13 @@ export function HierarchyTable({
                         {cli.pctAdopcionPedidos.toFixed(1)}%
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono tabular-nums text-muted-foreground font-semibold">
-                      {cli.fttv != null ? `${cli.fttv} d` : '—'}
-                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={nivelActivo}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="mt-3.5 overflow-x-auto"
-          >
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-border text-[11px] font-bold text-muted-foreground bg-slate-100/70 dark:bg-slate-900/60">
-                  <th className="py-2.5 px-3 cursor-pointer select-none" onClick={() => toggleSort('nombre')}>
-                    <div className="flex items-center gap-1">
-                      <span>Nombre / Entidad</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="py-2.5 px-3 text-right cursor-pointer select-none" onClick={() => toggleSort('pedidos')}>
-                    <div className="flex items-center justify-end gap-1">
-                      <span>Pedidos (Dig / Tot)</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="py-2.5 px-3 min-w-[190px] cursor-pointer select-none" onClick={() => toggleSort('adopcion')}>
-                    <div className="flex items-center gap-1">
-                      <span>% Adopción (Objetivo 75%)</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="py-2.5 px-3 text-center cursor-pointer select-none" onClick={() => toggleSort('onboarding')}>
-                    <div className="flex items-center justify-center gap-1">
-                      <span>Onboarding de Clientes</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="py-2.5 px-3 text-center">
-                    <span>Clientes Activos</span>
-                  </th>
-                  <th className="py-2.5 px-3 text-center">Plan Acción</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/70">
-                {nodosOrdenados.map(nodo => {
-                  const p = nodo.metricas?.pedidos;
-                  const c = nodo.metricas?.clientes;
-
-                  return (
-                    <tr
-                      key={nodo.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-900/60 transition-colors group cursor-pointer"
-                      onClick={() => onSelectNodo(nodo)}
-                    >
-                      {/* Nombre y Tipo */}
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-[11px] shadow-2xs border border-primary/20">
-                            {nodo.tipo.substring(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
-                              <span>{nodo.nombre}</span>
-                              {nodo.plaza && (
-                                <Badge variant="outline" className="text-[9px] py-0 px-1 font-semibold text-muted-foreground">
-                                  {nodo.plaza}
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-[10px] text-muted-foreground font-medium">
-                              {nodo.tipo} · {c?.asignados} clientes en cartera
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Pedidos */}
-                      <td className="py-3 px-3 text-right tabular-nums">
-                        <div className="font-bold text-foreground">
-                          {formatNumber(p?.digitales)}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground">
-                          de {formatNumber(p?.totales)} tot.
-                        </div>
-                      </td>
-
-                      {/* Bullet Graph Stephen Few (Con Objetivo 75%) */}
-                      <td className="py-3 px-3">
-                        <BulletGraph valor={p?.pctAdopcion || 0} meta={75.0} />
-                      </td>
-
-                      {/* Onboarding de Clientes */}
-                      <td className="py-3 px-3 text-center tabular-nums">
-                        <div className="font-bold text-foreground">
-                          {formatPct(c?.pctOnboarding)}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground">
-                          {c?.incorporados} / {c?.asignados} con cuenta
-                        </div>
-                      </td>
-
-                      {/* Clientes Activos */}
-                      <td className="py-3 px-3 text-center tabular-nums">
-                        <div className="font-bold text-foreground">
-                          {formatNumber(c?.activos)}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground">
-                          ({formatPct(c?.pctActivacion)} activ.)
-                        </div>
-                      </td>
-
-                      {/* Botón Acción / Drilldown */}
-                      <td className="py-3 px-3 text-center" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-center gap-1">
-                          <Button
-                            variant="dense"
-                            size="compact"
-                            onClick={() => onOpenActionDrawer(nodo)}
-                            className="text-[10px] font-bold text-primary hover:bg-primary hover:text-white transition-all"
-                            title="Abrir lista prioritaria semanal"
-                          >
-                            Plan Acción
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onSelectNodo(nodo)}
-                            className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                            title="Bajar al siguiente nivel"
-                          >
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }

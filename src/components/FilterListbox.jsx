@@ -8,8 +8,9 @@ const GRID_COLS_CLASS = { 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4", 
 export function FilterListbox({
   label,
   options = [],
-  value = [],
-  onChange,
+  value = [], // Array de strings seleccionados
+  onChange,   // Recibe array de strings seleccionados
+  possibleValues = null, // Set o Array de opciones posibles (asociativas)
   grid = false,
   gridCols = 4,
   showSearch = false,
@@ -30,6 +31,11 @@ export function FilterListbox({
     return new Set(Array.isArray(value) ? value.map(String) : [String(value)].filter(Boolean));
   }, [value]);
 
+  const possibleSet = useMemo(() => {
+    if (!possibleValues) return null;
+    return new Set(Array.isArray(possibleValues) ? possibleValues.map(String) : possibleValues);
+  }, [possibleValues]);
+
   const filteredOptions = useMemo(() => {
     if (!searchQuery) return options;
     const q = searchQuery.toLowerCase().trim();
@@ -37,27 +43,34 @@ export function FilterListbox({
   }, [options, searchQuery]);
 
   const commitDrag = () => {
-    const baseline = dragBaselineRef.current;
     const final = dragSessionSetRef.current;
-    if (baseline && final) {
-      const nextSelected = Array.from(final);
-      onChange(nextSelected);
+    if (final) {
+      onChange(Array.from(final));
     }
     dragBaselineRef.current = null;
     dragSessionSetRef.current = null;
     setDragPreview(null);
   };
 
-  const handleMouseDown = (e, optVal, isSelected) => {
+  const handleMouseDown = (e, optVal) => {
+    e.preventDefault();
     isMouseDownRef.current = true;
     dragStartedRef.current = false;
     dragStartPosRef.current = { x: e.clientX, y: e.clientY };
-    dragModeRef.current = isSelected ? "deselect" : "select";
+
+    const isCurrentlySelected = selectedSet.has(optVal);
+    dragModeRef.current = isCurrentlySelected ? "deselect" : "select";
 
     const baseline = new Set(selectedSet);
     dragBaselineRef.current = baseline;
     const session = new Set(baseline);
-    if (isSelected) session.delete(optVal); else session.add(optVal);
+
+    if (isCurrentlySelected) {
+      session.delete(optVal);
+    } else {
+      session.add(optVal);
+    }
+
     dragSessionSetRef.current = session;
     dragTouchedRef.current = new Set([optVal]);
     setDragPreview(new Set(session));
@@ -82,25 +95,33 @@ export function FilterListbox({
     window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleMouseEnter = (optVal, isSelected) => {
-    if (!isMouseDownRef.current || !dragStartedRef.current) return;
+  const handleMouseEnter = (optVal) => {
+    if (!isMouseDownRef.current) return;
     if (dragTouchedRef.current.has(optVal)) return;
-
-    const shouldToggle =
-      (dragModeRef.current === "select" && !isSelected) ||
-      (dragModeRef.current === "deselect" && isSelected);
-    if (!shouldToggle) return;
 
     dragTouchedRef.current.add(optVal);
     const session = dragSessionSetRef.current;
-    if (dragModeRef.current === "select") session.add(optVal); else session.delete(optVal);
+    if (!session) return;
+
+    if (dragModeRef.current === "select") {
+      session.add(optVal);
+    } else {
+      session.delete(optVal);
+    }
+
     setDragPreview(new Set(session));
   };
 
-  const isOptSelected = (opt) => {
+  const getOptionState = (opt) => {
     const optStr = String(opt);
-    if (dragPreview) return dragPreview.has(optStr);
-    return selectedSet.has(optStr);
+    const isSelected = dragPreview ? dragPreview.has(optStr) : selectedSet.has(optStr);
+    if (isSelected) return "selected";
+
+    if (possibleSet && !possibleSet.has(optStr)) {
+      return "excluded"; // Excluido por filtros asociativos (Gris)
+    }
+
+    return "possible";
   };
 
   return (
@@ -130,7 +151,7 @@ export function FilterListbox({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder={`Buscar ${label.toLowerCase()}...`}
-            className="w-full px-2 py-1 text-[11px] rounded-lg border border-border bg-slate-50 dark:bg-slate-900 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-xxs"
+            className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-border bg-slate-50 dark:bg-slate-900 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-xxs"
           />
         </div>
       )}
@@ -138,20 +159,29 @@ export function FilterListbox({
       {grid ? (
         <div className={cn("grid gap-1", GRID_COLS_CLASS[gridCols] || "grid-cols-4")}>
           {filteredOptions.map(opt => {
-            const isSelected = isOptSelected(opt);
+            const optStr = String(opt);
+            const state = getOptionState(opt);
+            const isSelected = state === "selected";
+            const isExcluded = state === "excluded";
+
+            let btnClass = "bg-slate-50 dark:bg-slate-900 text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border font-semibold";
+            if (isSelected) {
+              btnClass = "bg-primary text-primary-foreground border-primary font-bold shadow-xs";
+            } else if (isExcluded) {
+              btnClass = "bg-slate-100 dark:bg-slate-950/60 text-slate-400 dark:text-slate-600 border-slate-200/50 dark:border-slate-800/60 font-normal";
+            }
+
             return (
               <button
-                key={String(opt)}
+                key={optStr}
                 type="button"
-                onMouseDown={(e) => handleMouseDown(e, String(opt), isSelected)}
-                onMouseEnter={() => handleMouseEnter(String(opt), isSelected)}
+                onMouseDown={(e) => handleMouseDown(e, optStr)}
+                onMouseEnter={() => handleMouseEnter(optStr)}
                 className={cn(
-                  "text-center py-1 text-[10px] rounded-md border font-bold transition-all cursor-pointer select-none",
-                  isSelected
-                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                    : "bg-slate-50 dark:bg-slate-900 text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
+                  "text-center py-1 text-[10px] rounded-lg border transition-all cursor-pointer select-none",
+                  btnClass
                 )}
-                title={String(opt)}
+                title={optStr}
               >
                 {formatLabel(opt)}
               </button>
@@ -161,20 +191,29 @@ export function FilterListbox({
       ) : (
         <div className="space-y-1 max-h-36 overflow-y-auto pr-0.5 scrollbar-thin">
           {filteredOptions.map(opt => {
-            const isSelected = isOptSelected(opt);
+            const optStr = String(opt);
+            const state = getOptionState(opt);
+            const isSelected = state === "selected";
+            const isExcluded = state === "excluded";
+
+            let btnClass = "bg-slate-50 dark:bg-slate-900 text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border font-medium";
+            if (isSelected) {
+              btnClass = "bg-primary text-primary-foreground border-primary font-bold shadow-xs";
+            } else if (isExcluded) {
+              btnClass = "bg-slate-100 dark:bg-slate-950/60 text-slate-400 dark:text-slate-600 border-slate-200/50 dark:border-slate-800/60 font-normal";
+            }
+
             return (
               <button
-                key={String(opt)}
+                key={optStr}
                 type="button"
-                onMouseDown={(e) => handleMouseDown(e, String(opt), isSelected)}
-                onMouseEnter={() => handleMouseEnter(String(opt), isSelected)}
+                onMouseDown={(e) => handleMouseDown(e, optStr)}
+                onMouseEnter={() => handleMouseEnter(optStr)}
                 className={cn(
-                  "w-full text-left px-2 py-1 text-[11px] rounded-lg border font-medium transition-all flex items-center justify-between cursor-pointer select-none",
-                  isSelected
-                    ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                    : "bg-slate-50 dark:bg-slate-900 text-foreground hover:bg-slate-100 dark:hover:bg-slate-800 border-border"
+                  "w-full text-left px-2.5 py-1.5 text-[11px] rounded-lg border transition-all flex items-center justify-between cursor-pointer select-none",
+                  btnClass
                 )}
-                title={String(opt)}
+                title={optStr}
               >
                 <span className="truncate">{formatLabel(opt)}</span>
                 {isSelected && <span className="text-[10px] font-bold">✔</span>}

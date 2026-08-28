@@ -1,260 +1,224 @@
 /**
- * GENERADOR DE DATOS SINTÉTICOS DETERMINISTAS (MOCK ENGINE)
- * Dashboard de Adopción Digital CX
+ * GENERADOR DETERMINISTA DE DATOS SINTÉTICOS DE ADOPCIÓN CX
+ * PRNG Mulberry32 para reproducibilidad exacta
  */
 
-import { ESTATUS_ONBOARDING, ESTATUS_USO, LINEAS_NEGOCIO } from './definiciones.js';
-
-// PRNG Determinista Mulberry32
-function createPrng(seed = 42) {
-  let s = seed >>> 0;
-  return function () {
-    let t = (s += 0x6D2B79F5);
+function mulberry32(a) {
+  return function() {
+    let t = a += 0x6D2B79F5;
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
-// Generador de distribución Log-Normal (Box-Muller)
-function randomLogNormal(prng, mu, sigma) {
-  const u1 = Math.max(1e-7, prng());
-  const u2 = prng();
-  const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-  return Math.exp(mu + sigma * z0);
-}
-
 export function generateDataset(seed = 20260828) {
-  const prng = createPrng(seed);
+  const rand = mulberry32(seed);
 
-  // 1. Geografía
+  const MESES = [];
+  const anios = [2024, 2025, 2026];
+  const nombresMes = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+  anios.forEach(anio => {
+    nombresMes.forEach((nombre, idx) => {
+      const mesNum = idx + 1;
+      const mm = String(mesNum).padStart(2, '0');
+      MESES.push({
+        key: `${anio}-${mm}`,
+        label: `${nombre} ${anio}`,
+        nombreMes: nombre,
+        mesNum: mesNum,
+        anio: anio
+      });
+    });
+  });
+
+  const periodoActual = '2026-08';
+
   const REGIONES = [
-    { id: 'pnw', nombre: 'Pacific Northwest', plazas: ['Seattle', 'Portland'], climaFrio: true },
-    { id: 'cal', nombre: 'California', plazas: ['Sacramento', 'Los Angeles', 'San Diego'], climaFrio: false },
-    { id: 'sw', nombre: 'Southwest', plazas: ['Phoenix', 'Tucson', 'Albuquerque'], climaFrio: false },
-    { id: 'tex', nombre: 'Texas', plazas: ['Dallas', 'Houston', 'Austin', 'San Antonio'], climaFrio: false },
-    { id: 'mid', nombre: 'Midwest', plazas: ['Chicago', 'Detroit', 'Minneapolis'], climaFrio: true },
-    { id: 'se', nombre: 'Southeast', plazas: ['Atlanta', 'Orlando', 'Charlotte'], climaFrio: false }
+    { id: 'reg-1', nombre: 'Norte / Pacífico', plazas: ['Tijuana', 'Hermosillo', 'Culiacán', 'Chihuahua'] },
+    { id: 'reg-2', nombre: 'Noreste / Centro', plazas: ['Monterrey', 'Saltillo', 'Torreón', 'San Luis Potosí'] },
+    { id: 'reg-3', nombre: 'Bajío / Occidente', plazas: ['Guadalajara', 'León', 'Querétaro', 'Aguascalientes'] },
+    { id: 'reg-4', nombre: 'Sur / Golfo', plazas: ['CDMX', 'Puebla', 'Veracruz', 'Mérida'] }
   ];
 
-  // 2. Jerarquía Comercial
   const VPS = [
-    { id: 'VP-01', nombre: 'VP Oeste', regiones: ['pnw', 'cal', 'sw'] },
-    { id: 'VP-02', nombre: 'VP Este', regiones: ['tex', 'mid', 'se'] }
+    { id: 'vp-1', nombre: 'VP Oeste / Norte', regiones: ['reg-1', 'reg-2'] },
+    { id: 'vp-2', nombre: 'VP Este / Centro-Sur', regiones: ['reg-3', 'reg-4'] }
   ];
 
   const DIRECTORES = [
-    { id: 'DIR-01', nombre: 'Dir. Costa Pacífica', vpId: 'VP-01', regionId: 'cal' },
-    { id: 'DIR-02', nombre: 'Dir. Noroeste & Suroeste', vpId: 'VP-01', regionId: 'sw' },
-    { id: 'DIR-03', nombre: 'Dir. Texas & Golfo', vpId: 'VP-02', regionId: 'tex' },
-    { id: 'DIR-04', nombre: 'Dir. Midwest & Sureste', vpId: 'VP-02', regionId: 'mid' }
+    { id: 'dir-1', nombre: 'Dir. Costa Pacífica', vpId: 'vp-1', regionId: 'reg-1' },
+    { id: 'dir-2', nombre: 'Dir. Noreste Industrial', vpId: 'vp-1', regionId: 'reg-2' },
+    { id: 'dir-3', nombre: 'Dir. Bajío & Occidente', vpId: 'vp-2', regionId: 'reg-3' },
+    { id: 'dir-4', nombre: 'Dir. Metropolitano Sur', vpId: 'vp-2', regionId: 'reg-4' }
   ];
 
   const GERENTES = [];
-  let gteCount = 1;
-  DIRECTORES.forEach(dir => {
-    for (let i = 1; i <= 3; i++) {
-      const id = 'GTE-' + String(gteCount).padStart(2, '0');
+  DIRECTORES.forEach((dir, dIdx) => {
+    for (let g = 1; g <= 3; g++) {
+      const gId = `ger-${dIdx * 3 + g}`;
       GERENTES.push({
-        id,
-        nombre: 'Gerente ' + gteCount + ' (' + dir.nombre.split(' ')[1] + ')',
+        id: gId,
+        nombre: `Gerente ${dIdx * 3 + g} (${dir.nombre.split(' ')[1] || 'Plaza'})`,
         directorId: dir.id,
-        vpId: dir.vpId
+        vpId: dir.vpId,
+        regionId: dir.regionId
       });
-      gteCount++;
     }
   });
 
   const NOMBRES_VENDEDORES = [
-    'Juan Pérez', 'María Rodríguez', 'Carlos Garza', 'Ana Lucía Treviño',
-    'Roberto Cantú', 'Sofía Villarreal', 'Alejandro Morales', 'Diana Castillo',
-    'Fernando Reyes', 'Patricia Lozano', 'Ricardo Salinas', 'Gabriela Hinojosa',
-    'Eduardo Elizondo', 'Valeria Serna', 'Javier Benítez', 'Laura Cavazos',
-    'Héctor Sada', 'Daniela Chapa', 'Guillermo Domínguez', 'Natalia Guerra',
-    'Manuel Valdés', 'Paola Montemayor', 'Rodrigo Zambrano', 'Claudia De la Garza',
-    'Andrés Santos', 'Mónica Junco', 'Gustavo Clariond', 'Lucía Coindreau',
-    'Tomás Muguerza', 'Adriana Ferrara', 'Raúl Canales', 'Lorena Madero',
-    'Ignacio Terrazas', 'Beatriz Rivero', 'Jorge Segovia', 'Carmen Belden',
-    'Emilio González', 'Regina Tamez', 'Arturo Santos', 'Verónica Dieck',
-    'Federico Pozas', 'Paulina Ballesteros', 'Salvador Calderón', 'Silvia Bremer',
-    'Óscar García', 'Marcela Treviño', 'Rubén Martínez', 'Ivonne Lobo',
-    'Hugo Garza', 'Teresa Kalifa'
+    'Juan Pérez', 'María Gómez', 'Carlos Ruiz', 'Ana López', 'Roberto Garza',
+    'Laura Sánchez', 'David Torres', 'Patricia Morales', 'Fernando Castro', 'Sofía Herrera',
+    'Jorge Villarreal', 'Elena Ramos', 'Ricardo Mendoza', 'Carmen Ortiz', 'Alejandro Peña',
+    'Daniela Flores', 'Manuel Treviño', 'Gabriela Reyes', 'Héctor Salgado', 'Beatriz Domínguez',
+    'Hugo Vargas', 'Adriana Luna', 'Esteban Campos', 'Silvia Vega', 'Pablo Navarro',
+    'Raquel Guzmán', 'Ignacio Soto', 'Verónica Meza', 'Arturo Medina', 'Claudia Delgado',
+    'Gonzalo Ríos', 'Teresa Pacheco', 'Felipe Cárdenas', 'Alicia Valdés', 'César Espinoza',
+    'Leticia Solís', 'Andrés Cervantes', 'Rosario Ibarra', 'Marcos Lara', 'Yolanda Rangel',
+    'Emilio Montes', 'Diana Serrano', 'Jaime Beltrán', 'Mónica Corona', 'Salvador Fuentes',
+    'Guadalupe Tapia', 'Víctor Ponce', 'Irma Carrillo', 'Ángel Rosales', 'Norma Castañeda'
   ];
 
   const VENDEDORES = [];
-  let vendIdx = 0;
-  GERENTES.forEach((gte, gIdx) => {
-    const count = (gIdx < 2) ? 5 : 4; 
-    for (let i = 0; i < count; i++) {
-      if (vendIdx < NOMBRES_VENDEDORES.length) {
-        const id = 'VEN-' + String(vendIdx + 1).padStart(2, '0');
-        const dir = DIRECTORES.find(d => d.id === gte.directorId);
-        const reg = REGIONES.find(r => r.id === dir.regionId) || REGIONES[vendIdx % REGIONES.length];
-        const plaza = reg.plazas[i % reg.plazas.length];
-
-        const empujeOnboarding = 0.30 + prng() * 0.68;
-        
+  let vIdx = 0;
+  GERENTES.forEach(ger => {
+    const numReps = Math.floor(rand() * 2) + 4; // 4 a 5 reps
+    const regionObj = REGIONES.find(r => r.id === ger.regionId);
+    for (let i = 0; i < numReps; i++) {
+      if (vIdx < NOMBRES_VENDEDORES.length) {
+        const plaza = regionObj.plazas[i % regionObj.plazas.length];
         VENDEDORES.push({
-          id,
-          nombre: NOMBRES_VENDEDORES[vendIdx],
-          gerenteId: gte.id,
-          directorId: gte.directorId,
-          vpId: gte.vpId,
-          regionId: reg.id,
-          regionNombre: reg.nombre,
-          plaza,
-          empujeOnboarding
+          id: `rep-${vIdx + 1}`,
+          nombre: NOMBRES_VENDEDORES[vIdx],
+          gerenteId: ger.id,
+          directorId: ger.directorId,
+          vpId: ger.vpId,
+          regionId: ger.regionId,
+          regionNombre: regionObj.nombre,
+          plaza: plaza,
+          empujeOnboarding: rand() * 0.4 + 0.6 // factor entre 0.6 y 1.0
         });
-        vendIdx++;
+        vIdx++;
       }
     }
   });
 
-  // 3. Generación de ~1,300 Clientes con Pareto 20/75 y Líneas de Negocio
+  const LINEAS_LIST = [
+    { id: 'readymix', label: 'Concreto / Readymix', unidad: 'm³', peso: 0.45 },
+    { id: 'cemento', label: 'Cemento a Granel', unidad: 'tons', peso: 0.35 },
+    { id: 'agregados', label: 'Agregados / Cantera', unidad: 'tons', peso: 0.20 }
+  ];
+
   const CLIENTES = [];
-  let cliSeq = 1000;
+  let cIdx = 1;
 
-  VENDEDORES.forEach(vend => {
-    const numClientes = 20 + Math.floor(prng() * 11);
+  VENDEDORES.forEach(rep => {
+    const numClientes = Math.floor(rand() * 12) + 20; // 20 a 31 clientes por vendedor
 
-    for (let c = 0; c < numClientes; c++) {
-      cliSeq++;
-      const id = 'CLI-' + String(cliSeq).padStart(5, '0');
+    for (let i = 0; i < numClientes; i++) {
+      const cId = `CLI-${String(cIdx).padStart(5, '0')}`;
+      cIdx++;
 
-      const rLinea = prng();
-      let lineaKey = 'READYMIX';
-      if (rLinea > 0.85) lineaKey = 'AGREGADOS';
-      else if (rLinea > 0.55) lineaKey = 'CEMENTO';
-      const linea = LINEAS_NEGOCIO[lineaKey];
+      // Línea de negocio
+      const lRand = rand();
+      const linea = lRand < 0.45 ? LINEAS_LIST[0] : lRand < 0.80 ? LINEAS_LIST[1] : LINEAS_LIST[2];
 
-      // Distribución Log-Normal con factor de Pareto (20% de cuentas concentran ~75% del volumen)
-      const esGrande = prng() < 0.20;
-      let volumenBase;
-      if (esGrande) {
-        // Cuentas tractoras / gran volumen
-        volumenBase = randomLogNormal(prng, 10.55, 0.35);
-      } else {
-        // Cuentas estándar
-        volumenBase = randomLogNormal(prng, 7.8, 0.45);
-      }
-      volumenBase = Math.round(Math.max(1200, Math.min(95000, volumenBase)));
+      // Volumen Pareto (distribución log-normal)
+      const u = rand();
+      const isTopPareto = u > 0.80; // top 20%
+      const volumenBase = isTopPareto
+        ? Math.floor(rand() * 2500) + 1200
+        : Math.floor(rand() * 220) + 40;
 
-      const estaIncorporado = prng() < vend.empujeOnboarding;
-      
-      let fttv = null;
-      let esActivo = false;
-      let esRevertido = false;
+      // Onboarding state
+      const estaIncorporado = rand() < (0.65 * rep.empujeOnboarding);
+      const esActivo = estaIncorporado && rand() < 0.82;
+      const esRevertido = estaIncorporado && !esActivo && rand() < 0.35;
 
-      if (estaIncorporado) {
-        const nuncaActiva = prng() < 0.18;
-        if (!nuncaActiva) {
-          fttv = Math.round(randomLogNormal(prng, 2.48, 0.6));
-          fttv = Math.max(1, Math.min(90, fttv));
-          
-          if (prng() < 0.045) {
-            esRevertido = true;
-            esActivo = false;
-          } else {
-            esActivo = true;
-          }
-        }
-      }
+      const fttv = estaIncorporado ? Math.floor(rand() * 28) + 2 : null;
+      const digitalShare = esActivo ? rand() * 0.55 + 0.40 : 0; // 40% a 95% si es activo
 
-      let digitalShare = 0;
-      if (esActivo) {
-        digitalShare = Math.min(1.0, Math.max(0.20, 0.68 + (prng() - 0.5) * 0.35));
-      }
-
-      const rCanal = prng();
-      let canalPreferido = 'portal_web';
-      if (rCanal > 0.96) canalPreferido = 'edi_api';
-      else if (rCanal > 0.70) canalPreferido = 'app_movil';
+      // Canales
+      const canalRand = rand();
+      const canalPreferido = canalRand < 0.55 ? 'web' : canalRand < 0.85 ? 'app' : 'edi';
 
       CLIENTES.push({
-        id,
-        vendedorId: vend.id,
-        gerenteId: vend.gerenteId,
-        directorId: vend.directorId,
-        vpId: vend.vpId,
-        regionId: vend.regionId,
-        plaza: vend.plaza,
+        id: cId,
+        vendedorId: rep.id,
+        gerenteId: rep.gerenteId,
+        directorId: rep.directorId,
+        vpId: rep.vpId,
+        regionId: rep.regionId,
+        plaza: rep.plaza,
         lineaNegocio: linea.id,
         lineaLabel: linea.label,
         unidad: linea.unidad,
         volumenBase,
+        isTopPareto,
+        esTopPareto: isTopPareto,
         estaIncorporado,
         esActivo,
         esRevertido,
         fttv,
         digitalShare,
-        canalPreferido,
-        esTopPareto: esGrande
+        canalPreferido
       });
     }
   });
 
-  // 4. Generación de Serie Histórica (24 Meses)
-  const MESES = [];
-  const startYear = 2024;
-  const startMonth = 9; // Sep 2024
-  for (let m = 0; m < 24; m++) {
-    const d = new Date(startYear, startMonth - 1 + m, 1);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const key = yyyy + '-' + mm;
-    const label = d.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
-    MESES.push({ key, label, monthIdx: m, monthOfYear: d.getMonth() + 1 });
-  }
-
+  // Generación de Transacciones Históricas (2024, 2025, 2026) con curva de adopción ascendente
   const TRANSACCIONES = [];
-  
-  CLIENTES.forEach(cli => {
-    const reg = REGIONES.find(r => r.id === cli.regionId);
-    
-    MESES.forEach(m => {
-      let factorEstacional = 1.0;
-      if (reg && reg.climaFrio && (m.monthOfYear === 12 || m.monthOfYear === 1 || m.monthOfYear === 2)) {
-        factorEstacional = 0.85;
-      }
-      
-      const factorMaduracion = Math.min(1.0, 0.75 + (m.monthIdx / 24) * 0.25);
-      const factorRuido = 0.92 + prng() * 0.16;
-      const volumenTotal = Math.round(cli.volumenBase * factorEstacional * factorRuido);
-      
-      const pedidoPromedio = cli.lineaNegocio === 'readymix' ? 350 : 600;
-      const pedidosTotales = Math.max(1, Math.round(volumenTotal / pedidoPromedio));
-      
-      let esActivoEsteMes = cli.esActivo;
-      if (m.monthIdx < 12 && prng() < (0.35 - m.monthIdx * 0.025)) {
-        esActivoEsteMes = false;
-      }
-      
+
+  MESES.forEach((m, mIdx) => {
+    // Factor de madurez digital: 2024 inicia con ~20%, 2025 sube a ~42%, 2026 alcanza ~62%
+    const progresoTemporal = mIdx / (MESES.length - 1); // 0 a 1
+    const baseDigitalRate = 0.20 + (progresoTemporal * 0.44); // 20% a 64%
+
+    CLIENTES.forEach(cli => {
+      // Estacionalidad mensual
+      const seasonality = 1 + (Math.sin(m.mesNum * 0.5) * 0.12);
+      const volMes = Math.max(10, Math.round(cli.volumenBase * seasonality * (rand() * 0.3 + 0.85)));
+
+      // Número de pedidos en el mes
+      const pedidosTotales = Math.max(1, Math.round((volMes / (cli.isTopPareto ? 180 : 35)) * (rand() * 0.4 + 0.8)));
+
       let pedidosDigitales = 0;
-      let volumenDigital = 0;
+      let pedidosAnalogos = pedidosTotales;
+      let volDigital = 0;
+      let volAnalogo = volMes;
+
+      if (cli.estaIncorporado) {
+        // En 2024 la probabilidad de pedir digital es menor pero existente, sube con el tiempo
+        const probDigital = Math.min(0.95, (cli.digitalShare * 0.7) + (baseDigitalRate * 0.4) + (rand() * 0.15));
+        pedidosDigitales = Math.round(pedidosTotales * probDigital);
+        if (pedidosDigitales > pedidosTotales) pedidosDigitales = pedidosTotales;
+        pedidosAnalogos = pedidosTotales - pedidosDigitales;
+
+        volDigital = Math.round(volMes * (pedidosDigitales / pedidosTotales));
+        volAnalogo = volMes - volDigital;
+      }
+
       let pedidosWeb = 0;
       let pedidosApp = 0;
       let pedidosEdi = 0;
-      
-      if (esActivoEsteMes) {
-        const shareMes = Math.min(1.0, cli.digitalShare * factorMaduracion);
-        pedidosDigitales = Math.round(pedidosTotales * shareMes);
-        volumenDigital = Math.round(volumenTotal * shareMes);
-        
-        if (cli.canalPreferido === 'edi_api') {
-          pedidosEdi = pedidosDigitales;
-        } else if (cli.canalPreferido === 'app_movil') {
-          pedidosApp = Math.round(pedidosDigitales * 0.85);
+
+      if (pedidosDigitales > 0) {
+        if (cli.canalPreferido === 'web') {
+          pedidosWeb = Math.ceil(pedidosDigitales * 0.7);
+          pedidosApp = pedidosDigitales - pedidosWeb;
+        } else if (cli.canalPreferido === 'app') {
+          pedidosApp = Math.ceil(pedidosDigitales * 0.7);
           pedidosWeb = pedidosDigitales - pedidosApp;
         } else {
-          pedidosWeb = Math.round(pedidosDigitales * 0.75);
-          pedidosApp = pedidosDigitales - pedidosWeb;
+          pedidosEdi = Math.ceil(pedidosDigitales * 0.8);
+          pedidosWeb = pedidosDigitales - pedidosEdi;
         }
       }
-      
-      const pedidosAnalogos = pedidosTotales - pedidosDigitales;
-      const volumenAnalogo = volumenTotal - volumenDigital;
 
       TRANSACCIONES.push({
+        periodo: m.key,
         clienteId: cli.id,
         vendedorId: cli.vendedorId,
         gerenteId: cli.gerenteId,
@@ -263,31 +227,29 @@ export function generateDataset(seed = 20260828) {
         regionId: cli.regionId,
         plaza: cli.plaza,
         lineaNegocio: cli.lineaNegocio,
-        periodo: m.key,
+        unidad: cli.unidad,
         pedidosTotales,
         pedidosDigitales,
         pedidosAnalogos,
         pedidosWeb,
         pedidosApp,
         pedidosEdi,
-        volumenTotal,
-        volumenDigital,
-        volumenAnalogo,
-        esActivo: pedidosDigitales > 0,
-        estaIncorporado: cli.estaIncorporado
+        volumenTotal: volMes,
+        volumenDigital: volDigital,
+        volumenAnalogo: volAnalogo
       });
     });
   });
 
   return {
+    MESES,
+    periodoActual,
+    REGIONES,
     VPS,
     DIRECTORES,
     GERENTES,
     VENDEDORES,
     CLIENTES,
-    REGIONES,
-    MESES,
-    TRANSACCIONES,
-    periodoActual: MESES[MESES.length - 1].key
+    TRANSACCIONES
   };
 }

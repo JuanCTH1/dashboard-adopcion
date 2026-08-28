@@ -25,9 +25,7 @@ export function Sidebar({
   filtros,
   onFiltroChange,
   onResetFiltros,
-  filtrosDisponibles,
-  periodo,
-  onPeriodoChange
+  filtrosDisponibles
 }) {
   const [openSections, setOpenSections] = useState({
     periodo: true,
@@ -41,33 +39,19 @@ export function Sidebar({
 
   const { lineasNegocio, regiones } = filtrosDisponibles;
 
-  // Extraer año y mes activo
-  const [currentYear, currentMonthNum] = useMemo(() => {
-    if (!periodo) return [2026, 8];
-    const [y, m] = periodo.split("-");
-    return [parseInt(y, 10), parseInt(m, 10)];
-  }, [periodo]);
-
-  const handleYearChange = (valArr) => {
-    const yr = valArr[valArr.length - 1] || currentYear;
-    const mm = String(currentMonthNum).padStart(2, "0");
-    onPeriodoChange(`${yr}-${mm}`);
-  };
-
-  const handleMonthChange = (valArr) => {
-    const mStr = valArr[valArr.length - 1] || NOMBRES_MESES[currentMonthNum - 1];
-    const mIdx = NOMBRES_MESES.indexOf(mStr);
-    const mm = String(mIdx >= 0 ? mIdx + 1 : currentMonthNum).padStart(2, "0");
-    onPeriodoChange(`${currentYear}-${mm}`);
-  };
-
-  const totalActiveFilters = Object.values(filtros).filter(Boolean).length;
+  const totalActiveFilters =
+    (filtros.anios?.length || 0) +
+    (filtros.meses?.length || 0) +
+    (filtros.lineasNegocio?.length || 0) +
+    (filtros.regionIds?.length || 0) +
+    (filtros.plazas?.length || 0);
 
   const plazasDisponibles = useMemo(() => {
-    return filtros.regionId
-      ? regiones.find(r => r.id === filtros.regionId)?.plazas || []
-      : regiones.flatMap(r => r.plazas);
-  }, [filtros.regionId, regiones]);
+    if (!filtros.regionIds?.length) return regiones.flatMap(r => r.plazas);
+    return regiones
+      .filter(r => filtros.regionIds.includes(r.id))
+      .flatMap(r => r.plazas);
+  }, [filtros.regionIds, regiones]);
 
   return (
     <aside
@@ -84,7 +68,7 @@ export function Sidebar({
           </div>
           <div className="truncate">
             <div className="font-extrabold text-xs tracking-tight text-foreground font-sans">ADOPCIÓN CX</div>
-            <div className="text-[9px] text-muted-foreground font-bold">FILTRADO CON ARRASTRE</div>
+            <div className="text-[9px] text-muted-foreground font-bold">FILTROS CON ARRASTRE</div>
           </div>
         </div>
 
@@ -99,7 +83,7 @@ export function Sidebar({
         </Button>
       </div>
 
-      {/* 2. Contenido con FilterListbox (Arrastre y Selección) */}
+      {/* 2. Contenido con FilterListbox Multiselección & Arrastre */}
       {isOpen && (
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Cabecera de Conteo y Limpieza */}
@@ -127,7 +111,7 @@ export function Sidebar({
 
           {/* Lista scrolleable de Bloques Asociativos */}
           <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3.5 text-left scrollbar-thin">
-            {/* GRUPO 1: PERIODO (AÑO Y MES CON ARRASTRE) */}
+            {/* GRUPO 1: PERIODO (AÑO Y MES CON ARRASTRE MULTISELECCIÓN) */}
             <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
@@ -136,7 +120,7 @@ export function Sidebar({
               >
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-primary" />
-                  <span>Periodo ({currentYear} · {NOMBRES_MESES[currentMonthNum - 1]})</span>
+                  <span>Periodo Temporal</span>
                 </div>
                 {openSections.periodo ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               </button>
@@ -145,10 +129,10 @@ export function Sidebar({
                 <div className="p-2.5 space-y-2.5 bg-card">
                   {/* Año con Drag-to-Select */}
                   <FilterListbox
-                    label="Año (Arrastra o Haz Clic)"
+                    label="Año"
                     options={ANIOS_DISPONIBLES}
-                    value={[currentYear]}
-                    onChange={handleYearChange}
+                    value={filtros.anios || [2026]}
+                    onChange={(val) => onFiltroChange("anios", val)}
                     grid={true}
                     gridCols={3}
                     formatLabel={yr => `'${String(yr).slice(2)}`}
@@ -158,8 +142,8 @@ export function Sidebar({
                   <FilterListbox
                     label="Mes (Arrastra para Rango)"
                     options={NOMBRES_MESES}
-                    value={[NOMBRES_MESES[currentMonthNum - 1]]}
-                    onChange={handleMonthChange}
+                    value={filtros.meses || ["Ago"]}
+                    onChange={(val) => onFiltroChange("meses", val)}
                     grid={true}
                     gridCols={6}
                   />
@@ -167,7 +151,7 @@ export function Sidebar({
               )}
             </div>
 
-            {/* GRUPO 2: LÍNEAS DE NEGOCIO CON SELECCIÓN */}
+            {/* GRUPO 2: LÍNEAS DE NEGOCIO */}
             <div className="rounded-xl border border-border overflow-hidden bg-card shadow-2xs">
               <button
                 type="button"
@@ -184,10 +168,10 @@ export function Sidebar({
               {openSections.lineas && (
                 <div className="p-2.5 bg-card">
                   <FilterListbox
-                    label="Líneas Disponibles"
+                    label="Líneas de Negocio"
                     options={lineasNegocio.map(l => l.id)}
-                    value={filtros.lineaNegocio ? [filtros.lineaNegocio] : []}
-                    onChange={(selected) => onFiltroChange("lineaNegocio", selected[selected.length - 1] || null)}
+                    value={filtros.lineasNegocio || []}
+                    onChange={(val) => onFiltroChange("lineasNegocio", val)}
                     formatLabel={id => {
                       const ln = lineasNegocio.find(l => l.id === id);
                       return ln ? `${ln.label} (${ln.unidad})` : id;
@@ -216,10 +200,10 @@ export function Sidebar({
                   <FilterListbox
                     label="Región"
                     options={regiones.map(r => r.id)}
-                    value={filtros.regionId ? [filtros.regionId] : []}
-                    onChange={(selected) => {
-                      onFiltroChange("regionId", selected[selected.length - 1] || null);
-                      onFiltroChange("plaza", null);
+                    value={filtros.regionIds || []}
+                    onChange={(val) => {
+                      onFiltroChange("regionIds", val);
+                      onFiltroChange("plazas", []);
                     }}
                     grid={true}
                     gridCols={2}
@@ -229,8 +213,8 @@ export function Sidebar({
                   <FilterListbox
                     label="Plaza"
                     options={plazasDisponibles}
-                    value={filtros.plaza ? [filtros.plaza] : []}
-                    onChange={(selected) => onFiltroChange("plaza", selected[selected.length - 1] || null)}
+                    value={filtros.plazas || []}
+                    onChange={(val) => onFiltroChange("plazas", val)}
                     showSearch={true}
                   />
                 </div>

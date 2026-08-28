@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingDown, Users, UserCheck, Activity, Target, ArrowRight } from 'lucide-react';
+import { TrendingDown, Users, UserCheck, Activity, Target, ArrowRight, AlertTriangle } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 
 export function AdoptionFunnelStrip({ funnelSteps }) {
@@ -16,62 +16,8 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
   const sinCuentaCount = Math.max(0, cAsignados - cOnboarded);
   const inactivosCount = Math.max(0, cOnboarded - cActivos);
 
-  const STAGES = [
-    {
-      id: 1,
-      titulo: "1. Cartera Total",
-      subtitulo: "Clientes Asignados",
-      valor: cAsignados,
-      unidad: "clientes",
-      pctTotal: 100,
-      colorGrad: "from-blue-700 to-blue-900",
-      colorSolid: "#002B99",
-      icon: Users,
-      descripcion: "100% Universo gestionado"
-    },
-    {
-      id: 2,
-      titulo: "2. Con Onboarding",
-      subtitulo: "Cuentas Creadas",
-      valor: cOnboarded,
-      unidad: "clientes",
-      pctTotal: cAsignados > 0 ? (cOnboarded / cAsignados) * 100 : 0,
-      colorGrad: "from-emerald-600 to-emerald-800",
-      colorSolid: "#10b981",
-      icon: UserCheck,
-      fugaCount: sinCuentaCount,
-      fugaPct: cAsignados > 0 ? (sinCuentaCount / cAsignados) * 100 : 0,
-      fugaLabel: "Sin registrar en plataforma"
-    },
-    {
-      id: 3,
-      titulo: "3. Clientes Activos",
-      subtitulo: "Compraron en Digital",
-      valor: cActivos,
-      unidad: "clientes",
-      pctTotal: cAsignados > 0 ? (cActivos / cAsignados) * 100 : 0,
-      colorGrad: "from-sky-500 to-blue-700",
-      colorSolid: "#398EF4",
-      icon: Activity,
-      fugaCount: inactivosCount,
-      fugaPct: cOnboarded > 0 ? (inactivosCount / cOnboarded) * 100 : 0,
-      fugaLabel: "Con cuenta pero inactivos/revertidos"
-    },
-    {
-      id: 4,
-      titulo: "4. Adopción Digital",
-      subtitulo: "Share Transaccional",
-      valor: pctAdopcion,
-      unidad: "%",
-      isPct: true,
-      pctTotal: pctAdopcion,
-      colorGrad: "from-amber-500 to-orange-600",
-      colorSolid: "#FFB000",
-      icon: Target,
-      objetivo: 75.0,
-      descripcion: "Objetivo Corporativo: 75%"
-    }
-  ];
+  const pctOnboarding = cAsignados > 0 ? (cOnboarded / cAsignados) * 100 : 0;
+  const pctActivos = cAsignados > 0 ? (cActivos / cAsignados) * 100 : 0;
 
   return (
     <Card className="p-5 bg-card border border-border shadow-xs rounded-xl overflow-hidden relative select-none">
@@ -79,113 +25,173 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-700 via-sky-400 to-emerald-500" />
 
       {/* Cabecera */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-foreground font-sans">
-              Embudo Visual de Adopción (De Cartera a Uso Real)
+            <h3 className="text-xs font-black uppercase tracking-wider text-foreground font-sans">
+              Embudo Cónico de Adopción Comercial
             </h3>
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
-            Visualización cónica de retención: identifica cuántos clientes se van quedando en cada fase del proceso.
+            Visualización secuencial del flujo de clientes: de la cartera total asignada al uso digital recurrente.
           </p>
         </div>
 
-        <Badge variant="outline" className="text-[11px] font-bold text-primary border-primary/30 w-fit px-2.5 py-0.5">
+        <Badge variant="outline" className="text-[11px] font-bold text-primary border-primary/30 w-fit px-2.5 py-0.5 shadow-2xs">
           Objetivo Corporativo: 75.0%
         </Badge>
       </div>
 
-      {/* REPRESENTACIÓN DE EMBUDO CÓNICO REAL (Visual Tapered Stages) */}
-      <div className="space-y-3">
-        {/* 1. Diagrama de Barras de Ancho Cónico Proporcional */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          {STAGES.map((st, i) => {
-            const Icon = st.icon;
-            const isLast = i === STAGES.length - 1;
+      {/* 1. DIAGRAMA SVG DE EMBUDO CÓNICO REAL CONSTRUIDO CON POLÍGONOS CONECTADOS */}
+      <div className="w-full my-3 bg-slate-50 dark:bg-slate-900/90 rounded-xl p-3 border border-border/80 shadow-inner">
+        <svg viewBox="0 0 900 130" className="w-full h-auto max-h-36 overflow-visible" preserveAspectRatio="none">
+          <defs>
+            {/* Gradientes para cada etapa cónica */}
+            <linearGradient id="funnel-grad-1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#002B99" />
+              <stop offset="100%" stopColor="#1e40af" />
+            </linearGradient>
+            <linearGradient id="funnel-grad-2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#1e40af" />
+              <stop offset="100%" stopColor="#10b981" />
+            </linearGradient>
+            <linearGradient id="funnel-grad-3" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#10b981" />
+              <stop offset="100%" stopColor="#398EF4" />
+            </linearGradient>
+            <linearGradient id="funnel-grad-4" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#398EF4" />
+              <stop offset="100%" stopColor="#FFB000" />
+            </linearGradient>
+          </defs>
 
-            return (
-              <motion.div
-                key={st.id}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, delay: i * 0.06 }}
-                className="flex flex-col justify-between p-3.5 rounded-xl bg-slate-50/90 dark:bg-slate-900/80 border border-border hover:border-primary/50 transition-all shadow-2xs group relative"
-              >
-                {/* Cabecera del Paso */}
-                <div>
-                  <div className="flex items-center justify-between gap-1 mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className={cn("w-6 h-6 rounded-lg text-white flex items-center justify-center font-bold text-xs shadow-xs bg-gradient-to-br", st.colorGrad)}>
-                        <Icon className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="font-bold text-xs text-foreground truncate">
-                        {st.titulo}
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-bold text-muted-foreground tabular-nums">
-                      {st.isPct ? `${st.valor.toFixed(1)}%` : `${st.pctTotal.toFixed(0)}% base`}
-                    </span>
-                  </div>
+          {/* Etapa 1: Cartera Base (Trapecio ancho: Y 10 a 120 -> Y 20 a 110) */}
+          <polygon points="10,10 210,22 210,108 10,120" fill="url(#funnel-grad-1)" opacity="0.95" />
+          <text x="110" y="60" fill="#ffffff" fontSize="14" fontWeight="bold" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            {formatNumber(cAsignados)} Clientes
+          </text>
+          <text x="110" y="78" fill="#cbd5e1" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            100% Universo Base
+          </text>
 
-                  {/* Valor Principal & Subtítulo */}
-                  <div className="my-2">
-                    <div className="text-2xl font-black text-foreground tracking-tight tabular-nums">
-                      {st.isPct ? formatPct(st.valor) : formatNumber(st.valor)}
-                      <span className="text-xs font-semibold text-muted-foreground ml-1.5 font-normal">
-                        {st.unidad}
-                      </span>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground font-medium truncate">
-                      {st.subtitulo}
-                    </div>
-                  </div>
-                </div>
+          {/* Fuga 1: Conector de Fuga Onboarding */}
+          <line x1="210" y1="65" x2="240" y2="65" stroke="#94a3b8" strokeWidth="2" strokeDasharray="3,3" />
 
-                {/* Barra Proporcional de Embudo (Se estrecha visiblemente) */}
-                <div className="mt-2 pt-2 border-t border-border/70">
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
-                    <div
-                      className={cn("h-full rounded-full transition-all duration-700 bg-gradient-to-r", st.colorGrad)}
-                      style={{ width: `${Math.min(100, Math.max(12, st.pctTotal))}%` }}
-                    />
-                  </div>
+          {/* Etapa 2: Onboarded (Trapecio medio: Y 22 a 108 -> Y 32 a 98) */}
+          <polygon points="240,22 440,34 440,96 240,108" fill="url(#funnel-grad-2)" opacity="0.95" />
+          <text x="340" y="60" fill="#ffffff" fontSize="14" fontWeight="bold" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            {formatNumber(cOnboarded)} Clientes
+          </text>
+          <text x="340" y="78" fill="#ecfdf5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            {pctOnboarding.toFixed(0)}% con Cuenta
+          </text>
 
-                  {/* Estado de Fuga o Meta */}
-                  {st.fugaCount != null && st.fugaCount > 0 ? (
-                    <div className="mt-2 flex items-center justify-between text-[10px] font-semibold text-rose-600 dark:text-rose-400">
-                      <span className="flex items-center gap-1">
-                        <TrendingDown className="w-3 h-3" />
-                        <span>-{st.fugaCount} ({st.fugaPct.toFixed(0)}%)</span>
-                      </span>
-                      <span className="text-muted-foreground truncate max-w-[110px]" title={st.fugaLabel}>
-                        {st.fugaLabel}
-                      </span>
-                    </div>
-                  ) : isLast ? (
-                    <div className="mt-2 flex items-center justify-between text-[10px]">
-                      <span className={cn("font-bold", st.valor >= 75 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
-                        {st.valor >= 75 ? "✔ Objetivo Cumplido" : `Brecha: ${(75 - st.valor).toFixed(1)}%`}
-                      </span>
-                      <span className="text-muted-foreground">Obj: 75%</span>
-                    </div>
-                  ) : (
-                    <div className="mt-2 text-[10px] text-muted-foreground font-medium">
-                      {st.descripcion}
-                    </div>
-                  )}
-                </div>
+          {/* Etapa 3: Activos Digitales (Trapecio estrecho: Y 34 a 96 -> Y 42 a 88) */}
+          <polygon points="470,34 670,44 670,86 470,96" fill="url(#funnel-grad-3)" opacity="0.95" />
+          <text x="570" y="60" fill="#ffffff" fontSize="14" fontWeight="bold" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            {formatNumber(cActivos)} Clientes
+          </text>
+          <text x="570" y="78" fill="#e0f2fe" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            {pctActivos.toFixed(0)}% Activos
+          </text>
 
-                {/* Flecha conectora para desktop */}
-                {!isLast && (
-                  <div className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-6 h-6 rounded-full bg-card border border-border items-center justify-center text-primary shadow-xs">
-                    <ArrowRight className="w-3 h-3" />
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
+          {/* Etapa 4: Adopción Transaccional Final (Cilindro / Barra de Meta: Y 44 a 86) */}
+          <polygon points="700,44 890,44 890,86 700,86" fill="url(#funnel-grad-4)" opacity="0.95" />
+          <text x="795" y="60" fill="#ffffff" fontSize="14" fontWeight="bold" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            {formatPct(pctAdopcion)}
+          </text>
+          <text x="795" y="78" fill="#fffbeb" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">
+            Objetivo: 75.0%
+          </text>
+        </svg>
+
+        {/* Fugas y Diagnósticos debidamente etiquetados */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-2 pt-2 border-t border-border/70 text-[11px]">
+          <div className="text-muted-foreground font-semibold px-2">
+            Base 100% de Clientes
+          </div>
+
+          <div className="text-rose-600 dark:text-rose-400 font-bold px-2 flex items-center gap-1">
+            <TrendingDown className="w-3.5 h-3.5" />
+            <span>-{sinCuentaCount} sin registrar ({((sinCuentaCount/cAsignados)*100).toFixed(0)}% fuga)</span>
+          </div>
+
+          <div className="text-amber-600 dark:text-amber-400 font-bold px-2 flex items-center gap-1">
+            <TrendingDown className="w-3.5 h-3.5" />
+            <span>-{inactivosCount} inactivos / revertidos</span>
+          </div>
+
+          <div className="text-emerald-600 dark:text-emerald-400 font-bold px-2">
+            {pctAdopcion >= 75 ? "✔ Objetivo 75% Cumplido" : `Brecha: ${(75 - pctAdopcion).toFixed(1)}%`}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. TARJETAS DETALLADAS DEL EMBUDO */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
+        {/* Paso 1 */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-border">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-6 h-6 rounded-lg bg-blue-700 text-white flex items-center justify-center font-bold text-xs">
+              <Users className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">1. Universo de Clientes</span>
+          </div>
+          <div className="text-xl font-extrabold text-foreground tabular-nums">
+            {formatNumber(cAsignados)} <span className="text-xs font-normal text-muted-foreground">clientes</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Cartera total bajo gestión comercial en el periodo.
+          </p>
+        </div>
+
+        {/* Paso 2 */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-border">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+              <UserCheck className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">2. Clientes con Onboarding</span>
+          </div>
+          <div className="text-xl font-extrabold text-foreground tabular-nums">
+            {formatNumber(cOnboarded)} <span className="text-xs font-normal text-muted-foreground">clientes</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            {pctOnboarding.toFixed(1)}% habilitados con usuario en la plataforma.
+          </p>
+        </div>
+
+        {/* Paso 3 */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-border">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-6 h-6 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold text-xs">
+              <Activity className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">3. Clientes Activos</span>
+          </div>
+          <div className="text-xl font-extrabold text-foreground tabular-nums">
+            {formatNumber(cActivos)} <span className="text-xs font-normal text-muted-foreground">clientes</span>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Compraron vía digital (Web, App o EDI) en el periodo.
+          </p>
+        </div>
+
+        {/* Paso 4 */}
+        <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-border">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs">
+              <Target className="w-3.5 h-3.5" />
+            </div>
+            <span className="text-xs font-bold text-foreground">4. Adopción Digital</span>
+          </div>
+          <div className="text-xl font-extrabold text-foreground tabular-nums">
+            {formatPct(pctAdopcion)}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Share transaccional de pedidos vs Objetivo 75%.
+          </p>
         </div>
       </div>
     </Card>
