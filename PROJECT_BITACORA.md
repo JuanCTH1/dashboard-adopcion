@@ -527,3 +527,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Caché en Memoria `_jerarquiaCache`:**
   - Se implementó una caché en memoria en `AdopcionRepository.getJerarquia()` que guarda instantáneamente el resultado de agregación de métricas de nodos por nivel y filtro.
   - **Resultado:** Elimina el recálculo pesado de arrays al seleccionar tarjetas en el navegador de jerarquía, acelerando la respuesta a **<1ms** sin pantallazos blancos ni retardos.
+---
+
+## 🎯 Versión 2.44 - Rediseño Unificado del Ribbon Ejecutivo (0 Botones Flotantes)
+
+- **Panel Ejecutivo Unificado (`ExecutiveRibbon.jsx`):**
+  - Se eliminaron por completo las insignias/botones flotantes externos que desalineaban las tarjetas.
+  - Se convirtió el ribbon en **un único panel ejecutivo contenedor continuo** con divisores verticales limpios (`divide-x`).
+  - Las métricas de caída (`➔ -28%` / `➔ -15%`) se integraron limpiamente como micro-insignias en la cabecera superior derecha de cada etapa.
