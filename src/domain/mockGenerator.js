@@ -227,30 +227,30 @@ export function generateDataset(seed = 20260828) {
   });
 
   const BASE_CURVE_36M = [
-    // 2024: ~22% to ~45% with realistic peaks, dips & weather seasonality
-    0.22, 0.28, 0.21, 0.33, 0.41, 0.36, 0.43, 0.47, 0.39, 0.45, 0.41, 0.32,
-    // 2025: ~38% to ~63% with realistic peaks, dips & weather seasonality
-    0.38, 0.46, 0.41, 0.54, 0.63, 0.56, 0.65, 0.69, 0.60, 0.67, 0.62, 0.51,
-    // 2026: ~53% to ~86% with realistic peaks, dips & weather seasonality
-    0.53, 0.61, 0.57, 0.71, 0.79, 0.74, 0.81, 0.86, 0.78, 0.84, 0.81, 0.73
+    // 2024 (Jan - Dec): Clear ~32.5% avg base with natural monthly ups/downs
+    0.24, 0.27, 0.25, 0.30, 0.34, 0.32, 0.36, 0.38, 0.35, 0.39, 0.37, 0.34,
+    // 2025 (Jan - Dec): Strong YoY growth (~53.7% avg base) with natural monthly ups/downs
+    0.42, 0.46, 0.44, 0.50, 0.56, 0.53, 0.58, 0.61, 0.57, 0.62, 0.60, 0.55,
+    // 2026 (Jan - Dec): Solid YoY growth (~74.9% avg base) with natural monthly ups/downs
+    0.64, 0.68, 0.65, 0.72, 0.78, 0.74, 0.79, 0.82, 0.78, 0.83, 0.81, 0.76
   ];
 
-  // Distinct monthly market shifts per Business Line (e.g. Ready Mix weather/jobsite shocks)
+  // Calibrated organic monthly shifts per Business Line (+/- 4% to 8% natural market swings)
   const BL_MONTHLY_SHIFTS = {
     readymix: [
-      -0.08,  0.06, -0.12,  0.08,  0.15, -0.05,  0.09, -0.04,  0.11, -0.08,  0.04, -0.14,
-      -0.10,  0.07, -0.14,  0.11,  0.18, -0.08,  0.12, -0.06,  0.14, -0.09,  0.06, -0.16,
-      -0.12,  0.08, -0.15,  0.12,  0.19, -0.09,  0.14, -0.07,  0.15, -0.10,  0.07, -0.18
+      -0.03,  0.04, -0.04,  0.05,  0.06, -0.03,  0.04, -0.02,  0.05, -0.04,  0.03, -0.05,
+      -0.04,  0.05, -0.05,  0.06,  0.07, -0.04,  0.05, -0.03,  0.06, -0.04,  0.04, -0.06,
+      -0.05,  0.06, -0.06,  0.07,  0.08, -0.04,  0.06, -0.03,  0.06, -0.05,  0.04, -0.06
     ],
     cemento: [
-       0.05, -0.07,  0.09, -0.04,  0.08,  0.07, -0.06,  0.10, -0.05,  0.08, -0.06,  0.04,
-       0.06, -0.09,  0.11, -0.06,  0.10,  0.08, -0.08,  0.12, -0.07,  0.10, -0.08,  0.05,
-       0.07, -0.10,  0.12, -0.07,  0.12,  0.09, -0.09,  0.14, -0.08,  0.11, -0.09,  0.06
+       0.03, -0.03,  0.04, -0.02,  0.04,  0.03, -0.03,  0.05, -0.03,  0.04, -0.03,  0.02,
+       0.03, -0.04,  0.05, -0.03,  0.05,  0.04, -0.04,  0.06, -0.03,  0.05, -0.04,  0.03,
+       0.04, -0.04,  0.06, -0.03,  0.06,  0.04, -0.04,  0.06, -0.04,  0.05, -0.04,  0.03
     ],
     agregados: [
-      -0.04, -0.08,  0.14, -0.09,  0.06,  0.11, -0.12,  0.07, -0.08,  0.13, -0.07, -0.06,
-      -0.06, -0.10,  0.16, -0.11,  0.08,  0.13, -0.14,  0.09, -0.10,  0.15, -0.09, -0.08,
-      -0.07, -0.11,  0.18, -0.12,  0.10,  0.15, -0.15,  0.11, -0.11,  0.17, -0.10, -0.09
+      -0.02, -0.04,  0.05, -0.04,  0.03,  0.05, -0.05,  0.03, -0.04,  0.06, -0.03, -0.03,
+      -0.03, -0.05,  0.06, -0.04,  0.04,  0.06, -0.06,  0.04, -0.04,  0.07, -0.04, -0.04,
+      -0.03, -0.05,  0.07, -0.05,  0.05,  0.07, -0.06,  0.05, -0.05,  0.07, -0.04, -0.04
     ]
   };
 
@@ -273,10 +273,10 @@ export function generateDataset(seed = 20260828) {
       let volAnalogo = volMes;
 
       if (cli.estaIncorporado && cli.esActivo) {
-        // High realistic monthly volatility per client + business line monthly macro shift
-        const clientVolatility = (rand() - 0.5) * 0.35;
+        // Organic monthly volatility per client (+/- 14% variance per month) + BL shift
+        const clientVolatility = (rand() - 0.5) * 0.28;
         const targetRate = baseRate + blShift;
-        const clientAdoptionRate = Math.min(0.96, Math.max(0.12, (targetRate * 0.50) + (cli.basePropensity * 0.50) + clientVolatility));
+        const clientAdoptionRate = Math.min(0.96, Math.max(0.12, (targetRate * 0.60) + (cli.basePropensity * 0.40) + clientVolatility));
 
         pedidosDigitales = Math.round(pedidosTotales * clientAdoptionRate);
         if (pedidosDigitales > pedidosTotales) pedidosDigitales = pedidosTotales;

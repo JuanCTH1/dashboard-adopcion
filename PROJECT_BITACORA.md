@@ -841,3 +841,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Ajuste de Preferencia Predeterminada y Orden Visual (`ProgressiveHierarchy.jsx`):**
   - Se configuró **`Show All`** como el estado por defecto (`useState('all_columns')`) al cargar la aplicación.
   - Se reordenaron los botones del toggle para colocar **`Show All`** en primer lugar y **`Collapse`** en segundo lugar.
+---
+
+## 🎯 Versión 2.84 - Calibración Fina de Crecimiento Año vs Año y Volatilidad Mensual Contenida (`mockGenerator.js`)
+
+- **Recalibración de Curva Transaccional (`mockGenerator.js`):**
+  - **Tendencia Clara Año vs Año (YoY):** Se ajustó `BASE_CURVE_36M` para reflejar un crecimiento anual claro e innegable: **2024 (~32.5% promedio) $\rightarrow$ 2025 (~53.7% promedio) $\rightarrow$ 2026 (~74.9% promedio)**.
+  - **Volatilidad Mensual Contenida:** Se ajustaron los desfases por línea de negocio (`BL_MONTHLY_SHIFTS`) y la variabilidad por cliente a un rango orgánico de **$\pm 4\%$ a $\pm 8\%$** por mes.
+  - **Resultado:** Las gráficas y tablas muestran oscilaciones mensuales realistas sin brincos extremos desproporcionados, manteniendo una tendencia ascendente sólida año contra año.
