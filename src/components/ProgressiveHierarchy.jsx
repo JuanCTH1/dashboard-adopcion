@@ -394,10 +394,16 @@ export function ProgressiveHierarchy({
                           {vp.persona}
                         </div>
 
-                        {/* RENGLÓN 3: DUAL INDICATOR (ONBOARDING % | ADOPTION %) */}
-                        <div className={cn("text-[9px] font-mono font-bold pt-0.5 border-t border-white/20 flex items-center justify-between", isSelected ? "text-white" : "text-foreground")}>
-                          <span>Onb: {formatPct(vp.metricas.clientes?.pctOnboarding || 0)}</span>
-                          <span>Adop: {formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
+                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
+                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-white/20 text-white" : "border-border/60 text-foreground")}>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Onb {formatPct(vp.metricas.clientes?.pctOnboarding || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-white/80" : "text-muted-foreground")}>({vp.metricas.clientes?.onboarded || 0}/{vp.metricas.clientes?.asignados || 0} cli)</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Adop {formatPct(vp.metricas.pedidos?.pctAdopcion || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-white/80" : "text-muted-foreground")}>({formatNumber(vp.metricas.pedidos?.totales || 0)} ord)</span>
+                          </div>
                         </div>
                       </button>
                     );
@@ -518,10 +524,16 @@ export function ProgressiveHierarchy({
                           </div>
                         )}
 
-                        {/* RENGLÓN 3: DUAL INDICATOR (ONBOARDING % | ADOPTION %) */}
-                        <div className={cn("text-[9px] font-mono font-bold pt-0.5 border-t border-indigo-400/20 flex items-center justify-between", isSelected ? "text-indigo-100" : "text-foreground")}>
-                          <span>Onb: {formatPct(dir.metricas.clientes?.pctOnboarding || 0)}</span>
-                          <span>Adop: {formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
+                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
+                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Onb {formatPct(dir.metricas.clientes?.pctOnboarding || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-indigo-200" : "text-muted-foreground")}>({dir.metricas.clientes?.onboarded || 0}/{dir.metricas.clientes?.asignados || 0} cli)</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Adop {formatPct(dir.metricas.pedidos?.pctAdopcion || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-indigo-200" : "text-muted-foreground")}>({formatNumber(dir.metricas.pedidos?.totales || 0)} ord)</span>
+                          </div>
                         </div>
                       </button>
                     </div>
@@ -643,10 +655,16 @@ export function ProgressiveHierarchy({
                           </div>
                         )}
 
-                        {/* RENGLÓN 3: DUAL INDICATOR (ONBOARDING % | ADOPTION %) */}
-                        <div className={cn("text-[9px] font-mono font-bold pt-0.5 border-t border-sky-400/20 flex items-center justify-between", isSelected ? "text-sky-100" : "text-foreground")}>
-                          <span>Onb: {formatPct(ger.metricas.clientes?.pctOnboarding || 0)}</span>
-                          <span>Adop: {formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
+                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
+                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Onb {formatPct(ger.metricas.clientes?.pctOnboarding || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-sky-200" : "text-muted-foreground")}>({ger.metricas.clientes?.onboarded || 0}/{ger.metricas.clientes?.asignados || 0} cli)</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Adop {formatPct(ger.metricas.pedidos?.pctAdopcion || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-sky-200" : "text-muted-foreground")}>({formatNumber(ger.metricas.pedidos?.totales || 0)} ord)</span>
+                          </div>
                         </div>
                       </button>
                     </div>
@@ -707,10 +725,16 @@ export function ProgressiveHierarchy({
                           {rep.plaza} · <b className="uppercase">{rep.bl}</b>
                         </div>
 
-                        {/* RENGLÓN 3: DUAL INDICATOR (ONBOARDING % | ADOPTION %) */}
-                        <div className={cn("text-[9px] font-mono font-bold pt-0.5 border-t border-emerald-400/20 flex items-center justify-between", isSelected ? "text-emerald-100" : "text-foreground")}>
-                          <span>Onb: {formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
-                          <span>Adop: {formatPct(rep.metricas.pedidos.pctAdopcion)}</span>
+                        {/* RENGLÓN 3: DUAL INDICATORS WITH RAW COUNTS IN PARENTHESES */}
+                        <div className={cn("text-[8.5px] font-mono pt-0.5 border-t flex flex-col gap-0.5", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Onb {formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-emerald-200" : "text-muted-foreground")}>({rep.metricas.clientes?.onboarded || 0}/{rep.metricas.clientes?.asignados || 0} cli)</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold">Adop {formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
+                            <span className={cn("text-[8px]", isSelected ? "text-emerald-200" : "text-muted-foreground")}>({formatNumber(rep.metricas.pedidos?.totales || 0)} ord)</span>
+                          </div>
                         </div>
                       </button>
                     );

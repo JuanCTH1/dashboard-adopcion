@@ -131,17 +131,15 @@ Vite + Tailwind v4 + shadcn instalados, mapeo de color completo, Barlow cargada,
 
 **Aceptación:** una pantalla con tres tarjetas y un botón ya debe verse como penetron-dash, en claro y en oscuro. Si se ve como shadcn genérico, el mapeo está incompleto y no se avanza.
 
-### 3. Ribbon ejecutivo y Triple Lente
+### 3. Ribbon-Funnel unificado
 
-Franja superior fija con KPIs compactos: % de adopción con delta contra mes anterior, pedidos totales / digitales / análogos, clientes en cartera / incorporados / activos. Sparkline de 12 puntos en el KPI principal. El selector de lente (Pedidos · Clientes · Volumen) recalcula todo en memoria.
+**OBSOLETO EL TEXTO ORIGINAL DE ESTE PASO** (mencionaba "Triple Lente" con Volumen y un funnel de 4 pasos separado abajo — ya no aplica). La versión vigente está en **`ADDENDUM.md`** (mismo directorio), que tiene prioridad sobre cualquier mención de ribbon/funnel/Triple Lente en este documento. Leerlo junto con este paso antes de construir.
 
-**Aceptación:** cambiar de lente no muestra ningún indicador de carga. Debe sentirse instantáneo, porque lo es.
+**Aceptación:** cambiar de filtro/nivel no muestra indicador de carga — instantáneo, porque agrega en memoria. Con un vendedor seleccionado debe leerse de un vistazo dónde se rompe su cartera.
 
-### 4. Funnel de adopción
+### 4. (fusionado con el paso 3 — ver ADDENDUM.md)
 
-Tira horizontal de cuatro pasos: Asignados → Incorporados → Activos → % digital. Cada paso muestra el número absoluto y la caída porcentual respecto al anterior. Responde al lente y al nivel seleccionado.
-
-**Aceptación:** con un vendedor seleccionado debe leerse de un vistazo dónde se rompe su cartera — si no incorpora, o si incorpora y no usan.
+Este paso ya no existe como pieza separada; el funnel es parte de la fila unificada del paso 3. Se conserva el número "4" solo para no romper la numeración de los pasos 5–9 siguientes.
 
 ### 5. Jerarquía con drill-down
 
@@ -198,12 +196,20 @@ Con ~1,300 clientes × 24 meses (≈36k filas), todo cabe en memoria del navegad
 
 ---
 
+## Ribbon-Funnel unificado
+
+Ver **`ADDENDUM.md`** (mismo directorio) — reemplaza por completo lo que decían los pasos 3 y 4 originales. Léelo antes de construir esa parte.
+
+---
+
 ## Prompt de arranque
 
 ```
-Vamos a construir un dashboard de adopción digital comercial.
-La especificación completa está en este documento (MANUAL_OBRA.md) —
-léela entera antes de escribir código y no asumas nada que no esté ahí.
+Vamos a construir/ajustar un dashboard de adopción digital comercial.
+La especificación está en dos documentos, en este mismo directorio:
+MANUAL_OBRA.md (la base) y ADDENDUM.md (revisión del ribbon/funnel,
+tiene prioridad sobre MANUAL_OBRA.md donde haya diferencia). Lee los
+dos completos antes de escribir código y no asumas nada que no esté ahí.
 
 Contexto en una línea: es una demostración con datos sintéticos,
 sin backend, que debe verse y sentirse como producto terminado,

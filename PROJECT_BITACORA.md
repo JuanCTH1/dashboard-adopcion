@@ -411,3 +411,18 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se removió la falsa cuarta grada y se colocó el porcentaje de adopción transaccional (`Order Adoption Rate`) como un **badge informativo adosado a la base del Paso 3 (Active Digital Customers)**.
 - **Indicador Doble en Tarjetas de la Jerarquía:**
   - Se actualizó Renglón 3 en todas las tarjetas de la jerarquía (VPs, Regiones, Mercados y Vendedores) en [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx) para mostrar la doble métrica densa: `Onb: XX.X%` | `Adop: XX.X%`.
+---
+
+## 🎯 Versión 2.34 - Implementación Fila Unificada Ribbon-Funnel (ADDENDUM.md)
+
+- **Consolidación en 1 Sola Fila de 4 Columnas:**
+  - Se fusionaron los KPIs y el embudo en una única fila de 4 columnas en [ExecutiveRibbon.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ExecutiveRibbon.jsx):
+    1. **Universo asignado:** Primario `# clientes` | Secundario `# órdenes totales`.
+    2. **Onboarded:** Primario `# clientes onboardeados` + `▲+N este mes` | Secundario `# órdenes`.
+    3. **Activos:** Primario `# clientes activos` + delta | Secundario `# órdenes digitales`.
+    4. **Adopción digital:** Primario `% pedidos digitales` (mayor peso visual) | Secundario `# digitales / # totales`.
+  - Se eliminó la fila secundaria de `VerticalFunnelCard` en [App.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/App.jsx).
+- **Identificación Dinámica del Cuello de Botella:**
+  - Entre cada etapa se calcula dinámicamente el % de caída. La transición con mayor pérdida se destaca automáticamente en rojo/ámbar (`animate-pulse border-rose-500/30`).
+- **Formato Headline + Conteo en Jerarquía:**
+  - Se formateó Renglón 3 en las tarjetas de [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx) con la estructura especificada: `Onb 75% (21/28 cli)` y `Adop 61% (126 ord)`.

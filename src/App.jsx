@@ -4,7 +4,6 @@ import { Sidebar } from '@/components/Sidebar';
 import { AppHeader } from '@/components/AppHeader';
 import { ExecutiveRibbon } from '@/components/ExecutiveRibbon';
 import { AdoptionTrendCard } from '@/components/AdoptionTrendCard';
-import { VerticalFunnelCard } from '@/components/VerticalFunnelCard';
 import { ProgressiveHierarchy } from '@/components/ProgressiveHierarchy';
 import { ActionDrawer } from '@/components/ActionDrawer';
 import { CommandPalette } from '@/components/CommandPalette';
@@ -213,23 +212,11 @@ export function App() {
             metricasGlobales={metricasGlobales}
           />
 
-          {/* ROW 2: DUAL COLUMNS (LEFT: HISTORICAL TREND, RIGHT: VERTICAL FUNNEL) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-            {/* Left Column (7 of 12 Cols): Adoption Trend */}
-            <div className="lg:col-span-7 flex flex-col">
-              <AdoptionTrendCard
-                serieHistorica={metricasGlobales.serieHistorica}
-                filtros={filtrosCompuestos}
-              />
-            </div>
-
-            {/* Right Column (5 of 12 Cols): Vertical Funnel */}
-            <div className="lg:col-span-5 flex flex-col">
-              <VerticalFunnelCard
-                funnelSteps={funnelSteps}
-              />
-            </div>
-          </div>
+          {/* ROW 2: HISTORICAL ADOPTION TREND */}
+          <AdoptionTrendCard
+            serieHistorica={metricasGlobales.serieHistorica}
+            filtros={filtrosCompuestos}
+          />
 
           {/* ROW 3: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
           <ProgressiveHierarchy
