@@ -78,22 +78,28 @@ export function App() {
 
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        mainScrollRef.current?.scrollBy({ top: 160, behavior: 'smooth' });
+        if (mainScrollRef.current) {
+          mainScrollRef.current.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'auto' });
+        }
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        mainScrollRef.current?.scrollBy({ top: -160, behavior: 'smooth' });
+        if (mainScrollRef.current) {
+          mainScrollRef.current.scrollTo({ top: 0, behavior: 'auto' });
+        }
       } else if (e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
         e.preventDefault();
-        mainScrollRef.current?.scrollBy({ top: 500, behavior: 'smooth' });
+        mainScrollRef.current?.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'auto' });
       } else if (e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
         e.preventDefault();
-        mainScrollRef.current?.scrollBy({ top: -500, behavior: 'smooth' });
+        mainScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
       } else if (e.key === 'Home') {
         e.preventDefault();
-        mainScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+        mainScrollRef.current?.scrollTo({ top: 0, behavior: 'auto' });
       } else if (e.key === 'End') {
         e.preventDefault();
-        mainScrollRef.current?.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'smooth' });
+        if (mainScrollRef.current) {
+          mainScrollRef.current.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'auto' });
+        }
       }
     };
 
