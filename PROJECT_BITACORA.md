@@ -1,0 +1,219 @@
+# 📄 CX DIGITAL ADOPTION DASHBOARD - MASTER HANDOVER & PROJECT BITÁCORA
+
+> **Version:** 2.2 (USA Operations · 100% English UI · Animated Layout · Visual Micro-Pills)  
+> **Last Updated:** August 28, 2026  
+> **Dev Server:** `http://localhost:5173`  
+> **Status:** Production-ready, fully compiled (0 errors, Vite build ~2.1s)
+
+---
+
+## 🎯 1. Business Purpose & Core Design Philosophy
+
+This executive dashboard enables commercial leaders (VPs, Regional Directors, Managers, and Sales Reps) to monitor, audit, and execute digital adoption across B2B accounts:
+1. **5-Second Executive Assessment:** Immediate clarity on digital order share, volume penetration, and onboarding.
+2. **Order-Based Primary Currency:** Primary adoption measurement is based on **Orders (Pedidos)**, as volume units (cu yd vs Tons) differ by product line. Orders provide a unit-agnostic, clean metric.
+3. **90.0% Corporate Goal:** Targets an ambitious 90% digital order penetration, starting from a realistic 12.2% baseline in Jan 2024 up to ~75.4% in Aug 2026.
+4. **Actionable Commercial Execution:** 1-click generation of the "Monday Morning Sales Priority List" to copy into 1-on-1 meetings or WhatsApp.
+
+---
+
+## 🏗️ 2. Architectural Structure & Data Model
+
+### A. Geographical & Organizational Hierarchy Model
+* **Country Scope:** `USA National`
+* **Level 1 (VPs by Business Line):**
+  1. `VP Readymix Concrete` (`readymix` · `cu yd`)
+  2. `VP Bulk Cement` (`cemento` · `tons`)
+  3. `VP Quarries & Aggregates` (`agregados` · `tons`)
+* **Level 2 (Regional Directors - 5 per VP = 15 Total):**
+  * *Readymix:* East Coast, Sunbelt, Midwest, Mountain, Pacific.
+  * *Cement:* Atlantic, Gulf Coast, Great Lakes, Central Plains, Pacific NW.
+  * *Aggregates:* Northeast, Southeast, Central, Texas & Gulf, West Coast.
+* **Level 3 (Plaza Managers):** 2 Managers per Regional Director (30 Managers total).
+* **Level 4 (Sales Representatives):** Dedicated Sales Reps per Manager & Business Line.
+* **Level 5 (Client Portfolio):** 1,200+ realistic B2B accounts (`Apex Construction LLC`, `Turner Heavy Infra`, `Skanska USA Built`, `Bechtel Concrete Works`, etc.).
+
+---
+
+## 🖥️ 3. Dashboard Layout & Component Architecture
+
+The interface is structured in **3 Main Horizontal Tiers**:
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ TIER 1: EXECUTIVE KPI RIBBON (ExecutiveRibbon.jsx)                                               │
+│ [Digital Adoption Rate]   [Readymix Vol cu yd]   [Bulk Cement Vol Tons]   [Client Onboarding]    │
+├──────────────────────────────────────────────────────────────────┬───────────────────────────────┤
+│ TIER 2 (LEFT - 7 Cols): HISTORICAL TREND (AdoptionTrendCard.jsx) │ TIER 2 (RIGHT - 5 Cols):      │
+│ • Recharts Area Chart filtered strictly to selected dates         │ VERTICAL FUNNEL               │
+│ • Monthly seasonality & variability (2024 - 2026)                │ (VerticalFunnelCard.jsx)      │
+│ • Metric Switcher: Adoption % / Concrete Vol / Cement Vol        │ • 4-Stage Retention Pipeline  │
+│ • Pinned Target Line: 90.0%                                      │ • Red drop-off connectors     │
+├──────────────────────────────────────────────────────────────────┴───────────────────────────────┤
+│ TIER 3: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE                         │
+│ (ProgressiveHierarchy.jsx)                                                                       │
+│ [USA National] ➔ [VP by Line] ➔ [Directors] ➔ [Managers] ➔ [Sales Reps] │ [RIGHT-HAND TABLE]      │
+│ • Compact, vertically centered Miller Columns with Multi-Selection      │ • Expandable Rows (▶/▼) │
+│ • Smooth Framer Motion spring push animation on table                   │ • Visual Micro-Pills    │
+│ • Global Dashboard Slicer (Hierarchy filters entire dashboard)           │ • Sticky Totals Footer  │
+└──────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ⚡ 4. Essential Interaction & Business Logic Rules
+
+1. **Hierarchy as Global Dashboard Slicer:**
+   * Selecting any `VP`, `Director`, `Manager`, or `Sales Rep` updates the ENTIRE dashboard in real time (Executive Ribbon KPIs, Trend Chart, Vertical Funnel, and Client Table).
+2. **Visual Micro-Pills for Channel Breakdown:**
+   * Expanded row drawers display compact high-contrast badges instead of repetitive text:
+     * `💻 Web: 18` | `📱 App: 6` | `🔌 EDI: 4` | `📞 Phone: 30` | `⏱️ FTTV: 12 days`
+3. **Smooth Layout Spring Animation:**
+   * Opening or closing hierarchy columns triggers a smooth Framer Motion spring animation that slides the client table gracefully to the right.
+4. **Deduplicated Sidebar Filters:**
+   * `Sidebar.jsx` contains only Time Period (Year/Month with drag range) as Business Line is natively handled by the VPs in the hierarchy tree.
+
+---
+
+## 📜 5. Git Commit History & Rollback Checkpoints
+
+* **`7450e76`** *(Current active state)* — `feat: animar desplazamiento de tabla al abrir columnas, rediseñar cajon desplegable con micro-pildoras visuales, remover filtro duplicado de Business Line del sidebar y promover jerarquia a filtro global`
+* **`b20d728`** — `feat: ampliar jerarquia a 5 regiones/direcciones por VP division`
+* **`3b64f2c`** — `feat: traducir 100% de la aplicacion al ingles (Sidebar, Header, Ribbon, Trend, Funnel, Hierarchy, Action Drawer y Search)`
+* **`9151b68`** — `feat: agregar filas desplegables para desglose de ordenes digitales vs analogas, emparejamiento estricto de canal principal y traducir UI a ingles`
+* **`f4aae2f`** — `feat: cambiar unidad primaria de la tabla a Ordenes/Pedidos y agregar fila de Totales con promedio ponderado real`
+* **`b92fafa`** — `feat: reestructurar VPs por linea de negocio, directores por ubicacion y vendedores dedicados, unificando filtros del sidebar`
+---
+
+## 🎨 7. Future Funnel Redesign Inspiration (Sankey / Flow Ribbon Funnel)
+
+> **Saved Reference Image:**  
+> ile:///C:/Users/jtatto/.gemini/antigravity/brain/4ed9ea6c-91bf-4491-8f67-34bb9d43b6b9/.user_uploaded/media_1787910960818.png
+
+### Key Design Attributes Saved for Future Funnel Iterations:
+1. **Flow Stream Topology (Sankey Diagram style):** Smooth fluid gradient wave ribbons connecting stages (e.g. Visits $\rightarrow$ Leads $\rightarrow$ Customers).
+2. **Channel Stream Breakdown:** Multi-stream source flows with percentage badges per stream (2%, 3%, 15%, 80%).
+3. **Vertical Stage Dividers:** Clean vertical guide lines with step titles and big percentage conversions.
+4. **Theme Alignment:** Deep dark blue palette with vibrant purple/magenta gradient ribbons.
+---
+
+## 🚀 Versión 2.3 - Unificación de Motor FLIP (Framer Motion LayoutGroup + popLayout) & Tipografía Optimizada
+
+- **Single-Clock FLIP Layout System:** Se envolvió la jerarquía completa en <LayoutGroup> de Framer Motion.
+- **AnimatePresence mode="popLayout":** Las columnas salientes se extraen del flujo DOM inmediatamente (position: absolute), permitiendo que la tabla de la derecha reconozca su destino final desde el milisegundo 0 sin perseguir objetivos móviles.
+- **Tipografía Optimizada:** Se incrementó la escala tipográfica de la tabla (encabezados a 	ext-xs font-bold, nombres a 	ext-xs font-bold, badges a 	ext-[10px] y 	ext-xs) para garantizar máxima legibilidad y confort visual.
+---
+
+## 👔 Versión 2.4 - Nombres Ejecutivos Realistas y Estructura de Jerarquía (Regions & Markets)
+
+- **Encabezado VP Division:** Muestra la línea de negocio (ej. Readymix Concrete) y abajo el nombre del VP a cargo (VP: Sarah Jenkins).
+- **Encabezado Regions:** Reemplazó a *Directors*. Muestra la región geográfica (ej. Atlantic Region) y abajo el nombre del Director a cargo (Dir: Robert Vance).
+- **Encabezado Markets:** Reemplazó a *Managers*. Muestra el mercado/plaza comercial (ej. Dallas Market) y abajo el nombre del Gerente a cargo (Mgr: Christopher Harris).
+- **Encabezado Sales Reps:** Muestra el nombre del vendedor (ej. John Smith) y abajo su plaza (Dallas Market).
+---
+
+## 🏭 Versión 2.5 - Diversificación Única de Regiones y Mercados por VP / Línea de Negocio
+
+- **VP Readymix Concrete:** Regiones y mercados de plantas dosificadoras (*Atlantic Metro*, *Sunbelt Metro*, *Dallas Metro Plants*, *Houston Metro Plants*, *Chicago Loop Plants*...).
+- **VP Bulk Cement:** Regiones y terminales marisas/silos de cemento (*Atlantic Silos*, *Gulf Coast Mills*, *Philly Bulk Silo*, *Baltimore Port Terminal*, *New Orleans Barge Dock*...).
+- **VP Quarries & Aggregates:** Regiones de canteras y pozos de arena (*Appalachian Quarries*, *Southeast Granite*, *Pittsburgh Quarry #1*, *Atlanta Granite Pit*, *Austin Stone Quarry*...).
+---
+
+## 🏛️ Versión 2.6 - Organización Matricial (Geografía Física Compartida con Liderazgo Dedicado por VP)
+
+- **Geografías Físicas Estandarizadas:** Las regiones (Atlantic, Sunbelt, Midwest, Mountain, Pacific NW) y los mercados (Dallas, Houston, New York, Boston, Chicago...) son **físicamente idénticos** entre todas las VP Divisions.
+- **Liderazgo Ejecutivo Dedicado:**
+  - En **Dallas Market**:
+    - *Readymix Concrete Manager:* **Christopher Harris**
+    - *Bulk Cement Manager:* **Mark Hill**
+    - *Quarries & Aggregates Manager:* **Pamela Turner**
+  - En **Atlantic Region**:
+    - *Readymix Director:* **Robert Vance**
+    - *Bulk Cement Director:* **William Baxter**
+    - *Quarries & Aggregates Director:* **George Hamilton**
+---
+
+## 🗺️ Versión 2.7 - Agrupación Geográfica Unificada & Conmutación Dinámica de Liderazgo / BL
+
+- **5 Regiones Geográficas Físicas Únicas:** Atlantic, Sunbelt, Midwest, Mountain, Pacific NW.
+- **Regla de Persona vs Línea de Negocio:**
+  - **1 sola VP Seleccionada (ej. Readymix Concrete):** Muestra exactamente las mismas 5 regiones geográficas, calcula las métricas de esa VP en cada región y muestra el **nombre del Director / Manager asignado** (Robert Vance en Atlantic, Christopher Harris en Dallas).
+  - **Cambio a Bulk Cement:** Muestra **las mismas 5 regiones**, pero sus métricas se actualizan a Bulk Cement y el sub-texto cambia al **Director de Bulk Cement** (William Baxter en Atlantic, Mark Hill en Dallas).
+  - **Múltiples VPs Seleccionadas (o ámbito nacional):** Como aplica más de un líder, se deja de mostrar un nombre individual y se muestra la etiqueta de las **Líneas de Negocio involucradas** (ej. Readymix Concrete + Bulk Cement).
+---
+
+## 🏷️ Versión 2.8 - Micro-Píldoras de BL (RMX, CEM, AGG), Tooltips Ejecutivos & Ancho Optimizado de Mercados
+
+- **Micro-Píldoras Compactas de BL:**
+  - RMX (Readymix Concrete) — badge azul suave.
+  - CEM (Bulk Cement) — badge índigo/violeta.
+  - AGG (Quarries & Aggregates) — badge ámbar/naranja.
+  - Cuando hay múltiples VPs seleccionadas o en vista nacional, cada tarjeta de región o mercado muestra sus micro-píldoras de presencia activa ([RMX] [CEM] [AGG]).
+- **Tooltip Ejecutivo Flotante en Hover:**
+  - Al pasar el cursor sobre cualquier tarjeta de Región o Mercado, se despliega una tarjeta ejecutiva flotante con:
+    * Nombre completo de la plaza/región.
+    * **Desglose de Línea por Línea** con la **Persona Responsable asignada** (Readymix: Robert Vance, Bulk Cement: William Baxter, Aggregates: George Hamilton).
+    * Totales de pedidos y % de adopción agregados.
+- **Ancho Optimizado para Mercados (w-52 & w-[188px]):**
+  - Ajuste de contenedor a w-52 (188px de ancho útil) con wrap automático de micro-píldoras para eliminar cortes de texto cuando hay múltiples BLs seleccionadas.
+---
+
+## 🖱️ Versión 2.9 - Selección por Arrastre (Drag-to-Select), 5 Sales Reps por Mercado & Tooltip Sin Recortes
+
+- **5 Sales Reps por Mercado:** Cada mercado cuenta con una nómina rica de **5 ejecutivos de venta** asignados (John Smith, Michael Johnson, David Miller, Emily Davis, James Wilson...).
+- **Selección Múltiple por Arrastre (Drag-to-Select):** Puedes hacer clic y arrastrar el cursor hacia abajo o hacia los lados en cualquier columna (VP Division, Regions, Markets, Sales Reps) para seleccionar múltiples elementos de forma continua, exactamente igual que en el sidebar.
+- **Posicionamiento Inteligente de Tooltips (Sin Recortes):**
+  - Para el primer elemento superior (idx === 0), el Tooltip flota suavemente hacia abajo (	op-full mt-2), evitando que el borde superior del contenedor corte la tarjeta.
+  - Para los demás elementos, flota hacia arriba (ottom-full mb-2), garantizando visualización limpia en 100% de la pantalla.
+---
+
+## 🎯 Versión 2.10 - Alineación Superior Fija (Top-Alignment) & Popover Flotante de Viewport con Botón Micro-(i)
+
+- **Alineación Vertical Superior (justify-start):**
+  - Se removió justify-center de los contenedores de columna. Todas las listas están **fijas arriba (=0$)**.
+  - Al expandir o colapsar secciones, el primer elemento nunca se desplaza hacia abajo ni genera saltos caóticos de layout.
+- **Botón Micro-Trigger (i) y Popover Flotante en Viewport:**
+  - El tooltip ya no se abre al pasar el cursor por toda la tarjeta, evitando molestias al navegar.
+  - En cada tarjeta de Región y Mercado agregamos un micro-botón (i) *(Info)*.
+  - Al pasar el cursor o hacer clic sobre la (i), el Popover se calcula mediante coordenadas de Viewport (position: fixed; z-index: 9999) sobre todo el body.
+  - **Garantía 0% Recortes:** Al renderizarse fuera de la jerarquía de scroll de la columna, el popover flota libremente por encima de encabezados, columnas y bordes.
+---
+
+## 🎯 Versión 2.11 - Ordenes Ponderadas en Tarjetas, Tooltip Conciso por BL & Tabla Ultra-Fluida en Estado Colapsado
+
+- **Volumen de Órdenes Ponderado en Tarjetas:**
+  - Todas las tarjetas de **VP Division**, **Regions**, **Markets** y **Sales Reps** ahora muestran tanto el número total de órdenes como el % de adopción (ej. 1,420 ord · 51.5%).
+- **Tooltip Conciso y Desglose por Línea de Negocio:**
+  - Se eliminaron redundancias (Readymix Concrete duplicado), mostrando directamente la pill corta ([RMX] Robert Vance).
+  - El tooltip ahora muestra las **Órdenes totales y % de Adopción individuales para cada Línea de Negocio** que opera en esa región o mercado.
+- **Sales Reps con Mercado y Línea de Negocio (BL):**
+  - La etiqueta secundaria del vendedor muestra tanto la Plaza/Mercado como su Línea de Negocio específica (ej. Dallas · RMX).
+- **Rediseño de Tabla Responsiva en Modo Colapsado:**
+  - Se solucionó el empaquetamiento feo cuando las 4 columnas de la jerarquía están abiertas.
+  - La tabla implementa overflow-x-auto con min-w-[500px], etiquetas cortas y legibles (RMX, Phone, Active), celdas whitespace-nowrap y totales limpios sin saltos de línea feos.
+---
+
+## 🎯 Versión 2.12 - Limpieza de Tooltip, Corrección de Colores, Filtro Multi-BL en Jerarquía & Default Año Completo en Filtro Global
+
+- **Simplificación y Paleta Limpia de Tooltips:**
+  - Se removió la fila redundante de totales del tooltip (ya está visible en la tarjeta).
+  - Se rediseñó la paleta a un tema oscuro slate-950 con borde sutil slate-700/80 y pills de alto contraste por BL.
+- **Corrección de Filtrado Multi-BL en Mercados y Vendedores:**
+  - Al seleccionar 1 Región pero múltiples Líneas de Negocio (ej. RMX + CEM), la columna de Mercados y Vendedores ahora muestra y preserva **ambas Líneas de Negocio** en lugar de limitar la búsqueda al primer nodo.
+- **Comportamiento Predeterminado de Filtro Global de Meses:**
+  - Cuando no hay ningún mes seleccionado explícitamente en el filtro global, el sistema ahora incluye automáticamente **todos los 12 meses** del año seleccionado (o de los años seleccionados), en lugar de limitar los datos a un solo mes.
+---
+
+## 🎯 Versión 2.13 - Auditoría Visual de Modo Oscuro, Iconos Vectoriales SVG & Tooltip Adaptativo con Scrollbars Personalizados
+
+- **Revisión Completa de Contraste en Modo Oscuro:**
+  - Se detectó que la clase dark:bg-slate-850 utilizada en encabezados, drawers, tablas y barras laterales no existía en la paleta oficial de Tailwind CSS, lo que provocaba que los headers y fondos se renderizaran con colores no deseados/transparentes.
+  - Se reemplazaron todas las ocurrencias por dark:bg-slate-800 y dark:bg-slate-900, logrando una transición perfecta, armoniosa y con alto contraste en modo oscuro.
+- **Iconografía 100% Vectorial SVG (Lucide Icons):**
+  - Se sustituyó cualquier texto de flechas manuales (➔) o emojis por componentes de iconos vectoriales dinámicos (<ArrowRight /> de Lucide Icons).
+- **Rediseño Adaptativo de Tooltips:**
+  - El tooltip ahora se adapta de manera equilibrada a ambos temas:
+    - **Modo Claro:** Tarjeta elegante de cristal slate-900 con texto blanco brillante e insignias nítidas.
+    - **Modo Oscuro:** Tarjeta con relieve slate-800 y borde slate-600 que destaca con contraste perfecto sobre el fondo oscuro sin confundirse ni verse "demasiado negro".
+- **Scrollbars Estilizados:**
+  - Se añadieron estilos CSS personalizados para scrollbars finos y redondeados (::-webkit-scrollbar), tanto para temas claros como oscuros.
