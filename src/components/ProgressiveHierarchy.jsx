@@ -266,7 +266,7 @@ export function ProgressiveHierarchy({
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
                         <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-white/90" : "text-muted-foreground")}>
-                          <span className="truncate">VP: {vp.persona}</span>
+                          <span className="truncate">{vp.persona}</span>
                           <span className="font-mono font-bold shrink-0">{formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
@@ -320,7 +320,7 @@ export function ProgressiveHierarchy({
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
                         <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
-                          <span className="truncate">Dir: {dir.persona}</span>
+                          <span className="truncate">{dir.persona}</span>
                           <span className="font-mono font-bold shrink-0">{formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
@@ -374,7 +374,7 @@ export function ProgressiveHierarchy({
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
                         <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-sky-100" : "text-muted-foreground")}>
-                          <span className="truncate">Mgr: {ger.persona}</span>
+                          <span className="truncate">{ger.persona}</span>
                           <span className="font-mono font-bold shrink-0">{formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
