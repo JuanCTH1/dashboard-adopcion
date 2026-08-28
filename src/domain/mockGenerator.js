@@ -245,10 +245,11 @@ export function generateDataset(seed = 20260828) {
       let volDigital = 0;
       let volAnalogo = volMes;
 
-      if (cli.estaIncorporado) {
-        const clientAdoptionRate = Math.min(0.98, Math.max(0.04, baseRate * (cli.esActivo ? 1.25 : 0.45) + ((rand() - 0.5) * 0.12)));
+      if (cli.estaIncorporado && cli.esActivo) {
+        const clientAdoptionRate = Math.min(0.98, Math.max(0.12, baseRate * 1.25 + ((rand() - 0.5) * 0.10)));
         pedidosDigitales = Math.round(pedidosTotales * clientAdoptionRate);
         if (pedidosDigitales > pedidosTotales) pedidosDigitales = pedidosTotales;
+        if (pedidosDigitales === 0 && pedidosTotales > 0) pedidosDigitales = 1;
         pedidosAnalogos = pedidosTotales - pedidosDigitales;
 
         volDigital = Math.round(volMes * (pedidosDigitales / pedidosTotales));

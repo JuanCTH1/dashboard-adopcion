@@ -751,3 +751,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
     1. **`Pending`** (Insignia Roja): Cliente aún no registrado en la plataforma CX.
     2. **`Onboarded`** (Insignia Azul): Cliente registrado en la plataforma pero con 0 compras digitales en el periodo (100% compras telefónicas).
     3. **`Active`** (Insignia Verde): Cliente registrado con transacciones digitales activas en el periodo.
+---
+
+## 🎯 Versión 2.72 - Corrección de Consistencia en Filtro Onboarded=Yes & Active=No (`mockGenerator.js`)
+
+- **Garantía Transaccional para Clientes Inactivos (`mockGenerator.js`):**
+  - Se corrigió el generador sintético para que los clientes registrados que NO son activos (`estaIncorporado: true, esActivo: false`) generen estrictamente `pedidosDigitales = 0` en todas sus transacciones.
+  - **Resultado:** Al filtrar en el Sidebar **Onboarded: Yes** y **Active: No**, la tabla muestra al 100% clientes con el badge azul **`Onboarded`** y 0 compras digitales, eliminando cualquier inconsistencia con la insignia verde **`Active`**.
