@@ -219,7 +219,7 @@ export function ProgressiveHierarchy({
         </div>
 
         {/* LEVEL 1: VICE PRESIDENCIES */}
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {isUsaSelected && (
             <motion.div
               key="vp-col"
@@ -227,6 +227,7 @@ export function ProgressiveHierarchy({
               animate={{ opacity: 1, width: 176, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
               transition={INSTANT_FLUID_TRANSITION}
+              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[156px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
@@ -235,7 +236,7 @@ export function ProgressiveHierarchy({
                   <span>VP Divisions</span>
                 </div>
                 {selectedVpIds.length > 0 && (
-                  <button onClick={() => setSelectedVpIds([])} className="text-[9px] text-primary hover:underline font-bold">
+                  <button onClick={() => startTransition(() => setSelectedVpIds([]))} className="text-[9px] text-primary hover:underline font-bold">
                     Clear
                   </button>
                 )}
@@ -272,7 +273,7 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 2: REGIONAL DIRECTORS */}
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {selectedVpIds.length > 0 && (
             <motion.div
               key="dir-col"
@@ -280,6 +281,7 @@ export function ProgressiveHierarchy({
               animate={{ opacity: 1, width: 176, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
               transition={INSTANT_FLUID_TRANSITION}
+              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[156px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
@@ -288,7 +290,7 @@ export function ProgressiveHierarchy({
                   <span>Directors</span>
                 </div>
                 {selectedDirIds.length > 0 && (
-                  <button onClick={() => setSelectedDirIds([])} className="text-[9px] text-indigo-600 hover:underline font-bold">
+                  <button onClick={() => startTransition(() => setSelectedDirIds([]))} className="text-[9px] text-indigo-600 hover:underline font-bold">
                     Clear
                   </button>
                 )}
@@ -330,7 +332,7 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 3: PLAZA MANAGERS */}
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {selectedDirIds.length > 0 && (
             <motion.div
               key="ger-col"
@@ -338,6 +340,7 @@ export function ProgressiveHierarchy({
               animate={{ opacity: 1, width: 176, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
               transition={INSTANT_FLUID_TRANSITION}
+              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[156px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
@@ -346,7 +349,7 @@ export function ProgressiveHierarchy({
                   <span>Managers</span>
                 </div>
                 {selectedGerIds.length > 0 && (
-                  <button onClick={() => setSelectedGerIds([])} className="text-[9px] text-sky-600 hover:underline font-bold">
+                  <button onClick={() => startTransition(() => setSelectedGerIds([]))} className="text-[9px] text-sky-600 hover:underline font-bold">
                     Clear
                   </button>
                 )}
@@ -388,7 +391,7 @@ export function ProgressiveHierarchy({
         </AnimatePresence>
 
         {/* LEVEL 4: SALES REPRESENTATIVES */}
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {selectedGerIds.length > 0 && (
             <motion.div
               key="rep-col"
@@ -396,6 +399,7 @@ export function ProgressiveHierarchy({
               animate={{ opacity: 1, width: 192, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
               transition={INSTANT_FLUID_TRANSITION}
+              style={{ willChange: "width, opacity, transform", transform: "translateZ(0)" }}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[172px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
@@ -404,7 +408,7 @@ export function ProgressiveHierarchy({
                   <span>Sales Reps</span>
                 </div>
                 {selectedRepIds.length > 0 && (
-                  <button onClick={() => setSelectedRepIds([])} className="text-[9px] text-emerald-600 hover:underline font-bold">
+                  <button onClick={() => startTransition(() => setSelectedRepIds([]))} className="text-[9px] text-emerald-600 hover:underline font-bold">
                     Clear
                   </button>
                 )}
@@ -442,10 +446,11 @@ export function ProgressiveHierarchy({
           )}
         </AnimatePresence>
 
-        {/* RIGHT HAND PERMANENT TABLE: SMOOTH POSITIONAL TRANSITION ("FLUIDA COMO EL AGUA") */}
+        {/* RIGHT HAND PERMANENT TABLE: GPU HARDWARE LAYER PROMOTED */}
         <motion.div
           layout="position"
           transition={INSTANT_FLUID_TRANSITION}
+          style={{ willChange: "transform", transform: "translateZ(0)" }}
           className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
         >
           <div>
