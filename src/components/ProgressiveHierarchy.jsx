@@ -217,7 +217,7 @@ export function ProgressiveHierarchy({
 
       {/* HORIZONTAL CASCADED COLUMNS UNIFIED WITH LAYOUTGROUP AND POPLAYOUT */}
       <LayoutGroup>
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px] relative">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin items-start relative">
           {/* LEVEL 0: COUNTRY */}
           <div className="w-32 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col justify-between shadow-2xs">
             <div className="text-[10px] font-bold uppercase text-primary flex items-center gap-1 pb-1 border-b border-border">
@@ -286,7 +286,7 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[385px] overflow-y-auto scrollbar-thin select-none">
+                <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[350px] overflow-y-auto scrollbar-thin select-none">
                   {vps.map((vp) => {
                     const isSelected = selectedVpIds.includes(vp.id);
                     return (
@@ -349,7 +349,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[385px] overflow-y-auto scrollbar-thin select-none">
+              <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[350px] overflow-y-auto scrollbar-thin select-none">
                 {directores.map((dir) => {
                   const isSelected = selectedDirIds.includes(dir.id);
                   return (
@@ -474,7 +474,7 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[385px] overflow-y-auto scrollbar-thin select-none">
+              <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[350px] overflow-y-auto scrollbar-thin select-none">
                 {gerentes.map((ger) => {
                   const isSelected = selectedGerIds.includes(ger.id);
                   return (
@@ -599,7 +599,7 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[385px] overflow-y-auto scrollbar-thin select-none">
+                <div className="w-[156px] flex-1 flex flex-col justify-start space-y-1.5 py-2 max-h-[350px] overflow-y-auto scrollbar-thin select-none">
                   {vendedores.map(rep => {
                     const isSelected = selectedRepIds.includes(rep.id);
                     return (
@@ -667,7 +667,7 @@ export function ProgressiveHierarchy({
             </div>
 
             {/* EXPANDABLE TABLE WITH ZERO HORIZONTAL SCROLLBARS */}
-            <div className="overflow-y-auto max-h-[385px] scrollbar-thin">
+            <div className="overflow-y-auto max-h-[350px] scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse table-fixed">
                 <thead>
                   <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
