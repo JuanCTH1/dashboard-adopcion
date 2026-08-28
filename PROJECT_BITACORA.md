@@ -703,3 +703,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Restricción de Altura Máxima (`LeaderboardCard.jsx`):**
   - Se aplicó `h-[255px] max-h-[255px]` al contenedor principal del Card de Rankings para alinearlo al milímetro con la tarjeta de Tendencia Histórica a la izquierda.
   - Se asignó `max-h-[160px]` a las 2 mini-tablas internas con scroll suave (`scrollbar-thin`), evitando cualquier desbordamiento o estiramiento vertical infinito.
+---
+
+## 🎯 Versión 2.66 - Palabras Completas "customers" y "orders" en Subtítulos de Rankings (`LeaderboardCard.jsx`)
+
+- **Expansión de Abreviaturas (`LeaderboardCard.jsx`):**
+  - Se reemplazó `cust` por **`customers`** en el subtítulo gris del Ranking de Onboarding.
+  - Se reemplazó `ord` por **`orders`** en el subtítulo gris del Ranking de Adopción de Pedidos.
+  - **Resultado:** Textos completos (`X/Y customers` y `Xk/Yk orders`) con legibilidad corporativa perfecta.

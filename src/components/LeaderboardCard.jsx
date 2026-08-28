@@ -152,7 +152,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                         {item.nombre}
                       </div>
                       <div className="text-[8.5px] text-muted-foreground font-mono">
-                        {item.onboardedCount}/{item.assignedCount} cust
+                        {item.onboardedCount}/{item.assignedCount} customers
                       </div>
                     </td>
                     <td className="py-1 px-1 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400 text-[10.5px]">
@@ -196,7 +196,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                         {item.nombre}
                       </div>
                       <div className="text-[8.5px] text-muted-foreground font-mono" title={`${formatNumber(item.digitalOrders)} / ${formatNumber(item.totalOrders)} orders`}>
-                        {formatCompactNumber(item.digitalOrders)}/{formatCompactNumber(item.totalOrders)} ord
+                        {formatCompactNumber(item.digitalOrders)}/{formatCompactNumber(item.totalOrders)} orders
                       </div>
                     </td>
                     <td className="py-1 px-1 text-right font-mono font-black text-primary text-[10.5px]">
