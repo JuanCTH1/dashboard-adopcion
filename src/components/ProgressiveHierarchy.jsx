@@ -108,11 +108,14 @@ export function ProgressiveHierarchy({
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, []);
 
-  const handleToggleVp = useCallback((id) => {
-    const nextVps = selectedVpIds.includes(id)
-      ? selectedVpIds.filter(x => x !== id)
-      : [...selectedVpIds, id];
+  // BRUSH / DRAG MULTI-SELECTION CONTROLLER FOR HIERARCHY COLUMNS
+  const isMouseDownRef = useRef(false);
+  const dragColumnRef = useRef(null); // 'vp' | 'director' | 'gerente' | 'vendedor'
+  const dragModeRef = useRef("select"); // "select" | "deselect"
+  const dragTouchedRef = useRef(new Set());
+  const dragSessionSetRef = useRef(null);
 
+  const handleSetVps = useCallback((nextVps) => {
     let nextDirs = selectedDirIds;
     let nextGers = selectedGerIds;
     let nextReps = selectedRepIds;
@@ -135,22 +138,16 @@ export function ProgressiveHierarchy({
       gerenteIds: nextGers,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, navMode, repMap, onHierarchyFilterChange]);
+  }, [selectedDirIds, selectedGerIds, selectedRepIds, navMode, repMap, onHierarchyFilterChange]);
 
-  const handleToggleDir = useCallback((id) => {
-    const nextDirs = selectedDirIds.includes(id)
-      ? selectedDirIds.filter(x => x !== id)
-      : [...selectedDirIds, id];
-
+  const handleSetDirs = useCallback((nextDirs) => {
     let nextGers = selectedGerIds;
     let nextReps = selectedRepIds;
 
     if (nextDirs.length === 0) {
-      // Deselecting all regions cleans subordinate markets and reps
       nextGers = [];
       nextReps = [];
     } else {
-      // Prune markets that don't belong to any remaining selected region
       const allowedMarkets = new Set();
       nextDirs.forEach(d => {
         const mkts = REGION_TO_MARKETS[d] || [];
@@ -158,7 +155,6 @@ export function ProgressiveHierarchy({
       });
       nextGers = selectedGerIds.filter(g => allowedMarkets.has(g));
 
-      // Prune reps that don't match the remaining markets / regions
       if (nextGers.length > 0) {
         const mktSet = new Set(nextGers);
         nextReps = selectedRepIds.filter(rId => {
@@ -180,35 +176,27 @@ export function ProgressiveHierarchy({
       gerenteIds: nextGers,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, REGION_TO_MARKETS, repMap, onHierarchyFilterChange]);
+  }, [selectedVpIds, selectedGerIds, selectedRepIds, REGION_TO_MARKETS, repMap, onHierarchyFilterChange]);
 
-  const handleToggleGer = useCallback((id) => {
-    const isAdding = !selectedGerIds.includes(id);
-    const nextGers = isAdding
-      ? [...selectedGerIds, id]
-      : selectedGerIds.filter(x => x !== id);
-
-    let nextDirs = selectedDirIds;
+  const handleSetGers = useCallback((nextGers) => {
+    let nextDirs = [...selectedDirIds];
     let nextReps = selectedRepIds;
 
-    if (isAdding) {
-      // Auto-select ancestor region to the left if not already active
-      const reg = MARKET_TO_REGION[id];
+    nextGers.forEach(gId => {
+      const reg = MARKET_TO_REGION[gId];
       if (reg && !nextDirs.includes(reg)) {
-        nextDirs = [...nextDirs, reg];
+        nextDirs.push(reg);
       }
+    });
+
+    if (nextGers.length === 0) {
+      nextReps = [];
     } else {
-      if (nextGers.length === 0) {
-        // Deselecting all markets cleans subordinate reps
-        nextReps = [];
-      } else {
-        // Prune reps that don't belong to any remaining selected market
-        const allowedMarkets = new Set(nextGers);
-        nextReps = selectedRepIds.filter(rId => {
-          const rep = repMap.get(rId);
-          return rep ? allowedMarkets.has(rep.plaza) : true;
-        });
-      }
+      const allowedMarkets = new Set(nextGers);
+      nextReps = selectedRepIds.filter(rId => {
+        const rep = repMap.get(rId);
+        return rep ? allowedMarkets.has(rep.plaza) : true;
+      });
     }
 
     onHierarchyFilterChange?.({
@@ -217,35 +205,21 @@ export function ProgressiveHierarchy({
       gerenteIds: nextGers,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, MARKET_TO_REGION, repMap, onHierarchyFilterChange]);
+  }, [selectedVpIds, selectedDirIds, selectedRepIds, MARKET_TO_REGION, repMap, onHierarchyFilterChange]);
 
-  const handleToggleRep = useCallback((id) => {
-    const isAdding = !selectedRepIds.includes(id);
-    const nextReps = isAdding
-      ? [...selectedRepIds, id]
-      : selectedRepIds.filter(x => x !== id);
+  const handleSetReps = useCallback((nextReps) => {
+    let nextVps = [...selectedVpIds];
+    let nextDirs = [...selectedDirIds];
+    let nextGers = [...selectedGerIds];
 
-    let nextVps = selectedVpIds;
-    let nextDirs = selectedDirIds;
-    let nextGers = selectedGerIds;
-
-    if (isAdding) {
-      const rep = repMap.get(id);
+    nextReps.forEach(rId => {
+      const rep = repMap.get(rId);
       if (rep) {
-        // Auto-select ancestor VP Division to the left
-        if (rep.vpId && !nextVps.includes(rep.vpId)) {
-          nextVps = [...nextVps, rep.vpId];
-        }
-        // Auto-select ancestor Region to the left
-        if (rep.regionNombre && !nextDirs.includes(rep.regionNombre)) {
-          nextDirs = [...nextDirs, rep.regionNombre];
-        }
-        // Auto-select ancestor Market to the left
-        if (rep.plaza && !nextGers.includes(rep.plaza)) {
-          nextGers = [...nextGers, rep.plaza];
-        }
+        if (rep.vpId && !nextVps.includes(rep.vpId)) nextVps.push(rep.vpId);
+        if (rep.regionNombre && !nextDirs.includes(rep.regionNombre)) nextDirs.push(rep.regionNombre);
+        if (rep.plaza && !nextGers.includes(rep.plaza)) nextGers.push(rep.plaza);
       }
-    }
+    });
 
     onHierarchyFilterChange?.({
       vpIds: nextVps,
@@ -253,7 +227,76 @@ export function ProgressiveHierarchy({
       gerenteIds: nextGers,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, repMap, onHierarchyFilterChange]);
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, repMap, onHierarchyFilterChange]);
+
+  const startDragSelect = useCallback((columnType, id, currentSelectedArray, onSetCallback) => {
+    isMouseDownRef.current = true;
+    dragColumnRef.current = columnType;
+    const isCurrentlySelected = currentSelectedArray.includes(id);
+    dragModeRef.current = isCurrentlySelected ? "deselect" : "select";
+
+    const session = new Set(currentSelectedArray);
+    if (isCurrentlySelected) {
+      session.delete(id);
+    } else {
+      session.add(id);
+    }
+    dragSessionSetRef.current = session;
+    dragTouchedRef.current = new Set([id]);
+
+    onSetCallback(Array.from(session));
+
+    const handleMouseUp = () => {
+      isMouseDownRef.current = false;
+      dragColumnRef.current = null;
+      dragSessionSetRef.current = null;
+      dragTouchedRef.current = new Set();
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    window.addEventListener("mouseup", handleMouseUp);
+  }, []);
+
+  const handleDragEnter = useCallback((columnType, id, onSetCallback) => {
+    if (!isMouseDownRef.current || dragColumnRef.current !== columnType) return;
+    if (dragTouchedRef.current.has(id)) return;
+    dragTouchedRef.current.add(id);
+
+    const session = dragSessionSetRef.current;
+    if (!session) return;
+
+    if (dragModeRef.current === "select") {
+      session.add(id);
+    } else {
+      session.delete(id);
+    }
+
+    onSetCallback(Array.from(session));
+  }, []);
+
+  const handleToggleVp = useCallback((id) => {
+    const isCurrentlySelected = selectedVpIds.includes(id);
+    const next = isCurrentlySelected ? selectedVpIds.filter(x => x !== id) : [...selectedVpIds, id];
+    handleSetVps(next);
+  }, [selectedVpIds, handleSetVps]);
+
+  const handleToggleDir = useCallback((id) => {
+    const isCurrentlySelected = selectedDirIds.includes(id);
+    const next = isCurrentlySelected ? selectedDirIds.filter(x => x !== id) : [...selectedDirIds, id];
+    handleSetDirs(next);
+  }, [selectedDirIds, handleSetDirs]);
+
+  const handleToggleGer = useCallback((id) => {
+    const isCurrentlySelected = selectedGerIds.includes(id);
+    const next = isCurrentlySelected ? selectedGerIds.filter(x => x !== id) : [...selectedGerIds, id];
+    handleSetGers(next);
+  }, [selectedGerIds, handleSetGers]);
+
+  const handleToggleRep = useCallback((id) => {
+    const isCurrentlySelected = selectedRepIds.includes(id);
+    const next = isCurrentlySelected ? selectedRepIds.filter(x => x !== id) : [...selectedRepIds, id];
+    handleSetReps(next);
+  }, [selectedRepIds, handleSetReps]);
 
   const handleClearVps = useCallback(() => {
     onHierarchyFilterChange?.({
@@ -573,7 +616,8 @@ export function ProgressiveHierarchy({
                     return (
                       <button
                         key={vp.id}
-                        onClick={() => handleToggleVp(vp.id)}
+                        onMouseDown={(e) => { if (e.button === 0) startDragSelect('vp', vp.id, selectedVpIds, handleSetVps); }}
+                        onMouseEnter={() => handleDragEnter('vp', vp.id, handleSetVps)}
                         className={cn(
                           "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
@@ -698,7 +742,8 @@ export function ProgressiveHierarchy({
                     return (
                       <div key={dir.id} className="relative group">
                         <button
-                          onClick={() => handleToggleDir(dir.id)}
+                          onMouseDown={(e) => { if (e.button === 0) startDragSelect('director', dir.id, selectedDirIds, handleSetDirs); }}
+                          onMouseEnter={() => handleDragEnter('director', dir.id, handleSetDirs)}
                           className={cn(
                             "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                             isSelected
@@ -828,7 +873,8 @@ export function ProgressiveHierarchy({
                     return (
                       <div key={ger.id} className="relative group">
                         <button
-                          onClick={() => handleToggleGer(ger.id)}
+                          onMouseDown={(e) => { if (e.button === 0) startDragSelect('gerente', ger.id, selectedGerIds, handleSetGers); }}
+                          onMouseEnter={() => handleDragEnter('gerente', ger.id, handleSetGers)}
                           className={cn(
                             "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                             isSelected
@@ -958,7 +1004,8 @@ export function ProgressiveHierarchy({
                     return (
                       <button
                         key={rep.id}
-                        onClick={() => handleToggleRep(rep.id)}
+                        onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
+                        onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
                         className={cn(
                           "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
@@ -1345,20 +1392,20 @@ export function ProgressiveHierarchy({
                 {/* Metrics Details */}
                 <div className="grid grid-cols-2 gap-2 text-[9.5px] bg-slate-50 dark:bg-slate-800/60 p-2 rounded-lg border border-border/60">
                   <div>
-                    <div className="text-muted-foreground font-medium">Customers</div>
+                    <div className="text-muted-foreground font-semibold text-[9px]">Onboarded Customers</div>
                     <div className="font-mono font-bold text-foreground">
                       {formatNumber(p.clientesOnboarded || 0)} / {formatNumber(p.clientesAsignados || 0)}
-                      <span className="text-emerald-600 dark:text-emerald-400 font-bold ml-1">
-                        ({formatPct(p.pctOnboarding || 0)})
+                      <span className="text-emerald-600 dark:text-emerald-400 font-black ml-1">
+                        (<b>{formatPct(p.pctOnboarding || 0)}</b>)
                       </span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground font-medium">Orders Adoption</div>
+                    <div className="text-muted-foreground font-semibold text-[9px]">Orders Adoption</div>
                     <div className="font-mono font-bold text-foreground">
                       {formatNumber(p.digitales || 0)} / {formatNumber(p.totales || 0)}
-                      <span className="text-indigo-600 dark:text-indigo-400 font-bold ml-1">
-                        ({formatPct(p.pctAdopcion || 0)})
+                      <span className="text-indigo-600 dark:text-indigo-400 font-black ml-1">
+                        (<b>{formatPct(p.pctAdopcion || 0)}</b>)
                       </span>
                     </div>
                   </div>
