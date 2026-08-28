@@ -1,5 +1,5 @@
 /**
- * REPOSITORIO DE DATOS DE ADOPCIÓN CX CON FILTRADO ASOCIATIVO MULTIDIMENSIONAL (USA GEOGRAPHY)
+ * REPOSITORIO DE DATOS DE ADOPCIÓN CX CON MEDIDA PRIMARIA DE ÓRDENES / PEDIDOS (USA GEOGRAPHY)
  */
 
 import { generateDataset } from './mockGenerator.js';
@@ -128,7 +128,8 @@ class AdopcionRepository {
         nombre: vp.nombre,
         tipo: 'VP',
         parentId: null,
-        regiones: vp.regiones
+        lineaNegocio: vp.lineaNegocio,
+        unidad: vp.unidad
       }));
     } else if (nivel === 'vp') {
       nodos = this.data.DIRECTORES
@@ -138,6 +139,7 @@ class AdopcionRepository {
           nombre: d.nombre,
           tipo: 'Director',
           parentId: d.vpId,
+          lineaNegocio: d.lineaNegocio,
           regionId: d.regionId
         }));
     } else if (nivel === 'director') {
@@ -148,6 +150,7 @@ class AdopcionRepository {
           nombre: g.nombre,
           tipo: 'Gerente',
           parentId: g.directorId,
+          lineaNegocio: g.lineaNegocio,
           vpId: g.vpId
         }));
     } else if (nivel === 'gerente') {
@@ -158,6 +161,7 @@ class AdopcionRepository {
           nombre: v.nombre,
           tipo: 'Vendedor',
           parentId: v.gerenteId,
+          lineaNegocio: v.lineaNegocio,
           plaza: v.plaza,
           regionNombre: v.regionNombre,
           empujeOnboarding: v.empujeOnboarding
@@ -193,6 +197,9 @@ class AdopcionRepository {
           pedidosTotales: 0,
           pedidosDigitales: 0,
           pedidosAnalogos: 0,
+          pedidosWeb: 0,
+          pedidosApp: 0,
+          pedidosEdi: 0,
           volumenTotal: 0,
           volumenDigital: 0
         });
@@ -201,6 +208,9 @@ class AdopcionRepository {
       acc.pedidosTotales += t.pedidosTotales;
       acc.pedidosDigitales += t.pedidosDigitales;
       acc.pedidosAnalogos += t.pedidosAnalogos;
+      acc.pedidosWeb += t.pedidosWeb;
+      acc.pedidosApp += t.pedidosApp;
+      acc.pedidosEdi += t.pedidosEdi;
       acc.volumenTotal += t.volumenTotal;
       acc.volumenDigital += t.volumenDigital;
     });
@@ -210,6 +220,9 @@ class AdopcionRepository {
         pedidosTotales: 0,
         pedidosDigitales: 0,
         pedidosAnalogos: 0,
+        pedidosWeb: 0,
+        pedidosApp: 0,
+        pedidosEdi: 0,
         volumenTotal: c.volumenBase,
         volumenDigital: 0
       };
@@ -229,6 +242,9 @@ class AdopcionRepository {
         volumenDigital: tx.volumenDigital,
         pedidosTotales: tx.pedidosTotales,
         pedidosDigitales: tx.pedidosDigitales,
+        pedidosWeb: tx.pedidosWeb,
+        pedidosApp: tx.pedidosApp,
+        pedidosEdi: tx.pedidosEdi,
         pctAdopcionPedidos: Number(pctDigital.toFixed(1)),
         estaIncorporado: c.estaIncorporado,
         esActivo: c.esActivo,
