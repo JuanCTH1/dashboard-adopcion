@@ -47,90 +47,67 @@ export function generateDataset(seed = 20260828) {
     { id: 'vp-agregados', nombre: 'Quarries & Aggregates', persona: 'David Miller', lineaNegocio: 'agregados', unidad: 'tons' }
   ];
 
-  // EXACTLY 5 DISTINCT REGIONS PER VP DIVISION WITH INDUSTRY-SPECIFIC VARIATION
+  // 5 STANDARDIZED GEOGRAPHIC REGIONS PER VP WITH DEDICATED BUSINESS LINE DIRECTORS
   const DIRECTORES = [
-    // 5 Unique Regions for VP Readymix Concrete (Metro Batch Plants)
-    { id: 'dir-rm-east', nombre: 'Atlantic Metro', persona: 'Robert Vance', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
-    { id: 'dir-rm-sunbelt', nombre: 'Sunbelt Metro', persona: 'Elena Rostova', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
-    { id: 'dir-rm-midwest', nombre: 'Midwest Metro', persona: 'Marcus Thorne', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-    { id: 'dir-rm-mountain', nombre: 'Mountain Metro', persona: 'Jennifer Hayes', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-    { id: 'dir-rm-pacific', nombre: 'Pacific Coast', persona: 'Carlos Mendez', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
+    // VP Readymix Concrete Dedicated Regional Directors
+    { id: 'dir-rm-east', nombre: 'Atlantic', persona: 'Robert Vance', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
+    { id: 'dir-rm-sunbelt', nombre: 'Sunbelt', persona: 'Elena Rostova', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
+    { id: 'dir-rm-midwest', nombre: 'Midwest', persona: 'Marcus Thorne', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'dir-rm-mountain', nombre: 'Mountain', persona: 'Jennifer Hayes', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'dir-rm-pacific', nombre: 'Pacific NW', persona: 'Carlos Mendez', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
 
-    // 5 Unique Regions for VP Bulk Cement (Silos & Import Terminals)
-    { id: 'dir-cem-atlantic', nombre: 'Atlantic Silos', persona: 'William Baxter', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-    { id: 'dir-cem-gulf', nombre: 'Gulf Coast Mills', persona: 'Patricia Sterling', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
-    { id: 'dir-cem-greatlakes', nombre: 'Great Lakes Depots', persona: 'Arthur Pendelton', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-    { id: 'dir-cem-plains', nombre: 'Central Kilns', persona: 'Karen O\'Connor', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-    { id: 'dir-cem-northwest', nombre: 'Pacific NW Imports', persona: 'Daniel Kim', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
+    // VP Bulk Cement Dedicated Regional Directors
+    { id: 'dir-cem-atlantic', nombre: 'Atlantic', persona: 'William Baxter', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'dir-cem-gulf', nombre: 'Sunbelt', persona: 'Patricia Sterling', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
+    { id: 'dir-cem-greatlakes', nombre: 'Midwest', persona: 'Arthur Pendelton', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'dir-cem-plains', nombre: 'Mountain', persona: 'Karen O\'Connor', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
+    { id: 'dir-cem-northwest', nombre: 'Pacific NW', persona: 'Daniel Kim', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
 
-    // 5 Unique Regions for VP Quarries & Aggregates (Quarries & Sand Pits)
-    { id: 'dir-agg-northeast', nombre: 'Appalachian Quarries', persona: 'George Hamilton', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
-    { id: 'dir-agg-southeast', nombre: 'Southeast Granite', persona: 'Sandra Bullock', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-    { id: 'dir-agg-central', nombre: 'Central Gravel Pits', persona: 'Richard Gere', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
-    { id: 'dir-agg-texas', nombre: 'Texas Crushed Stone', persona: 'Charles Walker', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-    { id: 'dir-agg-westcoast', nombre: 'Pacific Sand Pits', persona: 'Victoria Beckham', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' }
+    // VP Quarries & Aggregates Dedicated Regional Directors
+    { id: 'dir-agg-northeast', nombre: 'Atlantic', persona: 'George Hamilton', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
+    { id: 'dir-agg-southeast', nombre: 'Sunbelt', persona: 'Sandra Bullock', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'dir-agg-central', nombre: 'Midwest', persona: 'Richard Gere', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
+    { id: 'dir-agg-texas', nombre: 'Mountain', persona: 'Charles Walker', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'dir-agg-westcoast', nombre: 'Pacific NW', persona: 'Victoria Beckham', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' }
   ];
 
+  // STANDARDIZED PHYSICAL MARKETS WITH DEDICATED BUSINESS LINE MANAGERS
   const GERENTES = [
-    // Readymix Atlantic Markets
-    { id: 'ger-1', nombre: 'New York Batch Plants', persona: 'Kevin Stewart', directorId: 'dir-rm-east', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
-    { id: 'ger-2', nombre: 'Boston Concrete Hub', persona: 'Amanda Garcia', directorId: 'dir-rm-east', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
+    // Readymix Dedicated Managers
+    { id: 'ger-1', nombre: 'New York', persona: 'Kevin Stewart', directorId: 'dir-rm-east', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
+    { id: 'ger-2', nombre: 'Boston', persona: 'Amanda Garcia', directorId: 'dir-rm-east', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
+    { id: 'ger-3', nombre: 'Dallas', persona: 'Christopher Harris', directorId: 'dir-rm-sunbelt', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
+    { id: 'ger-4', nombre: 'Houston', persona: 'Stephanie Rodriguez', directorId: 'dir-rm-sunbelt', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
+    { id: 'ger-5', nombre: 'Chicago', persona: 'Matthew Thompson', directorId: 'dir-rm-midwest', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'ger-6', nombre: 'St. Louis', persona: 'Nicole Lee', directorId: 'dir-rm-midwest', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'ger-7', nombre: 'Denver', persona: 'Steven Hernandez', directorId: 'dir-rm-mountain', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'ger-8', nombre: 'Salt Lake', persona: 'Rachel Young', directorId: 'dir-rm-mountain', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'ger-9', nombre: 'Los Angeles', persona: 'Ashley Robinson', directorId: 'dir-rm-pacific', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
+    { id: 'ger-10', nombre: 'Phoenix', persona: 'Joseph Clark', directorId: 'dir-rm-pacific', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
 
-    // Readymix Sunbelt Markets
-    { id: 'ger-3', nombre: 'North Dallas Plants', persona: 'Christopher Harris', directorId: 'dir-rm-sunbelt', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
-    { id: 'ger-4', nombre: 'Houston Metro Plants', persona: 'Stephanie Rodriguez', directorId: 'dir-rm-sunbelt', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
+    // Cement Dedicated Managers (Same physical markets, dedicated Cement Managers)
+    { id: 'ger-11', nombre: 'New York', persona: 'Paul Wright', directorId: 'dir-cem-atlantic', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'ger-12', nombre: 'Boston', persona: 'Melissa Lopez', directorId: 'dir-cem-atlantic', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'ger-13', nombre: 'Dallas', persona: 'Mark Hill', directorId: 'dir-cem-gulf', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
+    { id: 'ger-14', nombre: 'Houston', persona: 'Michelle Scott', directorId: 'dir-cem-gulf', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
+    { id: 'ger-15', nombre: 'Chicago', persona: 'Donald Green', directorId: 'dir-cem-greatlakes', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'ger-16', nombre: 'St. Louis', persona: 'Kimberly Adams', directorId: 'dir-cem-greatlakes', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'ger-17', nombre: 'Denver', persona: 'George Baker', directorId: 'dir-cem-plains', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
+    { id: 'ger-18', nombre: 'Salt Lake', persona: 'Amy Gonzalez', directorId: 'dir-cem-plains', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
+    { id: 'ger-19', nombre: 'Los Angeles', persona: 'Kenneth Nelson', directorId: 'dir-cem-northwest', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
+    { id: 'ger-20', nombre: 'Phoenix', persona: 'Angela Carter', directorId: 'dir-cem-northwest', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
 
-    // Readymix Midwest Markets
-    { id: 'ger-5', nombre: 'Chicago Loop Plants', persona: 'Matthew Thompson', directorId: 'dir-rm-midwest', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-    { id: 'ger-6', nombre: 'St. Louis Ready Mix', persona: 'Nicole Lee', directorId: 'dir-rm-midwest', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-
-    // Readymix Mountain Markets
-    { id: 'ger-7', nombre: 'Denver Metro Mix', persona: 'Steven Hernandez', directorId: 'dir-rm-mountain', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-    { id: 'ger-8', nombre: 'Salt Lake Concrete', persona: 'Rachel Young', directorId: 'dir-rm-mountain', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-
-    // Readymix Pacific Markets
-    { id: 'ger-9', nombre: 'LA Basin Plants', persona: 'Ashley Robinson', directorId: 'dir-rm-pacific', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
-    { id: 'ger-10', nombre: 'Phoenix Valley Mix', persona: 'Joseph Clark', directorId: 'dir-rm-pacific', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
-
-    // Cement Atlantic Silos
-    { id: 'ger-11', nombre: 'Philly Bulk Silo', persona: 'Paul Wright', directorId: 'dir-cem-atlantic', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-    { id: 'ger-12', nombre: 'Baltimore Port Terminal', persona: 'Melissa Lopez', directorId: 'dir-cem-atlantic', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-
-    // Cement Gulf Mills
-    { id: 'ger-13', nombre: 'New Orleans Barge Dock', persona: 'Mark Hill', directorId: 'dir-cem-gulf', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
-    { id: 'ger-14', nombre: 'Tampa Port Silo', persona: 'Michelle Scott', directorId: 'dir-cem-gulf', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
-
-    // Cement Great Lakes Depots
-    { id: 'ger-15', nombre: 'Detroit Cement Mill', persona: 'Donald Green', directorId: 'dir-cem-greatlakes', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-    { id: 'ger-16', nombre: 'Cleveland Bulk Depot', persona: 'Kimberly Adams', directorId: 'dir-cem-greatlakes', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-
-    // Cement Central Kilns
-    { id: 'ger-17', nombre: 'Kansas Kiln Plant', persona: 'George Baker', directorId: 'dir-cem-plains', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-    { id: 'ger-18', nombre: 'Omaha Cement Depot', persona: 'Amy Gonzalez', directorId: 'dir-cem-plains', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-
-    // Cement Pacific NW Imports
-    { id: 'ger-19', nombre: 'Seattle Bulk Terminal', persona: 'Kenneth Nelson', directorId: 'dir-cem-northwest', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
-    { id: 'ger-20', nombre: 'Portland Cement Dock', persona: 'Angela Carter', directorId: 'dir-cem-northwest', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
-
-    // Aggregates Appalachian Quarries
-    { id: 'ger-21', nombre: 'Pittsburgh Quarry #1', persona: 'Steven Mitchell', directorId: 'dir-agg-northeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
-    { id: 'ger-22', nombre: 'Harrisburg Sand Pit', persona: 'Edward Roberts', directorId: 'dir-agg-northeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
-
-    // Aggregates Southeast Granite
-    { id: 'ger-23', nombre: 'Atlanta Granite Pit', persona: 'Pamela Turner', directorId: 'dir-agg-southeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-    { id: 'ger-24', nombre: 'Charlotte Rock Quarry', persona: 'Brian Phillips', directorId: 'dir-agg-southeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-
-    // Aggregates Central Gravel
-    { id: 'ger-25', nombre: 'Indy Gravel Pit', persona: 'Emma Campbell', directorId: 'dir-agg-central', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
-    { id: 'ger-26', nombre: 'Columbus Limestone Quarry', persona: 'Ronald Parker', directorId: 'dir-agg-central', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
-
-    // Aggregates Texas Crushed Stone
-    { id: 'ger-27', nombre: 'Austin Stone Quarry', persona: 'Rebecca Evans', directorId: 'dir-agg-texas', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-    { id: 'ger-28', nombre: 'San Antonio Pit', persona: 'Anthony Edwards', directorId: 'dir-agg-texas', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-
-    // Aggregates Pacific Sand Pits
-    { id: 'ger-29', nombre: 'Bay Area Rock Pit', persona: 'Laura Collins', directorId: 'dir-agg-westcoast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' },
-    { id: 'ger-30', nombre: 'San Diego Quarry', persona: 'Cynthia Sánchez', directorId: 'dir-agg-westcoast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' }
+    // Aggregates Dedicated Managers (Same physical markets, dedicated Aggregates Managers)
+    { id: 'ger-21', nombre: 'New York', persona: 'Steven Mitchell', directorId: 'dir-agg-northeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
+    { id: 'ger-22', nombre: 'Boston', persona: 'Edward Roberts', directorId: 'dir-agg-northeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
+    { id: 'ger-23', nombre: 'Dallas', persona: 'Pamela Turner', directorId: 'dir-agg-southeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'ger-24', nombre: 'Houston', persona: 'Brian Phillips', directorId: 'dir-agg-southeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'ger-25', nombre: 'Chicago', persona: 'Emma Campbell', directorId: 'dir-agg-central', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
+    { id: 'ger-26', nombre: 'St. Louis', persona: 'Ronald Parker', directorId: 'dir-agg-central', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
+    { id: 'ger-27', nombre: 'Denver', persona: 'Rebecca Evans', directorId: 'dir-agg-texas', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'ger-28', nombre: 'Salt Lake', persona: 'Anthony Edwards', directorId: 'dir-agg-texas', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'ger-29', nombre: 'Los Angeles', persona: 'Laura Collins', directorId: 'dir-agg-westcoast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' },
+    { id: 'ger-30', nombre: 'Phoenix', persona: 'Cynthia Sánchez', directorId: 'dir-agg-westcoast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' }
   ];
 
   const NOMBRES_VENDEDORES = [
