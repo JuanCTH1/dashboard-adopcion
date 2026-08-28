@@ -1,6 +1,6 @@
 /**
- * GENERADOR DETERMINISTA DE DATOS SINTÉTICOS DE ADOPCIÓN CX - REALISTIC B2B COMPANIES & USA GEOGRAPHY
- * PRNG Mulberry32 para reproducibilidad exacta
+ * GENERATOR DE DATOS SINTÉTICOS DE ADOPCIÓN CX
+ * ESTRUCTURA: VPs por Línea de Negocio, Directores por Ubicación, Vendedores por Línea de Negocio.
  */
 
 function mulberry32(a) {
@@ -42,27 +42,36 @@ export function generateDataset(seed = 20260828) {
     { id: 'reg-4', nombre: 'US Pacific & Southwest', plazas: ['Los Angeles', 'Phoenix', 'Seattle', 'San Francisco'] }
   ];
 
+  // VPs POR LÍNEA DE NEGOCIO (Readymix, Cemento, Agregados)
   const VPS = [
-    { id: 'vp-1', nombre: 'VP East & South', regiones: ['reg-1', 'reg-2'] },
-    { id: 'vp-2', nombre: 'VP West & Central', regiones: ['reg-3', 'reg-4'] }
+    { id: 'vp-readymix', nombre: 'VP Readymix Concrete', lineaNegocio: 'readymix', unidad: 'cu yd' },
+    { id: 'vp-cemento', nombre: 'VP Bulk Cement', lineaNegocio: 'cemento', unidad: 'tons' },
+    { id: 'vp-agregados', nombre: 'VP Quarries & Aggregates', lineaNegocio: 'agregados', unidad: 'tons' }
   ];
 
+  // DIRECTORES POR UBICACIÓN DEBAJO DE CADA VP POR LÍNEA DE NEGOCIO
   const DIRECTORES = [
-    { id: 'dir-1', nombre: 'Dir. North Atlantic', vpId: 'vp-1', regionId: 'reg-1' },
-    { id: 'dir-2', nombre: 'Dir. Sunbelt & Gulf Coast', vpId: 'vp-1', regionId: 'reg-2' },
-    { id: 'dir-3', nombre: 'Dir. Midwest & Mountain', vpId: 'vp-2', regionId: 'reg-3' },
-    { id: 'dir-4', nombre: 'Dir. Pacific & Southwest', vpId: 'vp-2', regionId: 'reg-4' }
+    // VP Readymix Concrete
+    { id: 'dir-rm-east', nombre: 'Dir. Readymix East', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
+    { id: 'dir-rm-west', nombre: 'Dir. Readymix West', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
+    // VP Bulk Cement
+    { id: 'dir-cem-east', nombre: 'Dir. Cement Sunbelt & East', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
+    { id: 'dir-cem-west', nombre: 'Dir. Cement Central & West', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
+    // VP Quarries & Aggregates
+    { id: 'dir-agg-nat', nombre: 'Dir. National Quarries', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' }
   ];
 
+  // GERENTES
   const GERENTES = [];
   DIRECTORES.forEach((dir, dIdx) => {
     for (let g = 1; g <= 3; g++) {
       const gId = `ger-${dIdx * 3 + g}`;
       GERENTES.push({
         id: gId,
-        nombre: `Manager ${dIdx * 3 + g} (${dir.nombre.split(' ')[1] || 'Region'})`,
+        nombre: `Manager ${g} (${dir.nombre.split(' ')[1] || 'Region'})`,
         directorId: dir.id,
         vpId: dir.vpId,
+        lineaNegocio: dir.lineaNegocio,
         regionId: dir.regionId
       });
     }
@@ -81,10 +90,11 @@ export function generateDataset(seed = 20260828) {
     'Laura Collins', 'Kevin Stewart', 'Cynthia Sánchez', 'Jason Morris', 'Kathleen Rogers'
   ];
 
+  // VENDEDORES: CADA UNO ATIENDE UNA SOLA LÍNEA DE NEGOCIO DE SU GERENTE/VP
   const VENDEDORES = [];
   let vIdx = 0;
   GERENTES.forEach(ger => {
-    const numReps = Math.floor(rand() * 2) + 4;
+    const numReps = Math.floor(rand() * 2) + 3;
     const regionObj = REGIONES.find(r => r.id === ger.regionId);
     for (let i = 0; i < numReps; i++) {
       if (vIdx < NOMBRES_VENDEDORES.length) {
@@ -95,6 +105,7 @@ export function generateDataset(seed = 20260828) {
           gerenteId: ger.id,
           directorId: ger.directorId,
           vpId: ger.vpId,
+          lineaNegocio: ger.lineaNegocio,
           regionId: ger.regionId,
           regionNombre: regionObj.nombre,
           plaza: plaza,
@@ -105,7 +116,6 @@ export function generateDataset(seed = 20260828) {
     }
   });
 
-  // Lista de Nombres de Empresas Corporativas Realistas de Construcción e Infraestructura
   const BASE_COMPANY_NAMES = [
     'Apex Construction LLC', 'Turner Heavy Infra', 'Skanska USA Built', 'Bechtel Concrete Works',
     'PCL Construction Corp', 'Fluor Industrial Inc', 'Kiewit Infrastructure', 'Walsh Heavy Materials',
@@ -114,24 +124,24 @@ export function generateDataset(seed = 20260828) {
     'Granite Construction', 'Structure Tone Global', 'Clayco Commercial Works', 'Sundt Infrastructure',
     'Austin Commercial LLC', 'Webcor Builders', 'McCarthy Building Co', 'Lendlease Americas',
     'DPR Construction', 'Brasfield & Gorrie', 'JE Dunn Construction', 'Rodgers Builders Inc',
-    'Robins & Morton', 'Barton Malow Co', 'Ryan Companies US', 'Pepper Construction',
-    'Crossland Heavy Corp', 'Swinerton Builders', 'Hoar Construction', 'Hardin Construction',
-    'Zachry Industrial', 'Manhattan Construction', 'LDF Built Corp', 'Holder Construction'
+    'Robins & Morton', 'Barton Malow Co'
   ];
 
   const COMPANY_SUFFIXES = ['East Site', 'West Div', 'Metro Project', 'Plant #2', 'Hub', 'Venture', 'Site A', 'South Park'];
 
-  const LINEAS_LIST = [
-    { id: 'readymix', label: 'Concreto / Readymix', unidad: 'cu yd', peso: 0.45 },
-    { id: 'cemento', label: 'Cemento a Granel', unidad: 'tons', peso: 0.35 },
-    { id: 'agregados', label: 'Agregados / Cantera', unidad: 'tons', peso: 0.20 }
-  ];
+  const LINEAS_MAP = {
+    readymix: { label: 'Concreto / Readymix', unidad: 'cu yd' },
+    cemento: { label: 'Cemento a Granel', unidad: 'tons' },
+    agregados: { label: 'Agregados / Cantera', unidad: 'tons' }
+  };
 
   const CLIENTES = [];
   let cIdx = 1;
 
+  // CLIENTES: ASIGNADOS SEGÚN LA LÍNEA DE NEGOCIO DEL VENDEDOR
   VENDEDORES.forEach(rep => {
-    const numClientes = Math.floor(rand() * 12) + 20;
+    const numClientes = Math.floor(rand() * 10) + 18;
+    const linea = LINEAS_MAP[rep.lineaNegocio] || LINEAS_MAP.readymix;
 
     for (let i = 0; i < numClientes; i++) {
       const cId = `CLI-${String(cIdx).padStart(5, '0')}`;
@@ -139,9 +149,6 @@ export function generateDataset(seed = 20260828) {
       const suff = COMPANY_SUFFIXES[Math.floor(rand() * COMPANY_SUFFIXES.length)];
       const nombreEmpresa = `${baseComp} (${suff})`;
       cIdx++;
-
-      const lRand = rand();
-      const linea = lRand < 0.45 ? LINEAS_LIST[0] : lRand < 0.80 ? LINEAS_LIST[1] : LINEAS_LIST[2];
 
       const u = rand();
       const isTopPareto = u > 0.80;
@@ -168,7 +175,7 @@ export function generateDataset(seed = 20260828) {
         vpId: rep.vpId,
         regionId: rep.regionId,
         plaza: rep.plaza,
-        lineaNegocio: linea.id,
+        lineaNegocio: rep.lineaNegocio,
         lineaLabel: linea.label,
         unidad: linea.unidad,
         volumenBase,
