@@ -72,75 +72,70 @@ export function ExecutiveRibbon({ metricasGlobales }) {
 
   return (
     <div className="bg-background/95 backdrop-blur-md py-1 transition-all font-sans select-none">
-      {/* UNIFIED EXECUTIVE CONTAINER CARD (100% PERFECT ALIGNMENT, ZERO FLOATING BADGES) */}
-      <Card className="p-0 bg-card border border-border shadow-xs rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border">
+      {/* PERFECTLY ALIGNED INTER-CARD FLEX LAYOUT (ZERO OVERLAP, 100% IN-BETWEEN CARDS) */}
+      <div className="flex items-center gap-1.5 w-full">
         {STAGES.map((st, idx) => {
           const Icon = st.icon;
+          const isLast = idx === STAGES.length - 1;
 
           return (
-            <div
-              key={st.id}
-              className={cn(
-                "p-2.5 flex flex-col justify-between relative transition-all",
-                st.isDominant ? "bg-primary/5" : "bg-card"
-              )}
-            >
-              {/* Top Accent Line */}
-              <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
-
-              <div>
-                {/* Header Row */}
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-muted-foreground truncate">
-                    {st.title}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {/* Inline Integrated Transition Metric (No floating buttons!) */}
-                    {st.nextDrop !== undefined && (
-                      <span
-                        className={cn(
-                          "text-[8.5px] font-black font-mono px-1.5 py-0.2 rounded flex items-center gap-0.5 border shadow-2xs",
-                          st.isBottleneck
-                            ? "bg-rose-500 text-white border-rose-600"
-                            : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-border"
-                        )}
-                        title={`Drop-off to next stage: -${st.nextDrop.toFixed(0)}%`}
-                      >
-                        <ArrowRight className="w-2.5 h-2.5 stroke-[2.5]" />
-                        <span>-{st.nextDrop.toFixed(0)}%</span>
-                      </span>
-                    )}
+            <React.Fragment key={st.id}>
+              {/* STAGE CARD */}
+              <Card
+                className={cn(
+                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[92px]",
+                  st.isDominant ? "border-primary/50 shadow-xs ring-1 ring-primary/20 bg-primary/5" : "border-border"
+                )}
+              >
+                <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-0.5">
+                    <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-muted-foreground truncate">
+                      {st.title}
+                    </span>
                     <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
                       <Icon className="w-3 h-3" />
                     </div>
                   </div>
-                </div>
-
-                {/* Primary Metric */}
-                <div className="flex items-baseline gap-1.5 flex-wrap">
-                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-primary" : "text-lg text-foreground")}>
-                    {st.primaryLabel}
-                  </span>
-                  {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
-                  {st.flowDelta && (
-                    <span className="text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
-                      {st.flowDelta}
+                  <div className="flex items-baseline gap-1 flex-wrap">
+                    <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-primary" : "text-lg text-foreground")}>
+                      {st.primaryLabel}
                     </span>
-                  )}
+                    {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
+                    {st.flowDelta && (
+                      <span className="text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
+                        {st.flowDelta}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
+                <div className="text-[9.5px] font-medium text-muted-foreground mt-0.5 truncate flex items-center justify-between border-t border-border/40 pt-1">
+                  <span className="truncate">{st.secondaryLabel}</span>
+                  {st.isDominant && <span className="text-[8.5px] font-bold text-primary shrink-0 ml-1">vs 90% Goal</span>}
+                </div>
+              </Card>
 
-              {/* Subtitle / Footer */}
-              <div className="mt-1 pt-1 border-t border-border/40 flex items-center justify-between text-[9.5px] text-muted-foreground font-medium truncate">
-                <span className="truncate">{st.secondaryLabel}</span>
-                {st.isDominant && (
-                  <span className="text-[8.5px] font-bold text-primary shrink-0 ml-1">vs 90% Goal</span>
-                )}
-              </div>
-            </div>
+              {/* DEDICATED INTER-CARD CONNECTOR (NATURAL FLOW BETWEEN CARDS, 100% ALIGNED) */}
+              {!isLast && st.nextDrop !== undefined && (
+                <div className="shrink-0 flex items-center justify-center px-0.5">
+                  <div
+                    className={cn(
+                      "flex items-center gap-0.5 px-2 py-1 rounded-lg border shadow-2xs tabular-nums text-[9.5px] font-black font-mono shrink-0 transition-all",
+                      st.isBottleneck
+                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/20"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-border"
+                    )}
+                    title={`Conversion drop to next stage: -${st.nextDrop.toFixed(0)}%`}
+                  >
+                    <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+                    <span>-{st.nextDrop.toFixed(0)}%</span>
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
-      </Card>
+      </div>
     </div>
   );
 }

@@ -535,3 +535,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se eliminaron por completo las insignias/botones flotantes externos que desalineaban las tarjetas.
   - Se convirtió el ribbon en **un único panel ejecutivo contenedor continuo** con divisores verticales limpios (`divide-x`).
   - Las métricas de caída (`➔ -28%` / `➔ -15%`) se integraron limpiamente como micro-insignias en la cabecera superior derecha de cada etapa.
+---
+
+## 🎯 Versión 2.45 - Conectores Inter-Tarjetas de Embudo en Layout Flex Propio (`ExecutiveRibbon.jsx`)
+
+- **Canal de Conector Inter-Tarjetas Dedicado (`ExecutiveRibbon.jsx`):**
+  - Se restauró la presencia visual del conector de transición **ENTRE cada tarjeta**, eliminando la posición absoluta que encimaba los bordes.
+  - Se ubicaron como elementos Flex dedicados (`shrink-0 flex items-center justify-center`), logrando una alineación perfecta en altura y centrado exacto entre las 4 tarjetas independientes.
