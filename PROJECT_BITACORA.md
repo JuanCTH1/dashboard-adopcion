@@ -251,3 +251,13 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se incluyó la propiedad egionNombre: rep.regionNombre en todos los objetos CLIENTES dentro de mockGenerator.js.
   - Se agregó un diccionario inverso de mapeo REGION_NAME_TO_ID ('Atlantic' -> 'reg-1', 'Sunbelt' -> 'reg-2', etc.) en el método _filtrar de dopcionRepo.js.
   - Ahora seleccionar cualquier combinación de VP, Región y Mercado calcula con precisión matemática el 100% de las órdenes y cuentas sin volver a mostrar 0.
+---
+
+## 🎯 Versión 2.17 - Límite de Altura Máxima a 5 Tarjetas (max-h-[310px]) en Columnas de Jerarquía
+
+- **Restricción de Altura en Columnas:**
+  - Para evitar que la columna de **Sales Reps** (que puede contener de 15 a 25 vendedores por mercado) o la columna de **Markets** crezcan verticalmente de forma desmedida rompiendo la alineación del dashboard, se estableció un alto máximo uniforme de 5 tarjetas (max-h-[310px]).
+- **Desplazamiento Suave Integrado:**
+  - Cuando una columna supera las 5 tarjetas, se muestran las 5 primeras de manera completa y se activa un scroll vertical estilizado (scrollbar-thin).
+- **Alineación de Baseline:**
+  - La tabla del Portafolio de Cuentas comparte exactamente el mismo límite max-h-[310px], logrando una simetría horizontal perfecta entre todas las columnas y el portafolio.
