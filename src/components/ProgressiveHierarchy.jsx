@@ -480,16 +480,16 @@ export function ProgressiveHierarchy({
             </div>
 
             {/* EXPANDABLE TABLE WITH ZERO REFLOW FIXED LAYOUT */}
-            <div className="overflow-y-auto max-h-[310px] scrollbar-thin">
+            <div className="overflow-y-auto max-h-[320px] scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse table-fixed">
                 <thead>
-                  <tr className="border-b border-border text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-850 sticky top-0 z-10">
-                    <th className="py-1.5 px-2 w-[4%]"></th>
-                    <th className="py-1.5 px-2 w-[32%] truncate">Account / Company</th>
-                    <th className="py-1.5 px-2 w-[18%] text-right font-bold truncate">Total Orders</th>
-                    <th className="py-1.5 px-2 w-[16%] text-right font-bold truncate">Adoption %</th>
-                    <th className="py-1.5 px-2 w-[16%] text-center font-bold truncate">Primary Channel</th>
-                    <th className="py-1.5 px-2 w-[14%] text-center font-bold truncate">Status</th>
+                  <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-850 sticky top-0 z-10">
+                    <th className="py-2 px-2 w-[4%]"></th>
+                    <th className="py-2 px-2 w-[32%] truncate">Account / Company</th>
+                    <th className="py-2 px-2 w-[18%] text-right font-bold truncate">Total Orders</th>
+                    <th className="py-2 px-2 w-[16%] text-right font-bold truncate">Adoption %</th>
+                    <th className="py-2 px-2 w-[16%] text-center font-bold truncate">Primary Channel</th>
+                    <th className="py-2 px-2 w-[14%] text-center font-bold truncate">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
@@ -498,7 +498,7 @@ export function ProgressiveHierarchy({
                     return (
                       <React.Fragment key={cli.id}>
                         <tr className={cn("hover:bg-card transition-colors cursor-pointer", isExpanded && "bg-slate-100/80 dark:bg-slate-850")} onClick={() => toggleRowExpanded(cli.id)}>
-                          <td className="py-1.5 px-1 text-center">
+                          <td className="py-2 px-1 text-center">
                             <button
                               type="button"
                               className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground"
@@ -506,19 +506,19 @@ export function ProgressiveHierarchy({
                               {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-primary" /> : <ChevronRight className="w-3.5 h-3.5" />}
                             </button>
                           </td>
-                          <td className="py-1.5 px-2">
-                            <div className="font-bold text-foreground flex items-center gap-1 text-[11px] truncate max-w-[180px]" title={cli.nombreEmpresa}>
+                          <td className="py-2 px-2">
+                            <div className="font-bold text-foreground flex items-center gap-1.5 text-xs truncate max-w-[200px]" title={cli.nombreEmpresa}>
                               {cli.esTopPareto && (
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Account" />
                               )}
                               <span className="truncate">{cli.nombreEmpresa}</span>
                             </div>
-                            <div className="text-[9px] text-muted-foreground font-mono">{cli.id} · {cli.lineaLabel}</div>
+                            <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{cli.id} · {cli.lineaLabel}</div>
                           </td>
-                          <td className="py-1.5 px-2 text-right font-bold tabular-nums text-foreground">
-                            {formatNumber(cli.pedidosTotales)} <span className="text-[9px] text-muted-foreground font-normal">orders</span>
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs">
+                            {formatNumber(cli.pedidosTotales)} <span className="text-[10px] text-muted-foreground font-normal">orders</span>
                           </td>
-                          <td className="py-1.5 px-2 text-right font-bold tabular-nums">
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-xs">
                             <span className={cn(
                               cli.pctAdopcionPedidos >= 90 ? "text-emerald-600 dark:text-emerald-400" :
                               cli.pctAdopcionPedidos >= 50 ? "text-amber-600 dark:text-amber-400" :
@@ -527,11 +527,11 @@ export function ProgressiveHierarchy({
                               {cli.pctAdopcionPedidos.toFixed(1)}%
                             </span>
                           </td>
-                          <td className="py-1.5 px-2 text-center">
+                          <td className="py-2 px-2 text-center">
                             <Badge
                               variant="outline"
                               className={cn(
-                                "text-[9px] py-0 px-1.5 font-bold uppercase",
+                                "text-[10px] py-0.5 px-2 font-bold uppercase",
                                 cli.primaryChannel === 'Phone / Offline'
                                   ? "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700"
                                   : "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30"
@@ -544,13 +544,13 @@ export function ProgressiveHierarchy({
                               {cli.primaryChannel}
                             </Badge>
                           </td>
-                          <td className="py-1.5 px-2 text-center">
+                          <td className="py-2 px-2 text-center">
                             {cli.estaIncorporado ? (
-                              <Badge variant="success" className="text-[9px] py-0 px-1 font-bold">
+                              <Badge variant="success" className="text-[10px] py-0.5 px-1.5 font-bold">
                                 Onboarded
                               </Badge>
                             ) : (
-                              <Badge variant="danger" className="text-[9px] py-0 px-1 font-bold">
+                              <Badge variant="danger" className="text-[10px] py-0.5 px-1.5 font-bold">
                                 No Account
                               </Badge>
                             )}
@@ -560,34 +560,34 @@ export function ProgressiveHierarchy({
                         {/* EXPANDABLE DRAWER ROW WITH HIGH-CONTRAST VISUAL MICRO-PILLS */}
                         {isExpanded && (
                           <tr className="bg-slate-100/90 dark:bg-slate-950 border-b border-border">
-                            <td colSpan={6} className="p-2.5">
+                            <td colSpan={6} className="p-3">
                               <div className="bg-card p-3 rounded-lg border border-border shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
                                 {/* Digital Channel Pills */}
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Digital Channels:</span>
-                                  <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
-                                    <Laptop className="w-3 h-3 text-sky-500" />
+                                  <span className="text-[11px] font-bold text-muted-foreground uppercase mr-1">Digital Channels:</span>
+                                  <Badge variant="info" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                    <Laptop className="w-3.5 h-3.5 text-sky-500" />
                                     <span>Web: <b>{cli.pedidosWeb}</b></span>
                                   </Badge>
-                                  <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30">
-                                    <Smartphone className="w-3 h-3 text-indigo-500" />
+                                  <Badge variant="info" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30">
+                                    <Smartphone className="w-3.5 h-3.5 text-indigo-500" />
                                     <span>App: <b>{cli.pedidosApp}</b></span>
                                   </Badge>
-                                  <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
-                                    <Server className="w-3 h-3 text-emerald-500" />
+                                  <Badge variant="info" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
+                                    <Server className="w-3.5 h-3.5 text-emerald-500" />
                                     <span>EDI: <b>{cli.pedidosEdi}</b></span>
                                   </Badge>
                                 </div>
 
                                 {/* Offline & FTTV Pills */}
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
-                                  <Badge variant="outline" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
-                                    <PhoneCall className="w-3 h-3 text-amber-500" />
+                                  <span className="text-[11px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
+                                  <Badge variant="outline" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
+                                    <PhoneCall className="w-3.5 h-3.5 text-amber-500" />
                                     <span>Phone: <b>{cli.pedidosAnalogos}</b></span>
                                   </Badge>
-                                  <Badge variant="outline" className="gap-1 text-[11px] font-bold py-0.5 px-2 text-muted-foreground border-border">
-                                    <Clock className="w-3 h-3 text-primary" />
+                                  <Badge variant="outline" className="gap-1 text-xs font-bold py-0.5 px-2.5 text-muted-foreground border-border">
+                                    <Clock className="w-3.5 h-3.5 text-primary" />
                                     <span>FTTV: <b>{cli.fttv ? `${cli.fttv} days` : 'Pending'}</b></span>
                                   </Badge>
                                 </div>
@@ -604,25 +604,25 @@ export function ProgressiveHierarchy({
                 {totalesCartera && (
                   <tfoot className="sticky bottom-0 z-10 bg-slate-200 dark:bg-slate-800 font-bold border-t-2 border-primary/40 text-foreground text-xs shadow-md">
                     <tr>
-                      <td colSpan={2} className="py-2 px-2">
-                        <div className="font-extrabold uppercase text-[10px] text-primary">
+                      <td colSpan={2} className="py-2.5 px-2">
+                        <div className="font-black uppercase text-xs text-primary">
                           TOTALS ({totalesCartera.totalClientes} ACCOUNTS)
                         </div>
-                        <div className="text-[9px] text-muted-foreground">
+                        <div className="text-[10px] text-muted-foreground mt-0.5">
                           Onboarding Rate: {totalesCartera.pctOnboarding.toFixed(1)}%
                         </div>
                       </td>
-                      <td className="py-2 px-2 text-right tabular-nums text-foreground">
-                        {formatNumber(totalesCartera.totalPedidos)} <span className="text-[9px] font-normal">total</span>
+                      <td className="py-2.5 px-2 text-right tabular-nums text-foreground font-bold text-xs">
+                        {formatNumber(totalesCartera.totalPedidos)} <span className="text-[10px] font-normal">total</span>
                       </td>
-                      <td className="py-2 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-sm">
+                      <td className="py-2.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-sm">
                         {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
                       </td>
-                      <td className="py-2 px-2 text-center text-[10px] text-muted-foreground">
+                      <td className="py-2.5 px-2 text-center text-[10px] text-muted-foreground">
                         Dig: {formatNumber(totalesCartera.totalDigitales)} | Off: {formatNumber(totalesCartera.totalAnalogos)}
                       </td>
-                      <td className="py-2 px-2 text-center">
-                        <Badge variant="success" className="text-[9px] py-0.5 px-1.5 font-bold">
+                      <td className="py-2.5 px-2 text-center">
+                        <Badge variant="success" className="text-[10px] py-0.5 px-2 font-bold">
                           {totalesCartera.onboardedCount} / {totalesCartera.totalClientes} Active
                         </Badge>
                       </td>
