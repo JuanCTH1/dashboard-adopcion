@@ -801,3 +801,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se sustituyó la curva sintética plana por una curva macro de 36 meses (`BASE_CURVE_36M`) con fluctuaciones industriales reales (estacionalidad de clima, picos de construcción en verano, bajas de fin de año).
   - Se añadió la variable de propensión individual `basePropensity` por cliente y un factor de volatilidad mensual de hasta **$\pm 22\%$** (`clientVolatility`).
   - **Resultado:** El comportamiento mensual de un cliente ya no es lineal. Un cliente puede oscilar de forma orgánica entre **70% $\rightarrow$ 42% $\rightarrow$ 58% $\rightarrow$ 82%** de adopción mensual, reflejando patrones de compra reales del sector B2B con tendencias generales sólidas.
+---
+
+## 🎯 Versión 2.79 - Variación Significativa por Línea de Negocio y Periodo Trimestral (`mockGenerator.js`)
+
+- **Inyección de Shocks Transaccionales por Línea de Negocio (`BL_MONTHLY_SHIFTS`):**
+  - Se definieron desplazamientos mensuales diferenciados por línea de negocio (`BL_MONTHLY_SHIFTS`) para evitar la cancelación estadística de promedios al agregar cientos de clientes.
+  - **Resultado:** En **Ready Mix**, por ejemplo, las variaciones entre meses dentro de un trimestre (como Q1 2026) muestran oscilaciones marcadas de entre **10% y 25%** (ej. **53% en Jan $\rightarrow$ 76% en Feb $\rightarrow$ 48% en Mar**), reflejando la alta variabilidad operativa real por clima y obra en concreto.

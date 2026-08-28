@@ -235,12 +235,34 @@ export function generateDataset(seed = 20260828) {
     0.53, 0.61, 0.57, 0.71, 0.79, 0.74, 0.81, 0.86, 0.78, 0.84, 0.81, 0.73
   ];
 
+  // Distinct monthly market shifts per Business Line (e.g. Ready Mix weather/jobsite shocks)
+  const BL_MONTHLY_SHIFTS = {
+    readymix: [
+      -0.08,  0.06, -0.12,  0.08,  0.15, -0.05,  0.09, -0.04,  0.11, -0.08,  0.04, -0.14,
+      -0.10,  0.07, -0.14,  0.11,  0.18, -0.08,  0.12, -0.06,  0.14, -0.09,  0.06, -0.16,
+      -0.12,  0.08, -0.15,  0.12,  0.19, -0.09,  0.14, -0.07,  0.15, -0.10,  0.07, -0.18
+    ],
+    cemento: [
+       0.05, -0.07,  0.09, -0.04,  0.08,  0.07, -0.06,  0.10, -0.05,  0.08, -0.06,  0.04,
+       0.06, -0.09,  0.11, -0.06,  0.10,  0.08, -0.08,  0.12, -0.07,  0.10, -0.08,  0.05,
+       0.07, -0.10,  0.12, -0.07,  0.12,  0.09, -0.09,  0.14, -0.08,  0.11, -0.09,  0.06
+    ],
+    agregados: [
+      -0.04, -0.08,  0.14, -0.09,  0.06,  0.11, -0.12,  0.07, -0.08,  0.13, -0.07, -0.06,
+      -0.06, -0.10,  0.16, -0.11,  0.08,  0.13, -0.14,  0.09, -0.10,  0.15, -0.09, -0.08,
+      -0.07, -0.11,  0.18, -0.12,  0.10,  0.15, -0.15,  0.11, -0.11,  0.17, -0.10, -0.09
+    ]
+  };
+
   const TRANSACCIONES = [];
 
   MESES.forEach((m, mIdx) => {
     const baseRate = BASE_CURVE_36M[mIdx] || 0.55;
 
     CLIENTES.forEach(cli => {
+      const blShifts = BL_MONTHLY_SHIFTS[cli.lineaNegocio] || [];
+      const blShift = blShifts[mIdx] || 0;
+
       const seasonality = 1 + (Math.sin(m.mesNum * 0.5) * 0.10);
       const volMes = Math.max(10, Math.round(cli.volumenBase * seasonality * (rand() * 0.25 + 0.88)));
       const pedidosTotales = Math.max(1, Math.round((volMes / (cli.isTopPareto ? 160 : 32)) * (rand() * 0.35 + 0.82)));
@@ -251,9 +273,10 @@ export function generateDataset(seed = 20260828) {
       let volAnalogo = volMes;
 
       if (cli.estaIncorporado && cli.esActivo) {
-        // High realistic monthly volatility per client (+/- 22% variance per month)
-        const clientVolatility = (rand() - 0.5) * 0.44;
-        const clientAdoptionRate = Math.min(0.96, Math.max(0.14, (baseRate * 0.45) + (cli.basePropensity * 0.45) + clientVolatility));
+        // High realistic monthly volatility per client + business line monthly macro shift
+        const clientVolatility = (rand() - 0.5) * 0.35;
+        const targetRate = baseRate + blShift;
+        const clientAdoptionRate = Math.min(0.96, Math.max(0.12, (targetRate * 0.50) + (cli.basePropensity * 0.50) + clientVolatility));
 
         pedidosDigitales = Math.round(pedidosTotales * clientAdoptionRate);
         if (pedidosDigitales > pedidosTotales) pedidosDigitales = pedidosTotales;
