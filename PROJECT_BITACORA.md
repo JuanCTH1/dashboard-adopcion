@@ -765,3 +765,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Limpieza de Pie de Tabla (`ProgressiveHierarchy.jsx`):**
   - Se removió la insignia de conteo de la columna `Status` en la fila fija de totales del pie de tabla (`tfoot`), reemplazándola por un guión discreto (`—`).
   - **Resultado:** El pie de tabla enfoca sus métricas cuantitativas en el total de clientes, las órdenes desglosadas (**Online**, **Offline**, **Total**) y la **tasa de adopción ponderada**.
+---
+
+## 🎯 Versión 2.74 - Formateo Compacto en "K" con Tooltip Exacto en Órdenes de la Tabla (`ProgressiveHierarchy.jsx`)
+
+- **Formateo Compacto de Órdenes en Tabla y Totales (`ProgressiveHierarchy.jsx`):**
+  - Se aplicó `formatCompactNumber(num)` a las columnas **Online**, **Offline** y **Total** en las filas de clientes, encabezado del panel y fila inferior de totales (`tfoot`) (ej. 536,785 $\rightarrow$ **`536.8k`**).
+  - Se añadieron tooltips flotantes (`title={formatNumber(num)}`) con el cursor `cursor-help` para desplegar la cifra exacta formateada con comas al posar el mouse.
