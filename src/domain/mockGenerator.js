@@ -124,15 +124,28 @@ export function generateDataset(seed = 20260828) {
     'Gary Reed', 'Timothy Cook', 'Frank Morgan', 'Shirley Bell', 'Sharon Murphy'
   ];
 
+  const REP_ARCHETYPES = [
+    { type: 'Onboarder', onboardingPower: 0.94, activeConversion: 0.64, basePropensity: 0.44 },
+    { type: 'DigitalChampion', onboardingPower: 0.66, activeConversion: 0.96, basePropensity: 0.86 },
+    { type: 'ActiveConverter', onboardingPower: 0.82, activeConversion: 0.92, basePropensity: 0.68 },
+    { type: 'Traditionalist', onboardingPower: 0.50, activeConversion: 0.56, basePropensity: 0.36 },
+    { type: 'HighAdopter', onboardingPower: 0.74, activeConversion: 0.88, basePropensity: 0.78 }
+  ];
+
   const VENDEDORES = [];
   let vIdx = 0;
   GERENTES.forEach(ger => {
     const numReps = 5; // EXACTLY 5 Sales Reps per Market Manager
     const regionObj = REGIONES.find(r => r.id === ger.regionId);
+    const marketBias = (ger.id.charCodeAt(ger.id.length - 1) % 5);
+
     for (let i = 0; i < numReps; i++) {
       const nameIndex = (vIdx % NOMBRES_VENDEDORES.length);
       const nameSuffix = Math.floor(vIdx / NOMBRES_VENDEDORES.length) > 0 ? ` Jr.` : '';
       const repName = `${NOMBRES_VENDEDORES[nameIndex]}${nameSuffix}`;
+      const profileIndex = (marketBias + i) % REP_ARCHETYPES.length;
+      const profile = REP_ARCHETYPES[profileIndex];
+
       VENDEDORES.push({
         id: `rep-${vIdx + 1}`,
         nombre: repName,
@@ -143,7 +156,7 @@ export function generateDataset(seed = 20260828) {
         regionId: ger.regionId,
         regionNombre: regionObj?.nombre || 'USA National',
         plaza: ger.nombre, // Physical market city name
-        empujeOnboarding: rand() * 0.4 + 0.6
+        profile
       });
       vIdx++;
     }
@@ -174,6 +187,7 @@ export function generateDataset(seed = 20260828) {
   VENDEDORES.forEach(rep => {
     const numClientes = Math.floor(rand() * 6) + 12;
     const linea = LINEAS_MAP[rep.lineaNegocio] || LINEAS_MAP.readymix;
+    const p = rep.profile;
 
     for (let i = 0; i < numClientes; i++) {
       const cId = `CLI-${String(cIdx).padStart(5, '0')}`;
@@ -188,13 +202,14 @@ export function generateDataset(seed = 20260828) {
         ? Math.floor(rand() * 2500) + 1200
         : Math.floor(rand() * 220) + 40;
 
-      const estaIncorporado = rand() < (0.75 * rep.empujeOnboarding);
-      const esActivo = estaIncorporado && rand() < 0.86;
-      const esRevertido = estaIncorporado && !esActivo && rand() < 0.30;
+      // Realistic variation per client around rep archetype
+      const estaIncorporado = rand() < (p.onboardingPower * (rand() * 0.22 + 0.89));
+      const esActivo = estaIncorporado && (rand() < (p.activeConversion * (rand() * 0.22 + 0.89)));
+      const esRevertido = estaIncorporado && !esActivo && (rand() < 0.40);
 
       const fttv = estaIncorporado ? Math.floor(rand() * 28) + 2 : null;
-      const basePropensity = rand() * 0.45 + 0.45;
-      const digitalShare = esActivo ? rand() * 0.45 + 0.50 : 0;
+      const basePropensity = Math.min(0.96, Math.max(0.14, p.basePropensity + ((rand() - 0.5) * 0.26)));
+      const digitalShare = esActivo ? basePropensity : 0;
 
       const canalRand = rand();
       const canalPreferido = canalRand < 0.55 ? 'web' : canalRand < 0.85 ? 'app' : 'edi';

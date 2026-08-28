@@ -849,3 +849,13 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - **Tendencia Clara Año vs Año (YoY):** Se ajustó `BASE_CURVE_36M` para reflejar un crecimiento anual claro e innegable: **2024 (~32.5% promedio) $\rightarrow$ 2025 (~53.7% promedio) $\rightarrow$ 2026 (~74.9% promedio)**.
   - **Volatilidad Mensual Contenida:** Se ajustaron los desfases por línea de negocio (`BL_MONTHLY_SHIFTS`) y la variabilidad por cliente a un rango orgánico de **$\pm 4\%$ a $\pm 8\%$** por mes.
   - **Resultado:** Las gráficas y tablas muestran oscilaciones mensuales realistas sin brincos extremos desproporcionados, manteniendo una tendencia ascendente sólida año contra año.
+---
+
+## 🎯 Versión 2.85 - Arquetipos de Ejecución por Vendedor y Variabilidad Diagnóstica por Mercado (`mockGenerator.js`)
+
+- **Modelado de Arquetipos Operativos por Vendedor (`REP_ARCHETYPES`):**
+  - Se asignaron 5 perfiles de ejecución comercial (`Onboarder`, `DigitalChampion`, `ActiveConverter`, `Traditionalist`, `HighAdopter`) con fortalezas y cuellos de botella específicos:
+    - **`Onboarder`:** Alta tasa de registro de clientes (94%), pero adopción digital moderada (44%).
+    - **`DigitalChampion`:** Adopción digital masiva (86%), pero oportunidad en registro de clientes offline.
+    - **`Traditionalist`:** Resistencia tradicional con mayor uso de pedidos por teléfono.
+  - **Extrapolación Jerárquica a Mercados y Regiones:** Al agregar vendedores en cada ciudad/plaza, cada **Mercado** despliega un diagnóstico ejecutivo único en el embudo, permitiendo comparar problemas operativos distintos entre plazas (ej. Boston vs Dallas vs Chicago).
