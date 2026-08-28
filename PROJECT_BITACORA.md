@@ -620,3 +620,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Actualización del Título de Nivel Superior (`ProgressiveHierarchy.jsx`):**
   - Se cambió el nombre por defecto en el encabezado de `All Divisions` a **`USA`**.
   - **Resultado:** La cabecera muestra limpiamente **`USA 2164 customers · 536,785 orders`**.
+---
+
+## 🎯 Versión 2.56 - Extensión Vertical 100% de la Tabla de Cartera (`ProgressiveHierarchy.jsx`)
+
+- **Eliminación de la Restricción `max-h-[190px]` (`ProgressiveHierarchy.jsx`):**
+  - Se removió la cota rígida de 190px que dejaba un hueco blanco en la parte inferior del panel derecho.
+  - **Resultado:** La tabla de cartera se estira verticalmente al 100% de la altura disponible del contenedor (`flex-1 min-h-0`), con el encabezado fijo arriba, filas intermedias distribuidas y la fila de totales (`TOTALS CUSTOMERS`) anclada perfectamente al pie.

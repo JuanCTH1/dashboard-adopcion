@@ -704,8 +704,8 @@ export function ProgressiveHierarchy({
               </Button>
             </div>
 
-            {/* EXPANDABLE TABLE WITH ZERO HORIZONTAL SCROLLBARS */}
-            <div className="overflow-y-auto max-h-[190px] scrollbar-thin flex-1 min-h-0">
+            {/* EXPANDABLE TABLE FILLING FULL VERTICAL CONTAINER HEIGHT */}
+            <div className="overflow-y-auto flex-1 min-h-0 scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse table-fixed">
                 <thead>
                   <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
