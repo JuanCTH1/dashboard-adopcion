@@ -562,3 +562,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Recálculo Dinámico de `clientesMoMNetos` y `activosMoMNetos`:**
   - Se reemplazaron las propiedades estáticas por un cálculo dinámico en `AdopcionRepository.getMetricasGlobales(filtros)`.
   - **Resultado:** Al filtrar por cualquier dimensión (sidebar, VPs, Regiones, Mercados, Vendedores), los deltas enteros del ribbon se recalculan inmediatamente en tiempo real para reflejar exactamente el segmento seleccionado.
+---
+
+## 🎯 Versión 2.49 - Filtrado Real del Universo de Cuentas por Año y Mes (`adopcionRepo.js`)
+
+- **Encuadre de Cuentas por Periodo Temporal (`_filtrar` en `adopcionRepo.js`):**
+  - Se implementó la intersección del universo de cuentas con las transacciones activas del periodo seleccionado (`hasTimeFilter`).
+  - **Resultado:** Al seleccionar un año específico (ej. 2024 o 2025) o mes(es) específico(s) en el sidebar, **todas las métricas del Ribbon (Total Customers, Onboarded, Active, Digital Adoption y sus 3 conectores de porcentaje)** se recalculan verdaderamente al universo de cuentas y transacciones del periodo elegido.

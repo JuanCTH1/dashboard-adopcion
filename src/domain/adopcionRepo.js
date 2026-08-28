@@ -97,6 +97,8 @@ class AdopcionRepository {
     const clientIdsSet = new Set(clientesFiltrados.map(c => c.id));
 
     // 2. FAST PERIOD LOOKUP (O(1) MAP LOOKUP)
+    const hasTimeFilter = (filtros.anios?.length > 0 && filtros.anios.length < 3) || (filtros.meses?.length > 0 && filtros.meses.length < 12);
+
     const mesesValidosKeys = [];
     this.data.MESES.forEach(m => {
       if (anios.includes(m.anio) && mesesNombres.includes(m.nombreMes)) {
@@ -109,17 +111,26 @@ class AdopcionRepository {
     }
 
     const transaccionesPeriodo = [];
+    const activeClientIdsInPeriod = new Set();
+
     mesesValidosKeys.forEach(pKey => {
       const txs = this.txByPeriod.get(pKey) || [];
       for (let i = 0; i < txs.length; i++) {
         if (clientIdsSet.has(txs[i].clienteId)) {
           transaccionesPeriodo.push(txs[i]);
+          activeClientIdsInPeriod.add(txs[i].clienteId);
         }
       }
     });
 
+    // When time filters (specific Year or Month) are selected, scope customer list to active period accounts
+    let finalClientes = clientesFiltrados;
+    if (hasTimeFilter) {
+      finalClientes = clientesFiltrados.filter(c => activeClientIdsInPeriod.has(c.id));
+    }
+
     return {
-      clientes: clientesFiltrados,
+      clientes: finalClientes,
       transacciones: transaccionesPeriodo,
       mesesValidosKeys
     };
