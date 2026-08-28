@@ -754,7 +754,16 @@ export function ProgressiveHierarchy({
                               )}
                               <span className="truncate">{cli.nombreEmpresa}</span>
                             </div>
-                            <div className="text-[10px] text-muted-foreground font-mono mt-0.5"><b className="uppercase">{shortBl}</b></div>
+                            <div className="mt-0.5 flex items-center">
+                              <span className={cn(
+                                "text-[9px] font-black px-1.5 py-0.2 rounded border uppercase tracking-wider",
+                                shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
+                                shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
+                                "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                              )}>
+                                {shortBl}
+                              </span>
+                            </div>
                           </td>
                           <td className="py-2 px-2 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap">
                             <CustomTooltip text={formatNumber(cli.pedidosDigitales)}>

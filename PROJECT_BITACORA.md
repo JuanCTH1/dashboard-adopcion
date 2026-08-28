@@ -808,3 +808,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Inyección de Shocks Transaccionales por Línea de Negocio (`BL_MONTHLY_SHIFTS`):**
   - Se definieron desplazamientos mensuales diferenciados por línea de negocio (`BL_MONTHLY_SHIFTS`) para evitar la cancelación estadística de promedios al agregar cientos de clientes.
   - **Resultado:** En **Ready Mix**, por ejemplo, las variaciones entre meses dentro de un trimestre (como Q1 2026) muestran oscilaciones marcadas de entre **10% y 25%** (ej. **53% en Jan $\rightarrow$ 76% en Feb $\rightarrow$ 48% en Mar**), reflejando la alta variabilidad operativa real por clima y obra en concreto.
+---
+
+## 🎯 Versión 2.80 - Transformación de Etiqueta de Línea de Negocio a Micro-Píldora (`ProgressiveHierarchy.jsx`)
+
+- **Estilización Visual de Línea de Negocio (`ProgressiveHierarchy.jsx`):**
+  - Se sustituyó el texto plano inferior de la columna `Account / Company` por micro-píldoras de alto contraste visual con código de colores según el segmento:
+    - **`RMX`** (Ready Mix): Píldora Azul Cielo (`bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30 font-black text-[9px]`).
+    - **`CEM`** (Cemento): Píldora Índigo (`bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 font-black text-[9px]`).
+    - **`AGG`** (Agregados): Píldora Ámbar (`bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 font-black text-[9px]`).
