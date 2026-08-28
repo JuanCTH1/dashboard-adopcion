@@ -576,3 +576,13 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Conteo Dinámico de Cuentas Activas y Asignadas en `calculateAggregations` (`aggregation.js`):**
   - Se corrigió el cálculo de `totalActivos`, `totalOnboarded` y `totalAsignados` para que compute las cuentas con transacciones digitales reales en las transacciones del periodo filtrado (`digitalClientIds`).
   - **Resultado:** Al filtrar por cualquier Año, Mes, Onboarded o Activos en el sidebar, las tarjetas del Ribbon actualizan en tiempo real tanto el conteo de clientes como el número de órdenes y la tasa de adopción digital del periodo.
+---
+
+## 🎯 Versión 2.51 - Auditoría y Centralización Pura de Filtrado Reactivo en Toda la Capa de Datos (`adopcionRepo.js` & `aggregation.js`)
+
+- **Eliminación Total de `_jerarquiaCache`:**
+  - Se removió por completo la caché estática de niveles jerárquicos que retenía valores anteriores al alternar filtros del sidebar.
+- **Armonización de Universo de Cuentas vs Transacciones por Periodo:**
+  - `clientes` mantiene la cartera asignada según la estructura seleccionada (VPs, Regiones, Mercados, Vendedores, Líneas, Onboarded, Active).
+  - `transacciones` se filtra por las claves exactas de años y meses seleccionados.
+  - `totalActivos` determina las cuentas con compras digitales en el periodo (`digitalClientIds`), logrando una reactividad 100% precisa y libre de inconsistencias en todo el tablero.

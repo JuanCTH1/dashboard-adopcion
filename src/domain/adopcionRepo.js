@@ -61,7 +61,7 @@ class AdopcionRepository {
     const onboardedFilter = filtros.onboarded?.length ? filtros.onboarded : [];
     const activosFilter = filtros.activos?.length ? filtros.activos : [];
 
-    // 1. FAST CLIENT FILTERING
+    // 1. FAST CLIENT FILTERING BY STRUCTURAL DIMENSIONS
     let clientesFiltrados = this.data.CLIENTES;
     if (lineas.length) clientesFiltrados = clientesFiltrados.filter(c => lineas.includes(c.lineaNegocio));
     if (regiones.length) clientesFiltrados = clientesFiltrados.filter(c => regiones.includes(c.regionId));
@@ -96,9 +96,7 @@ class AdopcionRepository {
 
     const clientIdsSet = new Set(clientesFiltrados.map(c => c.id));
 
-    // 2. FAST PERIOD LOOKUP (O(1) MAP LOOKUP)
-    const hasTimeFilter = (filtros.anios?.length > 0 && filtros.anios.length < 3) || (filtros.meses?.length > 0 && filtros.meses.length < 12);
-
+    // 2. FAST PERIOD LOOKUP (O(1) MAP LOOKUP FOR FILTERED YEARS & MONTHS)
     const mesesValidosKeys = [];
     this.data.MESES.forEach(m => {
       if (anios.includes(m.anio) && mesesNombres.includes(m.nombreMes)) {
@@ -111,26 +109,17 @@ class AdopcionRepository {
     }
 
     const transaccionesPeriodo = [];
-    const activeClientIdsInPeriod = new Set();
-
     mesesValidosKeys.forEach(pKey => {
       const txs = this.txByPeriod.get(pKey) || [];
       for (let i = 0; i < txs.length; i++) {
         if (clientIdsSet.has(txs[i].clienteId)) {
           transaccionesPeriodo.push(txs[i]);
-          activeClientIdsInPeriod.add(txs[i].clienteId);
         }
       }
     });
 
-    // When time filters (specific Year or Month) are selected, scope customer list to active period accounts
-    let finalClientes = clientesFiltrados;
-    if (hasTimeFilter) {
-      finalClientes = clientesFiltrados.filter(c => activeClientIdsInPeriod.has(c.id));
-    }
-
     return {
-      clientes: finalClientes,
+      clientes: clientesFiltrados,
       transacciones: transaccionesPeriodo,
       mesesValidosKeys
     };
@@ -186,14 +175,6 @@ class AdopcionRepository {
   }
 
   getJerarquia(nivel = 'nacional', parentIds = [], filtros = {}) {
-    if (!this._jerarquiaCache) {
-      this._jerarquiaCache = new Map();
-    }
-    const cacheKey = `${nivel}_${JSON.stringify(parentIds)}_${JSON.stringify(filtros)}`;
-    if (this._jerarquiaCache.has(cacheKey)) {
-      return this._jerarquiaCache.get(cacheKey);
-    }
-
     let nodos = [];
     const parentSet = new Set(Array.isArray(parentIds) ? parentIds : [parentIds].filter(Boolean));
 
@@ -347,8 +328,10 @@ class AdopcionRepository {
           id: m.nombre,
           gerenteIds: m.gerenteIds,
           nombre: m.nombre,
+          persona: m.personas[0]?.persona,
           personasDetalle,
           blPills: Array.from(new Set(personasDetalle.map(p => p.bl))),
+          isSingleVp,
           tipo: 'Gerente',
           lineasLabel: personasDetalle.map(p => p.bl).join(' · ')
         };
@@ -383,7 +366,7 @@ class AdopcionRepository {
         }));
     }
 
-    const resultado = nodos.map(nodo => {
+    return nodos.map(nodo => {
       let nodoFiltro = { ...baseFiltro };
       if (nodo.tipo === 'VP') nodoFiltro.vpId = nodo.id;
       else if (nodo.tipo === 'Director') {
@@ -412,9 +395,6 @@ class AdopcionRepository {
         metaAdopcion: 90.0
       };
     });
-
-    this._jerarquiaCache.set(cacheKey, resultado);
-    return resultado;
   }
 
   getCartera(vendedorId = null, filtros = {}) {
@@ -620,7 +600,7 @@ class AdopcionRepository {
       });
     });
 
-    // 4. REGIONS (6 Regiones)
+    // 4. REGIONS (5 Regiones)
     const regionNames = Array.from(new Set(this.data.DIRECTORES.map(d => d.nombre)));
     regionNames.forEach((regName, idx) => {
       const dirsOfReg = this.data.DIRECTORES.filter(d => d.nombre === regName);
@@ -649,4 +629,3 @@ class AdopcionRepository {
 }
 
 export const adopcionRepo = new AdopcionRepository();
-export default adopcionRepo;
