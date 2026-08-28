@@ -285,3 +285,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se identificó que a 350px la 5ta tarjeta (ej. Pacific NW en Regiones) se cortaba en la parte inferior activando una barra de scroll no deseada.
   - Se calibró la altura a max-h-[370px].
   - Ahora las **5 tarjetas (y las 5 regiones)** entran 100% integras, holgadas y visibles a simple vista sin recortar ningún texto y sin activar scroll. La barra de scroll aparece de la 6ta tarjeta en adelante.
+---
+
+## 🎯 Versión 2.21 - Alineación de Baseline Inferior Perfecto (items-stretch & lex-1)
+
+- **Alineación de Bordes Inferiores:**
+  - La tabla derecha (Account Portfolio) no se tocó en absoluto.
+  - Se configuró la fila contenedora con items-stretch para que los bordes inferiores de **todas las columnas de la izquierda** (Country, VP Division, Regions, Markets y Sales Reps) se estiren exactamente hasta la misma línea de base horizontal que la tabla.
+  - Se asignó lex-1 a los contenedores internos de tarjetas para que ocupen todo el alto útil disponible sin dejar descalces ni espacios sueltos.
