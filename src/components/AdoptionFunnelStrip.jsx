@@ -1,17 +1,21 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, AlertTriangle, CheckCircle2, TrendingDown } from 'lucide-react';
+import { ArrowRight, AlertTriangle, TrendingDown } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 
 export function AdoptionFunnelStrip({ funnelSteps, activeLens = 'clientes' }) {
   if (!funnelSteps || funnelSteps.length === 0) return null;
 
   return (
-    <Card className="p-4 bg-card border-border/90 shadow-xs">
+    <Card className="p-4 bg-card border border-border/90 rounded-xl shadow-xxs hover:shadow-sm transition-all relative overflow-hidden">
+      {/* Barra de acento */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary via-sky-400 to-indigo-600" />
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-primary" />
+          <span className="w-2 h-2 rounded-full bg-primary" />
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
             Funnel de Conversión Digital
           </h3>
@@ -21,7 +25,7 @@ export function AdoptionFunnelStrip({ funnelSteps, activeLens = 'clientes' }) {
         </div>
 
         <div className="text-[11px] text-muted-foreground font-semibold">
-          Vista: <span className="text-primary capitalize">{activeLens}</span>
+          Lente Activo: <span className="text-primary font-bold capitalize">{activeLens}</span>
         </div>
       </div>
 
@@ -34,11 +38,17 @@ export function AdoptionFunnelStrip({ funnelSteps, activeLens = 'clientes' }) {
           const isCriticalLeak = step.dropOffPct >= 25;
 
           return (
-            <div key={step.paso} className="relative flex flex-col justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-850 border border-border/80 hover:border-primary/50 transition-all group">
+            <motion.div
+              key={step.paso}
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.05 }}
+              className="relative flex flex-col justify-between p-3 rounded-xl bg-slate-50/80 dark:bg-slate-900/60 border border-border/80 hover:border-primary/50 transition-all group"
+            >
               {/* Encabezado del Paso */}
               <div className="flex items-center justify-between gap-1 mb-1.5">
                 <div className="flex items-center gap-1.5">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-750 text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300">
                     {step.paso}
                   </span>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
@@ -77,7 +87,7 @@ export function AdoptionFunnelStrip({ funnelSteps, activeLens = 'clientes' }) {
               </div>
 
               {/* Barra de progreso interna visual */}
-              <div className="w-full bg-slate-200 dark:bg-slate-750 h-1.5 rounded-full mt-2.5 overflow-hidden">
+              <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2.5 overflow-hidden">
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-500",
@@ -103,11 +113,11 @@ export function AdoptionFunnelStrip({ funnelSteps, activeLens = 'clientes' }) {
 
               {/* Flecha conectora para desktop */}
               {!isLast && (
-                <div className="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-4 h-4 rounded-full bg-card border border-border items-center justify-center text-muted-foreground shadow-xxs">
-                  <ArrowRight className="w-2.5 h-2.5" />
+                <div className="hidden md:flex absolute -right-2.5 top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded-full bg-card border border-border items-center justify-center text-muted-foreground shadow-xxs">
+                  <ArrowRight className="w-3 h-3" />
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
       </div>

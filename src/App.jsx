@@ -1,47 +1,43 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { adopcionRepo } from '@/domain/adopcionRepo';
+import { Sidebar } from '@/components/Sidebar';
+import { AppHeader } from '@/components/AppHeader';
 import { ExecutiveRibbon } from '@/components/ExecutiveRibbon';
 import { AdoptionFunnelStrip } from '@/components/AdoptionFunnelStrip';
 import { HierarchyTable } from '@/components/HierarchyTable';
 import { ActionDrawer } from '@/components/ActionDrawer';
 import { CommandPalette } from '@/components/CommandPalette';
-import { FilterSidebar } from '@/components/FilterSidebar';
-import { AppLogo } from '@/components/ui/AppLogo';
 import { exportToCsv } from '@/lib/exportCsv';
-import { Sun, Moon, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { LENTES } from '@/domain/definiciones';
 
 export function App() {
   const filtrosDisponibles = useMemo(() => adopcionRepo.getFiltrosDisponibles(), []);
 
-  // Estados de Control
+  // 1. Estados de Navegación y UI
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [periodo, setPeriodo] = useState(filtrosDisponibles.periodoActual);
   const [activeLens, setActiveLens] = useState(LENTES.CLIENTES);
-  
-  // Jerarquía
+  const [isDark, setIsDark] = useState(false);
+
+  // 2. Jerarquía Activa
   const [nivelJerarquia, setNivelJerarquia] = useState('nacional');
   const [selectedParentId, setSelectedParentId] = useState(null);
   const [breadcrumbs, setBreadcrumbs] = useState([]);
   const [selectedVendedorId, setSelectedVendedorId] = useState(null);
 
-  // Filtros Globales
+  // 3. Filtros Globales (Sidebar)
   const [filtros, setFiltros] = useState({
     lineaNegocio: null,
     regionId: null,
     plaza: null
   });
 
-  // Modales y Drawers
+  // 4. Modales
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isActionDrawerOpen, setIsActionDrawerOpen] = useState(false);
   const [nodoAccion, setNodoAccion] = useState(null);
 
-  // Modo Oscuro
-  const [isDark, setIsDark] = useState(false);
-
+  // Sincronizar Modo Oscuro con clase <html>
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
@@ -70,6 +66,41 @@ export function App() {
       vendedorId: selectedVendedorId
     };
   }, [filtros, periodo, selectedVendedorId]);
+
+  // Chips Activos Removibles
+  const activeChips = useMemo(() => {
+    const chips = [];
+    if (filtros.lineaNegocio) {
+      const ln = filtrosDisponibles.lineasNegocio.find(l => l.id === filtros.lineaNegocio);
+      chips.push({ key: 'lineaNegocio', label: 'Línea', value: ln?.label || filtros.lineaNegocio });
+    }
+    if (filtros.regionId) {
+      const reg = filtrosDisponibles.regiones.find(r => r.id === filtros.regionId);
+      chips.push({ key: 'regionId', label: 'Región', value: reg?.nombre || filtros.regionId });
+    }
+    if (filtros.plaza) {
+      chips.push({ key: 'plaza', label: 'Plaza', value: filtros.plaza });
+    }
+    if (selectedVendedorId) {
+      const vend = filtrosDisponibles.vendedores.find(v => v.id === selectedVendedorId);
+      chips.push({ key: 'vendedorId', label: 'Vendedor', value: vend?.nombre || selectedVendedorId });
+    }
+    return chips;
+  }, [filtros, selectedVendedorId, filtrosDisponibles]);
+
+  const handleRemoveChip = (key) => {
+    if (key === 'vendedorId') {
+      setSelectedVendedorId(null);
+      setBreadcrumbs(prev => prev.slice(0, 3));
+    } else {
+      setFiltros(prev => ({ ...prev, [key]: null }));
+    }
+  };
+
+  const handleClearAllChips = () => {
+    setFiltros({ lineaNegocio: null, regionId: null, plaza: null });
+    setSelectedVendedorId(null);
+  };
 
   // Consultas al Puerto de Datos (adopcionRepo)
   const metricasGlobales = useMemo(() => {
@@ -218,71 +249,72 @@ export function App() {
     }
   };
 
-  const filtrosActivosCount = Object.values(filtros).filter(Boolean).length;
-
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
-      {/* Barra de Navegación Global */}
-      <header className="h-12 border-b border-border/80 bg-card px-4 sm:px-6 flex items-center justify-between shadow-xxs">
-        <div className="flex items-center gap-3">
-          <AppLogo />
-
-          <Badge variant="outline" className="text-[9px] py-0 px-1.5 text-sky-600 dark:text-sky-400 border-sky-500/30 hidden md:flex items-center gap-1">
-            <Sparkles className="w-2.5 h-2.5" />
-            <span>Datos Sintéticos SPCS Ready</span>
-          </Badge>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Alternador Modo Oscuro / Claro */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDark(!isDark)}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer"
-            title={isDark ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
-          >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-          </Button>
-        </div>
-      </header>
-
-      {/* Franja Ejecutiva Fija (Sticky Ribbon) */}
-      <ExecutiveRibbon
-        metricasGlobales={metricasGlobales}
-        activeLens={activeLens}
-        onLensChange={setActiveLens}
-        periodoSeleccionado={periodo}
-        mesesDisponibles={filtrosDisponibles.meses}
+    <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-background text-foreground font-sans transition-colors duration-150 select-none">
+      {/* 1. SIDEBAR PERSISTENTE COLAPSABLE (Estilo Penetron Dash) */}
+      <Sidebar
+        isOpen={desktopSidebarOpen}
+        onToggle={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+        filtros={filtros}
+        onFiltroChange={(k, v) => setFiltros(prev => ({ ...prev, [k]: v }))}
+        onResetFiltros={() => setFiltros({ lineaNegocio: null, regionId: null, plaza: null })}
+        filtrosDisponibles={filtrosDisponibles}
+        periodo={periodo}
         onPeriodoChange={setPeriodo}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onToggleFilters={() => setIsFiltersOpen(true)}
-        filtrosActivosCount={filtrosActivosCount}
       />
 
-      {/* Contenido Principal */}
-      <main className="flex-1 p-4 sm:p-6 space-y-4 max-w-7xl w-full mx-auto">
-        {/* Piso 2: Funnel de Flujo Conectado */}
-        <AdoptionFunnelStrip
-          funnelSteps={funnelSteps}
-          activeLens={activeLens}
-        />
-
-        {/* Piso 3: Estación de Trabajo Jerárquica */}
-        <HierarchyTable
-          nivelActivo={nivelJerarquia}
-          nodosJerarquia={nodosJerarquia}
-          breadcrumbs={breadcrumbs}
-          onSelectNodo={handleSelectNodo}
-          onBreadcrumbClick={handleBreadcrumbClick}
-          onOpenActionDrawer={handleOpenActionDrawer}
-          carteraVendedor={carteraVendedor}
-          activeLens={activeLens}
+      {/* 2. ÁREA DE CONTENIDO PRINCIPAL */}
+      <main className="flex-1 min-w-0 flex flex-col relative h-full overflow-hidden">
+        {/* HEADER MULTI-CAPA CON CHIPS REMOVIBLES Y BÚSQUEDA */}
+        <AppHeader
+          sidebarOpen={desktopSidebarOpen}
+          onToggleSidebar={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+          activeChips={activeChips}
+          onRemoveChip={handleRemoveChip}
+          onClearAllChips={handleClearAllChips}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          isDark={isDark}
+          onToggleDark={() => setIsDark(!isDark)}
           onExportCsv={handleExportCsv}
         />
+
+        {/* WORKSTATION PRINCIPAL CON SCROLL INTERNO */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4">
+          {/* FRUPO 1: FRANJA EJECUTIVA (Sticky Ribbon) & TRIPLE LENTE */}
+          <ExecutiveRibbon
+            metricasGlobales={metricasGlobales}
+            activeLens={activeLens}
+            onLensChange={setActiveLens}
+            periodoSeleccionado={periodo}
+            mesesDisponibles={filtrosDisponibles.meses}
+            onPeriodoChange={setPeriodo}
+            onOpenSearch={() => setIsSearchOpen(true)}
+            onToggleFilters={() => setDesktopSidebarOpen(true)}
+            filtrosActivosCount={activeChips.length}
+          />
+
+          {/* GRUPO 2: FUNNEL DE FLUJO CONECTADO */}
+          <AdoptionFunnelStrip
+            funnelSteps={funnelSteps}
+            activeLens={activeLens}
+          />
+
+          {/* GRUPO 3: TABLA DE JERARQUÍA & DRILLDOWN MASTER-DETAIL */}
+          <HierarchyTable
+            nivelActivo={nivelJerarquia}
+            nodosJerarquia={nodosJerarquia}
+            breadcrumbs={breadcrumbs}
+            onSelectNodo={handleSelectNodo}
+            onBreadcrumbClick={handleBreadcrumbClick}
+            onOpenActionDrawer={handleOpenActionDrawer}
+            carteraVendedor={carteraVendedor}
+            activeLens={activeLens}
+            onExportCsv={handleExportCsv}
+          />
+        </div>
       </main>
 
-      {/* Action Drawer Lateral ("The Money View") */}
+      {/* 3. ACTION DRAWER LATERAL SLIDE-IN ("The Money View") */}
       <ActionDrawer
         isOpen={isActionDrawerOpen}
         onClose={() => setIsActionDrawerOpen(false)}
@@ -291,24 +323,15 @@ export function App() {
         onExportActionCsv={handleExportCsv}
       />
 
-      {/* Buscador Omnibox Ctrl+K */}
+      {/* 4. BUSCADOR OMNIBOX CTRL+K */}
       <CommandPalette
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         items={filtrosDisponibles}
         onSelectItem={handleSelectItemOmnibox}
       />
-
-      {/* Sidebar de Filtros */}
-      <FilterSidebar
-        isOpen={isFiltersOpen}
-        onClose={() => setIsFiltersOpen(false)}
-        filtros={filtros}
-        onFiltroChange={(k, v) => setFiltros(prev => ({ ...prev, [k]: v }))}
-        onResetFiltros={() => setFiltros({ lineaNegocio: null, regionId: null, plaza: null })}
-        filtrosDisponibles={filtrosDisponibles}
-      />
     </div>
   );
 }
+
 export default App;
