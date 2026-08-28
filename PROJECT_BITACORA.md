@@ -242,3 +242,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Corrección de Bug de Datos en 0 (Mercados, Vendedores y Tabla):**
   - **Causa Raíz:** Al filtrar por el nombre del mercado (ej. ['New York']) o región (ej. ['Atlantic']), el método _filtrar en dopcionRepo.js buscaba únicamente por c.gerenteId (ej. 'ger-1'), el cual no coincidía con la cadena 'New York', provocando que la consulta devolviera 0 cuentas y 0 órdenes.
   - **Solución:** Se actualizó _filtrar para evaluar tanto directorId como egionNombre, y tanto gerenteId como plaza. Ahora, seleccionar cualquier mercado o región recupera el 100% de las cuentas reales de la cartera con sus órdenes y adopción calculadas con precisión.
+---
+
+## 🎯 Versión 2.16 - Corrección Definitiva del Filtrado de Clientes (Región + Plaza)
+
+- **Causa Raíz Resuelta:** Los objetos CLIENTES generados en el dataset simulado carecían de la propiedad egionNombre explícita y su egionId (ej. 'reg-1') difería del nombre visible de la tarjeta (ej. 'Atlantic').
+- **Solución Aplicada:**
+  - Se incluyó la propiedad egionNombre: rep.regionNombre en todos los objetos CLIENTES dentro de mockGenerator.js.
+  - Se agregó un diccionario inverso de mapeo REGION_NAME_TO_ID ('Atlantic' -> 'reg-1', 'Sunbelt' -> 'reg-2', etc.) en el método _filtrar de dopcionRepo.js.
+  - Ahora seleccionar cualquier combinación de VP, Región y Mercado calcula con precisión matemática el 100% de las órdenes y cuentas sin volver a mostrar 0.
