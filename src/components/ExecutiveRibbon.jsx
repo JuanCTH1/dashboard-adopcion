@@ -1,83 +1,121 @@
 import React from 'react';
-import { MetricCard } from './MetricCard';
-import { Globe, Smartphone, Server, Users, Layers, Activity } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { BulletGraph } from './BulletGraph';
+import { ShoppingCart, Box, Layers, UserCheck, TrendingUp } from 'lucide-react';
 import { formatNumber, formatPct } from '@/lib/utils';
-import { METRIC_DEFINITIONS } from '@/domain/definiciones';
 
-export function ExecutiveRibbon({
-  metricasGlobales,
-  periodoSeleccionado
-}) {
-  const { actual, deltas, sparklineAdopcion, sparklineConcreto, sparklineCemento } = metricasGlobales;
-  const { clientes, pedidos, volumen } = actual;
+export function ExecutiveRibbon({ metricasGlobales }) {
+  if (!metricasGlobales || !metricasGlobales.actual) return null;
+
+  const { actual, deltas } = metricasGlobales;
+
+  const CARDS = [
+    {
+      id: 'pedidos',
+      titulo: 'Digital Adoption Rate (Orders)',
+      subtitulo: 'Share of orders placed via digital self-service vs 90% Goal',
+      valor: formatPct(actual.pedidos.pctAdopcion),
+      subvalor: `${formatNumber(actual.pedidos.digitales)} / ${formatNumber(actual.pedidos.totales)} orders`,
+      delta: deltas.pedidosMoM,
+      target: 90.0,
+      currentVal: actual.pedidos.pctAdopcion,
+      icon: ShoppingCart,
+      colorGrad: 'from-blue-600 to-indigo-700',
+      accentColor: 'text-primary'
+    },
+    {
+      id: 'concreto',
+      titulo: 'Readymix Volume (cu yd)',
+      subtitulo: 'Digitally ordered readymix volume in period',
+      valor: `${formatNumber(actual.volumen.concreto.digital)} cu yd`,
+      subvalor: `Total: ${formatNumber(actual.volumen.concreto.total)} cu yd`,
+      delta: deltas.concretoMoM,
+      target: 80.0,
+      currentVal: actual.volumen.concreto.total > 0 ? (actual.volumen.concreto.digital / actual.volumen.concreto.total) * 100 : 0,
+      icon: Box,
+      colorGrad: 'from-emerald-600 to-teal-700',
+      accentColor: 'text-emerald-600 dark:text-emerald-400'
+    },
+    {
+      id: 'cemento',
+      titulo: 'Bulk Cement Volume (Tons)',
+      subtitulo: 'Digitally ordered cement volume in period',
+      valor: `${formatNumber(actual.volumen.cemento.digital)} tons`,
+      subvalor: `Total: ${formatNumber(actual.volumen.cemento.total)} tons`,
+      delta: deltas.cementoMoM,
+      target: 80.0,
+      currentVal: actual.volumen.cemento.total > 0 ? (actual.volumen.cemento.digital / actual.volumen.cemento.total) * 100 : 0,
+      icon: Layers,
+      colorGrad: 'from-amber-500 to-orange-600',
+      accentColor: 'text-amber-600 dark:text-amber-400'
+    },
+    {
+      id: 'onboarding',
+      titulo: 'Client Onboarding Penetration',
+      subtitulo: 'Active commercial accounts registered with active credentials',
+      valor: formatPct(actual.clientes.pctOnboarding),
+      subvalor: `${actual.clientes.onboarded} of ${actual.clientes.asignados} accounts`,
+      delta: deltas.clientesMoM,
+      target: 85.0,
+      currentVal: actual.clientes.pctOnboarding,
+      icon: UserCheck,
+      colorGrad: 'from-sky-500 to-blue-600',
+      accentColor: 'text-sky-600 dark:text-sky-400'
+    }
+  ];
 
   return (
-    <div className="space-y-3 select-none">
-      {/* 4 Tarjetas de Alto Contraste y Separación Óptica */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {/* KPI 1: % Adopción en Pedidos */}
-        <MetricCard
-          titulo="% Adopción Digital (Pedidos)"
-          valorPrincipal={formatPct(pedidos.pctAdopcion)}
-          subtitulo={`${formatNumber(pedidos.digitales)} de ${formatNumber(pedidos.totales)} pedidos totales`}
-          deltaMoM={deltas.pedidosMoM}
-          sparklineData={sparklineAdopcion}
-          tooltipData={METRIC_DEFINITIONS.adopcion_pedidos}
-          accentGradient="from-blue-600 via-sky-400 to-indigo-500"
-        >
-          <div className="mt-2.5 flex items-center justify-between text-[10px] text-muted-foreground pt-1.5 border-t border-border/80 font-medium">
-            <span className="flex items-center gap-1">
-              <Globe className="w-3 h-3 text-sky-500" /> Web: {formatNumber(pedidos.canales.web)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Smartphone className="w-3 h-3 text-emerald-500" /> App: {formatNumber(pedidos.canales.app)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Server className="w-3 h-3 text-amber-500" /> EDI: {formatNumber(pedidos.canales.edi)}
-            </span>
-          </div>
-        </MetricCard>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 select-none font-sans">
+      {CARDS.map((card) => {
+        const Icon = card.icon;
+        return (
+          <Card
+            key={card.id}
+            className="p-4 bg-card border border-border shadow-xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between"
+          >
+            {/* Top Accent Line */}
+            <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${card.colorGrad}`} />
 
-        {/* KPI 2: Concreto / Readymix en m³ */}
-        <MetricCard
-          titulo="Volumen Concreto (m³)"
-          valorPrincipal={`${formatNumber(volumen.concreto.digital)} m³`}
-          subtitulo={`${formatPct(volumen.concreto.pctAdopcion)} de ${formatNumber(volumen.concreto.total)} m³ totales`}
-          deltaMoM={deltas.concretoMoM}
-          sparklineData={sparklineConcreto}
-          tooltipData={METRIC_DEFINITIONS.adopcion_volumen}
-          accentGradient="from-emerald-600 via-teal-400 to-green-500"
-        />
+            <div>
+              {/* Header */}
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground truncate">
+                  {card.titulo}
+                </span>
+                <div className={`p-1.5 rounded-lg bg-slate-100 dark:bg-slate-850 ${card.accentColor}`}>
+                  <Icon className="w-4 h-4" />
+                </div>
+              </div>
 
-        {/* KPI 3: Cemento & Agregados en Toneladas */}
-        <MetricCard
-          titulo="Volumen Cemento & Agregados (Tons)"
-          valorPrincipal={`${formatNumber(volumen.cemento.digital)} ton`}
-          subtitulo={`${formatPct(volumen.cemento.pctAdopcion)} de ${formatNumber(volumen.cemento.total)} ton totales`}
-          deltaMoM={deltas.cementoMoM}
-          sparklineData={sparklineCemento}
-          tooltipData={METRIC_DEFINITIONS.adopcion_volumen}
-          accentGradient="from-amber-500 via-orange-400 to-amber-600"
-        />
+              {/* Main Metric Value */}
+              <div className="text-2xl font-black text-foreground tracking-tight tabular-nums">
+                {card.valor}
+              </div>
+              <div className="text-[11px] text-muted-foreground font-medium mt-0.5 truncate">
+                {card.subvalor}
+              </div>
+            </div>
 
-        {/* KPI 4: Onboarding y Cuentas Activas */}
-        <MetricCard
-          titulo="Onboarding de Cartera (Cuentas)"
-          valorPrincipal={`${formatNumber(clientes.activos)} Activos`}
-          subtitulo={`${formatNumber(clientes.incorporados)} con cuenta de ${formatNumber(clientes.asignados)} cartera`}
-          deltaMoM={deltas.clientesMoM}
-          tooltipData={METRIC_DEFINITIONS.incorporado}
-          accentGradient="from-purple-600 via-indigo-400 to-purple-500"
-        >
-          <div className="mt-2.5 flex items-center justify-between text-[10px] text-muted-foreground pt-1.5 border-t border-border/80 font-medium">
-            <span>{formatPct(clientes.pctOnboarding)} Onboarded</span>
-            <span>·</span>
-            <span>{clientes.fttvPromedio || 12}d FTTV</span>
-            <span>·</span>
-            <span className="text-rose-600 dark:text-rose-400 font-bold">{clientes.revertidos} Revertidos</span>
-          </div>
-        </MetricCard>
-      </div>
+            {/* Bullet Graph & Target Comparison */}
+            <div className="mt-3 pt-2.5 border-t border-border/80 space-y-2">
+              <BulletGraph
+                actual={card.currentVal}
+                target={card.target}
+                label=""
+              />
+
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>+{card.delta}% MoM</span>
+                </span>
+                <span className="font-bold">Goal: {card.target}%</span>
+              </div>
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 }

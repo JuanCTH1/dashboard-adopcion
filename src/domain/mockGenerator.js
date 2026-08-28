@@ -1,6 +1,5 @@
 /**
- * GENERATOR DE DATOS SINTÉTICOS DE ADOPCIÓN CX
- * ESTRUCTURA: VPs por Línea de Negocio, Directores por Ubicación, Vendedores por Línea de Negocio.
+ * DETERMINISTIC SYNTHETIC DATA GENERATOR FOR CX ADOPTION - 100% ENGLISH
  */
 
 function mulberry32(a) {
@@ -17,7 +16,7 @@ export function generateDataset(seed = 20260828) {
 
   const MESES = [];
   const anios = [2024, 2025, 2026];
-  const nombresMes = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+  const nombresMes = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   anios.forEach(anio => {
     nombresMes.forEach((nombre, idx) => {
@@ -42,26 +41,20 @@ export function generateDataset(seed = 20260828) {
     { id: 'reg-4', nombre: 'US Pacific & Southwest', plazas: ['Los Angeles', 'Phoenix', 'Seattle', 'San Francisco'] }
   ];
 
-  // VPs POR LÍNEA DE NEGOCIO (Readymix, Cemento, Agregados)
   const VPS = [
     { id: 'vp-readymix', nombre: 'VP Readymix Concrete', lineaNegocio: 'readymix', unidad: 'cu yd' },
     { id: 'vp-cemento', nombre: 'VP Bulk Cement', lineaNegocio: 'cemento', unidad: 'tons' },
     { id: 'vp-agregados', nombre: 'VP Quarries & Aggregates', lineaNegocio: 'agregados', unidad: 'tons' }
   ];
 
-  // DIRECTORES POR UBICACIÓN DEBAJO DE CADA VP POR LÍNEA DE NEGOCIO
   const DIRECTORES = [
-    // VP Readymix Concrete
     { id: 'dir-rm-east', nombre: 'Dir. Readymix East', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
     { id: 'dir-rm-west', nombre: 'Dir. Readymix West', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
-    // VP Bulk Cement
     { id: 'dir-cem-east', nombre: 'Dir. Cement Sunbelt & East', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
     { id: 'dir-cem-west', nombre: 'Dir. Cement Central & West', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-    // VP Quarries & Aggregates
     { id: 'dir-agg-nat', nombre: 'Dir. National Quarries', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' }
   ];
 
-  // GERENTES
   const GERENTES = [];
   DIRECTORES.forEach((dir, dIdx) => {
     for (let g = 1; g <= 3; g++) {
@@ -90,7 +83,6 @@ export function generateDataset(seed = 20260828) {
     'Laura Collins', 'Kevin Stewart', 'Cynthia Sánchez', 'Jason Morris', 'Kathleen Rogers'
   ];
 
-  // VENDEDORES: CADA UNO ATIENDE UNA SOLA LÍNEA DE NEGOCIO DE SU GERENTE/VP
   const VENDEDORES = [];
   let vIdx = 0;
   GERENTES.forEach(ger => {
@@ -130,15 +122,14 @@ export function generateDataset(seed = 20260828) {
   const COMPANY_SUFFIXES = ['East Site', 'West Div', 'Metro Project', 'Plant #2', 'Hub', 'Venture', 'Site A', 'South Park'];
 
   const LINEAS_MAP = {
-    readymix: { label: 'Concreto / Readymix', unidad: 'cu yd' },
-    cemento: { label: 'Cemento a Granel', unidad: 'tons' },
-    agregados: { label: 'Agregados / Cantera', unidad: 'tons' }
+    readymix: { label: 'Readymix Concrete', unidad: 'cu yd' },
+    cemento: { label: 'Bulk Cement', unidad: 'tons' },
+    agregados: { label: 'Aggregates & Quarries', unidad: 'tons' }
   };
 
   const CLIENTES = [];
   let cIdx = 1;
 
-  // CLIENTES: ASIGNADOS SEGÚN LA LÍNEA DE NEGOCIO DEL VENDEDOR
   VENDEDORES.forEach(rep => {
     const numClientes = Math.floor(rand() * 10) + 18;
     const linea = LINEAS_MAP[rep.lineaNegocio] || LINEAS_MAP.readymix;

@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const NOMBRES_MESES = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+const NOMBRES_MESES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const ANIOS_DISPONIBLES = [2024, 2025, 2026];
 
 export function Sidebar({
@@ -46,7 +46,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs transition-all duration-300 z-40 shrink-0 select-none overflow-hidden",
+        "h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs transition-all duration-300 z-40 shrink-0 select-none overflow-hidden font-sans",
         isOpen ? "w-72" : "w-14"
       )}
     >
@@ -57,8 +57,8 @@ export function Sidebar({
             <Layers className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <div className="font-extrabold text-xs tracking-tight text-slate-800 dark:text-slate-100 font-sans">ADOPCIÓN CX</div>
-            <div className="text-[9px] text-muted-foreground font-bold">FILTROS DE CONTEXTO</div>
+            <div className="font-extrabold text-xs tracking-tight text-slate-800 dark:text-slate-100 font-sans">CX ADOPTION PRO</div>
+            <div className="text-[9px] text-muted-foreground font-bold uppercase">GLOBAL CONTEXT FILTERS</div>
           </div>
         </div>
 
@@ -67,7 +67,7 @@ export function Sidebar({
           size="icon"
           onClick={onToggle}
           className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-          title={isOpen ? "Colapsar Barra Lateral" : "Expandir Barra Lateral"}
+          title={isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
         >
           {isOpen ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4 text-primary" />}
         </Button>
@@ -80,7 +80,7 @@ export function Sidebar({
           <div className="px-3.5 py-2 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100/80 dark:bg-slate-900/80 text-xs">
             <div className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200 text-[11px]">
               <Filter className="w-3 h-3 text-primary" />
-              <span>Contexto Global</span>
+              <span>Global Context</span>
               {totalActiveFilters > 0 && (
                 <Badge variant="default" className="px-1.5 py-0 text-[9px] h-4 min-w-4 justify-center font-bold">
                   {totalActiveFilters}
@@ -94,7 +94,7 @@ export function Sidebar({
                 className="text-[10px] text-primary dark:text-sky-400 hover:underline font-bold flex items-center gap-1 cursor-pointer"
               >
                 <RotateCcw className="w-2.5 h-2.5" />
-                Limpiar ({totalActiveFilters})
+                Reset ({totalActiveFilters})
               </button>
             )}
           </div>
@@ -110,7 +110,7 @@ export function Sidebar({
               >
                 <div className="flex items-center gap-2">
                   <Calendar className="w-3.5 h-3.5 text-primary" />
-                  <span>Periodo Temporal</span>
+                  <span>Time Period</span>
                 </div>
                 {openSections.periodo ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               </button>
@@ -118,7 +118,7 @@ export function Sidebar({
               {openSections.periodo && (
                 <div className="p-2.5 space-y-2.5 bg-white dark:bg-slate-900">
                   <FilterListbox
-                    label="Año"
+                    label="Year"
                     options={ANIOS_DISPONIBLES}
                     value={filtros.anios || [2026]}
                     onChange={(val) => onFiltroChange("anios", val)}
@@ -128,9 +128,9 @@ export function Sidebar({
                   />
 
                   <FilterListbox
-                    label="Mes (Arrastra Rango)"
+                    label="Month (Drag Range)"
                     options={NOMBRES_MESES}
-                    value={filtros.meses || ["Ago"]}
+                    value={filtros.meses || ["Aug"]}
                     onChange={(val) => onFiltroChange("meses", val)}
                     grid={true}
                     gridCols={6}
@@ -148,7 +148,7 @@ export function Sidebar({
               >
                 <div className="flex items-center gap-2">
                   <Building2 className="w-3.5 h-3.5 text-primary" />
-                  <span>Líneas de Negocio</span>
+                  <span>Business Line</span>
                 </div>
                 {openSections.lineas ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               </button>
@@ -156,7 +156,7 @@ export function Sidebar({
               {openSections.lineas && (
                 <div className="p-2.5 bg-white dark:bg-slate-900">
                   <FilterListbox
-                    label="Filtrar por Línea"
+                    label="Filter by Business Line"
                     options={lineasNegocio.map(l => l.id)}
                     value={filtros.lineasNegocio || []}
                     onChange={(val) => onFiltroChange("lineasNegocio", val)}
@@ -173,10 +173,10 @@ export function Sidebar({
             <div className="p-3 rounded-xl border border-primary/20 bg-primary/5 dark:bg-primary/10 text-xs space-y-1.5">
               <div className="flex items-center gap-1.5 font-bold text-primary">
                 <Network className="w-4 h-4" />
-                <span>Estructura por VP</span>
+                <span>Organizational Scope</span>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                La geografía y jerarquía comercial se navegan directamente en el <b>Explorador en Cascada</b> del lienzo principal.
+                Geography and sales hierarchy are navigated directly in the <b>Cascaded Hierarchy Explorer</b> on the main canvas.
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export function Sidebar({
           <button
             onClick={onToggle}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-            title="Abrir Filtros"
+            title="Open Filters"
           >
             <Filter className="w-4 h-4" />
           </button>

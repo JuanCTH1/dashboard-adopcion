@@ -13,25 +13,25 @@ import { exportToCsv } from '@/lib/exportCsv';
 export function App() {
   const filtrosDisponibles = useMemo(() => adopcionRepo.getFiltrosDisponibles(), []);
 
-  // 1. Estados de Navegación y UI
+  // 1. Navigation & UI States
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [isDark, setIsDark] = useState(false);
 
-  // 2. Filtros Multidimensionales
+  // 2. Multidimensional Filters
   const [filtros, setFiltros] = useState({
     anios: [2026],
-    meses: ['Ago'],
+    meses: ['Aug'],
     lineasNegocio: [],
     regionIds: [],
     plazas: []
   });
 
-  // 3. Modales
+  // 3. Modals
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isActionDrawerOpen, setIsActionDrawerOpen] = useState(false);
   const [nodoAccion, setNodoAccion] = useState(null);
 
-  // Sincronizar Modo Oscuro
+  // Sync Dark Mode Class
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
@@ -40,7 +40,7 @@ export function App() {
     }
   }, [isDark]);
 
-  // Atajo Ctrl+K
+  // Shortcut Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -59,43 +59,43 @@ export function App() {
   const handleResetFiltros = () => {
     setFiltros({
       anios: [2026],
-      meses: ['Ago'],
+      meses: ['Aug'],
       lineasNegocio: [],
       regionIds: [],
       plazas: []
     });
   };
 
-  // Chips Activos Removibles
+  // Removable Active Chips
   const activeChips = useMemo(() => {
     const chips = [];
     if (filtros.anios?.length) {
-      chips.push({ key: 'anios', label: 'Años', value: filtros.anios.join(', ') });
+      chips.push({ key: 'anios', label: 'Years', value: filtros.anios.join(', ') });
     }
     if (filtros.meses?.length) {
-      chips.push({ key: 'meses', label: 'Meses', value: filtros.meses.join(', ') });
+      chips.push({ key: 'meses', label: 'Months', value: filtros.meses.join(', ') });
     }
     if (filtros.lineasNegocio?.length) {
       const labels = filtros.lineasNegocio.map(id => filtrosDisponibles.lineasNegocio.find(l => l.id === id)?.label || id);
-      chips.push({ key: 'lineasNegocio', label: 'Líneas', value: labels.join(', ') });
+      chips.push({ key: 'lineasNegocio', label: 'Lines', value: labels.join(', ') });
     }
     if (filtros.regionIds?.length) {
       const labels = filtros.regionIds.map(id => filtrosDisponibles.regiones.find(r => r.id === id)?.nombre || id);
-      chips.push({ key: 'regionIds', label: 'Regiones', value: labels.join(', ') });
+      chips.push({ key: 'regionIds', label: 'Regions', value: labels.join(', ') });
     }
     if (filtros.plazas?.length) {
-      chips.push({ key: 'plazas', label: 'Plazas', value: filtros.plazas.join(', ') });
+      chips.push({ key: 'plazas', label: 'Cities', value: filtros.plazas.join(', ') });
     }
     return chips;
   }, [filtros, filtrosDisponibles]);
 
   const handleRemoveChip = (key) => {
     if (key === 'anios') setFiltros(prev => ({ ...prev, anios: [2026] }));
-    else if (key === 'meses') setFiltros(prev => ({ ...prev, meses: ['Ago'] }));
+    else if (key === 'meses') setFiltros(prev => ({ ...prev, meses: ['Aug'] }));
     else setFiltros(prev => ({ ...prev, [key]: [] }));
   };
 
-  // Consultas al Puerto de Datos
+  // Data Queries
   const metricasGlobales = useMemo(() => {
     return adopcionRepo.getMetricasGlobales(filtros);
   }, [filtros]);
@@ -122,20 +122,21 @@ export function App() {
 
   const handleExportGlobalCsv = () => {
     const clientes = adopcionRepo._filtrar(filtros).clientes;
-    exportToCsv(`Reporte_Adopcion_Clientes`, clientes, [
-      { key: 'id', label: 'Cliente ID' },
-      { key: 'lineaLabel', label: 'Línea de Negocio' },
-      { key: 'volumenBase', label: 'Volumen Base' },
-      { key: 'unidad', label: 'Unidad' },
+    exportToCsv(`CX_Adoption_Account_Report`, clientes, [
+      { key: 'id', label: 'Account ID' },
+      { key: 'nombreEmpresa', label: 'Company Name' },
+      { key: 'lineaLabel', label: 'Business Line' },
+      { key: 'volumenBase', label: 'Base Volume' },
+      { key: 'unidad', label: 'Unit' },
       { key: 'estaIncorporado', label: 'Onboarded' },
-      { key: 'esActivo', label: 'Activo Digital' },
-      { key: 'fttv', label: 'FTTV Días' }
+      { key: 'esActivo', label: 'Digital Active' },
+      { key: 'fttv', label: 'FTTV Days' }
     ]);
   };
 
   return (
     <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-background text-foreground font-sans transition-colors duration-150 select-none">
-      {/* 1. SIDEBAR CON FILTRADO ASOCIATIVO Y ARRASTRE */}
+      {/* 1. SIDEBAR WITH GLOBAL CONTEXT FILTERS */}
       <Sidebar
         isOpen={desktopSidebarOpen}
         onToggle={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
@@ -145,9 +146,9 @@ export function App() {
         filtrosDisponibles={filtrosDisponibles}
       />
 
-      {/* 2. CONTENIDO PRINCIPAL */}
+      {/* 2. MAIN CANVAS WORKSTATION */}
       <main className="flex-1 min-w-0 flex flex-col relative h-full overflow-hidden">
-        {/* HEADER MULTICAPA CON BÚSQUEDA Y CHIPS */}
+        {/* MULTI-LAYER HEADER */}
         <AppHeader
           sidebarOpen={desktopSidebarOpen}
           onToggleSidebar={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
@@ -160,16 +161,16 @@ export function App() {
           onExportCsv={handleExportGlobalCsv}
         />
 
-        {/* WORKSTATION PRINCIPAL CON EL LAYOUT EXACTO SOLICITADO */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4">
-          {/* FILA 1: FILA HORIZONTAL DE KPIS DE ADOPCIÓN */}
+        {/* WORKSTATION CANVAS */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 font-sans">
+          {/* ROW 1: EXECUTIVE KPI RIBBON */}
           <ExecutiveRibbon
             metricasGlobales={metricasGlobales}
           />
 
-          {/* FILA 2: DOS COLUMNAS (IZQUIERDA: TENDENCIA TEMPORAL, DERECHA: EMBUDO VERTICAL) */}
+          {/* ROW 2: DUAL COLUMNS (LEFT: HISTORICAL TREND, RIGHT: VERTICAL FUNNEL) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-            {/* Columna Izquierda (7 de 12 Cols): Gráfica de Evolución */}
+            {/* Left Column (7 of 12 Cols): Adoption Trend */}
             <div className="lg:col-span-7 flex flex-col">
               <AdoptionTrendCard
                 serieHistorica={metricasGlobales.serieHistorica}
@@ -177,7 +178,7 @@ export function App() {
               />
             </div>
 
-            {/* Columna Derecha (5 de 12 Cols): Embudo Vertical */}
+            {/* Right Column (5 of 12 Cols): Vertical Funnel */}
             <div className="lg:col-span-5 flex flex-col">
               <VerticalFunnelCard
                 funnelSteps={funnelSteps}
@@ -185,7 +186,7 @@ export function App() {
             </div>
           </div>
 
-          {/* FILA 3: NAVEGACIÓN PROGRESIVA EN CASCADA (PAÍS ➔ VP ➔ DIR ➔ GER ➔ VEND + TABLA) */}
+          {/* ROW 3: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
           <ProgressiveHierarchy
             filtrosCompuestos={filtros}
             onOpenActionDrawer={handleOpenActionDrawer}
@@ -194,7 +195,7 @@ export function App() {
         </div>
       </main>
 
-      {/* 3. ACTION DRAWER LATERAL SLIDE-IN */}
+      {/* 3. SLIDE-IN COMMERCIAL ACTION DRAWER */}
       <ActionDrawer
         isOpen={isActionDrawerOpen}
         onClose={() => setIsActionDrawerOpen(false)}
@@ -203,14 +204,14 @@ export function App() {
         onExportActionCsv={handleExportGlobalCsv}
       />
 
-      {/* 4. BUSCADOR OMNIBOX CTRL+K */}
+      {/* 4. OMNIBOX SEARCH PALETTE (CTRL+K) */}
       <CommandPalette
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
         items={filtrosDisponibles}
         onSelectItem={(tipo, item) => {
           if (tipo === 'vendedor') {
-            setNodoAccion({ id: item.id, nombre: item.nombre, tipo: 'Vendedor' });
+            setNodoAccion({ id: item.id, nombre: item.nombre, tipo: 'Sales Rep' });
             setIsActionDrawerOpen(true);
           }
         }}
