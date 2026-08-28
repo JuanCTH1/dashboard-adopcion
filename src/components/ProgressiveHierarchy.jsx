@@ -802,37 +802,32 @@ export function ProgressiveHierarchy({
           top: `${hoveredPopover.y}px`,
           transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
         }}
-        className="z-[9999] w-64 p-3 bg-slate-900/95 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
+        className="z-[9999] w-64 p-3 bg-slate-950 text-slate-100 rounded-xl shadow-2xl text-[10px] border border-slate-700/80 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
       >
-        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
+        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] pb-1 border-b border-slate-800 flex items-center justify-between">
           <span>{hoveredPopover.title}</span>
           <span className="text-slate-400 font-normal">{hoveredPopover.tipo}</span>
         </div>
 
-        <div className="space-y-1.5 my-2">
+        <div className="space-y-1.5 pt-2">
           {hoveredPopover.personasDetalle?.map(p => (
             <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
               <span className="font-bold text-slate-200 flex items-center gap-1.5">
                 <span className={cn(
-                  "text-[8px] font-black px-1 py-0.2 rounded uppercase border",
+                  "text-[8px] font-black px-1.5 py-0.5 rounded uppercase border",
                   p.bl === 'RMX' ? "bg-sky-500/20 text-sky-300 border-sky-500/40" :
                   p.bl === 'CEM' ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" :
                   "bg-amber-500/20 text-amber-300 border-amber-500/40"
                 )}>
                   {p.bl}
                 </span>
-                <span className="truncate max-w-[95px] text-slate-300">{p.persona}</span>
+                <span className="truncate max-w-[95px] text-slate-200">{p.persona}</span>
               </span>
               <span className="font-mono text-emerald-400 font-bold shrink-0">
                 {formatNumber(p.totales)} ord · {formatPct(p.pctAdopcion)}
               </span>
             </div>
           ))}
-        </div>
-
-        <div className="pt-1.5 border-t border-slate-800 text-[9px] text-slate-400 flex items-center justify-between">
-          <span>{formatNumber(hoveredPopover.totales)} Total Orders</span>
-          <span className="font-bold text-emerald-400">{formatPct(hoveredPopover.pctAdopcion)}</span>
         </div>
       </div>
     )}

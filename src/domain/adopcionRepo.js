@@ -48,7 +48,8 @@ class AdopcionRepository {
 
   _filtrar(filtros = {}) {
     const anios = filtros.anios?.length ? filtros.anios.map(Number) : [2026];
-    const mesesNombres = filtros.meses?.length ? filtros.meses : ['Ago'];
+    const ALL_MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const mesesNombres = filtros.meses?.length ? filtros.meses : ALL_MONTHS;
     const lineas = filtros.lineasNegocio?.length ? filtros.lineasNegocio : (filtros.lineaNegocio ? [filtros.lineaNegocio] : []);
     const regiones = filtros.regionIds?.length ? filtros.regionIds : (filtros.regionId ? [filtros.regionId] : []);
     const plazas = filtros.plazas?.length ? filtros.plazas : (filtros.plaza ? [filtros.plaza] : []);
@@ -157,14 +158,12 @@ class AdopcionRepository {
       delete baseFiltro.directorIds;
       delete baseFiltro.gerenteIds;
       delete baseFiltro.vendedorIds;
-      nodos = this.data.VPS.map(vp => ({
-        id: vp.id,
-        nombre: vp.nombre,
-        persona: vp.persona,
+      nodos = this.data.VPS.map(v => ({
+        id: v.id,
+        nombre: v.nombre,
         tipo: 'VP',
-        parentId: null,
-        lineaNegocio: vp.lineaNegocio,
-        unidad: vp.unidad
+        persona: v.persona,
+        lineaNegocio: v.lineaNegocio
       }));
     } else if (nivel === 'vp') {
       delete baseFiltro.directorIds;
@@ -241,7 +240,6 @@ class AdopcionRepository {
 
       const activeVpIds = baseFiltro.vpIds || [];
       const isSingleVp = activeVpIds.length === 1;
-      const singleVpId = isSingleVp ? activeVpIds[0] : null;
 
       const BL_SHORT = {
         readymix: 'RMX',
@@ -252,9 +250,12 @@ class AdopcionRepository {
       // Group by physical Market name
       const marketMap = new Map();
       this.data.GERENTES.forEach(g => {
+        if (activeVpIds.length > 0 && !activeVpIds.includes(g.vpId)) return;
+
         if (parentSet.size > 0) {
           const parentDir = this.data.DIRECTORES.find(d => d.id === g.directorId);
-          const matchParent = parentSet.has(g.directorId) || (parentDir && parentSet.has(parentDir.id));
+          const matchParent = parentSet.has(g.directorId) ||
+            (parentDir && (parentSet.has(parentDir.id) || parentSet.has(parentDir.nombre) || parentSet.has(parentDir.regionId)));
           if (!matchParent) return;
         }
 
@@ -291,23 +292,19 @@ class AdopcionRepository {
           };
         });
 
-        const singleMatch = isSingleVp ? personasDetalle.find(p => p.vpId === singleVpId) : null;
-        const personaDisplay = isSingleVp ? singleMatch?.persona : null;
-
         return {
           id: m.id,
           gerenteIds: m.gerenteIds,
           nombre: m.nombre,
-          persona: personaDisplay,
           personasDetalle,
           blPills: Array.from(new Set(personasDetalle.map(p => p.bl))),
-          isSingleVp,
           tipo: 'Gerente',
           lineasLabel: personasDetalle.map(p => p.bl).join(' · ')
         };
       });
     } else if (nivel === 'gerente') {
       delete baseFiltro.vendedorIds;
+      const activeVpIds = baseFiltro.vpIds || [];
       const BL_SHORT = {
         readymix: 'RMX',
         cemento: 'CEM',
@@ -315,12 +312,18 @@ class AdopcionRepository {
       };
 
       nodos = this.data.VENDEDORES
-        .filter(v => parentSet.size === 0 || parentSet.has(v.gerenteId))
+        .filter(v => {
+          if (activeVpIds.length > 0 && !activeVpIds.includes(v.vpId)) return false;
+          if (parentSet.size === 0) return true;
+          const parentGer = this.data.GERENTES.find(g => g.id === v.gerenteId);
+          return parentSet.has(v.gerenteId) || (parentGer && (parentSet.has(parentGer.id) || parentSet.has(parentGer.nombre) || parentSet.has(parentGer.plaza)));
+        })
         .map(v => ({
           id: v.id,
           nombre: v.nombre,
           tipo: 'Vendedor',
           parentId: v.gerenteId,
+          vpId: v.vpId,
           lineaNegocio: v.lineaNegocio,
           bl: BL_SHORT[v.lineaNegocio] || 'BL',
           plaza: v.plaza,
