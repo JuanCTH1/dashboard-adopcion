@@ -277,3 +277,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se identificó que la regla items-stretch min-h-[380px] en el contenedor padre forzaba a todas las columnas cortas (como Markets con 2 tarjetas o VP Division con 3 VPs) a estirarse artificialmente, creando un rectángulo vacío grande debajo de las tarjetas.
   - Se cambió la alineación del contenedor a items-start y se ajustó la altura máxima a max-h-[350px].
   - Ahora cada columna **se ajusta dinámicamente a la altura de sus elementos reales sin crear espacios vacíos ficticios**, mientras que las listas largas muestran sus tarjetas holgadas y activan scroll únicamente cuando superan el límite.
+---
+
+## 🎯 Versión 2.20 - Ajuste Fino de Contenedor a 370px (5 Tarjetas 100% Integras)
+
+- **Corrección de Recorte Visual:**
+  - Se identificó que a 350px la 5ta tarjeta (ej. Pacific NW en Regiones) se cortaba en la parte inferior activando una barra de scroll no deseada.
+  - Se calibró la altura a max-h-[370px].
+  - Ahora las **5 tarjetas (y las 5 regiones)** entran 100% integras, holgadas y visibles a simple vista sin recortar ningún texto y sin activar scroll. La barra de scroll aparece de la 6ta tarjeta en adelante.
