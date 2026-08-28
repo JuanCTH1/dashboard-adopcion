@@ -294,7 +294,7 @@ export function ProgressiveHierarchy({
                         </div>
                         <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-white/90" : "text-muted-foreground")}>
                           <span className="truncate">{vp.persona}</span>
-                          <span className="font-mono font-bold shrink-0">{formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
+                          <span className="font-mono font-bold shrink-0">{formatNumber(vp.metricas.pedidos.totales)} ord · {formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
                     );
@@ -392,7 +392,7 @@ export function ProgressiveHierarchy({
                         {dir.isSingleVp ? (
                           <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
                             <span className="truncate">{dir.persona}</span>
-                            <span className="font-mono font-bold shrink-0">{formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
+                            <span className="font-mono font-bold shrink-0">{formatNumber(dir.metricas.pedidos.totales)} ord · {formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
                           </div>
                         ) : (
                           <div className="flex items-center justify-between gap-1 pt-0.5">
@@ -414,7 +414,7 @@ export function ProgressiveHierarchy({
                               ))}
                             </div>
                             <span className={cn("text-[9px] font-mono font-bold shrink-0", isSelected ? "text-indigo-100" : "text-foreground")}>
-                              {formatPct(dir.metricas.pedidos.pctAdopcion)}
+                              {formatNumber(dir.metricas.pedidos.totales)} ord · {formatPct(dir.metricas.pedidos.pctAdopcion)}
                             </span>
                           </div>
                         )}
@@ -515,7 +515,7 @@ export function ProgressiveHierarchy({
                         {ger.isSingleVp ? (
                           <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-sky-100" : "text-muted-foreground")}>
                             <span className="truncate">{ger.persona}</span>
-                            <span className="font-mono font-bold shrink-0">{formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
+                            <span className="font-mono font-bold shrink-0">{formatNumber(ger.metricas.pedidos.totales)} ord · {formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
                           </div>
                         ) : (
                           <div className="flex items-center justify-between gap-1 pt-0.5">
@@ -537,7 +537,7 @@ export function ProgressiveHierarchy({
                               ))}
                             </div>
                             <span className={cn("text-[9px] font-mono font-bold shrink-0", isSelected ? "text-sky-100" : "text-foreground")}>
-                              {formatPct(ger.metricas.pedidos.pctAdopcion)}
+                              {formatNumber(ger.metricas.pedidos.totales)} ord · {formatPct(ger.metricas.pedidos.pctAdopcion)}
                             </span>
                           </div>
                         )}
@@ -560,21 +560,21 @@ export function ProgressiveHierarchy({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="w-52 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
               >
-                <div className="w-[172px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-[188px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <User className="w-3 h-3" />
                     <span>Sales Reps</span>
                   </div>
                   {selectedRepIds.length > 0 && (
-                    <button onClick={() => startTransition(() => setSelectedRepIds([]))} className="text-[9px] text-emerald-600 hover:underline font-bold">
+                    <button onClick={() => startTransition(() => setSelectedRepIds([]))} className="text-[9px] text-emerald-600 hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
                 </div>
 
-                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
+                <div className="w-[188px] flex-1 flex flex-col justify-start space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
                   {vendedores.map(rep => {
                     const isSelected = selectedRepIds.includes(rep.id);
                     return (
@@ -594,8 +594,8 @@ export function ProgressiveHierarchy({
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
                         <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
-                          <span className="truncate">{rep.plaza}</span>
-                          <span className="font-mono font-bold shrink-0">{formatPct(rep.metricas.pedidos.pctAdopcion)}</span>
+                          <span className="truncate font-semibold">{rep.plaza} · <b className="uppercase">{rep.bl}</b></span>
+                          <span className="font-mono font-bold shrink-0">{formatNumber(rep.metricas.pedidos.totales)} ord · {formatPct(rep.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
                     );
@@ -609,7 +609,7 @@ export function ProgressiveHierarchy({
           <motion.div
             layout
             transition={FLIP_TRANSITION}
-            className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
+            className="flex-1 min-w-[420px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs overflow-hidden"
           >
           <div>
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
@@ -633,22 +633,25 @@ export function ProgressiveHierarchy({
               </Button>
             </div>
 
-            {/* EXPANDABLE TABLE WITH ZERO REFLOW FIXED LAYOUT */}
-            <div className="overflow-y-auto max-h-[320px] scrollbar-thin">
-              <table className="w-full text-left text-xs border-collapse table-fixed">
+            {/* EXPANDABLE TABLE WITH HORIZONTAL SCROLL AND HIGH-DENSITY CELL RENDERING */}
+            <div className="overflow-x-auto overflow-y-auto max-h-[320px] scrollbar-thin">
+              <table className="w-full text-left text-xs border-collapse min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-850 sticky top-0 z-10">
-                    <th className="py-2 px-2 w-[4%]"></th>
-                    <th className="py-2 px-2 w-[32%] truncate">Account / Company</th>
-                    <th className="py-2 px-2 w-[18%] text-right font-bold truncate">Total Orders</th>
-                    <th className="py-2 px-2 w-[16%] text-right font-bold truncate">Adoption %</th>
-                    <th className="py-2 px-2 w-[16%] text-center font-bold truncate">Primary Channel</th>
-                    <th className="py-2 px-2 w-[14%] text-center font-bold truncate">Status</th>
+                    <th className="py-2 px-2 w-8"></th>
+                    <th className="py-2 px-2 whitespace-nowrap font-bold">Account / Company</th>
+                    <th className="py-2 px-2 text-right font-bold whitespace-nowrap">Total Orders</th>
+                    <th className="py-2 px-2 text-right font-bold whitespace-nowrap">Adoption %</th>
+                    <th className="py-2 px-2 text-center font-bold whitespace-nowrap">Channel</th>
+                    <th className="py-2 px-2 text-center font-bold whitespace-nowrap">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
                   {deferredCartera.slice(0, 50).map(cli => {
                     const isExpanded = expandedRowIds.has(cli.id);
+                    const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
+                    const shortChannel = cli.primaryChannel === 'Phone / Offline' ? 'Phone' : cli.primaryChannel === 'Web Portal' ? 'Web' : cli.primaryChannel === 'Mobile App' ? 'App' : 'EDI';
+
                     return (
                       <React.Fragment key={cli.id}>
                         <tr className={cn("hover:bg-card transition-colors cursor-pointer", isExpanded && "bg-slate-100/80 dark:bg-slate-850")} onClick={() => toggleRowExpanded(cli.id)}>
@@ -661,18 +664,18 @@ export function ProgressiveHierarchy({
                             </button>
                           </td>
                           <td className="py-2 px-2">
-                            <div className="font-bold text-foreground flex items-center gap-1.5 text-xs truncate max-w-[200px]" title={cli.nombreEmpresa}>
+                            <div className="font-bold text-foreground flex items-center gap-1.5 text-xs truncate max-w-[180px]" title={cli.nombreEmpresa}>
                               {cli.esTopPareto && (
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Account" />
                               )}
                               <span className="truncate">{cli.nombreEmpresa}</span>
                             </div>
-                            <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{cli.id} · {cli.lineaLabel}</div>
+                            <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{cli.id} · <b className="uppercase">{shortBl}</b></div>
                           </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs">
-                            {formatNumber(cli.pedidosTotales)} <span className="text-[10px] text-muted-foreground font-normal">orders</span>
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap">
+                            {formatNumber(cli.pedidosTotales)}
                           </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-xs">
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-xs whitespace-nowrap">
                             <span className={cn(
                               cli.pctAdopcionPedidos >= 90 ? "text-emerald-600 dark:text-emerald-400" :
                               cli.pctAdopcionPedidos >= 50 ? "text-amber-600 dark:text-amber-400" :
@@ -681,27 +684,27 @@ export function ProgressiveHierarchy({
                               {cli.pctAdopcionPedidos.toFixed(1)}%
                             </span>
                           </td>
-                          <td className="py-2 px-2 text-center">
+                          <td className="py-2 px-2 text-center whitespace-nowrap">
                             <Badge
                               variant="outline"
                               className={cn(
-                                "text-[10px] py-0.5 px-2 font-bold uppercase",
-                                cli.primaryChannel === 'Phone / Offline'
+                                "text-[10px] py-0.5 px-2 font-bold uppercase gap-1",
+                                shortChannel === 'Phone'
                                   ? "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700"
                                   : "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30"
                               )}
                             >
-                              {cli.primaryChannel === 'Phone / Offline' && <PhoneCall className="w-2.5 h-2.5 mr-1 inline" />}
-                              {cli.primaryChannel === 'Web Portal' && <Laptop className="w-2.5 h-2.5 mr-1 inline" />}
-                              {cli.primaryChannel === 'Mobile App' && <Smartphone className="w-2.5 h-2.5 mr-1 inline" />}
-                              {cli.primaryChannel === 'EDI Integration' && <Server className="w-2.5 h-2.5 mr-1 inline" />}
-                              {cli.primaryChannel}
+                              {shortChannel === 'Phone' && <PhoneCall className="w-2.5 h-2.5 inline text-amber-500" />}
+                              {shortChannel === 'Web' && <Laptop className="w-2.5 h-2.5 inline text-sky-500" />}
+                              {shortChannel === 'App' && <Smartphone className="w-2.5 h-2.5 inline text-indigo-500" />}
+                              {shortChannel === 'EDI' && <Server className="w-2.5 h-2.5 inline text-emerald-500" />}
+                              {shortChannel}
                             </Badge>
                           </td>
-                          <td className="py-2 px-2 text-center">
+                          <td className="py-2 px-2 text-center whitespace-nowrap">
                             {cli.estaIncorporado ? (
                               <Badge variant="success" className="text-[10px] py-0.5 px-1.5 font-bold">
-                                Onboarded
+                                Active
                               </Badge>
                             ) : (
                               <Badge variant="danger" className="text-[10px] py-0.5 px-1.5 font-bold">
@@ -759,23 +762,23 @@ export function ProgressiveHierarchy({
                   <tfoot className="sticky bottom-0 z-10 bg-slate-200 dark:bg-slate-800 font-bold border-t-2 border-primary/40 text-foreground text-xs shadow-md">
                     <tr>
                       <td colSpan={2} className="py-2.5 px-2">
-                        <div className="font-black uppercase text-xs text-primary">
+                        <div className="font-black uppercase text-xs text-primary truncate">
                           TOTALS ({totalesCartera.totalClientes} ACCOUNTS)
                         </div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                        <div className="text-[10px] text-muted-foreground mt-0.5 whitespace-nowrap">
                           Onboarding Rate: {totalesCartera.pctOnboarding.toFixed(1)}%
                         </div>
                       </td>
-                      <td className="py-2.5 px-2 text-right tabular-nums text-foreground font-bold text-xs">
+                      <td className="py-2.5 px-2 text-right tabular-nums text-foreground font-bold text-xs whitespace-nowrap">
                         {formatNumber(totalesCartera.totalPedidos)} <span className="text-[10px] font-normal">total</span>
                       </td>
-                      <td className="py-2.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-sm">
+                      <td className="py-2.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-sm whitespace-nowrap">
                         {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
                       </td>
-                      <td className="py-2.5 px-2 text-center text-[10px] text-muted-foreground">
+                      <td className="py-2.5 px-2 text-center text-[10px] text-muted-foreground whitespace-nowrap">
                         Dig: {formatNumber(totalesCartera.totalDigitales)} | Off: {formatNumber(totalesCartera.totalAnalogos)}
                       </td>
-                      <td className="py-2.5 px-2 text-center">
+                      <td className="py-2.5 px-2 text-center whitespace-nowrap">
                         <Badge variant="success" className="text-[10px] py-0.5 px-2 font-bold">
                           {totalesCartera.onboardedCount} / {totalesCartera.totalClientes} Active
                         </Badge>
@@ -799,21 +802,30 @@ export function ProgressiveHierarchy({
           top: `${hoveredPopover.y}px`,
           transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
         }}
-        className="z-[9999] w-60 p-3 bg-slate-900/95 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
+        className="z-[9999] w-64 p-3 bg-slate-900/95 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
       >
         <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
           <span>{hoveredPopover.title}</span>
           <span className="text-slate-400 font-normal">{hoveredPopover.tipo}</span>
         </div>
 
-        <div className="space-y-1 my-1.5">
+        <div className="space-y-1.5 my-2">
           {hoveredPopover.personasDetalle?.map(p => (
             <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
-              <span className="font-bold text-slate-300 flex items-center gap-1">
-                <span className="text-[8px] font-black px-1 py-0.2 rounded bg-slate-800 text-sky-300">{p.bl}</span>
-                <span className="truncate max-w-[90px]">{p.blFull}:</span>
+              <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                <span className={cn(
+                  "text-[8px] font-black px-1 py-0.2 rounded uppercase border",
+                  p.bl === 'RMX' ? "bg-sky-500/20 text-sky-300 border-sky-500/40" :
+                  p.bl === 'CEM' ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" :
+                  "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                )}>
+                  {p.bl}
+                </span>
+                <span className="truncate max-w-[95px] text-slate-300">{p.persona}</span>
               </span>
-              <span className="font-semibold text-emerald-400 truncate max-w-[100px]">{p.persona}</span>
+              <span className="font-mono text-emerald-400 font-bold shrink-0">
+                {formatNumber(p.totales)} ord · {formatPct(p.pctAdopcion)}
+              </span>
             </div>
           ))}
         </div>

@@ -206,11 +206,16 @@ class AdopcionRepository {
       nodos = Array.from(regionMap.values()).map(r => {
         const personasDetalle = r.personas.map(p => {
           const vpObj = this.data.VPS.find(v => v.id === p.vpId);
+          const personaFiltro = { ...baseFiltro, vpId: p.vpId, directorId: p.id };
+          const { clientes: personaCli, transacciones: personaTx } = this._filtrar(personaFiltro);
+          const agg = calculateAggregations(personaTx, personaCli);
           return {
             vpId: p.vpId,
             bl: BL_SHORT[vpObj?.lineaNegocio] || 'BL',
             blFull: vpObj?.nombre || 'Business Line',
-            persona: p.persona
+            persona: p.persona,
+            totales: agg.pedidos.totales,
+            pctAdopcion: agg.pedidos.pctAdopcion
           };
         });
 
@@ -273,11 +278,16 @@ class AdopcionRepository {
       nodos = Array.from(marketMap.values()).map(m => {
         const personasDetalle = m.personas.map(p => {
           const vpObj = this.data.VPS.find(v => v.id === p.vpId);
+          const personaFiltro = { ...baseFiltro, vpId: p.vpId, gerenteId: p.id };
+          const { clientes: personaCli, transacciones: personaTx } = this._filtrar(personaFiltro);
+          const agg = calculateAggregations(personaTx, personaCli);
           return {
             vpId: p.vpId,
             bl: BL_SHORT[vpObj?.lineaNegocio] || 'BL',
             blFull: vpObj?.nombre || 'Business Line',
-            persona: p.persona
+            persona: p.persona,
+            totales: agg.pedidos.totales,
+            pctAdopcion: agg.pedidos.pctAdopcion
           };
         });
 
@@ -298,6 +308,12 @@ class AdopcionRepository {
       });
     } else if (nivel === 'gerente') {
       delete baseFiltro.vendedorIds;
+      const BL_SHORT = {
+        readymix: 'RMX',
+        cemento: 'CEM',
+        agregados: 'AGG'
+      };
+
       nodos = this.data.VENDEDORES
         .filter(v => parentSet.size === 0 || parentSet.has(v.gerenteId))
         .map(v => ({
@@ -306,6 +322,7 @@ class AdopcionRepository {
           tipo: 'Vendedor',
           parentId: v.gerenteId,
           lineaNegocio: v.lineaNegocio,
+          bl: BL_SHORT[v.lineaNegocio] || 'BL',
           plaza: v.plaza,
           regionNombre: v.regionNombre,
           empujeOnboarding: v.empujeOnboarding
