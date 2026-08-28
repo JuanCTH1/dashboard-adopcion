@@ -174,6 +174,12 @@ class AdopcionRepository {
       const isSingleVp = parentSet.size === 1;
       const singleVpId = isSingleVp ? Array.from(parentSet)[0] : null;
 
+      const BL_SHORT = {
+        readymix: 'RMX',
+        cemento: 'CEM',
+        agregados: 'AGG'
+      };
+
       // Group by physical Region name so there are ALWAYS 5 regions
       const regionMap = new Map();
       this.data.DIRECTORES.forEach(d => {
@@ -198,21 +204,30 @@ class AdopcionRepository {
       });
 
       nodos = Array.from(regionMap.values()).map(r => {
-        let personaDisplay = Array.from(r.lineas).join(' + ');
-        if (isSingleVp) {
-          const match = r.personas.find(p => p.vpId === singleVpId);
-          if (match) personaDisplay = match.persona;
-        }
+        const personasDetalle = r.personas.map(p => {
+          const vpObj = this.data.VPS.find(v => v.id === p.vpId);
+          return {
+            vpId: p.vpId,
+            bl: BL_SHORT[vpObj?.lineaNegocio] || 'BL',
+            blFull: vpObj?.nombre || 'Business Line',
+            persona: p.persona
+          };
+        });
+
+        const singleMatch = isSingleVp ? personasDetalle.find(p => p.vpId === singleVpId) : null;
+        const personaDisplay = isSingleVp ? singleMatch?.persona : null;
 
         return {
-          id: isSingleVp ? (r.personas.find(p => p.vpId === singleVpId)?.id || r.id) : r.id,
+          id: isSingleVp ? (singleMatch?.id || r.id) : r.id,
           directorIds: r.directorIds,
           nombre: r.nombre,
           persona: personaDisplay,
+          personasDetalle,
+          blPills: Array.from(new Set(personasDetalle.map(p => p.bl))),
           isSingleVp,
           tipo: 'Director',
           regionId: r.regionId,
-          lineasLabel: Array.from(r.lineas).join(' + ')
+          lineasLabel: personasDetalle.map(p => p.bl).join(' · ')
         };
       });
     } else if (nivel === 'director') {
@@ -222,6 +237,12 @@ class AdopcionRepository {
       const activeVpIds = baseFiltro.vpIds || [];
       const isSingleVp = activeVpIds.length === 1;
       const singleVpId = isSingleVp ? activeVpIds[0] : null;
+
+      const BL_SHORT = {
+        readymix: 'RMX',
+        cemento: 'CEM',
+        agregados: 'AGG'
+      };
 
       // Group by physical Market name
       const marketMap = new Map();
@@ -250,20 +271,29 @@ class AdopcionRepository {
       });
 
       nodos = Array.from(marketMap.values()).map(m => {
-        let personaDisplay = Array.from(m.lineas).join(' + ');
-        if (isSingleVp) {
-          const match = m.personas.find(p => p.vpId === singleVpId);
-          if (match) personaDisplay = match.persona;
-        }
+        const personasDetalle = m.personas.map(p => {
+          const vpObj = this.data.VPS.find(v => v.id === p.vpId);
+          return {
+            vpId: p.vpId,
+            bl: BL_SHORT[vpObj?.lineaNegocio] || 'BL',
+            blFull: vpObj?.nombre || 'Business Line',
+            persona: p.persona
+          };
+        });
+
+        const singleMatch = isSingleVp ? personasDetalle.find(p => p.vpId === singleVpId) : null;
+        const personaDisplay = isSingleVp ? singleMatch?.persona : null;
 
         return {
           id: m.id,
           gerenteIds: m.gerenteIds,
           nombre: m.nombre,
           persona: personaDisplay,
+          personasDetalle,
+          blPills: Array.from(new Set(personasDetalle.map(p => p.bl))),
           isSingleVp,
           tipo: 'Gerente',
-          lineasLabel: Array.from(m.lineas).join(' + ')
+          lineasLabel: personasDetalle.map(p => p.bl).join(' · ')
         };
       });
     } else if (nivel === 'gerente') {

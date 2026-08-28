@@ -278,38 +278,38 @@ export function ProgressiveHierarchy({
           </AnimatePresence>
 
           {/* LEVEL 2: REGIONS */}
-          <AnimatePresence mode="popLayout">
-            {selectedVpIds.length > 0 && (
-              <motion.div
-                layout
-                key="dir-col"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={FLIP_TRANSITION}
-                className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-              >
-                <div className="w-[172px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
-                  <div className="flex items-center gap-1">
-                    <Briefcase className="w-3 h-3" />
-                    <span>Regions</span>
-                  </div>
-                  {selectedDirIds.length > 0 && (
-                    <button onClick={() => startTransition(() => setSelectedDirIds([]))} className="text-[9px] text-indigo-600 hover:underline font-bold">
-                      Clear
-                    </button>
-                  )}
+        <AnimatePresence mode="popLayout">
+          {selectedVpIds.length > 0 && (
+            <motion.div
+              layout
+              key="dir-col"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={FLIP_TRANSITION}
+              className="w-52 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
+            >
+              <div className="w-[188px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="flex items-center gap-1">
+                  <Briefcase className="w-3 h-3" />
+                  <span>Regions</span>
                 </div>
+                {selectedDirIds.length > 0 && (
+                  <button onClick={() => startTransition(() => setSelectedDirIds([]))} className="text-[9px] text-indigo-600 hover:underline font-bold cursor-pointer">
+                    Clear
+                  </button>
+                )}
+              </div>
 
-                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
-                  {directores.map(dir => {
-                    const isSelected = selectedDirIds.includes(dir.id);
-                    return (
+              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin">
+                {directores.map(dir => {
+                  const isSelected = selectedDirIds.includes(dir.id);
+                  return (
+                    <div key={dir.id} className="relative group">
                       <button
-                        key={dir.id}
                         onClick={() => toggleSelection(setSelectedDirIds, selectedDirIds, dir.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs",
                           isSelected
                             ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -319,51 +319,103 @@ export function ProgressiveHierarchy({
                           <span className="font-bold text-[11px] truncate">{dir.nombre}</span>
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
-                        <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
-                          <span className="truncate">{dir.persona}</span>
-                          <span className="font-mono font-bold shrink-0">{formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
-                        </div>
+
+                        {dir.isSingleVp ? (
+                          <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                            <span className="truncate">{dir.persona}</span>
+                            <span className="font-mono font-bold shrink-0">{formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between gap-1 pt-0.5">
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {dir.blPills?.map(pill => (
+                                <span
+                                  key={pill}
+                                  className={cn(
+                                    "text-[8px] font-black px-1 py-0.2 rounded border uppercase",
+                                    isSelected
+                                      ? "bg-indigo-700 text-white border-indigo-500"
+                                      : pill === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30"
+                                      : pill === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30"
+                                      : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                  )}
+                                >
+                                  {pill}
+                                </span>
+                              ))}
+                            </div>
+                            <span className={cn("text-[9px] font-mono font-bold shrink-0", isSelected ? "text-indigo-100" : "text-foreground")}>
+                              {formatPct(dir.metricas.pedidos.pctAdopcion)}
+                            </span>
+                          </div>
+                        )}
                       </button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
-          {/* LEVEL 3: MARKETS */}
-          <AnimatePresence mode="popLayout">
-            {selectedDirIds.length > 0 && (
-              <motion.div
-                layout
-                key="ger-col"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={FLIP_TRANSITION}
-                className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-              >
-                <div className="w-[172px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
-                  <div className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    <span>Markets</span>
-                  </div>
-                  {selectedGerIds.length > 0 && (
-                    <button onClick={() => startTransition(() => setSelectedGerIds([]))} className="text-[9px] text-sky-600 hover:underline font-bold">
-                      Clear
-                    </button>
-                  )}
-                </div>
+                      {/* EXECUTIVE RICH TOOLTIP ON HOVER */}
+                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200">
+                        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
+                          <span>{dir.nombre} Region</span>
+                          <span className="text-slate-400 font-normal">Leadership</span>
+                        </div>
 
-                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
-                  {gerentes.map(ger => {
-                    const isSelected = selectedGerIds.includes(ger.id);
-                    return (
+                        <div className="space-y-1 mb-2">
+                          {dir.personasDetalle?.map(p => (
+                            <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
+                              <span className="font-bold text-slate-300 flex items-center gap-1">
+                                <span className="text-[8px] font-black px-1 py-0.2 rounded bg-slate-800 text-sky-300">{p.bl}</span>
+                                <span className="truncate max-w-[90px]">{p.blFull}:</span>
+                              </span>
+                              <span className="font-semibold text-emerald-400 truncate max-w-[85px]">{p.persona}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="pt-1.5 border-t border-slate-800 text-[9px] text-slate-400 flex items-center justify-between">
+                          <span>{formatNumber(dir.metricas.pedidos.totales)} Total Orders</span>
+                          <span className="font-bold text-emerald-400">{formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* LEVEL 3: MARKETS */}
+        <AnimatePresence mode="popLayout">
+          {selectedDirIds.length > 0 && (
+            <motion.div
+              layout
+              key="ger-col"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={FLIP_TRANSITION}
+              className="w-52 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs"
+            >
+              <div className="w-[188px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="flex items-center gap-1">
+                  <Users className="w-3 h-3" />
+                  <span>Markets</span>
+                </div>
+                {selectedGerIds.length > 0 && (
+                  <button onClick={() => startTransition(() => setSelectedGerIds([]))} className="text-[9px] text-sky-600 hover:underline font-bold cursor-pointer">
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin">
+                {gerentes.map(ger => {
+                  const isSelected = selectedGerIds.includes(ger.id);
+                  return (
+                    <div key={ger.id} className="relative group">
                       <button
-                        key={ger.id}
                         onClick={() => toggleSelection(setSelectedGerIds, selectedGerIds, ger.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs",
                           isSelected
                             ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -373,17 +425,69 @@ export function ProgressiveHierarchy({
                           <span className="font-bold text-[11px] truncate">{ger.nombre}</span>
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
-                        <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-sky-100" : "text-muted-foreground")}>
-                          <span className="truncate">{ger.persona}</span>
-                          <span className="font-mono font-bold shrink-0">{formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
-                        </div>
+
+                        {ger.isSingleVp ? (
+                          <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                            <span className="truncate">{ger.persona}</span>
+                            <span className="font-mono font-bold shrink-0">{formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between gap-1 pt-0.5">
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {ger.blPills?.map(pill => (
+                                <span
+                                  key={pill}
+                                  className={cn(
+                                    "text-[8px] font-black px-1 py-0.2 rounded border uppercase",
+                                    isSelected
+                                      ? "bg-sky-700 text-white border-sky-500"
+                                      : pill === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30"
+                                      : pill === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30"
+                                      : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                  )}
+                                >
+                                  {pill}
+                                </span>
+                              ))}
+                            </div>
+                            <span className={cn("text-[9px] font-mono font-bold shrink-0", isSelected ? "text-sky-100" : "text-foreground")}>
+                              {formatPct(ger.metricas.pedidos.pctAdopcion)}
+                            </span>
+                          </div>
+                        )}
                       </button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+
+                      {/* EXECUTIVE RICH TOOLTIP ON HOVER */}
+                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200">
+                        <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
+                          <span>{ger.nombre} Market</span>
+                          <span className="text-slate-400 font-normal">Managers</span>
+                        </div>
+
+                        <div className="space-y-1 mb-2">
+                          {ger.personasDetalle?.map(p => (
+                            <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
+                              <span className="font-bold text-slate-300 flex items-center gap-1">
+                                <span className="text-[8px] font-black px-1 py-0.2 rounded bg-slate-800 text-sky-300">{p.bl}</span>
+                                <span className="truncate max-w-[90px]">{p.blFull}:</span>
+                              </span>
+                              <span className="font-semibold text-emerald-400 truncate max-w-[85px]">{p.persona}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="pt-1.5 border-t border-slate-800 text-[9px] text-slate-400 flex items-center justify-between">
+                          <span>{formatNumber(ger.metricas.pedidos.totales)} Total Orders</span>
+                          <span className="font-bold text-emerald-400">{formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
           {/* LEVEL 4: SALES REPRESENTATIVES */}
           <AnimatePresence mode="popLayout">
