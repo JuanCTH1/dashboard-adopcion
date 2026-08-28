@@ -261,3 +261,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Cuando una columna supera las 5 tarjetas, se muestran las 5 primeras de manera completa y se activa un scroll vertical estilizado (scrollbar-thin).
 - **Alineación de Baseline:**
   - La tabla del Portafolio de Cuentas comparte exactamente el mismo límite max-h-[310px], logrando una simetría horizontal perfecta entre todas las columnas y el portafolio.
+---
+
+## 🎯 Versión 2.18 - Recalibración Exacta para 5 Tarjetas Visibles (max-h-[385px])
+
+- **Capacidad Exacta de 5 Tarjetas Visibles:**
+  - Se ajustó el alto máximo a max-h-[385px]. 
+  - Con este valor exacto, **las 5 regiones (o 5 vendedores) caben 100% completas en pantalla sin activar scrollbar alguno**.
+  - La barra de scroll vertical solo aparece a partir de la **6ta tarjeta en adelante** en listas largas (como Sales Reps o Markets).
