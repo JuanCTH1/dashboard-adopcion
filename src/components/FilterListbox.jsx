@@ -127,25 +127,19 @@ export function FilterListbox({
 
   return (
     <div className={cn("p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 select-none shadow-2xs", className)}>
-      {/* Cabecera sin encimarse */}
-      <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">
-            {label}
-          </span>
-          {selectedSet.size > 0 && (
-            <Badge variant="default" className="text-[9px] px-1.5 py-0 font-bold h-4 shrink-0">
-              {selectedSet.size}
-            </Badge>
-          )}
-        </div>
+      {/* Cabecera sin encimarse ni tapar etiquetas */}
+      <div className="flex items-center justify-between gap-1 mb-1.5 shrink-0">
+        <span className="text-[10px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">
+          {label}
+        </span>
         {selectedSet.size > 0 && (
           <button
             type="button"
             onClick={() => onChange([])}
-            className="text-[10px] text-primary dark:text-sky-400 hover:underline font-bold shrink-0 cursor-pointer"
+            className="text-[9px] text-primary dark:text-sky-400 hover:underline font-bold shrink-0 cursor-pointer"
+            title={`Clear ${label} filter`}
           >
-            Limpiar
+            Clear ({selectedSet.size})
           </button>
         )}
       </div>

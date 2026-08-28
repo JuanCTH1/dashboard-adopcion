@@ -586,3 +586,13 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - `clientes` mantiene la cartera asignada según la estructura seleccionada (VPs, Regiones, Mercados, Vendedores, Líneas, Onboarded, Active).
   - `transacciones` se filtra por las claves exactas de años y meses seleccionados.
   - `totalActivos` determina las cuentas con compras digitales en el periodo (`digitalClientIds`), logrando una reactividad 100% precisa y libre de inconsistencias en todo el tablero.
+---
+
+## 🎯 Versión 2.52 - Eliminación de Salto de Layout y Traslape de Etiquetas en Sidebar (`Sidebar.jsx` & `FilterListbox.jsx`)
+
+- **Bloqueo de Altura en Barra de Estado de Filtros (`Sidebar.jsx`):**
+  - Se fijó la altura de la barra superior de estado a `h-7 shrink-0` de forma permanente.
+  - **Resultado:** Seleccionar o deseleccionar filtros ya no inserta elementos dinámicos que empujen el contenido hacia abajo (0 desfasamiento vertical / 0 layout shift).
+- **Prevención de Traslape de Textos en Etiquetas (`FilterListbox.jsx`):**
+  - Se simplificó la cabecera de cada bloque de filtro a un enlace compacto `Clear (N)` a la derecha.
+  - **Resultado:** Las palabras de las etiquetas (`Year`, `Month`, `Onboarded`, `Active`) ya no son tapadas ni encimadas por insignias o botones redundantes.
