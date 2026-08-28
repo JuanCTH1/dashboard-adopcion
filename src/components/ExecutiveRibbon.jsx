@@ -41,7 +41,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     {
       id: 'onboarded',
       stepNumber: '02',
-      title: 'Onboarded',
+      title: 'Onboarded Customers',
       primaryLabel: `${formatNumber(c.onboarded)}`,
       primaryUnit: 'customers',
       secondaryLabel: `${formatCompactNumber(onboardedOrders)} onboarded orders`,
@@ -57,7 +57,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     {
       id: 'activos',
       stepNumber: '03',
-      title: 'Active',
+      title: 'Active Customers',
       primaryLabel: `${formatNumber(c.activos)}`,
       primaryUnit: 'customers',
       secondaryLabel: `${formatCompactNumber(p.digitales)} active orders`,
@@ -73,7 +73,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     {
       id: 'adopcion',
       stepNumber: '04',
-      title: 'Digital Adoption',
+      title: 'Orders Adoption',
       primaryLabel: `${formatPct(p.pctAdopcion)}`,
       primaryUnit: '',
       secondaryLabel: `${formatCompactNumber(p.digitales)} / ${formatCompactNumber(p.totales)} digital orders`,

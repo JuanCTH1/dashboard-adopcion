@@ -652,3 +652,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se implementó `formatCompactNumber(num)` (ej. 178,684 $\rightarrow$ **`178.7k orders`**).
   - Se aplicó al Ribbon y a los 4 niveles de tarjetas (VP, Region, Market, Sales Rep).
   - Se agregó atributo `title` con cursor de ayuda (`cursor-help`) para mostrar el conteo exacto de órdenes formateado con comas al posar el cursor (`title="178,684 total orders"`).
+---
+
+## 🎯 Versión 2.60 - Títulos Estandarizados en Tarjetas del Ribbon (`ExecutiveRibbon.jsx`)
+
+- **Actualización de Títulos de Etapa (`ExecutiveRibbon.jsx`):**
+  - **Tarjeta 2:** `Onboarded` $\rightarrow$ **`Onboarded Customers`**.
+  - **Tarjeta 3:** `Active` $\rightarrow$ **`Active Customers`**.
+  - **Tarjeta 4:** `Digital Adoption` $\rightarrow$ **`Orders Adoption`**.
+  - **Resultado:** Nombres de tarjetas 100% claros y corporativos en el Ribbon superior.
