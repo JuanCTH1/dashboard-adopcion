@@ -758,3 +758,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Garantía Transaccional para Clientes Inactivos (`mockGenerator.js`):**
   - Se corrigió el generador sintético para que los clientes registrados que NO son activos (`estaIncorporado: true, esActivo: false`) generen estrictamente `pedidosDigitales = 0` en todas sus transacciones.
   - **Resultado:** Al filtrar en el Sidebar **Onboarded: Yes** y **Active: No**, la tabla muestra al 100% clientes con el badge azul **`Onboarded`** y 0 compras digitales, eliminando cualquier inconsistencia con la insignia verde **`Active`**.
+---
+
+## 🎯 Versión 2.73 - Remoción de Badge de Totales en Columna Status (`ProgressiveHierarchy.jsx`)
+
+- **Limpieza de Pie de Tabla (`ProgressiveHierarchy.jsx`):**
+  - Se removió la insignia de conteo de la columna `Status` en la fila fija de totales del pie de tabla (`tfoot`), reemplazándola por un guión discreto (`—`).
+  - **Resultado:** El pie de tabla enfoca sus métricas cuantitativas en el total de clientes, las órdenes desglosadas (**Online**, **Offline**, **Total**) y la **tasa de adopción ponderada**.

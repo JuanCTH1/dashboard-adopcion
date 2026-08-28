@@ -850,11 +850,7 @@ export function ProgressiveHierarchy({
                       <td className="py-1.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-xs whitespace-nowrap">
                         {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
                       </td>
-                      <td className="py-1.5 px-2 text-center whitespace-nowrap">
-                        <Badge variant="success" className="text-[9.5px] py-0 px-1.5 font-bold">
-                          {totalesCartera.onboardedCount} Active
-                        </Badge>
-                      </td>
+                      <td className="py-1.5 px-2 text-center text-muted-foreground font-normal">—</td>
                     </tr>
                   </tfoot>
                 )}
