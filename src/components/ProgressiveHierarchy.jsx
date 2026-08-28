@@ -233,12 +233,12 @@ export function ProgressiveHierarchy({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-[156px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-[172px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <Building className="w-3 h-3" />
-                    <span>VP Divisions</span>
+                    <span>VP Division</span>
                   </div>
                   {selectedVpIds.length > 0 && (
                     <button onClick={() => startTransition(() => setSelectedVpIds([]))} className="text-[9px] text-primary hover:underline font-bold">
@@ -247,7 +247,7 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
                   {vps.map(vp => {
                     const isSelected = selectedVpIds.includes(vp.id);
                     return (
@@ -262,12 +262,12 @@ export function ProgressiveHierarchy({
                         )}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[10px] truncate">{vp.nombre}</span>
+                          <span className="font-bold text-[11px] truncate">{vp.nombre}</span>
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
-                        <div className={cn("text-[9px] flex items-center justify-between", isSelected ? "text-white/90" : "text-muted-foreground")}>
-                          <span>{formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
-                          <span>{vp.metricas.clientes.asignados} cli.</span>
+                        <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-white/90" : "text-muted-foreground")}>
+                          <span className="truncate">VP: {vp.persona}</span>
+                          <span className="font-mono font-bold shrink-0">{formatPct(vp.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
                     );
@@ -277,7 +277,7 @@ export function ProgressiveHierarchy({
             )}
           </AnimatePresence>
 
-          {/* LEVEL 2: REGIONAL DIRECTORS */}
+          {/* LEVEL 2: REGIONS */}
           <AnimatePresence mode="popLayout">
             {selectedVpIds.length > 0 && (
               <motion.div
@@ -287,12 +287,12 @@ export function ProgressiveHierarchy({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-[156px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-[172px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <Briefcase className="w-3 h-3" />
-                    <span>Directors</span>
+                    <span>Regions</span>
                   </div>
                   {selectedDirIds.length > 0 && (
                     <button onClick={() => startTransition(() => setSelectedDirIds([]))} className="text-[9px] text-indigo-600 hover:underline font-bold">
@@ -301,10 +301,9 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
                   {directores.map(dir => {
                     const isSelected = selectedDirIds.includes(dir.id);
-                    const parentVp = vps.find(v => v.id === dir.parentId);
                     return (
                       <button
                         key={dir.id}
@@ -317,16 +316,12 @@ export function ProgressiveHierarchy({
                         )}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[10px] truncate">{dir.nombre}</span>
+                          <span className="font-bold text-[11px] truncate">{dir.nombre}</span>
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
-                        <div className="flex items-center justify-between gap-1">
-                          <span className={cn("text-[8px] px-1 rounded font-bold uppercase truncate max-w-[70px]", isSelected ? "bg-indigo-700 text-white" : "bg-muted text-muted-foreground")}>
-                            {parentVp?.lineaNegocio || dir.parentId}
-                          </span>
-                          <span className={cn("text-[9px]", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
-                            {formatPct(dir.metricas.pedidos.pctAdopcion)}
-                          </span>
+                        <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                          <span className="truncate">Dir: {dir.persona}</span>
+                          <span className="font-mono font-bold shrink-0">{formatPct(dir.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
                     );
@@ -336,7 +331,7 @@ export function ProgressiveHierarchy({
             )}
           </AnimatePresence>
 
-          {/* LEVEL 3: PLAZA MANAGERS */}
+          {/* LEVEL 3: MARKETS */}
           <AnimatePresence mode="popLayout">
             {selectedDirIds.length > 0 && (
               <motion.div
@@ -346,12 +341,12 @@ export function ProgressiveHierarchy({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="w-44 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="w-48 shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-[156px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-[172px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <Users className="w-3 h-3" />
-                    <span>Managers</span>
+                    <span>Markets</span>
                   </div>
                   {selectedGerIds.length > 0 && (
                     <button onClick={() => startTransition(() => setSelectedGerIds([]))} className="text-[9px] text-sky-600 hover:underline font-bold">
@@ -360,10 +355,9 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[156px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
                   {gerentes.map(ger => {
                     const isSelected = selectedGerIds.includes(ger.id);
-                    const parentDir = directores.find(d => d.id === ger.parentId);
                     return (
                       <button
                         key={ger.id}
@@ -376,16 +370,12 @@ export function ProgressiveHierarchy({
                         )}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[10px] truncate">{ger.nombre}</span>
+                          <span className="font-bold text-[11px] truncate">{ger.nombre}</span>
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
-                        <div className="flex items-center justify-between gap-1">
-                          <span className={cn("text-[8px] px-1 rounded font-bold uppercase truncate max-w-[70px]", isSelected ? "bg-sky-700 text-white" : "bg-muted text-muted-foreground")}>
-                            {parentDir?.nombre?.split(' ')[1] || ger.parentId}
-                          </span>
-                          <span className={cn("text-[9px]", isSelected ? "text-sky-100" : "text-muted-foreground")}>
-                            {formatPct(ger.metricas.pedidos.pctAdopcion)}
-                          </span>
+                        <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                          <span className="truncate">Mgr: {ger.persona}</span>
+                          <span className="font-mono font-bold shrink-0">{formatPct(ger.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
                     );
@@ -434,14 +424,12 @@ export function ProgressiveHierarchy({
                         )}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 truncate">
-                            <span className="font-bold text-[10px] truncate">{rep.nombre}</span>
-                          </div>
+                          <span className="font-bold text-[11px] truncate">{rep.nombre}</span>
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
-                        <div className={cn("text-[9px] flex items-center justify-between", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
-                          <span className="truncate max-w-[80px]">{rep.plaza}</span>
-                          <span>{formatPct(rep.metricas.pedidos.pctAdopcion)}</span>
+                        <div className={cn("text-[9px] flex items-center justify-between gap-1", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
+                          <span className="truncate">{rep.plaza}</span>
+                          <span className="font-mono font-bold shrink-0">{formatPct(rep.metricas.pedidos.pctAdopcion)}</span>
                         </div>
                       </button>
                     );

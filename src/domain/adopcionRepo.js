@@ -160,6 +160,7 @@ class AdopcionRepository {
       nodos = this.data.VPS.map(vp => ({
         id: vp.id,
         nombre: vp.nombre,
+        persona: vp.persona,
         tipo: 'VP',
         parentId: null,
         lineaNegocio: vp.lineaNegocio,
@@ -174,6 +175,7 @@ class AdopcionRepository {
         .map(d => ({
           id: d.id,
           nombre: d.nombre,
+          persona: d.persona,
           tipo: 'Director',
           parentId: d.vpId,
           lineaNegocio: d.lineaNegocio,
@@ -187,6 +189,7 @@ class AdopcionRepository {
         .map(g => ({
           id: g.id,
           nombre: g.nombre,
+          persona: g.persona,
           tipo: 'Gerente',
           parentId: g.directorId,
           lineaNegocio: g.lineaNegocio,
