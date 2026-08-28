@@ -98,7 +98,7 @@ export function generateDataset(seed = 20260828) {
           regionId: ger.regionId,
           regionNombre: regionObj.nombre,
           plaza: plaza,
-          empujeOnboarding: rand() * 0.4 + 0.6 // factor entre 0.6 y 1.0
+          empujeOnboarding: rand() * 0.4 + 0.6
         });
         vIdx++;
       }
@@ -115,32 +115,28 @@ export function generateDataset(seed = 20260828) {
   let cIdx = 1;
 
   VENDEDORES.forEach(rep => {
-    const numClientes = Math.floor(rand() * 12) + 20; // 20 a 31 clientes por vendedor
+    const numClientes = Math.floor(rand() * 12) + 20; // 20 a 31 clientes
 
     for (let i = 0; i < numClientes; i++) {
       const cId = `CLI-${String(cIdx).padStart(5, '0')}`;
       cIdx++;
 
-      // Línea de negocio
       const lRand = rand();
       const linea = lRand < 0.45 ? LINEAS_LIST[0] : lRand < 0.80 ? LINEAS_LIST[1] : LINEAS_LIST[2];
 
-      // Volumen Pareto (distribución log-normal)
       const u = rand();
       const isTopPareto = u > 0.80; // top 20%
       const volumenBase = isTopPareto
         ? Math.floor(rand() * 2500) + 1200
         : Math.floor(rand() * 220) + 40;
 
-      // Onboarding state
-      const estaIncorporado = rand() < (0.65 * rep.empujeOnboarding);
-      const esActivo = estaIncorporado && rand() < 0.82;
-      const esRevertido = estaIncorporado && !esActivo && rand() < 0.35;
+      const estaIncorporado = rand() < (0.75 * rep.empujeOnboarding);
+      const esActivo = estaIncorporado && rand() < 0.86;
+      const esRevertido = estaIncorporado && !esActivo && rand() < 0.30;
 
       const fttv = estaIncorporado ? Math.floor(rand() * 28) + 2 : null;
-      const digitalShare = esActivo ? rand() * 0.55 + 0.40 : 0; // 40% a 95% si es activo
+      const digitalShare = esActivo ? rand() * 0.45 + 0.50 : 0;
 
-      // Canales
       const canalRand = rand();
       const canalPreferido = canalRand < 0.55 ? 'web' : canalRand < 0.85 ? 'app' : 'edi';
 
@@ -168,21 +164,25 @@ export function generateDataset(seed = 20260828) {
     }
   });
 
-  // Generación de Transacciones Históricas (2024, 2025, 2026) con curva de adopción ascendente
+  // Curva de Adopción Realista: Inicia en ~12.2% en Ene 2024 y llega a ~75.4% en Ago 2026 con fluctuaciones
+  // Array de tasas base históricas no-lineales
+  const BASE_CURVE_24M = [
+    0.122, 0.135, 0.118, 0.149, 0.174, 0.162, 0.201, 0.228, 0.215, 0.254, 0.282, 0.269, // 2024: 12% a 27%
+    0.312, 0.345, 0.331, 0.386, 0.421, 0.408, 0.465, 0.502, 0.489, 0.541, 0.583, 0.569, // 2025: 31% a 57%
+    0.615, 0.648, 0.632, 0.684, 0.721, 0.709, 0.738, 0.754, 0.768, 0.782, 0.795, 0.812  // 2026: 61% a 81%
+  ];
+
   const TRANSACCIONES = [];
 
   MESES.forEach((m, mIdx) => {
-    // Factor de madurez digital: 2024 inicia con ~20%, 2025 sube a ~42%, 2026 alcanza ~62%
-    const progresoTemporal = mIdx / (MESES.length - 1); // 0 a 1
-    const baseDigitalRate = 0.20 + (progresoTemporal * 0.44); // 20% a 64%
+    const baseRate = BASE_CURVE_24M[mIdx] || 0.50;
 
     CLIENTES.forEach(cli => {
       // Estacionalidad mensual
-      const seasonality = 1 + (Math.sin(m.mesNum * 0.5) * 0.12);
-      const volMes = Math.max(10, Math.round(cli.volumenBase * seasonality * (rand() * 0.3 + 0.85)));
+      const seasonality = 1 + (Math.sin(m.mesNum * 0.5) * 0.10);
+      const volMes = Math.max(10, Math.round(cli.volumenBase * seasonality * (rand() * 0.25 + 0.88)));
 
-      // Número de pedidos en el mes
-      const pedidosTotales = Math.max(1, Math.round((volMes / (cli.isTopPareto ? 180 : 35)) * (rand() * 0.4 + 0.8)));
+      const pedidosTotales = Math.max(1, Math.round((volMes / (cli.isTopPareto ? 160 : 32)) * (rand() * 0.35 + 0.82)));
 
       let pedidosDigitales = 0;
       let pedidosAnalogos = pedidosTotales;
@@ -190,9 +190,9 @@ export function generateDataset(seed = 20260828) {
       let volAnalogo = volMes;
 
       if (cli.estaIncorporado) {
-        // En 2024 la probabilidad de pedir digital es menor pero existente, sube con el tiempo
-        const probDigital = Math.min(0.95, (cli.digitalShare * 0.7) + (baseDigitalRate * 0.4) + (rand() * 0.15));
-        pedidosDigitales = Math.round(pedidosTotales * probDigital);
+        // Factor de adopción no-lineal con ruido
+        const clientAdoptionRate = Math.min(0.98, Math.max(0.04, baseRate * (cli.esActivo ? 1.25 : 0.45) + ((rand() - 0.5) * 0.12)));
+        pedidosDigitales = Math.round(pedidosTotales * clientAdoptionRate);
         if (pedidosDigitales > pedidosTotales) pedidosDigitales = pedidosTotales;
         pedidosAnalogos = pedidosTotales - pedidosDigitales;
 
@@ -206,13 +206,13 @@ export function generateDataset(seed = 20260828) {
 
       if (pedidosDigitales > 0) {
         if (cli.canalPreferido === 'web') {
-          pedidosWeb = Math.ceil(pedidosDigitales * 0.7);
+          pedidosWeb = Math.ceil(pedidosDigitales * 0.65);
           pedidosApp = pedidosDigitales - pedidosWeb;
         } else if (cli.canalPreferido === 'app') {
-          pedidosApp = Math.ceil(pedidosDigitales * 0.7);
+          pedidosApp = Math.ceil(pedidosDigitales * 0.65);
           pedidosWeb = pedidosDigitales - pedidosApp;
         } else {
-          pedidosEdi = Math.ceil(pedidosDigitales * 0.8);
+          pedidosEdi = Math.ceil(pedidosDigitales * 0.75);
           pedidosWeb = pedidosDigitales - pedidosEdi;
         }
       }

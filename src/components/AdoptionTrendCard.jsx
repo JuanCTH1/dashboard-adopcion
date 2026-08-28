@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine, CartesianGrid } from 'recharts';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { useChartTheme } from '@/lib/theme';
-import { TrendingUp } from 'lucide-react';
 
 export function AdoptionTrendCard({ serieHistorica = [] }) {
   const [metricMode, setMetricMode] = useState('adopcion'); // 'adopcion' | 'concreto' | 'cemento'
@@ -35,12 +34,12 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
             </h3>
           </div>
           <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
-            Evolución temporal del comportamiento transaccional digital a lo largo de 24 meses.
+            Curva de penetración digital a lo largo de 24 meses (de 12% inicial a 75%+ con estacionalidad).
           </p>
         </div>
 
         {/* Selector de Métrica */}
-        <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-850 p-0.5 border border-border text-xs font-semibold">
+        <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-900 p-0.5 border border-border text-xs font-semibold">
           <button
             type="button"
             onClick={() => setMetricMode('adopcion')}
@@ -96,10 +95,11 @@ export function AdoptionTrendCard({ serieHistorica = [] }) {
               tick={{ fontSize: 10, fill: isDark ? '#94a3b8' : '#64748b' }}
               axisLine={{ stroke: isDark ? '#334155' : '#cbd5e1' }}
               tickLine={false}
+              domain={metricMode === 'adopcion' ? [0, 100] : ['auto', 'auto']}
               tickFormatter={(v) => metricMode === 'adopcion' ? `${v}%` : formatNumber(v)}
             />
             {metricMode === 'adopcion' && (
-              <ReferenceLine y={75} stroke="#10b981" strokeDasharray="4 4" label={{ value: "Objetivo 75%", fill: "#10b981", fontSize: 10, position: "top" }} />
+              <ReferenceLine y={90} stroke="#10b981" strokeDasharray="4 4" label={{ value: "Objetivo 90%", fill: "#10b981", fontSize: 10, position: "top" }} />
             )}
             <Tooltip
               content={({ active, payload }) => {

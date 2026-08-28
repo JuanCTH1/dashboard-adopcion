@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Sun, Moon, Download, X, SlidersHorizontal, Sparkles, Filter } from 'lucide-react';
+import { Search, Sun, Moon, Download, X, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AppLogo } from '@/components/ui/AppLogo';
@@ -17,19 +17,19 @@ export function AppHeader({
   onExportCsv
 }) {
   return (
-    <header className="border-b border-border/80 bg-card/95 backdrop-blur-md sticky top-0 z-30 shadow-xxs transition-colors select-none">
+    <header className="border-b border-border bg-card sticky top-0 z-30 shadow-xxs transition-colors select-none">
       {/* Nivel 1: Barra Principal */}
-      <div className="h-12 px-4 sm:px-6 flex items-center justify-between gap-3">
+      <div className="h-12 px-4 sm:px-6 flex items-center justify-between gap-3 bg-card">
         <div className="flex items-center gap-3">
           <AppLogo />
 
           <div className="h-4 w-[1px] bg-border hidden md:block" />
 
-          {/* Botón Omnibox Buscador Global */}
+          {/* Botón Omnibox Buscador Global (Calibrado para Modo Oscuro y Claro) */}
           <button
             type="button"
             onClick={onOpenSearch}
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-850 hover:bg-slate-200/80 dark:hover:bg-slate-800 text-muted-foreground hover:text-foreground text-xs font-medium border border-border/80 transition-all cursor-pointer shadow-xxs"
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium border border-border transition-all cursor-pointer shadow-xxs"
           >
             <Search className="w-3.5 h-3.5 text-primary" />
             <span>Buscar vendedor, plaza o cliente...</span>
@@ -57,7 +57,7 @@ export function AppHeader({
             variant="ghost"
             size="icon"
             onClick={onToggleDark}
-            className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-850"
             title={isDark ? "Cambiar a Modo Claro" : "Cambiar a Modo Oscuro"}
           >
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
@@ -65,9 +65,9 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* Nivel 2: Barra de Chips de Filtros Activos Removibles (estilo Penetron Dash) */}
+      {/* Nivel 2: Barra de Chips de Filtros Activos Removibles */}
       {activeChips.length > 0 && (
-        <div className="px-4 sm:px-6 py-1.5 bg-slate-50/90 dark:bg-slate-900/60 border-t border-border/60 flex items-center justify-between gap-2 overflow-x-auto">
+        <div className="px-4 sm:px-6 py-1.5 bg-slate-50 dark:bg-slate-950 border-t border-border flex items-center justify-between gap-2 overflow-x-auto">
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1 mr-1">
               <Filter className="w-3 h-3 text-primary" />
