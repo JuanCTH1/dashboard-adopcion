@@ -661,3 +661,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - **Tarjeta 3:** `Active` $\rightarrow$ **`Active Customers`**.
   - **Tarjeta 4:** `Digital Adoption` $\rightarrow$ **`Orders Adoption`**.
   - **Resultado:** Nombres de tarjetas 100% claros y corporativos en el Ribbon superior.
+---
+
+## 🎯 Versión 2.61 - Simplificación de Subtítulos de Órdenes a "orders" (`ExecutiveRibbon.jsx`)
+
+- **Simplificación de Etiquetas Secundarias (`ExecutiveRibbon.jsx`):**
+  - **Tarjeta 2 (Onboarded Customers):** `XXk onboarded orders` $\rightarrow$ **`XXk orders`**.
+  - **Tarjeta 3 (Active Customers):** `XXk active orders` $\rightarrow$ **`XXk orders`**.
+  - **Resultado:** Subtítulos ultracompactos y limpios sin redundancias de calificadores.
