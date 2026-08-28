@@ -520,3 +520,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se tradujeron todas las etiquetas y deltas secundarios (`accounts`, `total orders`, `onboarded orders`, `active orders`, `digital orders`, `this month`, `vs 90.0% Goal`).
 - **Limpieza de Encabezado en Sidebar (`Sidebar.jsx`):**
   - Se eliminó el texto redundante `"Time Context"` y el ícono de filtro en la cabecera del sidebar.
+---
+
+## 🎯 Versión 2.43 - Caché Ultra Rápida de Métricas Jerárquicas (`adopcionRepo.js`)
+
+- **Caché en Memoria `_jerarquiaCache`:**
+  - Se implementó una caché en memoria en `AdopcionRepository.getJerarquia()` que guarda instantáneamente el resultado de agregación de métricas de nodos por nivel y filtro.
+  - **Resultado:** Elimina el recálculo pesado de arrays al seleccionar tarjetas en el navegador de jerarquía, acelerando la respuesta a **<1ms** sin pantallazos blancos ni retardos.

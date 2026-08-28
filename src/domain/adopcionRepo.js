@@ -168,6 +168,14 @@ class AdopcionRepository {
   }
 
   getJerarquia(nivel = 'nacional', parentIds = [], filtros = {}) {
+    if (!this._jerarquiaCache) {
+      this._jerarquiaCache = new Map();
+    }
+    const cacheKey = `${nivel}_${JSON.stringify(parentIds)}_${JSON.stringify(filtros)}`;
+    if (this._jerarquiaCache.has(cacheKey)) {
+      return this._jerarquiaCache.get(cacheKey);
+    }
+
     let nodos = [];
     const parentSet = new Set(Array.isArray(parentIds) ? parentIds : [parentIds].filter(Boolean));
 
@@ -357,7 +365,7 @@ class AdopcionRepository {
         }));
     }
 
-    return nodos.map(nodo => {
+    const resultado = nodos.map(nodo => {
       let nodoFiltro = { ...baseFiltro };
       if (nodo.tipo === 'VP') nodoFiltro.vpId = nodo.id;
       else if (nodo.tipo === 'Director') {
@@ -386,6 +394,9 @@ class AdopcionRepository {
         metaAdopcion: 90.0
       };
     });
+
+    this._jerarquiaCache.set(cacheKey, resultado);
+    return resultado;
   }
 
   getCartera(vendedorId = null, filtros = {}) {
