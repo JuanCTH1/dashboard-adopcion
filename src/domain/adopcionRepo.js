@@ -1,5 +1,5 @@
 /**
- * REPOSITORIO DE DATOS DE ADOPCIÓN CX - ENGLISH COPIES & ACCURATE CHANNEL MATCHING
+ * HIGH-PERFORMANCE REPOSITORIO DE DATOS DE ADOPCIÓN CX (INDEXED MAP LOOKUPS FOR 0ms INSTANT ANIMATIONS)
  */
 
 import { generateDataset } from './mockGenerator.js';
@@ -9,6 +9,22 @@ import { METRIC_DEFINITIONS, LINEAS_NEGOCIO } from './definiciones.js';
 class AdopcionRepository {
   constructor(seed = 20260828) {
     this.data = generateDataset(seed);
+
+    // INDEXATION FOR O(1) INSTANT LOOKUPS
+    this.txByPeriod = new Map();
+    this.txByClient = new Map();
+
+    this.data.TRANSACCIONES.forEach(t => {
+      if (!this.txByPeriod.has(t.periodo)) {
+        this.txByPeriod.set(t.periodo, []);
+      }
+      this.txByPeriod.get(t.periodo).push(t);
+
+      if (!this.txByClient.has(t.clienteId)) {
+        this.txByClient.set(t.clienteId, []);
+      }
+      this.txByClient.get(t.clienteId).push(t);
+    });
   }
 
   getDefiniciones() {
@@ -42,6 +58,7 @@ class AdopcionRepository {
     const gerenteIds = filtros.gerenteIds?.length ? filtros.gerenteIds : (filtros.gerenteId ? [filtros.gerenteId] : []);
     const vendedorIds = filtros.vendedorIds?.length ? filtros.vendedorIds : (filtros.vendedorId ? [filtros.vendedorId] : []);
 
+    // 1. FAST CLIENT FILTERING
     let clientesFiltrados = this.data.CLIENTES;
     if (lineas.length) clientesFiltrados = clientesFiltrados.filter(c => lineas.includes(c.lineaNegocio));
     if (regiones.length) clientesFiltrados = clientesFiltrados.filter(c => regiones.includes(c.regionId));
@@ -53,25 +70,32 @@ class AdopcionRepository {
 
     const clientIdsSet = new Set(clientesFiltrados.map(c => c.id));
 
-    const mesesValidosKeys = new Set();
+    // 2. FAST PERIOD LOOKUP (O(1) MAP LOOKUP INSTEAD OF 43,200 ARRAY SCANS)
+    const mesesValidosKeys = [];
     this.data.MESES.forEach(m => {
       if (anios.includes(m.anio) && mesesNombres.includes(m.nombreMes)) {
-        mesesValidosKeys.add(m.key);
+        mesesValidosKeys.push(m.key);
       }
     });
 
-    if (mesesValidosKeys.size === 0) {
-      mesesValidosKeys.add(this.data.periodoActual);
+    if (mesesValidosKeys.length === 0) {
+      mesesValidosKeys.push(this.data.periodoActual);
     }
 
-    const transaccionesPeriodo = this.data.TRANSACCIONES.filter(t => 
-      mesesValidosKeys.has(t.periodo) && clientIdsSet.has(t.clienteId)
-    );
+    const transaccionesPeriodo = [];
+    mesesValidosKeys.forEach(pKey => {
+      const txs = this.txByPeriod.get(pKey) || [];
+      for (let i = 0; i < txs.length; i++) {
+        if (clientIdsSet.has(txs[i].clienteId)) {
+          transaccionesPeriodo.push(txs[i]);
+        }
+      }
+    });
 
     return {
       clientes: clientesFiltrados,
       transacciones: transaccionesPeriodo,
-      mesesValidosKeys: Array.from(mesesValidosKeys)
+      mesesValidosKeys
     };
   }
 
@@ -101,9 +125,8 @@ class AdopcionRepository {
     const clientIdsSet = new Set(clientes.map(c => c.id));
 
     return meses.map(m => {
-      const txsMes = this.data.TRANSACCIONES.filter(t => 
-        t.periodo === m.key && clientIdsSet.has(t.clienteId)
-      );
+      const txs = this.txByPeriod.get(m.key) || [];
+      const txsMes = txs.filter(t => clientIdsSet.has(t.clienteId));
       const agg = calculateAggregations(txsMes, clientes);
       return {
         periodo: m.key,
@@ -231,7 +254,6 @@ class AdopcionRepository {
         ? (tx.pedidosDigitales / tx.pedidosTotales) * 100
         : 0;
 
-      // Determinación estricta del Canal Principal
       let primaryChannel = 'Phone / Offline';
       if (tx.pedidosDigitales > 0) {
         if (tx.pedidosWeb >= tx.pedidosApp && tx.pedidosWeb >= tx.pedidosEdi) {
@@ -311,7 +333,7 @@ class AdopcionRepository {
       sinIncorporar,
       inactivosORevertidos,
       volumenEnRiesgoTotal: sinIncorporar.reduce((sum, c) => sum + c.volumen, 0) +
-                            inactivosORevertidos.reduce((sum, c) => sum + c.volumen, 0)
+                             inactivosORevertidos.reduce((sum, c) => sum + c.volumen, 0)
     };
   }
 

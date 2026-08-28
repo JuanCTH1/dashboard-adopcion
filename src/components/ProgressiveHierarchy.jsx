@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, startTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,9 +25,9 @@ import {
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
 
-// Smooth cubic-bezier curve ("fluida como el agua")
-const SMOOTH_FLUID_TRANSITION = {
-  duration: 0.35,
+// High-speed fluid transition (0ms startup, GPU hardware-accelerated)
+const INSTANT_FLUID_TRANSITION = {
+  duration: 0.30,
   ease: [0.16, 1, 0.3, 1]
 };
 
@@ -47,14 +47,16 @@ export function ProgressiveHierarchy({
   // Expandable table rows state
   const [expandedRowIds, setExpandedRowIds] = useState(new Set());
 
-  // Propagar selección al tablero completo (Dashboard Global Slicer)
+  // Propagar selección al tablero completo sin bloquear el render principal
   useEffect(() => {
     if (onHierarchyFilterChange) {
-      onHierarchyFilterChange({
-        vpIds: selectedVpIds,
-        directorIds: selectedDirIds,
-        gerenteIds: selectedGerIds,
-        vendedorIds: selectedRepIds
+      startTransition(() => {
+        onHierarchyFilterChange({
+          vpIds: selectedVpIds,
+          directorIds: selectedDirIds,
+          gerenteIds: selectedGerIds,
+          vendedorIds: selectedRepIds
+        });
       });
     }
   }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, onHierarchyFilterChange]);
@@ -68,13 +70,15 @@ export function ProgressiveHierarchy({
     });
   };
 
-  // Helpers
+  // Instant non-blocking toggle
   const toggleSelection = (setter, currentArr, id) => {
-    if (currentArr.includes(id)) {
-      setter(currentArr.filter(x => x !== id));
-    } else {
-      setter([...currentArr, id]);
-    }
+    startTransition(() => {
+      if (currentArr.includes(id)) {
+        setter(currentArr.filter(x => x !== id));
+      } else {
+        setter([...currentArr, id]);
+      }
+    });
   };
 
   const vps = useMemo(() => {
@@ -222,7 +226,7 @@ export function ProgressiveHierarchy({
               initial={{ opacity: 0, width: 0, marginRight: 0 }}
               animate={{ opacity: 1, width: 176, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={SMOOTH_FLUID_TRANSITION}
+              transition={INSTANT_FLUID_TRANSITION}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[156px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
@@ -275,7 +279,7 @@ export function ProgressiveHierarchy({
               initial={{ opacity: 0, width: 0, marginRight: 0 }}
               animate={{ opacity: 1, width: 176, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={SMOOTH_FLUID_TRANSITION}
+              transition={INSTANT_FLUID_TRANSITION}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[156px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
@@ -333,7 +337,7 @@ export function ProgressiveHierarchy({
               initial={{ opacity: 0, width: 0, marginRight: 0 }}
               animate={{ opacity: 1, width: 176, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={SMOOTH_FLUID_TRANSITION}
+              transition={INSTANT_FLUID_TRANSITION}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[156px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
@@ -391,7 +395,7 @@ export function ProgressiveHierarchy({
               initial={{ opacity: 0, width: 0, marginRight: 0 }}
               animate={{ opacity: 1, width: 192, marginRight: 10 }}
               exit={{ opacity: 0, width: 0, marginRight: 0 }}
-              transition={SMOOTH_FLUID_TRANSITION}
+              transition={INSTANT_FLUID_TRANSITION}
               className="shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
             >
               <div className="w-[172px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
@@ -441,7 +445,7 @@ export function ProgressiveHierarchy({
         {/* RIGHT HAND PERMANENT TABLE: SMOOTH POSITIONAL TRANSITION ("FLUIDA COMO EL AGUA") */}
         <motion.div
           layout="position"
-          transition={SMOOTH_FLUID_TRANSITION}
+          transition={INSTANT_FLUID_TRANSITION}
           className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
         >
           <div>
