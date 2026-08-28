@@ -696,3 +696,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
     1. **Tabla 1 (Izquierda):** **Onboarding Ranking** (ordenado por tasa de incorporación % + conteo de clientes `X/Y cust`).
     2. **Tabla 2 (Derecha):** **Orders Adoption Ranking** (ordenado por tasa de adopción de órdenes % + conteo de pedidos `X/Y ord`).
   - **Pestañas de Dimensión Compartidas:** Ambas tablas recalculan sus posiciones en paralelo al alternar las pestañas `Line`, `Reps`, `Markets`, `Regions`.
+---
+
+## 🎯 Versión 2.65 - Anclaje Rígido de Altura a 255px en Módulo de Rankings (`LeaderboardCard.jsx`)
+
+- **Restricción de Altura Máxima (`LeaderboardCard.jsx`):**
+  - Se aplicó `h-[255px] max-h-[255px]` al contenedor principal del Card de Rankings para alinearlo al milímetro con la tarjeta de Tendencia Histórica a la izquierda.
+  - Se asignó `max-h-[160px]` a las 2 mini-tablas internas con scroll suave (`scrollbar-thin`), evitando cualquier desbordamiento o estiramiento vertical infinito.

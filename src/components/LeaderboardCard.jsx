@@ -52,7 +52,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
   };
 
   return (
-    <Card className="p-3.5 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none font-sans h-full flex flex-col justify-between">
+    <Card className="p-3.5 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none font-sans h-[255px] max-h-[255px] flex flex-col justify-between">
       {/* Top Accent Bar */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-500 via-primary to-emerald-500" />
 
@@ -128,7 +128,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
             <span>Onboarding Ranking</span>
           </div>
 
-          <div className="overflow-y-auto flex-1 scrollbar-thin">
+          <div className="overflow-y-auto max-h-[160px] flex-1 scrollbar-thin">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="text-[9px] font-extrabold uppercase text-muted-foreground border-b border-border/60">
@@ -172,7 +172,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
             <span>Orders Adoption Ranking</span>
           </div>
 
-          <div className="overflow-y-auto flex-1 scrollbar-thin">
+          <div className="overflow-y-auto max-h-[160px] flex-1 scrollbar-thin">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="text-[9px] font-extrabold uppercase text-muted-foreground border-b border-border/60">
