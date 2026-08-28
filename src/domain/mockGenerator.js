@@ -269,14 +269,71 @@ export function generateDataset(seed = 20260828) {
     ]
   };
 
+  // Dynamic Macro Funnel Shifts for 36 months (Alternating weakest links across steps 2, 3, 4)
+  const MONTHLY_FUNNEL_SHIFTS = [
+    // 2024 (12 months):
+    { onboardShift:  0.12, activeShift: -0.16, adoptShift:  0.03 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift: -0.18, activeShift:  0.12, adoptShift:  0.05 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.08, activeShift:  0.10, adoptShift: -0.18 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.14, activeShift: -0.10, adoptShift:  0.12 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.14, activeShift: -0.18, adoptShift:  0.04 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.06, activeShift:  0.12, adoptShift: -0.20 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.16, activeShift:  0.10, adoptShift:  0.06 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.11, activeShift: -0.15, adoptShift:  0.04 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.07, activeShift:  0.09, adoptShift: -0.16 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.15, activeShift:  0.11, adoptShift:  0.05 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.13, activeShift: -0.17, adoptShift:  0.06 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.05, activeShift:  0.08, adoptShift: -0.17 }, // Weakest link: Orders Adoption (Step 4)
+
+    // 2025 (12 months):
+    { onboardShift:  0.13, activeShift: -0.17, adoptShift:  0.04 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift: -0.19, activeShift:  0.13, adoptShift:  0.06 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.09, activeShift:  0.11, adoptShift: -0.19 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.15, activeShift: -0.11, adoptShift:  0.14 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.15, activeShift: -0.19, adoptShift:  0.05 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.07, activeShift:  0.13, adoptShift: -0.21 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.17, activeShift:  0.11, adoptShift:  0.07 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.12, activeShift: -0.16, adoptShift:  0.05 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.08, activeShift:  0.10, adoptShift: -0.17 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.16, activeShift:  0.12, adoptShift:  0.06 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.14, activeShift: -0.18, adoptShift:  0.07 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.06, activeShift:  0.09, adoptShift: -0.18 }, // Weakest link: Orders Adoption (Step 4)
+
+    // 2026 (12 months):
+    { onboardShift:  0.14, activeShift: -0.18, adoptShift:  0.05 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift: -0.20, activeShift:  0.14, adoptShift:  0.07 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.10, activeShift:  0.12, adoptShift: -0.20 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.16, activeShift: -0.12, adoptShift:  0.15 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.16, activeShift: -0.20, adoptShift:  0.06 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.08, activeShift:  0.14, adoptShift: -0.22 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.18, activeShift:  0.12, adoptShift:  0.08 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.13, activeShift: -0.17, adoptShift:  0.06 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.09, activeShift:  0.11, adoptShift: -0.18 }, // Weakest link: Orders Adoption (Step 4)
+    { onboardShift: -0.17, activeShift:  0.13, adoptShift:  0.07 }, // Weakest link: Onboarding (Step 2)
+    { onboardShift:  0.15, activeShift: -0.19, adoptShift:  0.08 }, // Weakest link: Active Conversion (Step 3)
+    { onboardShift:  0.07, activeShift:  0.10, adoptShift: -0.19 }  // Weakest link: Orders Adoption (Step 4)
+  ];
+
   const TRANSACCIONES = [];
 
   MESES.forEach((m, mIdx) => {
     const baseRate = BASE_CURVE_36M[mIdx] || 0.55;
+    const funnelShift = MONTHLY_FUNNEL_SHIFTS[mIdx] || { onboardShift: 0, activeShift: 0, adoptShift: 0 };
 
     CLIENTES.forEach(cli => {
       const blShifts = BL_MONTHLY_SHIFTS[cli.lineaNegocio] || [];
       const blShift = blShifts[mIdx] || 0;
+
+      const p = cli.profile || { onboardingPower: 0.75, activeConversion: 0.80, basePropensity: 0.60 };
+
+      // Monthly evaluation of onboarding status for dynamic weakest link shifts
+      const monthOnboardRate = Math.min(0.95, Math.max(0.35, p.onboardingPower + funnelShift.onboardShift + ((rand() - 0.5) * 0.16)));
+      const estaIncorporadoMes = rand() < monthOnboardRate;
+
+      // Monthly evaluation of active status for dynamic weakest link shifts
+      const monthActiveRate = Math.min(0.95, Math.max(0.30, p.activeConversion + funnelShift.activeShift + ((rand() - 0.5) * 0.16)));
+      const esActivoMes = estaIncorporadoMes && (rand() < monthActiveRate);
+      const esRevertidoMes = estaIncorporadoMes && !esActivoMes && (rand() < 0.40);
 
       const seasonality = 1 + (Math.sin(m.mesNum * 0.5) * 0.10);
       const volMes = Math.max(10, Math.round(cli.volumenBase * seasonality * (rand() * 0.25 + 0.88)));
@@ -287,10 +344,10 @@ export function generateDataset(seed = 20260828) {
       let volDigital = 0;
       let volAnalogo = volMes;
 
-      if (cli.estaIncorporado && cli.esActivo) {
-        // Organic monthly volatility per client (+/- 14% variance per month) + BL shift
-        const clientVolatility = (rand() - 0.5) * 0.28;
-        const targetRate = baseRate + blShift;
+      if (estaIncorporadoMes && esActivoMes) {
+        // Organic monthly volatility per client (+/- 12% variance per month) + BL shift + funnel shift
+        const clientVolatility = (rand() - 0.5) * 0.24;
+        const targetRate = baseRate + blShift + funnelShift.adoptShift;
         const clientAdoptionRate = Math.min(0.96, Math.max(0.12, (targetRate * 0.60) + (cli.basePropensity * 0.40) + clientVolatility));
 
         pedidosDigitales = Math.round(pedidosTotales * clientAdoptionRate);
@@ -330,6 +387,9 @@ export function generateDataset(seed = 20260828) {
         plaza: cli.plaza,
         lineaNegocio: cli.lineaNegocio,
         unidad: cli.unidad,
+        estaIncorporado: estaIncorporadoMes,
+        esActivo: esActivoMes,
+        esRevertido: esRevertidoMes,
         pedidosTotales,
         pedidosDigitales,
         pedidosAnalogos,

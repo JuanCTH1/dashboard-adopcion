@@ -866,3 +866,14 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Actualización de Títulos e Identidad:**
   - Se simplificaron los textos del logotipo y encabezados laterales de `ADOPCIÓN CX` / `CX ADOPTION` a estrictamente **`ADOPTION`** en [AppLogo.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ui/AppLogo.jsx) y [Sidebar.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/Sidebar.jsx).
   - Se actualizó la etiqueta de título HTML a `Adoption Dashboard` en `index.html`.
+---
+
+## 🎯 Versión 2.87 - Rotación Dinámica del "Eslabón Más Débil" del Embudo por Mes y Mercado (`mockGenerator.js`, `aggregation.js`)
+
+- **Dinámica Transaccional de Cuellos de Botella Variable (`MONTHLY_FUNNEL_SHIFTS`):**
+  - Se implementó un arreglo de desfases dinámicos para los 36 meses (`MONTHLY_FUNNEL_SHIFTS`), alternando la etapa crítica entre meses y plazas.
+  - **Evaluación Transaccional Dinámica ([aggregation.js](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/domain/aggregation.js)):**
+    - **Mes 1 (ej. Enero):** El cuello de botella es la **Conversión Activa** (Step 3: Cuentas registradas que no hicieron pedidos digitales).
+    - **Mes 2 (ej. Febrero):** El cuello de botella pasa a ser el **Onboarding** (Step 2: Cuentas sin registrar en el portal).
+    - **Mes 3 (ej. Marzo):** El cuello de botella es el **Volumen / Adopción de Órdenes** (Step 4: Cuentas activas que mantienen compras telefónicas parciales).
+  - **Resultado:** Al filtrar distintos meses, el embudo resalta cuellos de botella variables y realistas en lugar de tener siempre la misma etapa débil.

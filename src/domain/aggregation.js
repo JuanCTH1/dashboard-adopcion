@@ -53,18 +53,26 @@ export function calculateAggregations(transacciones = [], clientes = []) {
     }
   });
 
-  const hasTxFilter = transacciones.length > 0 && periodClientIds.size < clientes.length;
+  const hasTxFilter = transacciones.length > 0;
 
-  const filteredClientsInPeriod = hasTxFilter
+  const onboardedClientIds = new Set();
+  const revertidosClientIds = new Set();
+
+  if (hasTxFilter) {
+    transacciones.forEach(t => {
+      if (t.estaIncorporado) onboardedClientIds.add(t.clienteId);
+      if (t.esRevertido) revertidosClientIds.add(t.clienteId);
+    });
+  }
+
+  const filteredClientsInPeriod = (hasTxFilter && periodClientIds.size < clientes.length)
     ? clientes.filter(c => periodClientIds.has(c.id))
     : clientes;
 
   const totalAsignados = filteredClientsInPeriod.length || clientes.length;
-  const totalOnboarded = filteredClientsInPeriod.filter(c => c.estaIncorporado).length;
-  const totalActivos = hasTxFilter
-    ? clientes.filter(c => digitalClientIds.has(c.id)).length
-    : clientes.filter(c => c.esActivo).length;
-  const totalRevertidos = filteredClientsInPeriod.filter(c => c.esRevertido).length;
+  const totalOnboarded = hasTxFilter ? onboardedClientIds.size : filteredClientsInPeriod.filter(c => c.estaIncorporado).length;
+  const totalActivos = hasTxFilter ? digitalClientIds.size : clientes.filter(c => c.esActivo).length;
+  const totalRevertidos = hasTxFilter ? revertidosClientIds.size : filteredClientsInPeriod.filter(c => c.esRevertido).length;
 
   const pctAdopcionPedidos = pedidosTotales > 0 ? (pedidosDigitales / pedidosTotales) * 100 : 0;
   const pctAdopcionClientes = totalAsignados > 0 ? (totalActivos / totalAsignados) * 100 : 0;
