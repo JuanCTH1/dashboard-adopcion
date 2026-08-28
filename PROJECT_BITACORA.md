@@ -742,3 +742,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Remoción de Columna Redundante (`ProgressiveHierarchy.jsx`):**
   - Se eliminó la columna `Main Channel` de la vista principal de la tabla de cartera de clientes.
   - **Resultado:** El detalle de canales transaccionales (Web, App, EDI, Phone) se consulta al hacer clic para desplegar el drawer de la fila, permitiendo que las columnas principales de pedidos (**Online**, **Offline**, **Total**, **Adoption %**) aprovechen el 100% del ancho del contenedor.
+---
+
+## 🎯 Versión 2.71 - Estatus de Cartera Alineados al Embudo (Pending, Onboarded, Active) (`ProgressiveHierarchy.jsx`)
+
+- **Alineación de Estatus de Clientes al Embudo (`ProgressiveHierarchy.jsx`):**
+  - Se reemplazaron los badges binarios por 3 estatus acordes al embudo ejecutivo:
+    1. **`Pending`** (Insignia Roja): Cliente aún no registrado en la plataforma CX.
+    2. **`Onboarded`** (Insignia Azul): Cliente registrado en la plataforma pero con 0 compras digitales en el periodo (100% compras telefónicas).
+    3. **`Active`** (Insignia Verde): Cliente registrado con transacciones digitales activas en el periodo.

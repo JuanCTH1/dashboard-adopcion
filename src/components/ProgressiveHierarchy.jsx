@@ -774,13 +774,17 @@ export function ProgressiveHierarchy({
                             </span>
                           </td>
                           <td className="py-2 px-2 text-center whitespace-nowrap">
-                            {cli.estaIncorporado ? (
+                            {!cli.estaIncorporado ? (
+                              <Badge variant="danger" className="text-[10px] py-0.5 px-1.5 font-bold">
+                                Pending
+                              </Badge>
+                            ) : cli.pedidosDigitales > 0 ? (
                               <Badge variant="success" className="text-[10px] py-0.5 px-1.5 font-bold">
                                 Active
                               </Badge>
                             ) : (
-                              <Badge variant="danger" className="text-[10px] py-0.5 px-1.5 font-bold">
-                                No Account
+                              <Badge variant="secondary" className="text-[10px] py-0.5 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                Onboarded
                               </Badge>
                             )}
                           </td>
