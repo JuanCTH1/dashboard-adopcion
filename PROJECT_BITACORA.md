@@ -604,3 +604,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se removió la referencia a nivel de país en la cabecera de la jerarquía progresiva (`All Divisions`).
 - **Estandarización de Términos al Inglés ("customers" / "orders"):**
   - Se reemplazaron todas las palabras en español (`cuentas`, `órdenes`, `cli`, `ord`) por **`customers`** y **`orders`** en los 4 niveles de tarjetas (VP, Region, Market, Sales Rep) y en los totales del pie de la tabla (`TOTALS (N CUSTOMERS)`).
+---
+
+## 🎯 Versión 2.54 - Remoción Definitiva de Columna "Country" y Diseño Chevron para el Ribbon (`ProgressiveHierarchy.jsx` & `ExecutiveRibbon.jsx`)
+
+- **Eliminación Total de la 1ra Columna "COUNTRY" (`ProgressiveHierarchy.jsx`):**
+  - Se removió por completo el nodo `<motion.div key="country-col">` que renderizaba la columna `🌐 COUNTRY` con la tarjeta `USA National`.
+  - **Resultado:** La navegación jerárquica ahora inicia directamente con la 1ra columna **`🌐 VP DIVISION`**, seguida de **`Director Region`**, **`Manager Market`**, **`Sales Rep`** y la tabla de cartera.
+- **Diseño Chevron Estético para las 4 Tarjetas del Ribbon (`ExecutiveRibbon.jsx`):**
+  - Se rediseñó el ribbon ejecutivo incorporando insignias de etapa numeradas (`01`, `02`, `03`, `04`) y conectores de flujo `ChevronRight` entre tarjetas para una geometría de embudo ejecutivo altamente pulida.

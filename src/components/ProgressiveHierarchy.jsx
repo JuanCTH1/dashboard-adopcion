@@ -285,65 +285,9 @@ export function ProgressiveHierarchy({
       {/* HORIZONTAL CASCADED COLUMNS UNIFIED WITH LAYOUTGROUP AND POPLAYOUT */}
       <LayoutGroup>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin items-stretch h-[375px] max-h-[375px] relative">
-          {/* LEVEL 0: COUNTRY */}
+          {/* LEVEL 1: VICE PRESIDENCIES (STAGE 1 - FIRST COLUMN) */}
           <AnimatePresence mode="popLayout">
             {!isFocusTableMode && (
-              <motion.div
-                layout
-                key="country-col"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={FLIP_TRANSITION}
-                className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col justify-between shadow-2xs overflow-hidden"
-              >
-                <div className="w-[134px] text-[10px] font-bold uppercase text-primary flex items-center gap-1 pb-1 border-b border-border">
-                  <Globe className="w-3 h-3" />
-                  <span>Country</span>
-                </div>
-
-                <div className="flex-1 flex flex-col justify-start py-2">
-                  <button
-                    onClick={() => setIsUsaSelected(!isUsaSelected)}
-                    className={cn(
-                      "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
-                      isUsaSelected
-                        ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                        : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                    )}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-[11px]">USA</span>
-                      {isUsaSelected && <Check className="w-3 h-3 text-white" />}
-                    </div>
-                    <div className={cn("text-[9px] truncate font-medium", isUsaSelected ? "text-white/90" : "text-muted-foreground")}>
-                      National
-                    </div>
-                    <div className={cn("text-[9px] font-mono font-bold pt-0.5 border-t border-white/20 flex items-center justify-between", isUsaSelected ? "text-white" : "text-foreground")}>
-                      <span>{formatNumber(totalesCartera?.totalPedidos || 119005)} ord</span>
-                      <span>{formatPct(totalesCartera?.pctAdopcionPonderado || 51.0)}</span>
-                    </div>
-                  </button>
-                </div>
-
-                <div className="text-[9px] text-muted-foreground pt-1.5 border-t border-border/80 text-center">
-                  {isUsaSelected ? (
-                    <span className="flex items-center justify-center gap-1 font-semibold text-primary">
-                      VPs Open <ArrowRight className="w-3 h-3 inline" />
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-1">
-                      Click to Open <ArrowRight className="w-3 h-3 text-muted-foreground inline" />
-                    </span>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* LEVEL 1: VICE PRESIDENCIES */}
-          <AnimatePresence mode="popLayout">
-            {isUsaSelected && !isFocusTableMode && (
               <motion.div
                 layout
                 key="vp-col"

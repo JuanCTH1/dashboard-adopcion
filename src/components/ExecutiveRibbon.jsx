@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Users, UserCheck, Activity, Target, ArrowRight } from 'lucide-react';
+import { Users, UserCheck, Activity, Target, ChevronRight } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 
 export function ExecutiveRibbon({ metricasGlobales }) {
@@ -23,7 +23,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
   const STAGES = [
     {
       id: 'universo',
-      step: 'Stage 1',
+      stepNumber: '01',
       title: 'Total Customers',
       primaryLabel: `${formatNumber(c.asignados)}`,
       primaryUnit: 'accounts',
@@ -31,12 +31,13 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       icon: Users,
       colorGrad: 'from-blue-600 to-indigo-700',
       accentBg: 'bg-blue-600/10 text-blue-700 dark:text-blue-400',
+      badgeBg: 'bg-blue-600 text-white',
       nextDrop: dropOffStage1,
       isBottleneck: worstBottleneck === 1
     },
     {
       id: 'onboarded',
-      step: 'Stage 2',
+      stepNumber: '02',
       title: 'Onboarded',
       primaryLabel: `${formatNumber(c.onboarded)}`,
       primaryUnit: 'accounts',
@@ -44,13 +45,14 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       icon: UserCheck,
       colorGrad: 'from-emerald-600 to-teal-700',
       accentBg: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-400',
+      badgeBg: 'bg-emerald-600 text-white',
       flowDelta: `▲+${deltas?.clientesMoMNetos || 48} this month`,
       nextDrop: dropOffStage2,
       isBottleneck: worstBottleneck === 2
     },
     {
       id: 'activos',
-      step: 'Stage 3',
+      stepNumber: '03',
       title: 'Active',
       primaryLabel: `${formatNumber(c.activos)}`,
       primaryUnit: 'accounts',
@@ -58,13 +60,14 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       icon: Activity,
       colorGrad: 'from-sky-500 to-blue-600',
       accentBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-400',
+      badgeBg: 'bg-sky-500 text-white',
       flowDelta: `▲+${deltas?.activosMoMNetos || 18} this month`,
       nextDrop: dropOffStage3,
       isBottleneck: worstBottleneck === 3
     },
     {
       id: 'adopcion',
-      step: 'Stage 4',
+      stepNumber: '04',
       title: 'Digital Adoption',
       primaryLabel: `${formatPct(p.pctAdopcion)}`,
       primaryUnit: '',
@@ -72,13 +75,14 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       icon: Target,
       colorGrad: 'from-amber-500 to-orange-600',
       accentBg: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
+      badgeBg: 'bg-amber-500 text-white',
       isDominant: true
     }
   ];
 
   return (
     <div className="bg-background/95 backdrop-blur-md py-1 transition-all font-sans select-none">
-      {/* PERFECTLY ALIGNED INTER-CARD FLEX LAYOUT (ZERO OVERLAP, 100% IN-BETWEEN CARDS) */}
+      {/* CHEVRON FUNNEL PROCESS RIBBON */}
       <div className="flex items-center gap-1.5 w-full">
         {STAGES.map((st, idx) => {
           const Icon = st.icon;
@@ -86,42 +90,52 @@ export function ExecutiveRibbon({ metricasGlobales }) {
 
           return (
             <React.Fragment key={st.id}>
-              {/* STAGE CARD */}
-              <Card
+              {/* CHEVRON STAGE CARD */}
+              <div
                 className={cn(
-                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[92px]",
+                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[96px]",
                   st.isDominant ? "border-primary/50 shadow-xs ring-1 ring-primary/20 bg-primary/5" : "border-border"
                 )}
               >
+                {/* Top Accent Line */}
                 <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
-                <div>
-                  <div className="flex items-center justify-between gap-1 mb-0.5">
-                    <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-muted-foreground truncate">
+
+                {/* Chevron Header Row */}
+                <div className="flex items-center justify-between gap-1 mb-0.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className={`text-[8.5px] font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0`}>
+                      {st.stepNumber}
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-foreground truncate">
                       {st.title}
                     </span>
-                    <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
-                      <Icon className="w-3 h-3" />
-                    </div>
                   </div>
-                  <div className="flex items-baseline gap-1 flex-wrap">
-                    <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-primary" : "text-lg text-foreground")}>
-                      {st.primaryLabel}
-                    </span>
-                    {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
-                    {st.flowDelta && (
-                      <span className="text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
-                        {st.flowDelta}
-                      </span>
-                    )}
+                  <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
+                    <Icon className="w-3 h-3" />
                   </div>
                 </div>
-                <div className="text-[9.5px] font-medium text-muted-foreground mt-0.5 truncate flex items-center justify-between border-t border-border/40 pt-1">
+
+                {/* Primary Metric & Delta */}
+                <div className="flex items-baseline gap-1 flex-wrap">
+                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-primary" : "text-lg text-foreground")}>
+                    {st.primaryLabel}
+                  </span>
+                  {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
+                  {st.flowDelta && (
+                    <span className="text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
+                      {st.flowDelta}
+                    </span>
+                  )}
+                </div>
+
+                {/* Subtitle Footer */}
+                <div className="text-[9.5px] font-medium text-muted-foreground truncate flex items-center justify-between border-t border-border/40 pt-1">
                   <span className="truncate">{st.secondaryLabel}</span>
                   {st.isDominant && <span className="text-[8.5px] font-bold text-primary shrink-0 ml-1">vs 90% Goal</span>}
                 </div>
-              </Card>
+              </div>
 
-              {/* DEDICATED INTER-CARD CONNECTOR (NATURAL FLOW BETWEEN CARDS, 100% ALIGNED) */}
+              {/* CHEVRON FLOW BADGE BETWEEN STAGES */}
               {!isLast && st.nextDrop !== undefined && (
                 <div className="shrink-0 flex items-center justify-center px-0.5">
                   <div
@@ -133,7 +147,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                     )}
                     title={`Conversion drop to next stage: -${st.nextDrop.toFixed(0)}%`}
                   >
-                    <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+                    <ChevronRight className="w-3.5 h-3.5 stroke-[3] text-primary dark:text-sky-400" />
                     <span>-{st.nextDrop.toFixed(0)}%</span>
                   </div>
                 </div>
