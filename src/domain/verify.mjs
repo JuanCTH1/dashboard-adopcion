@@ -2,16 +2,17 @@ import { generateDataset } from './mockGenerator.js';
 import { adopcionRepo } from './adopcionRepo.js';
 import { validateVolumeCompatibility } from './aggregation.js';
 
-console.log('--- VERIFICACION DE FASE 1: CAPA DE DOMINIO ---');
+console.log('--- VERIFICACION DE RENDIMIENTO Y CAPA DE DOMINIO ---');
 
 // 1. Estructura
 const dataset = generateDataset(20260828);
-console.log('VPs:', dataset.VPS.length, '(esperado 2)');
-console.log('Directores:', dataset.DIRECTORES.length, '(esperado 4)');
-console.log('Gerentes:', dataset.GERENTES.length, '(esperado 12)');
-console.log('Vendedores:', dataset.VENDEDORES.length, '(esperado 50)');
-console.log('Clientes:', dataset.CLIENTES.length, '(esperado ~1300)');
-console.log('Meses:', dataset.MESES.length, '(esperado 24)');
+console.log('VPs:', dataset.VPS.length, '(esperado 3)');
+console.log('Directores:', dataset.DIRECTORES.length, '(esperado 15)');
+console.log('Gerentes:', dataset.GERENTES.length, '(esperado 30)');
+console.log('Vendedores:', dataset.VENDEDORES.length, '(esperado 150)');
+console.log('Clientes:', dataset.CLIENTES.length, '(esperado ~2250)');
+console.log('Meses:', dataset.MESES.length, '(esperado 36)');
+console.log('Transacciones:', dataset.TRANSACCIONES.length, '(esperado ~81,000)');
 
 // 2. Determinismo
 const dataset2 = generateDataset(20260828);
@@ -45,10 +46,26 @@ console.log('Validacion m3 vs tons (incompatible):', !vIncompat.compatible ? 'OK
 // 6. Funnel
 const funnel = adopcionRepo.getFunnel({}, 'clientes');
 console.log('Funnel 4 pasos:');
-funnel.forEach(p => console.log('  Paso ' + p.paso + ': ' + p.etiqueta + ' = ' + p.valor + (p.esPorcentaje ? '%' : '') + ' (Caida: ' + p.dropOffPct.toFixed(1) + '%)'));
+funnel.forEach((p, idx) => console.log('  Paso ' + (idx + 1) + ': ' + p.stepName + ' = ' + p.count + ' ' + p.unit + (p.dropOffPct !== undefined ? ' (Drop: ' + p.dropOffPct + '%)' : '')));
 
 // 7. Action Drawer
 const action = adopcionRepo.getTopClientesAccion({}, 5);
-console.log('Action Drawer Top Clientes sin cuenta:', action.sinIncorporar.length, 'cuentas (Top 1:', action.sinIncorporar[0]?.id, '-', action.sinIncorporar[0]?.volumen, 'unidades)');
-console.log('Action Drawer Top Clientes revertidos/inactivos:', action.inactivosORevertidos.length, 'cuentas (Top 1:', action.inactivosORevertidos[0]?.id, '-', action.inactivosORevertidos[0]?.volumen, 'unidades)');
+console.log('Action Drawer Top Clientes sin cuenta:', action.sinIncorporar.length, 'cuentas (Top 1:', action.sinIncorporar[0]?.id, '-', action.sinIncorporar[0]?.volumenMes, 'unidades)');
+console.log('Action Drawer Top Clientes revertidos/inactivos:', action.inactivosORevertidos.length, 'cuentas (Top 1:', action.inactivosORevertidos[0]?.id, '-', action.inactivosORevertidos[0]?.volumenMes, 'unidades)');
+
+// 8. Benchmark de Velocidad de Consultas
+console.log('\n--- BENCHMARK DE VELOCIDAD ---');
+const t0 = performance.now();
+for (let i = 0; i < 50; i++) {
+  adopcionRepo.getMetricasGlobales({ vpIds: ['vp-readymix'] });
+  adopcionRepo.getJerarquia('vp', ['vp-readymix']);
+  adopcionRepo.getJerarquia('director', ['Atlantic']);
+  adopcionRepo.getJerarquia('gerente', ['New York']);
+  adopcionRepo.getCartera(null, { vpIds: ['vp-readymix'] });
+  adopcionRepo.getLeaderboard({ vpIds: ['vp-readymix'] });
+}
+const t1 = performance.now();
+const avgMs = (t1 - t0) / 50;
+console.log(`50 ciclos completos de render ejecutados en ${(t1 - t0).toFixed(2)}ms (Promedio: ${avgMs.toFixed(3)}ms por ciclo completo)`);
 console.log('--------------------------------------------------');
+

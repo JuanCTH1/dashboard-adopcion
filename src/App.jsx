@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { adopcionRepo } from '@/domain/adopcionRepo';
 import { Sidebar } from '@/components/Sidebar';
 import { AppHeader } from '@/components/AppHeader';
@@ -12,6 +12,7 @@ import { exportToCsv } from '@/lib/exportCsv';
 
 export function App() {
   const filtrosDisponibles = useMemo(() => adopcionRepo.getFiltrosDisponibles(), []);
+  const mainScrollRef = useRef(null);
 
   // 1. Navigation & UI States
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
@@ -68,6 +69,38 @@ export function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Global Keyboard Navigation (Arrow Keys, PageUp/Down scroll the dashboard canvas)
+  useEffect(() => {
+    const handleGlobalNavKeys = (e) => {
+      if (isSearchOpen || isActionDrawerOpen) return;
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        mainScrollRef.current?.scrollBy({ top: 160, behavior: 'smooth' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        mainScrollRef.current?.scrollBy({ top: -160, behavior: 'smooth' });
+      } else if (e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
+        e.preventDefault();
+        mainScrollRef.current?.scrollBy({ top: 500, behavior: 'smooth' });
+      } else if (e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
+        e.preventDefault();
+        mainScrollRef.current?.scrollBy({ top: -500, behavior: 'smooth' });
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        mainScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        mainScrollRef.current?.scrollTo({ top: mainScrollRef.current.scrollHeight, behavior: 'smooth' });
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalNavKeys);
+    return () => window.removeEventListener('keydown', handleGlobalNavKeys);
+  }, [isSearchOpen, isActionDrawerOpen]);
+
   const handleFiltroChange = (key, val) => {
     setFiltrosContexto(prev => ({ ...prev, [key]: val }));
   };
@@ -111,7 +144,7 @@ export function App() {
       chips.push({ key: 'activos', label: 'Active', value: filtrosContexto.activos.join(', ') });
     }
     if (filtrosJerarquia.vpIds?.length) {
-      chips.push({ key: 'vps', label: 'VPs', value: `${filtrosJerarquia.vpIds.length} sel` });
+      chips.push({ key: 'vps', label: 'Business Line', value: `${filtrosJerarquia.vpIds.length} sel` });
     }
     if (filtrosJerarquia.directorIds?.length) {
       chips.push({ key: 'directors', label: 'Regions', value: `${filtrosJerarquia.directorIds.length} sel` });
@@ -137,23 +170,33 @@ export function App() {
     } else if (key === 'activos') {
       setFiltrosContexto(prev => ({ ...prev, activos: [] }));
     } else if (key === 'vps') {
-      setFiltrosJerarquia(prev => ({ ...prev, vpIds: [] }));
+      setFiltrosJerarquia(prev => ({
+        ...prev,
+        vpIds: [],
+        directorIds: [],
+        gerenteIds: [],
+        vendedorIds: []
+      }));
     } else if (key === 'directors') {
-      setFiltrosJerarquia(prev => ({ ...prev, directorIds: [] }));
+      setFiltrosJerarquia(prev => ({
+        ...prev,
+        directorIds: [],
+        gerenteIds: [],
+        vendedorIds: []
+      }));
     } else if (key === 'gerentes') {
-      setFiltrosJerarquia(prev => ({ ...prev, gerenteIds: [] }));
+      setFiltrosJerarquia(prev => ({
+        ...prev,
+        gerenteIds: [],
+        vendedorIds: []
+      }));
     } else if (key === 'vendedores') {
       setFiltrosJerarquia(prev => ({ ...prev, vendedorIds: [] }));
     }
   };
 
-  // Data Queries UNIFICADAS QUE AFECTAN TODO EL TABLERO
   const metricasGlobales = useMemo(() => {
     return adopcionRepo.getMetricasGlobales(filtrosCompuestos);
-  }, [filtrosCompuestos]);
-
-  const funnelSteps = useMemo(() => {
-    return adopcionRepo.getFunnel(filtrosCompuestos, 'clientes');
   }, [filtrosCompuestos]);
 
   const leaderboardData = useMemo(() => {
@@ -177,7 +220,7 @@ export function App() {
   };
 
   const handleExportGlobalCsv = () => {
-    const clientes = adopcionRepo._filtrar(filtrosCompuestos).clientes;
+    const clientes = adopcionRepo.getCartera(null, filtrosCompuestos);
     exportToCsv(`Adoption_Customer_Report`, clientes, [
       { key: 'nombreEmpresa', label: 'Customer Name' },
       { key: 'lineaLabel', label: 'Business Line' },
@@ -187,6 +230,94 @@ export function App() {
       { key: 'esActivo', label: 'Digital Active' }
     ]);
   };
+
+  // 5. Omni-Search Command Palette Data & Handler
+  const commandPaletteData = useMemo(() => {
+    return {
+      vps: [
+        { id: 'vp-readymix', nombre: 'Ready Mix', persona: 'VP Roberto Garza' },
+        { id: 'vp-cemento', nombre: 'Cemento', persona: 'VP Alejandro Domínguez' },
+        { id: 'vp-agregados', nombre: 'Agregados', persona: 'VP Mariana Treviño' }
+      ],
+      directores: filtrosDisponibles.directores || [],
+      gerentes: filtrosDisponibles.gerentes || [],
+      vendedores: filtrosDisponibles.vendedores || [],
+      clientes: adopcionRepo.getCartera(null, {}) || []
+    };
+  }, [filtrosDisponibles]);
+
+  const handleSelectCommand = useCallback((tipo, item) => {
+    setIsSearchOpen(false);
+    if (tipo === 'cliente') {
+      const nextVps = item.vpId ? [item.vpId] : [];
+      const nextDirs = item.regionNombre ? [item.regionNombre] : (item.regionId ? [item.regionId] : []);
+      const nextGers = item.plaza ? [item.plaza] : (item.gerenteId ? [item.gerenteId] : []);
+      const nextReps = item.vendedorId ? [item.vendedorId] : [];
+
+      setFiltrosJerarquia({
+        vpIds: nextVps,
+        directorIds: nextDirs,
+        gerenteIds: nextGers,
+        vendedorIds: nextReps
+      });
+    } else if (tipo === 'vendedor') {
+      const nextVps = item.vpId ? [item.vpId] : [];
+      const nextDirs = item.regionNombre ? [item.regionNombre] : [];
+      const nextGers = item.plaza ? [item.plaza] : [];
+
+      setFiltrosJerarquia({
+        vpIds: nextVps,
+        directorIds: nextDirs,
+        gerenteIds: nextGers,
+        vendedorIds: [item.id]
+      });
+    } else if (tipo === 'gerente') {
+      const marketRegionMap = {
+        'New York': 'Atlantic', 'Boston': 'Atlantic',
+        'Dallas': 'Sunbelt', 'Houston': 'Sunbelt',
+        'Chicago': 'Midwest', 'St. Louis': 'Midwest',
+        'Denver': 'Mountain', 'Salt Lake': 'Mountain',
+        'Los Angeles': 'Pacific NW', 'Phoenix': 'Pacific NW'
+      };
+      const region = marketRegionMap[item.nombre] || item.regionNombre;
+
+      setFiltrosJerarquia({
+        vpIds: [],
+        directorIds: region ? [region] : [],
+        gerenteIds: [item.nombre || item.id],
+        vendedorIds: []
+      });
+    } else if (tipo === 'director') {
+      setFiltrosJerarquia({
+        vpIds: [],
+        directorIds: [item.nombre || item.id],
+        gerenteIds: [],
+        vendedorIds: []
+      });
+    } else if (tipo === 'vp') {
+      setFiltrosJerarquia({
+        vpIds: [item.id],
+        directorIds: [],
+        gerenteIds: [],
+        vendedorIds: []
+      });
+    } else if (tipo === 'action') {
+      if (item.id === 'open_action_plan') {
+        setNodoAccion({ id: 'national', nombre: 'National Overview', tipo: 'National' });
+        setIsActionDrawerOpen(true);
+      } else if (item.id === 'export_csv') {
+        handleExportGlobalCsv();
+      } else if (item.id === 'toggle_theme') {
+        setIsDark(prev => !prev);
+      } else if (item.id === 'reset_filters') {
+        handleResetFiltros();
+      } else if (item.id === 'filter_pending') {
+        setFiltrosContexto(prev => ({ ...prev, onboarded: ['No'] }));
+      } else if (item.id === 'filter_active') {
+        setFiltrosContexto(prev => ({ ...prev, activos: ['Yes'] }));
+      }
+    }
+  }, [handleExportGlobalCsv]);
 
   return (
     <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-background text-foreground font-sans transition-colors duration-150 select-none">
@@ -216,7 +347,7 @@ export function App() {
         />
 
         {/* WORKSTATION CANVAS */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 font-sans">
+        <div ref={mainScrollRef} className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 font-sans">
           {/* ROW 1: EXECUTIVE KPI RIBBON */}
           <ExecutiveRibbon
             metricasGlobales={metricasGlobales}
@@ -264,13 +395,8 @@ export function App() {
       <CommandPalette
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-        items={filtrosDisponibles}
-        onSelectItem={(tipo, item) => {
-          if (tipo === 'vendedor') {
-            setNodoAccion({ id: item.id, nombre: item.nombre, tipo: 'Sales Rep' });
-            setIsActionDrawerOpen(true);
-          }
-        }}
+        data={commandPaletteData}
+        onSelectItem={handleSelectCommand}
       />
     </div>
   );

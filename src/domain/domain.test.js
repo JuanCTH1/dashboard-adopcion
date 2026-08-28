@@ -1,6 +1,6 @@
 /**
  * PRUEBAS UNITARIAS DE LA CAPA DE DOMINIO Y GENERADOR SINTÉTICO
- * Criterios de Aceptación - Fase 1 (MANUAL_OBRA.md)
+ * Criterios de Aceptación - Fase 2/3
  */
 
 import { describe, it, expect } from 'vitest';
@@ -8,18 +8,17 @@ import { generateDataset } from './mockGenerator.js';
 import { adopcionRepo } from './adopcionRepo.js';
 import { validateVolumeCompatibility, calculateAggregations, buildFunnel } from './aggregation.js';
 
-describe('Fase 1: Capa de Dominio y Generador Mock', () => {
+describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
   const dataset = generateDataset(20260828);
 
   it('1. Cumple la estructura organizativa exacta', () => {
-    expect(dataset.VPS.length).toBe(2);
-    expect(dataset.DIRECTORES.length).toBe(4);
-    expect(dataset.GERENTES.length).toBe(12);
-    expect(dataset.VENDEDORES.length).toBe(50);
-    // ~1,300 clientes (20 a 30 por vendedor)
-    expect(dataset.CLIENTES.length).toBeGreaterThanOrEqual(1100);
-    expect(dataset.CLIENTES.length).toBeLessThanOrEqual(1500);
-    expect(dataset.MESES.length).toBe(24);
+    expect(dataset.VPS.length).toBe(3);
+    expect(dataset.DIRECTORES.length).toBe(15);
+    expect(dataset.GERENTES.length).toBe(30);
+    expect(dataset.VENDEDORES.length).toBe(150);
+    expect(dataset.CLIENTES.length).toBeGreaterThanOrEqual(1800);
+    expect(dataset.CLIENTES.length).toBeLessThanOrEqual(2500);
+    expect(dataset.MESES.length).toBe(36);
   });
 
   it('2. Es 100% determinista con la misma semilla', () => {
@@ -49,7 +48,7 @@ describe('Fase 1: Capa de Dominio y Generador Mock', () => {
     const metricasNacionales = adopcionRepo.getMetricasGlobales();
     const vps = adopcionRepo.getJerarquia('nacional');
 
-    // La suma de pedidos de los 2 VPs debe ser igual al total nacional
+    // La suma de pedidos de los 3 VPs debe ser igual al total nacional
     const sumaPedidosVps = vps.reduce((sum, vp) => sum + vp.metricas.pedidos.totales, 0);
     expect(sumaPedidosVps).toBe(metricasNacionales.actual.pedidos.totales);
 
@@ -87,18 +86,14 @@ describe('Fase 1: Capa de Dominio y Generador Mock', () => {
     const funnel = buildFunnel(metricas.actual, 'clientes');
 
     expect(funnel.length).toBe(4);
-    expect(funnel[0].paso).toBe(1);
-    expect(funnel[0].etiqueta).toBe('Clientes en Cartera');
-    expect(funnel[1].paso).toBe(2);
-    expect(funnel[1].etiqueta).toBe('Clientes Incorporados');
-    expect(funnel[2].paso).toBe(3);
-    expect(funnel[2].etiqueta).toBe('Clientes Activos');
-    expect(funnel[3].paso).toBe(4);
-    expect(funnel[3].etiqueta).toBe('% Penetración Final');
+    expect(funnel[0].id).toBe('universo');
+    expect(funnel[1].id).toBe('onboarded');
+    expect(funnel[2].id).toBe('activos');
+    expect(funnel[3].id).toBe('adopcion');
 
     // Cada paso debe tener valores numéricos coherentes
-    expect(funnel[0].valor).toBeGreaterThanOrEqual(funnel[1].valor);
-    expect(funnel[1].valor).toBeGreaterThanOrEqual(funnel[2].valor);
+    expect(funnel[0].count).toBeGreaterThanOrEqual(funnel[1].count);
+    expect(funnel[1].count).toBeGreaterThanOrEqual(funnel[2].count);
   });
 
   it('7. Action Drawer prioriza por mayor volumen los clientes en riesgo', () => {
@@ -109,9 +104,63 @@ describe('Fase 1: Capa de Dominio y Generador Mock', () => {
 
     // Verificar ordenamiento descendente por volumen
     for (let i = 0; i < actionList.sinIncorporar.length - 1; i++) {
-      expect(actionList.sinIncorporar[i].volumen).toBeGreaterThanOrEqual(
-        actionList.sinIncorporar[i + 1].volumen
+      expect(actionList.sinIncorporar[i].volumenMes).toBeGreaterThanOrEqual(
+        actionList.sinIncorporar[i + 1].volumenMes
       );
     }
   });
+
+  it('8. Ejecuta consultas complejas en menos de 5ms por ciclo completo', () => {
+    const t0 = performance.now();
+    for (let i = 0; i < 20; i++) {
+      adopcionRepo.getMetricasGlobales({ vpIds: ['vp-readymix'], directorIds: ['Atlantic'] });
+      adopcionRepo.getJerarquia('director', ['Atlantic'], { vpIds: ['vp-readymix'] });
+      adopcionRepo.getCartera(null, { vpIds: ['vp-readymix'], directorIds: ['Atlantic'] });
+      adopcionRepo.getLeaderboard({ vpIds: ['vp-readymix'] });
+    }
+    const t1 = performance.now();
+    const avgMs = (t1 - t0) / 20;
+    expect(avgMs).toBeLessThan(5.0);
+  });
+
+  it('9. Cascada de filtros jerárquicos: cartera y métricas responden coherentemente al alcance del nodo', () => {
+    // Al filtrar por Atlantic (sin mercado específico), la cartera contiene todos los clientes de Atlantic
+    const carteraRegion = adopcionRepo.getCartera(null, { directorIds: ['Atlantic'] });
+    expect(carteraRegion.length).toBeGreaterThan(0);
+    expect(carteraRegion.every(c => c.regionNombre === 'Atlantic' || c.regionId === 'reg-1')).toBe(true);
+
+    // Al filtrar por New York (mercado dentro de Atlantic), la cartera solo tiene clientes de New York
+    const carteraMarket = adopcionRepo.getCartera(null, { directorIds: ['Atlantic'], gerenteIds: ['New York'] });
+    expect(carteraMarket.length).toBeGreaterThan(0);
+    expect(carteraMarket.length).toBeLessThan(carteraRegion.length);
+    expect(carteraMarket.every(c => c.plaza === 'New York')).toBe(true);
+  });
+
+  it('10. Integridad matemática del embudo en filtros anuales (Total >= Onboarded >= Activos)', () => {
+    const ny2026 = adopcionRepo.getMetricasGlobales({ anios: [2026], gerenteIds: ['New York'] });
+    const c = ny2026.actual.clientes;
+
+    expect(c.asignados).toBeGreaterThan(0);
+    expect(c.asignados).toBeGreaterThan(c.onboarded);
+    expect(c.onboarded).toBeGreaterThan(c.activos);
+    expect(c.pctOnboarding).toBeLessThan(100);
+    expect(c.pctAdopcion).toBeLessThan(c.pctOnboarding);
+  });
+
+  it('11. Asimetría estructural entre Líneas de Negocio y Tiers de Mercado', () => {
+    const rmx = adopcionRepo.getMetricasGlobales({ lineasNegocio: ['readymix'] });
+    const cem = adopcionRepo.getMetricasGlobales({ lineasNegocio: ['cemento'] });
+    const dallas = adopcionRepo.getMetricasGlobales({ gerenteIds: ['Dallas'] });
+    const saltLake = adopcionRepo.getMetricasGlobales({ gerenteIds: ['Salt Lake'] });
+
+    // Readymix tiene más clientes que Cemento (mayor granularidad)
+    expect(rmx.actual.clientes.asignados).toBeGreaterThan(cem.actual.clientes.asignados);
+
+    // Dallas (Megamercado Tier 1) tiene más clientes y pedidos que Salt Lake (Tier 3)
+    expect(dallas.actual.clientes.asignados).toBeGreaterThan(saltLake.actual.clientes.asignados);
+    expect(dallas.actual.pedidos.totales).toBeGreaterThan(saltLake.actual.pedidos.totales);
+  });
 });
+
+
+

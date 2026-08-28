@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, startTransition, useDeferredValue } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,10 @@ import {
   Maximize2,
   Minimize2,
   Workflow,
-  LayoutGrid
+  LayoutGrid,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
@@ -40,20 +43,28 @@ const FLIP_TRANSITION = {
 };
 
 export function ProgressiveHierarchy({
-  filtrosCompuestos,
+  filtrosCompuestos = {},
   onHierarchyFilterChange,
   onOpenActionDrawer,
   onExportCsv
 }) {
-  // Multidimensional selection states
-  const [isUsaSelected, setIsUsaSelected] = useState(true);
-  const [selectedVpIds, setSelectedVpIds] = useState([]);
-  const [selectedDirIds, setSelectedDirIds] = useState([]);
-  const [selectedGerIds, setSelectedGerIds] = useState([]);
-  const [selectedRepIds, setSelectedRepIds] = useState([]);
+  // Multidimensional selection states derived directly from active filters (0ms sync latency)
+  const selectedVpIds = useMemo(() => filtrosCompuestos?.vpIds || [], [filtrosCompuestos?.vpIds]);
+  const selectedDirIds = useMemo(() => filtrosCompuestos?.directorIds || [], [filtrosCompuestos?.directorIds]);
+  const selectedGerIds = useMemo(() => filtrosCompuestos?.gerenteIds || [], [filtrosCompuestos?.gerenteIds]);
+  const selectedRepIds = useMemo(() => filtrosCompuestos?.vendedorIds || [], [filtrosCompuestos?.vendedorIds]);
 
-  // Focus Table View Mode (Option 2)
+  // Table sorting state: key, direction ('asc' | 'desc')
+  const [sortConfig, setSortConfig] = useState({
+    key: 'pedidosTotales',
+    direction: 'desc'
+  });
+
+  // Focus Table View Mode
   const [isFocusTableMode, setIsFocusTableMode] = useState(false);
+
+  // Navigation mode: 'all_columns' (default) | 'cascade'
+  const [navMode, setNavMode] = useState('all_columns');
 
   // Drag-to-select state
   const [isDragging, setIsDragging] = useState(false);
@@ -61,57 +72,224 @@ export function ProgressiveHierarchy({
   // Fixed body-level popover state (100% immune to clipping)
   const [hoveredPopover, setHoveredPopover] = useState(null);
 
+  // Expandable table rows state
+  const [expandedRowIds, setExpandedRowIds] = useState(new Set());
+
+  // Fast rep lookup map for cascading filter pruning and auto-selection
+  const repMap = useMemo(() => {
+    const list = adopcionRepo.getFiltrosDisponibles().vendedores || [];
+    return new Map(list.map(v => [v.id, v]));
+  }, []);
+
+  const REGION_TO_MARKETS = useMemo(() => ({
+    'Atlantic': ['New York', 'Boston'],
+    'Sunbelt': ['Dallas', 'Houston'],
+    'Midwest': ['Chicago', 'St. Louis'],
+    'Mountain': ['Denver', 'Salt Lake'],
+    'Pacific NW': ['Los Angeles', 'Phoenix']
+  }), []);
+
+  const MARKET_TO_REGION = useMemo(() => ({
+    'New York': 'Atlantic',
+    'Boston': 'Atlantic',
+    'Dallas': 'Sunbelt',
+    'Houston': 'Sunbelt',
+    'Chicago': 'Midwest',
+    'St. Louis': 'Midwest',
+    'Denver': 'Mountain',
+    'Salt Lake': 'Mountain',
+    'Los Angeles': 'Pacific NW',
+    'Phoenix': 'Pacific NW'
+  }), []);
+
   useEffect(() => {
     const handleMouseUp = () => setIsDragging(false);
     window.addEventListener('mouseup', handleMouseUp);
     return () => window.removeEventListener('mouseup', handleMouseUp);
   }, []);
 
-  const handleCardMouseDown = (setFn, currentSelected, id, e) => {
-    if (e.button !== 0) return;
-    setIsDragging(true);
-    toggleSelection(setFn, currentSelected, id);
-  };
+  const handleToggleVp = useCallback((id) => {
+    const nextVps = selectedVpIds.includes(id)
+      ? selectedVpIds.filter(x => x !== id)
+      : [...selectedVpIds, id];
 
-  const handleCardMouseEnter = (setFn, currentSelected, id) => {
-    if (!isDragging) return;
-    if (!currentSelected.includes(id)) {
-      startTransition(() => setFn(prev => [...prev, id]));
-    }
-  };
+    let nextDirs = selectedDirIds;
+    let nextGers = selectedGerIds;
+    let nextReps = selectedRepIds;
 
-  // Expandable table rows state
-  const [expandedRowIds, setExpandedRowIds] = useState(new Set());
-
-  // Sincronizar estado interno si se deselecciona externamente (ej. botón X de los chips del header)
-  useEffect(() => {
-    if (filtrosCompuestos?.vpIds !== undefined && filtrosCompuestos.vpIds.length !== selectedVpIds.length) {
-      setSelectedVpIds(filtrosCompuestos.vpIds);
-    }
-    if (filtrosCompuestos?.directorIds !== undefined && filtrosCompuestos.directorIds.length !== selectedDirIds.length) {
-      setSelectedDirIds(filtrosCompuestos.directorIds);
-    }
-    if (filtrosCompuestos?.gerenteIds !== undefined && filtrosCompuestos.gerenteIds.length !== selectedGerIds.length) {
-      setSelectedGerIds(filtrosCompuestos.gerenteIds);
-    }
-    if (filtrosCompuestos?.vendedorIds !== undefined && filtrosCompuestos.vendedorIds.length !== selectedRepIds.length) {
-      setSelectedRepIds(filtrosCompuestos.vendedorIds);
-    }
-  }, [filtrosCompuestos?.vpIds, filtrosCompuestos?.directorIds, filtrosCompuestos?.gerenteIds, filtrosCompuestos?.vendedorIds]);
-
-  // Propagar selección al tablero completo sin bloquear el render principal
-  useEffect(() => {
-    if (onHierarchyFilterChange) {
-      startTransition(() => {
-        onHierarchyFilterChange({
-          vpIds: selectedVpIds,
-          directorIds: selectedDirIds,
-          gerenteIds: selectedGerIds,
-          vendedorIds: selectedRepIds
-        });
+    if (nextVps.length === 0 && navMode === 'cascade') {
+      nextDirs = [];
+      nextGers = [];
+      nextReps = [];
+    } else if (nextVps.length > 0) {
+      const allowedVps = new Set(nextVps);
+      nextReps = selectedRepIds.filter(rId => {
+        const rep = repMap.get(rId);
+        return rep ? allowedVps.has(rep.vpId) : true;
       });
     }
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, onHierarchyFilterChange]);
+
+    onHierarchyFilterChange?.({
+      vpIds: nextVps,
+      directorIds: nextDirs,
+      gerenteIds: nextGers,
+      vendedorIds: nextReps
+    });
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, navMode, repMap, onHierarchyFilterChange]);
+
+  const handleToggleDir = useCallback((id) => {
+    const nextDirs = selectedDirIds.includes(id)
+      ? selectedDirIds.filter(x => x !== id)
+      : [...selectedDirIds, id];
+
+    let nextGers = selectedGerIds;
+    let nextReps = selectedRepIds;
+
+    if (nextDirs.length === 0) {
+      // Deselecting all regions cleans subordinate markets and reps
+      nextGers = [];
+      nextReps = [];
+    } else {
+      // Prune markets that don't belong to any remaining selected region
+      const allowedMarkets = new Set();
+      nextDirs.forEach(d => {
+        const mkts = REGION_TO_MARKETS[d] || [];
+        mkts.forEach(m => allowedMarkets.add(m));
+      });
+      nextGers = selectedGerIds.filter(g => allowedMarkets.has(g));
+
+      // Prune reps that don't match the remaining markets / regions
+      if (nextGers.length > 0) {
+        const mktSet = new Set(nextGers);
+        nextReps = selectedRepIds.filter(rId => {
+          const rep = repMap.get(rId);
+          return rep ? mktSet.has(rep.plaza) : true;
+        });
+      } else {
+        const regSet = new Set(nextDirs);
+        nextReps = selectedRepIds.filter(rId => {
+          const rep = repMap.get(rId);
+          return rep ? regSet.has(rep.regionNombre) : true;
+        });
+      }
+    }
+
+    onHierarchyFilterChange?.({
+      vpIds: selectedVpIds,
+      directorIds: nextDirs,
+      gerenteIds: nextGers,
+      vendedorIds: nextReps
+    });
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, REGION_TO_MARKETS, repMap, onHierarchyFilterChange]);
+
+  const handleToggleGer = useCallback((id) => {
+    const isAdding = !selectedGerIds.includes(id);
+    const nextGers = isAdding
+      ? [...selectedGerIds, id]
+      : selectedGerIds.filter(x => x !== id);
+
+    let nextDirs = selectedDirIds;
+    let nextReps = selectedRepIds;
+
+    if (isAdding) {
+      // Auto-select ancestor region to the left if not already active
+      const reg = MARKET_TO_REGION[id];
+      if (reg && !nextDirs.includes(reg)) {
+        nextDirs = [...nextDirs, reg];
+      }
+    } else {
+      if (nextGers.length === 0) {
+        // Deselecting all markets cleans subordinate reps
+        nextReps = [];
+      } else {
+        // Prune reps that don't belong to any remaining selected market
+        const allowedMarkets = new Set(nextGers);
+        nextReps = selectedRepIds.filter(rId => {
+          const rep = repMap.get(rId);
+          return rep ? allowedMarkets.has(rep.plaza) : true;
+        });
+      }
+    }
+
+    onHierarchyFilterChange?.({
+      vpIds: selectedVpIds,
+      directorIds: nextDirs,
+      gerenteIds: nextGers,
+      vendedorIds: nextReps
+    });
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, MARKET_TO_REGION, repMap, onHierarchyFilterChange]);
+
+  const handleToggleRep = useCallback((id) => {
+    const isAdding = !selectedRepIds.includes(id);
+    const nextReps = isAdding
+      ? [...selectedRepIds, id]
+      : selectedRepIds.filter(x => x !== id);
+
+    let nextVps = selectedVpIds;
+    let nextDirs = selectedDirIds;
+    let nextGers = selectedGerIds;
+
+    if (isAdding) {
+      const rep = repMap.get(id);
+      if (rep) {
+        // Auto-select ancestor VP Division to the left
+        if (rep.vpId && !nextVps.includes(rep.vpId)) {
+          nextVps = [...nextVps, rep.vpId];
+        }
+        // Auto-select ancestor Region to the left
+        if (rep.regionNombre && !nextDirs.includes(rep.regionNombre)) {
+          nextDirs = [...nextDirs, rep.regionNombre];
+        }
+        // Auto-select ancestor Market to the left
+        if (rep.plaza && !nextGers.includes(rep.plaza)) {
+          nextGers = [...nextGers, rep.plaza];
+        }
+      }
+    }
+
+    onHierarchyFilterChange?.({
+      vpIds: nextVps,
+      directorIds: nextDirs,
+      gerenteIds: nextGers,
+      vendedorIds: nextReps
+    });
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, repMap, onHierarchyFilterChange]);
+
+  const handleClearVps = useCallback(() => {
+    onHierarchyFilterChange?.({
+      vpIds: [],
+      directorIds: navMode === 'cascade' ? [] : selectedDirIds,
+      gerenteIds: navMode === 'cascade' ? [] : selectedGerIds,
+      vendedorIds: navMode === 'cascade' ? [] : selectedRepIds
+    });
+  }, [selectedDirIds, selectedGerIds, selectedRepIds, navMode, onHierarchyFilterChange]);
+
+  const handleClearDirs = useCallback(() => {
+    onHierarchyFilterChange?.({
+      vpIds: selectedVpIds,
+      directorIds: [],
+      gerenteIds: [],
+      vendedorIds: []
+    });
+  }, [selectedVpIds, onHierarchyFilterChange]);
+
+  const handleClearGers = useCallback(() => {
+    onHierarchyFilterChange?.({
+      vpIds: selectedVpIds,
+      directorIds: selectedDirIds,
+      gerenteIds: [],
+      vendedorIds: []
+    });
+  }, [selectedVpIds, selectedDirIds, onHierarchyFilterChange]);
+
+  const handleClearReps = useCallback(() => {
+    onHierarchyFilterChange?.({
+      vpIds: selectedVpIds,
+      directorIds: selectedDirIds,
+      gerenteIds: selectedGerIds,
+      vendedorIds: []
+    });
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, onHierarchyFilterChange]);
 
   const toggleRowExpanded = (id) => {
     setExpandedRowIds(prev => {
@@ -122,19 +300,7 @@ export function ProgressiveHierarchy({
     });
   };
 
-  // Instant non-blocking toggle
-  const toggleSelection = (setter, currentArr, id) => {
-    startTransition(() => {
-      if (currentArr.includes(id)) {
-        setter(currentArr.filter(x => x !== id));
-      } else {
-        setter([...currentArr, id]);
-      }
-    });
-  };
-
-  const [navMode, setNavMode] = useState('all_columns'); // Default: 'all_columns' | 'cascade'
-
+  // Instant O(1) Hierarchy queries
   const vps = useMemo(() => {
     return adopcionRepo.getJerarquia('nacional', null, filtrosCompuestos);
   }, [filtrosCompuestos]);
@@ -167,7 +333,7 @@ export function ProgressiveHierarchy({
     if (selectedRepIds.length) titulo = `${selectedRepIds.length} Sales Rep(s)`;
     else if (selectedGerIds.length) titulo = `${selectedGerIds.length} Manager(s)`;
     else if (selectedDirIds.length) titulo = `${selectedDirIds.length} Director(s)`;
-    else if (selectedVpIds.length) titulo = `${selectedVpIds.length} VP Division(s)`;
+    else if (selectedVpIds.length) titulo = `${selectedVpIds.length} Business Line(s)`;
 
     const cartera = adopcionRepo.getCartera(null, fNode);
 
@@ -178,29 +344,29 @@ export function ProgressiveHierarchy({
     };
   }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, filtrosCompuestos]);
 
-  // DEFERRED CARTERA FOR SMOOTH 60FPS COLLAPSE ANIMATION WITHOUT MAIN THREAD DOM THRASHING
-  const deferredCartera = useDeferredValue(activeContext.cartera);
-
   // Weighted totals calculation for footer
   const totalesCartera = useMemo(() => {
-    if (!activeContext.cartera.length) return null;
+    const cart = activeContext.cartera;
+    if (!cart.length) return null;
     let totalPedidos = 0;
     let totalDigitales = 0;
     let totalAnalogos = 0;
     let onboardedCount = 0;
 
-    activeContext.cartera.forEach(c => {
+    const len = cart.length;
+    for (let i = 0; i < len; i++) {
+      const c = cart[i];
       totalPedidos += c.pedidosTotales;
       totalDigitales += c.pedidosDigitales;
       totalAnalogos += c.pedidosAnalogos;
       if (c.estaIncorporado) onboardedCount++;
-    });
+    }
 
     const pctAdopcionPonderado = totalPedidos > 0 ? (totalDigitales / totalPedidos) * 100 : 0;
-    const pctOnboarding = (onboardedCount / activeContext.cartera.length) * 100;
+    const pctOnboarding = (onboardedCount / len) * 100;
 
     return {
-      totalClientes: activeContext.cartera.length,
+      totalClientes: len,
       totalPedidos,
       totalDigitales,
       totalAnalogos,
@@ -209,6 +375,68 @@ export function ProgressiveHierarchy({
       pctAdopcionPonderado
     };
   }, [activeContext.cartera]);
+
+  const handleSort = useCallback((columnKey) => {
+    setSortConfig(prev => {
+      if (prev.key === columnKey) {
+        return {
+          key: columnKey,
+          direction: prev.direction === 'asc' ? 'desc' : 'asc'
+        };
+      }
+      const initialDirection = (columnKey === 'nombreEmpresa' || columnKey === 'status') ? 'asc' : 'desc';
+      return { key: columnKey, direction: initialDirection };
+    });
+  }, []);
+
+  const sortedCartera = useMemo(() => {
+    if (!activeContext.cartera) return [];
+    const list = [...activeContext.cartera];
+    if (!sortConfig.key) return list;
+
+    const { key, direction } = sortConfig;
+    const factor = direction === 'asc' ? 1 : -1;
+
+    list.sort((a, b) => {
+      if (key === 'nombreEmpresa') {
+        return factor * (a.nombreEmpresa || '').localeCompare(b.nombreEmpresa || '');
+      }
+      if (key === 'pedidosDigitales') {
+        return factor * ((a.pedidosDigitales || 0) - (b.pedidosDigitales || 0));
+      }
+      if (key === 'pedidosAnalogos') {
+        return factor * ((a.pedidosAnalogos || 0) - (b.pedidosAnalogos || 0));
+      }
+      if (key === 'pedidosTotales') {
+        return factor * ((a.pedidosTotales || 0) - (b.pedidosTotales || 0));
+      }
+      if (key === 'pctAdopcionPedidos') {
+        return factor * ((a.pctAdopcionPedidos || 0) - (b.pctAdopcionPedidos || 0));
+      }
+      if (key === 'status') {
+        const getStatusRank = (c) => {
+          if (!c.estaIncorporado) return 1;
+          if (c.pedidosDigitales > 0) return 3;
+          return 2;
+        };
+        return factor * (getStatusRank(a) - getStatusRank(b));
+      }
+      return 0;
+    });
+
+    return list;
+  }, [activeContext.cartera, sortConfig]);
+
+  const renderSortIcon = useCallback((columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <ArrowUpDown className="w-2.5 h-2.5 opacity-35 group-hover:opacity-75 transition-opacity shrink-0 ml-0.5" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="w-2.5 h-2.5 text-primary shrink-0 ml-0.5" />
+    ) : (
+      <ArrowDown className="w-2.5 h-2.5 text-primary shrink-0 ml-0.5" />
+    );
+  }, [sortConfig]);
 
   return (
     <Card className="p-3.5 bg-card border border-border shadow-xs rounded-xl flex flex-col relative overflow-hidden select-none space-y-2.5 font-sans">
@@ -305,7 +533,7 @@ export function ProgressiveHierarchy({
             <div className="flex items-center gap-1 flex-wrap">
               {selectedVpIds.length === 0 ? (
                 <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground">
-                  All VP Divisions Active
+                  All Business Lines Active
                 </Badge>
               ) : (
                 vps.filter(v => selectedVpIds.includes(v.id)).map(v => (
@@ -317,7 +545,7 @@ export function ProgressiveHierarchy({
             </div>
           </div>
           <span className="text-[10px] text-muted-foreground font-semibold hidden md:inline">
-            (Country & VPs collapsed to focus on Markets & Table)
+            (Country & Business Lines collapsed to focus on Markets & Table)
           </span>
         </div>
       )}
@@ -325,7 +553,7 @@ export function ProgressiveHierarchy({
       {/* HORIZONTAL CASCADED COLUMNS UNIFIED WITH LAYOUTGROUP AND POPLAYOUT */}
       <LayoutGroup>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin items-stretch h-[375px] max-h-[375px] relative">
-          {/* LEVEL 1: VICE PRESIDENCIES (STAGE 1 - FIRST COLUMN) */}
+          {/* LEVEL 1: BUSINESS LINES (STAGE 1 - FIRST COLUMN) */}
           <AnimatePresence mode="popLayout">
             {!isFocusTableMode && (
               <motion.div
@@ -340,10 +568,10 @@ export function ProgressiveHierarchy({
                 <div className="w-[134px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <Building className="w-3 h-3" />
-                    <span>VP Division</span>
+                    <span>Business Line</span>
                   </div>
                   {selectedVpIds.length > 0 && (
-                    <button onClick={() => startTransition(() => setSelectedVpIds([]))} className="text-[9px] text-primary hover:underline font-bold cursor-pointer">
+                    <button onClick={handleClearVps} className="text-[9px] text-primary hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
@@ -355,15 +583,15 @@ export function ProgressiveHierarchy({
                     return (
                       <button
                         key={vp.id}
-                        onClick={() => toggleSelection(setSelectedVpIds, selectedVpIds, vp.id)}
+                        onClick={() => handleToggleVp(vp.id)}
                         className={cn(
-                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
+                          "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
                         )}
                       >
-                        {/* RENG LÓN 1: NOMBRE */}
+                        {/* RENGLÓN 1: NOMBRE */}
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-[11px] truncate">{vp.nombre}</span>
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
@@ -394,264 +622,264 @@ export function ProgressiveHierarchy({
           </AnimatePresence>
 
           {/* LEVEL 2: REGIONS */}
-        <AnimatePresence mode="popLayout">
-          {(navMode === 'all_columns' || selectedVpIds.length > 0) && (
-            <motion.div
-              layout
-              key="dir-col"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={FLIP_TRANSITION}
-              className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-            >
-              <div className="w-[134px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
-                <div className="flex items-center gap-1">
-                  <Briefcase className="w-3 h-3" />
-                  <span>Regions</span>
+          <AnimatePresence mode="popLayout">
+            {(navMode === 'all_columns' || selectedVpIds.length > 0) && (
+              <motion.div
+                layout
+                key="dir-col"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={FLIP_TRANSITION}
+                className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+              >
+                <div className="w-[134px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
+                  <div className="flex items-center gap-1">
+                    <Briefcase className="w-3 h-3" />
+                    <span>Regions</span>
+                  </div>
+                  {selectedDirIds.length > 0 && (
+                    <button onClick={handleClearDirs} className="text-[9px] text-indigo-600 hover:underline font-bold cursor-pointer">
+                      Clear
+                    </button>
+                  )}
                 </div>
-                {selectedDirIds.length > 0 && (
-                  <button onClick={() => startTransition(() => setSelectedDirIds([]))} className="text-[9px] text-indigo-600 hover:underline font-bold cursor-pointer">
-                    Clear
-                  </button>
-                )}
-              </div>
 
-              <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
-                {directores.map((dir) => {
-                  const isSelected = selectedDirIds.includes(dir.id);
-                  return (
-                    <div key={dir.id} className="relative group">
-                      <button
-                        onClick={() => toggleSelection(setSelectedDirIds, selectedDirIds, dir.id)}
-                        className={cn(
-                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
-                          isSelected
-                            ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
-                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                        )}
-                      >
-                        {/* RENGLÓN 1: NOMBRE + INFO */}
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-[11px] truncate">{dir.nombre}</span>
-                          <div className="flex items-center gap-1">
-                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                            <button
-                              type="button"
-                              onMouseEnter={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover({
-                                  title: `${dir.nombre} Region`,
-                                  tipo: 'Leadership',
-                                  personasDetalle: dir.personasDetalle,
-                                  totales: dir.metricas.pedidos.totales,
-                                  pctAdopcion: dir.metricas.pedidos.pctAdopcion,
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
-                              onMouseLeave={() => setHoveredPopover(null)}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover(prev => prev ? null : {
-                                  title: `${dir.nombre} Region`,
-                                  tipo: 'Leadership',
-                                  personasDetalle: dir.personasDetalle,
-                                  totales: dir.metricas.pedidos.totales,
-                                  pctAdopcion: dir.metricas.pedidos.pctAdopcion,
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
-                              className={cn(
-                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                isSelected ? "hover:bg-indigo-700 text-indigo-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
-                              )}
-                              title="Leadership Breakdown"
-                            >
-                              <Info className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
-                        {dir.isSingleVp ? (
-                          <div className={cn("text-[9px] truncate font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
-                            {dir.persona}
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 flex-wrap">
-                            {dir.blPills?.map(pill => (
-                              <span
-                                key={pill}
+                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+                  {directores.map((dir) => {
+                    const isSelected = selectedDirIds.includes(dir.id);
+                    return (
+                      <div key={dir.id} className="relative group">
+                        <button
+                          onClick={() => handleToggleDir(dir.id)}
+                          className={cn(
+                            "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
+                            isSelected
+                              ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
+                              : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                          )}
+                        >
+                          {/* RENGLÓN 1: NOMBRE + INFO */}
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-[11px] truncate">{dir.nombre}</span>
+                            <div className="flex items-center gap-1">
+                              {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                              <button
+                                type="button"
+                                onMouseEnter={(e) => {
+                                  e.stopPropagation();
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  setHoveredPopover({
+                                    title: `${dir.nombre} Region`,
+                                    tipo: 'Leadership',
+                                    personasDetalle: dir.personasDetalle,
+                                    totales: dir.metricas.pedidos.totales,
+                                    pctAdopcion: dir.metricas.pedidos.pctAdopcion,
+                                    x: rect.left + rect.width / 2,
+                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                    pos: rect.top < 260 ? 'bottom' : 'top'
+                                  });
+                                }}
+                                onMouseLeave={() => setHoveredPopover(null)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  setHoveredPopover(prev => prev ? null : {
+                                    title: `${dir.nombre} Region`,
+                                    tipo: 'Leadership',
+                                    personasDetalle: dir.personasDetalle,
+                                    totales: dir.metricas.pedidos.totales,
+                                    pctAdopcion: dir.metricas.pedidos.pctAdopcion,
+                                    x: rect.left + rect.width / 2,
+                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                    pos: rect.top < 260 ? 'bottom' : 'top'
+                                  });
+                                }}
                                 className={cn(
-                                  "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
-                                  pill === 'RMX'
-                                    ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
-                                    : pill === 'CEM'
-                                    ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
-                                    : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
+                                  "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                  isSelected ? "hover:bg-indigo-700 text-indigo-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
                                 )}
+                                title="Leadership Breakdown"
                               >
-                                {pill}
-                              </span>
-                            ))}
+                                <Info className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
-                        )}
 
-                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{dir.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboard</span>
-                          </div>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate cursor-help", isSelected ? "text-indigo-200" : "text-muted-foreground")} title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                          {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
+                          {dir.isSingleVp ? (
+                            <div className={cn("text-[9px] truncate font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                              {dir.persona}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {dir.blPills?.map(pill => (
+                                <span
+                                  key={pill}
+                                  className={cn(
+                                    "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                    pill === 'RMX'
+                                      ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
+                                      : pill === 'CEM'
+                                      ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
+                                      : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
+                                  )}
+                                >
+                                  {pill}
+                                </span>
+                              ))}
+                            </div>
+                          )}
 
-        {/* LEVEL 3: MARKETS */}
-        <AnimatePresence mode="popLayout">
-          {(navMode === 'all_columns' || selectedDirIds.length > 0) && (
-            <motion.div
-              layout
-              key="ger-col"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={FLIP_TRANSITION}
-              className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-            >
-              <div className="w-[134px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
-                <div className="flex items-center gap-1">
-                  <Users className="w-3 h-3" />
-                  <span>Markets</span>
+                          {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
+                          <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
+                            <div className="truncate flex items-center justify-between gap-1">
+                              <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{dir.metricas.clientes?.asignados || 0} cust</span>
+                              <span className="font-bold shrink-0">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                            </div>
+                            <div className="truncate flex items-center justify-between gap-1">
+                              <span className={cn("truncate cursor-help", isSelected ? "text-indigo-200" : "text-muted-foreground")} title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)} orders</span>
+                              <span className="font-bold shrink-0">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                            </div>
+                          </div>
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
-                {selectedGerIds.length > 0 && (
-                  <button onClick={() => startTransition(() => setSelectedGerIds([]))} className="text-[9px] text-sky-600 hover:underline font-bold cursor-pointer">
-                    Clear
-                  </button>
-                )}
-              </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-              <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
-                {gerentes.map((ger) => {
-                  const isSelected = selectedGerIds.includes(ger.id);
-                  return (
-                    <div key={ger.id} className="relative group">
-                      <button
-                        onClick={() => toggleSelection(setSelectedGerIds, selectedGerIds, ger.id)}
-                        className={cn(
-                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
-                          isSelected
-                            ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
-                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                        )}
-                      >
-                        {/* RENGLÓN 1: NOMBRE + INFO */}
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-[11px] truncate">{ger.nombre}</span>
-                          <div className="flex items-center gap-1">
-                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                            <button
-                              type="button"
-                              onMouseEnter={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover({
-                                  title: `${ger.nombre} Market`,
-                                  tipo: 'Managers',
-                                  personasDetalle: ger.personasDetalle,
-                                  totales: ger.metricas.pedidos.totales,
-                                  pctAdopcion: ger.metricas.pedidos.pctAdopcion,
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
-                              onMouseLeave={() => setHoveredPopover(null)}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover(prev => prev ? null : {
-                                  title: `${ger.nombre} Market`,
-                                  tipo: 'Managers',
-                                  personasDetalle: ger.personasDetalle,
-                                  totales: ger.metricas.pedidos.totales,
-                                  pctAdopcion: ger.metricas.pedidos.pctAdopcion,
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
-                              className={cn(
-                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                isSelected ? "hover:bg-sky-700 text-sky-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
-                              )}
-                              title="Managers Breakdown"
-                            >
-                              <Info className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
+          {/* LEVEL 3: MARKETS */}
+          <AnimatePresence mode="popLayout">
+            {(navMode === 'all_columns' || selectedDirIds.length > 0) && (
+              <motion.div
+                layout
+                key="ger-col"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={FLIP_TRANSITION}
+                className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+              >
+                <div className="w-[134px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
+                  <div className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    <span>Markets</span>
+                  </div>
+                  {selectedGerIds.length > 0 && (
+                    <button onClick={handleClearGers} className="text-[9px] text-sky-600 hover:underline font-bold cursor-pointer">
+                      Clear
+                    </button>
+                  )}
+                </div>
 
-                        {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
-                        {ger.isSingleVp ? (
-                          <div className={cn("text-[9px] truncate font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
-                            {ger.persona}
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 flex-wrap">
-                            {ger.blPills?.map(pill => (
-                              <span
-                                key={pill}
+                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+                  {gerentes.map((ger) => {
+                    const isSelected = selectedGerIds.includes(ger.id);
+                    return (
+                      <div key={ger.id} className="relative group">
+                        <button
+                          onClick={() => handleToggleGer(ger.id)}
+                          className={cn(
+                            "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
+                            isSelected
+                              ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
+                              : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                          )}
+                        >
+                          {/* RENGLÓN 1: NOMBRE + INFO */}
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-[11px] truncate">{ger.nombre}</span>
+                            <div className="flex items-center gap-1">
+                              {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                              <button
+                                type="button"
+                                onMouseEnter={(e) => {
+                                  e.stopPropagation();
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  setHoveredPopover({
+                                    title: `${ger.nombre} Market`,
+                                    tipo: 'Managers',
+                                    personasDetalle: ger.personasDetalle,
+                                    totales: ger.metricas.pedidos.totales,
+                                    pctAdopcion: ger.metricas.pedidos.pctAdopcion,
+                                    x: rect.left + rect.width / 2,
+                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                    pos: rect.top < 260 ? 'bottom' : 'top'
+                                  });
+                                }}
+                                onMouseLeave={() => setHoveredPopover(null)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const rect = e.currentTarget.getBoundingClientRect();
+                                  setHoveredPopover(prev => prev ? null : {
+                                    title: `${ger.nombre} Market`,
+                                    tipo: 'Managers',
+                                    personasDetalle: ger.personasDetalle,
+                                    totales: ger.metricas.pedidos.totales,
+                                    pctAdopcion: ger.metricas.pedidos.pctAdopcion,
+                                    x: rect.left + rect.width / 2,
+                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                    pos: rect.top < 260 ? 'bottom' : 'top'
+                                  });
+                                }}
                                 className={cn(
-                                  "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
-                                  pill === 'RMX'
-                                    ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
-                                    : pill === 'CEM'
-                                    ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
-                                    : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
+                                  "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                  isSelected ? "hover:bg-sky-700 text-sky-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
                                 )}
+                                title="Managers Breakdown"
                               >
-                                {pill}
-                              </span>
-                            ))}
+                                <Info className="w-3 h-3" />
+                              </button>
+                            </div>
                           </div>
-                        )}
 
-                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{ger.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                          {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
+                          {ger.isSingleVp ? (
+                            <div className={cn("text-[9px] truncate font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                              {ger.persona}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {ger.blPills?.map(pill => (
+                                <span
+                                  key={pill}
+                                  className={cn(
+                                    "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                    pill === 'RMX'
+                                      ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
+                                      : pill === 'CEM'
+                                      ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
+                                      : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
+                                  )}
+                                >
+                                  {pill}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
+                          <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
+                            <div className="truncate flex items-center justify-between gap-1">
+                              <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{ger.metricas.clientes?.asignados || 0} cust</span>
+                              <span className="font-bold shrink-0">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                            </div>
+                            <div className="truncate flex items-center justify-between gap-1">
+                              <span className={cn("truncate cursor-help", isSelected ? "text-sky-200" : "text-muted-foreground")} title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)} orders</span>
+                              <span className="font-bold shrink-0">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                            </div>
                           </div>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate cursor-help", isSelected ? "text-sky-200" : "text-muted-foreground")} title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* LEVEL 4: SALES REPRESENTATIVES */}
           <AnimatePresence mode="popLayout">
@@ -671,7 +899,7 @@ export function ProgressiveHierarchy({
                     <span>Sales Reps</span>
                   </div>
                   {selectedRepIds.length > 0 && (
-                    <button onClick={() => startTransition(() => setSelectedRepIds([]))} className="text-[9px] text-emerald-600 hover:underline font-bold cursor-pointer">
+                    <button onClick={handleClearReps} className="text-[9px] text-emerald-600 hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
@@ -683,9 +911,9 @@ export function ProgressiveHierarchy({
                     return (
                       <button
                         key={rep.id}
-                        onClick={() => toggleSelection(setSelectedRepIds, selectedRepIds, rep.id)}
+                        onClick={() => handleToggleRep(rep.id)}
                         className={cn(
-                          "w-full text-left p-1.5 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
+                          "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -733,233 +961,288 @@ export function ProgressiveHierarchy({
             )}
           </AnimatePresence>
 
-          {/* RIGHT HAND PERMANENT TABLE: UNIFIED FRAMER MOTION FLIP SYSTEM */}
+          {/* RIGHT HAND PERMANENT TABLE */}
           <motion.div
             layout
             transition={FLIP_TRANSITION}
-            className="flex-1 min-w-[380px] h-full bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+            className="flex-1 min-w-[340px] h-full bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
           >
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between pb-2 mb-2 border-b border-border shrink-0">
-              <div className="text-xs font-black text-foreground flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-primary" />
-                <span>Customer Portfolio ({activeContext.cartera.length} Customers)</span>
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-border shrink-0">
+                <div className="text-xs font-black text-foreground flex items-center gap-1.5">
+                  <ShoppingCart className="w-3.5 h-3.5 text-primary" />
+                  <span>Customer Detail</span>
+                </div>
+
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => onOpenActionDrawer({ nombre: activeContext.titulo, id: 'context' })}
+                  className="text-xs font-bold gap-1 shadow-xs h-7 px-2.5"
+                >
+                  Action Plan
+                </Button>
               </div>
 
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => onOpenActionDrawer({ nombre: activeContext.titulo, id: 'context' })}
-                className="text-xs font-bold gap-1 shadow-xs"
-              >
-                Action Plan
-              </Button>
-            </div>
+              {/* EXPANDABLE TABLE FILLING FULL VERTICAL CONTAINER HEIGHT WITH NO HORIZONTAL OVERFLOW */}
+              <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 scrollbar-thin">
+                <table className="w-full text-left text-xs border-collapse table-fixed">
+                  <thead>
+                    <tr className="border-b border-border text-[11px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 h-7.5 select-none">
+                      <th className="py-1.5 px-0.5 w-[3%] text-center"></th>
+                      <th
+                        onClick={() => handleSort('nombreEmpresa')}
+                        className="py-1.5 px-1.5 w-[27%] font-bold cursor-pointer hover:text-foreground transition-colors group"
+                        title="Sort by Customer Name (A-Z / Z-A)"
+                      >
+                        <div className="flex items-center gap-1 truncate">
+                          <span className="truncate">Customer</span>
+                          {renderSortIcon('nombreEmpresa')}
+                        </div>
+                      </th>
+                      <th
+                        onClick={() => handleSort('pedidosDigitales')}
+                        className="py-1.5 px-1 w-[11%] text-right font-bold cursor-pointer hover:text-sky-700 dark:hover:text-sky-300 text-sky-700 dark:text-sky-400 transition-colors group"
+                        title="Sort by Online Orders (High to Low / Low to High)"
+                      >
+                        <div className="flex items-center justify-end gap-0.5">
+                          <span>Online</span>
+                          {renderSortIcon('pedidosDigitales')}
+                        </div>
+                      </th>
+                      <th
+                        onClick={() => handleSort('pedidosAnalogos')}
+                        className="py-1.5 px-1 w-[11%] text-right font-bold cursor-pointer hover:text-slate-700 dark:hover:text-slate-300 text-slate-500 dark:text-slate-400 transition-colors group"
+                        title="Sort by Offline Orders (High to Low / Low to High)"
+                      >
+                        <div className="flex items-center justify-end gap-0.5">
+                          <span>Offline</span>
+                          {renderSortIcon('pedidosAnalogos')}
+                        </div>
+                      </th>
+                      <th
+                        onClick={() => handleSort('pedidosTotales')}
+                        className="py-1.5 px-1 w-[11%] text-right font-bold cursor-pointer hover:text-foreground transition-colors group"
+                        title="Sort by Total Orders (High to Low / Low to High)"
+                      >
+                        <div className="flex items-center justify-end gap-0.5">
+                          <span>Total</span>
+                          {renderSortIcon('pedidosTotales')}
+                        </div>
+                      </th>
+                      <th
+                        onClick={() => handleSort('pctAdopcionPedidos')}
+                        className="py-1.5 px-1 w-[18%] text-right font-bold cursor-pointer hover:text-foreground transition-colors group"
+                        title="Sort by Adoption % (High to Low / Low to High)"
+                      >
+                        <div className="flex items-center justify-end gap-0.5">
+                          <span>Adoption %</span>
+                          {renderSortIcon('pctAdopcionPedidos')}
+                        </div>
+                      </th>
+                      <th
+                        onClick={() => handleSort('status')}
+                        className="py-1.5 px-1 w-[19%] text-center font-bold cursor-pointer hover:text-foreground transition-colors group"
+                        title="Sort by Account Status"
+                      >
+                        <div className="flex items-center justify-center gap-0.5">
+                          <span>Status</span>
+                          {renderSortIcon('status')}
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border/60">
+                    {sortedCartera.slice(0, 50).map(cli => {
+                      const isExpanded = expandedRowIds.has(cli.id);
+                      const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
 
-            {/* EXPANDABLE TABLE FILLING FULL VERTICAL CONTAINER HEIGHT */}
-            <div className="overflow-y-auto flex-1 min-h-0 scrollbar-thin">
-              <table className="w-full text-left text-xs border-collapse table-fixed">
-                <thead>
-                  <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 h-8">
-                    <th className="py-2 px-1 w-[3%]"></th>
-                    <th className="py-2 px-2 w-[34%] font-bold truncate">Customer</th>
-                    <th className="py-2 px-2 w-[15%] text-right font-bold truncate text-sky-700 dark:text-sky-400">Online</th>
-                    <th className="py-2 px-2 w-[15%] text-right font-bold truncate text-slate-500 dark:text-slate-400">Offline</th>
-                    <th className="py-2 px-2 w-[14%] text-right font-bold truncate">Total</th>
-                    <th className="py-2 px-2 w-[11%] text-right font-bold truncate">Adoption %</th>
-                    <th className="py-2 px-2 w-[8%] text-center font-bold truncate">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/60">
-                  {deferredCartera.slice(0, 50).map(cli => {
-                    const isExpanded = expandedRowIds.has(cli.id);
-                    const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
-
-                    return (
-                      <React.Fragment key={cli.id}>
-                        <tr className={cn("hover:bg-card transition-colors cursor-pointer", isExpanded && "bg-slate-100/80 dark:bg-slate-800")} onClick={() => toggleRowExpanded(cli.id)}>
-                          <td className="py-2 px-1 text-center">
-                            <button
-                              type="button"
-                              className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground"
-                            >
-                              {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-primary" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                            </button>
-                          </td>
-                          <td className="py-2 px-2">
-                            <div className="font-bold text-foreground flex items-center gap-1.5 text-xs truncate max-w-[170px]" title={cli.nombreEmpresa}>
-                              {cli.esTopPareto && (
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
-                              )}
-                              <span className="truncate">{cli.nombreEmpresa}</span>
-                            </div>
-                            <div className="mt-0.5 flex items-center">
-                              <span className={cn(
-                                "text-[9px] font-black px-1.5 py-0.2 rounded border uppercase tracking-wider",
-                                shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
-                                shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
-                                "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
-                              )}>
-                                {shortBl}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap">
-                            <CustomTooltip text={formatNumber(cli.pedidosDigitales)}>
-                              <span>{formatCompactNumber(cli.pedidosDigitales)}</span>
-                            </CustomTooltip>
-                          </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
-                            <CustomTooltip text={formatNumber(cli.pedidosAnalogos)}>
-                              <span>{formatCompactNumber(cli.pedidosAnalogos)}</span>
-                            </CustomTooltip>
-                          </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap">
-                            <CustomTooltip text={formatNumber(cli.pedidosTotales)}>
-                              <span>{formatCompactNumber(cli.pedidosTotales)}</span>
-                            </CustomTooltip>
-                          </td>
-                          <td className="py-2 px-2 text-right font-bold tabular-nums text-xs whitespace-nowrap">
-                            <span className={cn(
-                              cli.pctAdopcionPedidos >= 90 ? "text-emerald-600 dark:text-emerald-400" :
-                              cli.pctAdopcionPedidos >= 50 ? "text-amber-600 dark:text-amber-400" :
-                              "text-rose-600 dark:text-rose-400"
-                            )}>
-                              {cli.pctAdopcionPedidos.toFixed(1)}%
-                            </span>
-                          </td>
-                          <td className="py-2 px-2 text-center whitespace-nowrap">
-                            {!cli.estaIncorporado ? (
-                              <Badge variant="danger" className="text-[10px] py-0.5 px-1.5 font-bold">
-                                Pending
-                              </Badge>
-                            ) : cli.pedidosDigitales > 0 ? (
-                              <Badge variant="success" className="text-[10px] py-0.5 px-1.5 font-bold">
-                                Active
-                              </Badge>
-                            ) : (
-                              <Badge variant="secondary" className="text-[10px] py-0.5 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
-                                Onboarded
-                              </Badge>
-                            )}
-                          </td>
-                        </tr>
-
-                        {/* EXPANDABLE DRAWER ROW WITH HIGH-CONTRAST VISUAL MICRO-PILLS */}
-                        {isExpanded && (
-                          <tr className="bg-slate-100/90 dark:bg-slate-950 border-b border-border">
-                            <td colSpan={7} className="p-3">
-                              <div className="bg-card p-3 rounded-lg border border-border shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
-                                {/* Digital Channel Pills */}
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[11px] font-bold text-muted-foreground uppercase mr-1">Digital Channels:</span>
-                                  <Badge variant="info" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
-                                    <Laptop className="w-3.5 h-3.5 text-sky-500" />
-                                    <span>Web: <b>{cli.pedidosWeb}</b></span>
-                                  </Badge>
-                                  <Badge variant="info" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30">
-                                    <Smartphone className="w-3.5 h-3.5 text-indigo-500" />
-                                    <span>App: <b>{cli.pedidosApp}</b></span>
-                                  </Badge>
-                                  <Badge variant="info" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
-                                    <Server className="w-3.5 h-3.5 text-emerald-500" />
-                                    <span>EDI: <b>{cli.pedidosEdi}</b></span>
-                                  </Badge>
-                                </div>
-
-                                {/* Offline Pill */}
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[11px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
-                                  <Badge variant="outline" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
-                                    <PhoneCall className="w-3.5 h-3.5 text-amber-500" />
-                                    <span>Phone: <b>{cli.pedidosAnalogos}</b></span>
-                                  </Badge>
-                                </div>
+                      return (
+                        <React.Fragment key={cli.id}>
+                          <tr className={cn("hover:bg-card transition-colors cursor-pointer", isExpanded && "bg-slate-100/80 dark:bg-slate-800")} onClick={() => toggleRowExpanded(cli.id)}>
+                            <td className="py-1.5 px-0.5 text-center">
+                              <button
+                                type="button"
+                                className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground"
+                              >
+                                {isExpanded ? <ChevronDown className="w-3 h-3 text-primary" /> : <ChevronRight className="w-3 h-3" />}
+                              </button>
+                            </td>
+                            <td className="py-1.5 px-1.5">
+                              <div className="font-bold text-foreground flex items-center gap-1 text-xs truncate" title={cli.nombreEmpresa}>
+                                {cli.esTopPareto && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
+                                )}
+                                <span className="truncate">{cli.nombreEmpresa}</span>
+                              </div>
+                              <div className="mt-0.5 flex items-center">
+                                <span className={cn(
+                                  "text-[8.5px] font-black px-1.5 py-0.2 rounded border uppercase tracking-wider",
+                                  shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
+                                  shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
+                                  "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                )}>
+                                  {shortBl}
+                                </span>
                               </div>
                             </td>
+                            <td className="py-1.5 px-1 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap">
+                              <CustomTooltip text={formatNumber(cli.pedidosDigitales)}>
+                                <span>{formatCompactNumber(cli.pedidosDigitales)}</span>
+                              </CustomTooltip>
+                            </td>
+                            <td className="py-1.5 px-1 text-right font-bold tabular-nums text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
+                              <CustomTooltip text={formatNumber(cli.pedidosAnalogos)}>
+                                <span>{formatCompactNumber(cli.pedidosAnalogos)}</span>
+                              </CustomTooltip>
+                            </td>
+                            <td className="py-1.5 px-1 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap">
+                              <CustomTooltip text={formatNumber(cli.pedidosTotales)}>
+                                <span>{formatCompactNumber(cli.pedidosTotales)}</span>
+                              </CustomTooltip>
+                            </td>
+                            <td className="py-1.5 px-1 text-right font-bold tabular-nums text-xs whitespace-nowrap">
+                              <span className={cn(
+                                cli.pctAdopcionPedidos >= 90 ? "text-emerald-600 dark:text-emerald-400" :
+                                cli.pctAdopcionPedidos >= 50 ? "text-amber-600 dark:text-amber-400" :
+                                "text-rose-600 dark:text-rose-400"
+                              )}>
+                                {cli.pctAdopcionPedidos.toFixed(1)}%
+                              </span>
+                            </td>
+                            <td className="py-1.5 px-1 text-center whitespace-nowrap">
+                              {!cli.estaIncorporado ? (
+                                <Badge variant="danger" className="text-[9.5px] py-0.5 px-1.5 font-bold">
+                                  Pending
+                                </Badge>
+                              ) : cli.pedidosDigitales > 0 ? (
+                                <Badge variant="success" className="text-[9.5px] py-0.5 px-1.5 font-bold">
+                                  Active
+                                </Badge>
+                              ) : (
+                                <Badge variant="secondary" className="text-[9.5px] py-0.5 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                  Onboarded
+                                </Badge>
+                              )}
+                            </td>
                           </tr>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
 
-                {/* FOOTER ROW FOR WEIGHTED TOTALS */}
-                {totalesCartera && (
-                  <tfoot className="sticky bottom-0 z-10 bg-slate-200 dark:bg-slate-800 font-bold border-t-2 border-primary/40 text-foreground text-xs shadow-md">
-                    <tr>
-                      <td colSpan={2} className="py-1.5 px-2">
-                        <div className="font-black uppercase text-[11px] text-primary truncate">
-                          TOTALS ({totalesCartera.totalClientes} CUSTOMERS)
-                        </div>
-                      </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-sky-700 dark:text-sky-400 font-black text-xs whitespace-nowrap">
-                        <CustomTooltip text={formatNumber(totalesCartera.totalDigitales)}>
-                          <span>{formatCompactNumber(totalesCartera.totalDigitales)}</span>
-                        </CustomTooltip>
-                      </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-slate-500 dark:text-slate-400 font-bold text-xs whitespace-nowrap">
-                        <CustomTooltip text={formatNumber(totalesCartera.totalAnalogos)}>
-                          <span>{formatCompactNumber(totalesCartera.totalAnalogos)}</span>
-                        </CustomTooltip>
-                      </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-foreground font-black text-xs whitespace-nowrap">
-                        <CustomTooltip text={formatNumber(totalesCartera.totalPedidos)}>
-                          <span>{formatCompactNumber(totalesCartera.totalPedidos)}</span>
-                        </CustomTooltip>
-                      </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-xs whitespace-nowrap">
-                        {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
-                      </td>
-                      <td className="py-1.5 px-2"></td>
-                    </tr>
-                  </tfoot>
-                )}
-              </table>
+                          {/* EXPANDABLE DRAWER ROW WITH HIGH-CONTRAST VISUAL MICRO-PILLS */}
+                          {isExpanded && (
+                            <tr className="bg-slate-100/90 dark:bg-slate-950 border-b border-border">
+                              <td colSpan={7} className="p-2.5">
+                                <div className="bg-card p-2.5 rounded-lg border border-border shadow-2xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
+                                  {/* Digital Channel Pills */}
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Digital:</span>
+                                    <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                      <Laptop className="w-3 h-3 text-sky-500" />
+                                      <span>Web: <b>{cli.pedidosWeb}</b></span>
+                                    </Badge>
+                                    <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30">
+                                      <Smartphone className="w-3 h-3 text-indigo-500" />
+                                      <span>App: <b>{cli.pedidosApp}</b></span>
+                                    </Badge>
+                                    <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
+                                      <Server className="w-3 h-3 text-emerald-500" />
+                                      <span>EDI: <b>{cli.pedidosEdi}</b></span>
+                                    </Badge>
+                                  </div>
+
+                                  {/* Offline Pill */}
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
+                                    <Badge variant="outline" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
+                                      <PhoneCall className="w-3 h-3 text-amber-500" />
+                                      <span>Phone: <b>{cli.pedidosAnalogos}</b></span>
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+
+                  {/* FOOTER ROW FOR WEIGHTED TOTALS */}
+                  {totalesCartera && (
+                    <tfoot className="sticky bottom-0 z-10 bg-slate-200 dark:bg-slate-800 font-bold border-t-2 border-primary/40 text-foreground text-xs shadow-md">
+                      <tr>
+                        <td colSpan={2} className="py-1.5 px-1.5">
+                          <div className="font-black uppercase text-[10.5px] text-primary truncate">
+                            TOTAL ({totalesCartera.totalClientes})
+                          </div>
+                        </td>
+                        <td className="py-1.5 px-1 text-right tabular-nums text-sky-700 dark:text-sky-400 font-black text-xs whitespace-nowrap">
+                          <CustomTooltip text={formatNumber(totalesCartera.totalDigitales)}>
+                            <span>{formatCompactNumber(totalesCartera.totalDigitales)}</span>
+                          </CustomTooltip>
+                        </td>
+                        <td className="py-1.5 px-1 text-right tabular-nums text-slate-500 dark:text-slate-400 font-bold text-xs whitespace-nowrap">
+                          <CustomTooltip text={formatNumber(totalesCartera.totalAnalogos)}>
+                            <span>{formatCompactNumber(totalesCartera.totalAnalogos)}</span>
+                          </CustomTooltip>
+                        </td>
+                        <td className="py-1.5 px-1 text-right tabular-nums text-foreground font-black text-xs whitespace-nowrap">
+                          <CustomTooltip text={formatNumber(totalesCartera.totalPedidos)}>
+                            <span>{formatCompactNumber(totalesCartera.totalPedidos)}</span>
+                          </CustomTooltip>
+                        </td>
+                        <td className="py-1.5 px-1 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-xs whitespace-nowrap">
+                          {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
+                        </td>
+                        <td className="py-1.5 px-1"></td>
+                      </tr>
+                    </tfoot>
+                  )}
+                </table>
+              </div>
             </div>
+          </motion.div>
+        </div>
+      </LayoutGroup>
+
+      {/* ZERO-CLIPPING VIEWPORT FIXED POPOVER */}
+      {hoveredPopover && (
+        <div
+          style={{
+            position: 'fixed',
+            left: `${hoveredPopover.x}px`,
+            top: `${hoveredPopover.y}px`,
+            transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
+          }}
+          className="z-[9999] w-64 p-3 bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded-xl shadow-xl dark:shadow-2xl border border-slate-700/80 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
+        >
+          <div className="font-extrabold text-sky-400 dark:text-sky-300 uppercase tracking-wider text-[9px] pb-1 border-b border-slate-800 dark:border-slate-700 flex items-center justify-between">
+            <span>{hoveredPopover.title}</span>
+            <span className="text-slate-400 font-normal">{hoveredPopover.tipo}</span>
           </div>
-        </motion.div>
-      </div>
-    </LayoutGroup>
 
-    {/* ZERO-CLIPPING VIEWPORT FIXED POPOVER */}
-    {hoveredPopover && (
-      <div
-        style={{
-          position: 'fixed',
-          left: `${hoveredPopover.x}px`,
-          top: `${hoveredPopover.y}px`,
-          transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
-        }}
-        className="z-[9999] w-64 p-3 bg-slate-900 text-slate-100 dark:bg-slate-800 dark:text-slate-100 rounded-xl shadow-xl dark:shadow-2xl border border-slate-700/80 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
-      >
-        <div className="font-extrabold text-sky-400 dark:text-sky-300 uppercase tracking-wider text-[9px] pb-1 border-b border-slate-800 dark:border-slate-700 flex items-center justify-between">
-          <span>{hoveredPopover.title}</span>
-          <span className="text-slate-400 font-normal">{hoveredPopover.tipo}</span>
-        </div>
-
-        <div className="space-y-1.5 pt-2">
-          {hoveredPopover.personasDetalle?.map(p => (
-            <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
-              <span className="font-bold text-slate-200 flex items-center gap-1.5">
-                <span className={cn(
-                  "text-[8px] font-black px-1.5 py-0.5 rounded uppercase border",
-                  p.bl === 'RMX' ? "bg-sky-500/20 text-sky-300 border-sky-500/40" :
-                  p.bl === 'CEM' ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" :
-                  "bg-amber-500/20 text-amber-300 border-amber-500/40"
-                )}>
-                  {p.bl}
+          <div className="space-y-1.5 pt-2">
+            {hoveredPopover.personasDetalle?.map(p => (
+              <div key={p.bl} className="flex items-center justify-between gap-2 text-[10px]">
+                <span className="font-bold text-slate-200 flex items-center gap-1.5">
+                  <span className={cn(
+                    "text-[8px] font-black px-1.5 py-0.5 rounded uppercase border",
+                    p.bl === 'RMX' ? "bg-sky-500/20 text-sky-300 border-sky-500/40" :
+                    p.bl === 'CEM' ? "bg-indigo-500/20 text-indigo-300 border-indigo-500/40" :
+                    "bg-amber-500/20 text-amber-300 border-amber-500/40"
+                  )}>
+                    {p.bl}
+                  </span>
+                  <span className="truncate max-w-[95px] text-slate-200">{p.persona}</span>
                 </span>
-                <span className="truncate max-w-[95px] text-slate-200">{p.persona}</span>
-              </span>
-              <span className="font-mono text-emerald-400 font-bold shrink-0">
-                {formatNumber(p.totales)} ord · {formatPct(p.pctAdopcion)}
-              </span>
-            </div>
-          ))}
+                <span className="font-mono text-emerald-400 font-bold shrink-0">
+                  {formatNumber(p.totales)} ord · {formatPct(p.pctAdopcion)}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-    )}
-  </Card>
+      )}
+    </Card>
   );
 }
+

@@ -113,7 +113,8 @@ export function Sidebar({
                 value={filtros.meses || []}
                 onChange={(val) => onFiltroChange("meses", val)}
                 grid={true}
-                gridCols={2}
+                gridFlow="col"
+                gridRows={6}
               />
             </div>
 

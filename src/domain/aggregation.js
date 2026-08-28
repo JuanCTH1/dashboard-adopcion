@@ -2,6 +2,42 @@
  * AGGREGATION & FUNNEL ENGINE - 100% ENGLISH
  */
 
+export function validateVolumeCompatibility(transacciones = []) {
+  const lineas = new Set(transacciones.map(t => t.lineaNegocio).filter(Boolean));
+  const hasReadymix = lineas.has('readymix');
+  const hasToneladas = lineas.has('cemento') || lineas.has('agregados');
+
+  if (hasReadymix && hasToneladas) {
+    return {
+      compatible: false,
+      unidad: null,
+      mensaje: 'Incompatibilidad de unidades: no se pueden sumar m³ de Readymix con toneladas de Cemento/Agregados.'
+    };
+  }
+
+  if (hasReadymix) {
+    return {
+      compatible: true,
+      unidad: 'cu yd',
+      mensaje: 'Volumen compatible en cu yd (m³).'
+    };
+  }
+
+  if (hasToneladas) {
+    return {
+      compatible: true,
+      unidad: 'toneladas',
+      mensaje: 'Volumen compatible en toneladas métricas (tons).'
+    };
+  }
+
+  return {
+    compatible: true,
+    unidad: '',
+    mensaje: 'Sin transacciones.'
+  };
+}
+
 export function calculateAggregations(transacciones = [], clientes = []) {
   let pedidosTotales = 0;
   let pedidosDigitales = 0;

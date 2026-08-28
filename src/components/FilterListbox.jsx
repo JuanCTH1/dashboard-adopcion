@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 const DRAG_THRESHOLD_PX = 4;
 const GRID_COLS_CLASS = { 2: "grid-cols-2", 3: "grid-cols-3", 4: "grid-cols-4", 6: "grid-cols-6" };
+const GRID_ROWS_CLASS = { 2: "grid-rows-2", 3: "grid-rows-3", 4: "grid-rows-4", 6: "grid-rows-6" };
 
 export function FilterListbox({
   label,
@@ -14,6 +15,8 @@ export function FilterListbox({
   possibleValues = null,
   grid = false,
   gridCols = 4,
+  gridFlow = "row",
+  gridRows = null,
   showSearch = false,
   formatLabel = (opt) => opt,
   className = "",
@@ -156,7 +159,12 @@ export function FilterListbox({
       )}
 
       {grid ? (
-        <div className={cn("grid gap-1", GRID_COLS_CLASS[gridCols] || "grid-cols-4")}>
+        <div className={cn(
+          "grid gap-1",
+          gridFlow === "col"
+            ? cn("grid-flow-col", GRID_ROWS_CLASS[gridRows] || "grid-rows-6")
+            : GRID_COLS_CLASS[gridCols] || "grid-cols-4"
+        )}>
           {filteredOptions.map(opt => {
             const optStr = String(opt);
             const state = getOptionState(opt);
