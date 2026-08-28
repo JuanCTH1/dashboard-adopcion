@@ -1,5 +1,5 @@
 /**
- * DETERMINISTIC SYNTHETIC DATA GENERATOR FOR CX ADOPTION - 100% ENGLISH
+ * DETERMINISTIC SYNTHETIC DATA GENERATOR FOR CX ADOPTION - 5 REGIONS PER VP (100% ENGLISH)
  */
 
 function mulberry32(a) {
@@ -47,21 +47,37 @@ export function generateDataset(seed = 20260828) {
     { id: 'vp-agregados', nombre: 'VP Quarries & Aggregates', lineaNegocio: 'agregados', unidad: 'tons' }
   ];
 
+  // EXACTAMENTE 5 DIRECCIONES / REGIONES POR CADA VP
   const DIRECTORES = [
-    { id: 'dir-rm-east', nombre: 'Dir. Readymix East', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
-    { id: 'dir-rm-west', nombre: 'Dir. Readymix West', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
-    { id: 'dir-cem-east', nombre: 'Dir. Cement Sunbelt & East', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
-    { id: 'dir-cem-west', nombre: 'Dir. Cement Central & West', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-    { id: 'dir-agg-nat', nombre: 'Dir. National Quarries', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' }
+    // 5 Directors for VP Readymix Concrete
+    { id: 'dir-rm-east', nombre: 'Dir. Readymix East Coast', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
+    { id: 'dir-rm-sunbelt', nombre: 'Dir. Readymix Sunbelt', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
+    { id: 'dir-rm-midwest', nombre: 'Dir. Readymix Midwest', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'dir-rm-mountain', nombre: 'Dir. Readymix Mountain', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
+    { id: 'dir-rm-pacific', nombre: 'Dir. Readymix Pacific', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
+
+    // 5 Directors for VP Bulk Cement
+    { id: 'dir-cem-atlantic', nombre: 'Dir. Cement Atlantic', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'dir-cem-gulf', nombre: 'Dir. Cement Gulf Coast', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
+    { id: 'dir-cem-greatlakes', nombre: 'Dir. Cement Great Lakes', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
+    { id: 'dir-cem-plains', nombre: 'Dir. Cement Central Plains', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
+    { id: 'dir-cem-northwest', nombre: 'Dir. Cement Pacific NW', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
+
+    // 5 Directors for VP Quarries & Aggregates
+    { id: 'dir-agg-northeast', nombre: 'Dir. Quarries Northeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
+    { id: 'dir-agg-southeast', nombre: 'Dir. Quarries Southeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'dir-agg-central', nombre: 'Dir. Quarries Central', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
+    { id: 'dir-agg-texas', nombre: 'Dir. Quarries Texas & Gulf', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
+    { id: 'dir-agg-westcoast', nombre: 'Dir. Quarries West Coast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' }
   ];
 
   const GERENTES = [];
   DIRECTORES.forEach((dir, dIdx) => {
-    for (let g = 1; g <= 3; g++) {
-      const gId = `ger-${dIdx * 3 + g}`;
+    for (let g = 1; g <= 2; g++) {
+      const gId = `ger-${dIdx * 2 + g}`;
       GERENTES.push({
         id: gId,
-        nombre: `Manager ${g} (${dir.nombre.split(' ')[1] || 'Region'})`,
+        nombre: `Manager ${g} (${dir.nombre.split(' ')[2] || dir.nombre.split(' ')[1]})`,
         directorId: dir.id,
         vpId: dir.vpId,
         lineaNegocio: dir.lineaNegocio,
@@ -80,13 +96,14 @@ export function generateDataset(seed = 20260828) {
     'Donald Green', 'Kimberly Adams', 'George Baker', 'Amy Gonzalez', 'Kenneth Nelson',
     'Angela Carter', 'Steven Mitchell', 'Brenda Pérez', 'Edward Roberts', 'Pamela Turner',
     'Brian Phillips', 'Emma Campbell', 'Ronald Parker', 'Rebecca Evans', 'Anthony Edwards',
-    'Laura Collins', 'Kevin Stewart', 'Cynthia Sánchez', 'Jason Morris', 'Kathleen Rogers'
+    'Laura Collins', 'Kevin Stewart', 'Cynthia Sánchez', 'Jason Morris', 'Kathleen Rogers',
+    'Gary Reed', 'Timothy Cook', 'Frank Morgan', 'Shirley Bell', 'Sharon Murphy'
   ];
 
   const VENDEDORES = [];
   let vIdx = 0;
   GERENTES.forEach(ger => {
-    const numReps = Math.floor(rand() * 2) + 3;
+    const numReps = 2;
     const regionObj = REGIONES.find(r => r.id === ger.regionId);
     for (let i = 0; i < numReps; i++) {
       if (vIdx < NOMBRES_VENDEDORES.length) {
@@ -131,7 +148,7 @@ export function generateDataset(seed = 20260828) {
   let cIdx = 1;
 
   VENDEDORES.forEach(rep => {
-    const numClientes = Math.floor(rand() * 10) + 18;
+    const numClientes = Math.floor(rand() * 6) + 12;
     const linea = LINEAS_MAP[rep.lineaNegocio] || LINEAS_MAP.readymix;
 
     for (let i = 0; i < numClientes; i++) {
