@@ -313,3 +313,101 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - **Tarjeta USA:** Simplificada en 3 renglones (USA / National / 119,005 ord | 51.0%).
   - **Filtro Multi-BL:** Coincidencia por región y plaza 100% funcional y sin datos en 0.
   - **Modo Oscuro & Iconos:** Auditoría visual completa con contraste adaptativo, scrollbars estilizados e iconos vectoriales SVG.
+---
+
+## 🎯 Versión 2.24 - Control de Altura Estricto Uniforme (h-[375px]), Ancho Optimizado & Modo Focus Table
+
+- **Control Estricto de Altura Uniforme (`h-[375px]` / `h-[365px]`):**
+  - Se fijó una altura estricta de `h-[365px]` para todas las columnas de la jerarquía (`Country`, `VP Division`, `Regions`, `Markets`, `Sales Reps`) y para la tarjeta de la tabla (`Account Portfolio`).
+  - Los contenedores internos de tarjetas en cada columna implementan scroll vertical estilizado (`overflow-y-auto scrollbar-thin max-h-[305px] min-h-0`), mostrando las primeras 5 tarjetas y permitiendo scroll suave si la nómina de ejecutivos o mercados es muy extensa.
+  - El dashboard **nunca** se deforma ni se estira verticalmente, eliminando espacios vacíos desproporcionados debajo de las columnas cortas.
+- **Ancho Optimizado de Columnas (`w-[150px]`):**
+  - Se ajustó el ancho de las columnas a `w-[150px]`, liberando más de 110px de espacio horizontal que benefician directamente a la tabla (`min-w-[380px]`), previniendo amontonamientos y scrollbars horizontales.
+- **Modo Enfoque de Tabla (`[ ⇥ Focus Table ]` / `[ ⇤ Show All Columns ]`):**
+  - Se añadió el botón `Focus Table` en la cabecera del explorador jerárquico.
+  - Al activarlo, colapsa temporalmente las columnas de País y VPs en una barra de resumen (*breadcrumbs ribbon*) en la parte superior, otorgándole el **75%+ del ancho del dashboard** a los Mercados, Vendedores y Portafolio de Cuentas.
+---
+
+## 🎯 Versión 2.25 - Encabezado de Altura Fija (48px / h-12) & Eliminación Total de Brinco Vertical al Filtrar
+
+- **Integración Inline de Micro-Insignias de Filtro:**
+  - Se trasladaron los badges de `Active Filters` directamente al interior de la barra superior principal (`h-12` / 48px) en [AppHeader.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/AppHeader.jsx).
+- **Cero Desplazamiento de Pantalla (Zero Layout Shift):**
+  - Al seleccionar o deseleccionar cualquier filtro (ej. *Readymix Concrete*), la altura del encabezado se mantiene **100% fija en 48px** en todo momento.
+  - La pantalla, las tarjetas del Ribbon, la gráfica de tendencia y la tabla permanecen **inmóviles**, eliminando el salto vertical de 32px que forzaba a hacer scroll.
+---
+
+## 🎯 Versión 2.26 - Eliminación de Etiqueta "Active" & Corrección de Deselección en Chips de Jerarquía
+
+- **Remoción de la palabra "Active":**
+  - Se eliminó la etiqueta redundante "Active:" en el encabezado superior para una apariencia más limpia y minimalista.
+- **Corrección de Deselección al hacer clic en la (X):**
+  - **Causa Raíz:** Al hacer clic en la (X) de un chip de la jerarquía (ej. *VPs*, *Regions*, *Markets*, *Sales Reps*), el manejador buscaba la clave dentro del estado del sidebar `filtrosContexto` en lugar del estado de la jerarquía `filtrosJerarquia`.
+  - **Solución:** Se actualizó `handleRemoveChip` y `handleResetFiltros` en [App.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/App.jsx) para resetear adecuadamente los arreglos `vpIds`, `directorIds`, `gerenteIds` y `vendedorIds`. Ahora al pulsar la (X) en cualquier chip del header, la selección correspondiente en la jerarquía se limpia inmediatamente.
+---
+
+## 🎯 Versión 2.27 - Restauración de Icono de Filtro SVG, Corrección de Mapeo de Meses del Sidebar & Iconografía Vectorial 100%
+
+- **Restauración del Icono Vectorial de Filtro:**
+  - Se colocó el icono SVG `<Filter className="w-3.5 h-3.5 text-primary shrink-0" />` justo al inicio del listado de chips en el encabezado de [AppHeader.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/AppHeader.jsx).
+- **Corrección Crítica de Mapeo de Meses (Jan-Dec vs Ene-Dic):**
+  - **Causa Raíz:** Los meses seleccionados en el Sidebar enviaban cadenas en inglés (`Jan`, `Feb`, `Aug`), pero [adopcionRepo.js](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/domain/adopcionRepo.js) los comparaba contra un arreglo en español (`Ene`, `Feb`, `Ago`), haciendo que deseleccionar o seleccionar meses devolviera 0 registros.
+  - **Solución:** Se unificaron los nombres de los meses en [adopcionRepo.js](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/domain/adopcionRepo.js) a inglés (`['Jan', 'Feb', 'Mar', ... 'Dec']`) y se corrigió la sincronización del efecto `useEffect` en [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx) para reaccionar a las deselecciones de chips.
+- **Iconografía 100% Vectorial (SVG / Lucide Icons):**
+  - Se sustituyó el carácter de palomita de texto (`✔`) en [FilterListbox.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/FilterListbox.jsx) por el icono vectorial SVG `<Check className="w-3 h-3 text-white" />` de Lucide.
+---
+
+## 🎯 Versión 2.28 - Actualización de la Paleta Global al Azul PANTONE 293c (#0000B3)
+
+- **Actualización de Variables de Color Principal:**
+  - Se configuró el tono azul principal corporativo a **PANTONE 293c (`#0000B3` · RGB 0, 0, 179)** en [globals.css](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/globals.css) (`--primary`, `--ring`, `--chart-1`, `--accent-foreground`).
+- **Sincronización de Tema y Dataviz:**
+  - Se actualizaron los tokens de color semánticos y la paleta de visualización de datos en [theme.js](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/lib/theme.js) (`CAT_LIGHT`, `BLUE`, `primary`).
+---
+
+## 🎯 Versión 2.29 - Deselección Total de Años y Meses en Sidebar (Lógica Ámbito Completo)
+
+- **Corrección de Lógica de Deselección:**
+  - **Causa Raíz:** Al deseleccionar un año (ej. *2026*) o un mes (ej. *Aug*) en el Sidebar o en los chips del header, el manejador volvía a forzar los valores predeterminados `[2026]` y `['Aug']`, impidiendo al usuario limpiar la selección.
+  - **Solución:** Se configuró el estado inicial y los manejadores de deselección en [App.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/App.jsx) y [Sidebar.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/Sidebar.jsx) para establecer arreglos vacíos `[]`.
+- **Lógica de Ámbito Completo:**
+  - Al no haber ningún año seleccionado (`anios: []`), el dashboard incluye automáticamente los **3 años históricos (2024, 2025, 2026)**.
+  - Al no haber ningún mes seleccionado (`meses: []`), el dashboard incluye automáticamente **los 12 meses del año**.
+  - Si el usuario selecciona explícitamente un año/mes, se filtra a ese periodo; si lo deselecciona o toca la (X), vuelve a la vista completa de todo el histórico de forma limpia.
+---
+
+## 🎯 Versión 2.30 - Filtro de Estado de Onboarding (Yes / No)
+
+- **Filtro de Estado de Onboarding en el Sidebar:**
+  - Se agregó el bloque `Onboarded Client` con las opciones `Yes` / `No` en [Sidebar.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/Sidebar.jsx).
+- **Comportamiento Dinámico:**
+  - **Sin seleccionar / Ambos:** Incluye el 100% de la cartera de cuentas (visión general).
+  - **`Yes` seleccionado:** Filtra strictly el 100% del dashboard a **cuentas ya incorporadas/habilitadas (`estaIncorporado === true`)**. Permite medir la adopción pura de pedidos en clientes que ya tienen credenciales activas.
+  - **`No` seleccionado:** Filtra a **cuentas no incorporadas (`estaIncorporado === false`)** para auditar la cartera pendiente del vendedor.
+- **Insignias y Limpieza:**
+  - Muestra el chip `Onboarded: Yes` o `Onboarded: No` en el encabezado con su botón **(X)** para limpiar la selección de forma instantánea.
+---
+
+## 🎯 Versión 2.31 - Simplificación de Etiqueta a "Onboarded"
+
+- **Actualización de Nombre en Sidebar:**
+  - Se simplificó el título del bloque y la etiqueta del listbox en [Sidebar.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/Sidebar.jsx) para decir simplemente **`Onboarded`** (`Yes` / `No`).
+---
+
+## 🎯 Versión 2.32 - Estandarización Global de Terminología a "Customer"
+
+- **Reemplazo Universal de "Client" por "Customer":**
+  - Se actualizaron todos los encabezados y etiquetas de la interfaz en [ExecutiveRibbon.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ExecutiveRibbon.jsx) (`Customer Onboarding Penetration`) y [VerticalFunnelCard.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/VerticalFunnelCard.jsx) (`1. Customer Universe`, `2. Onboarded Customers`, `3. Active Digital Customers`).
+  - Estandarización 100% en inglés corporativo para operaciones de EE. UU.
+---
+
+## 🎯 Versión 2.33 - Especificación Sticky en Ribbon, Embudo Consistente de 3 Pasos & Indicador Doble
+
+- **Implementación Sticky Segura (`sticky top-0 z-30`):**
+  - Se configuró el Ribbon Ejecutivo en [ExecutiveRibbon.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ExecutiveRibbon.jsx) con `sticky top-0 z-30 bg-background/95 backdrop-blur-md shadow-xs border-b border-border/40`.
+  - **Verificación de Ancestros:** El contenedor padre directo es el único scroll vertical (`page-scroll`), garantizando que la propiedad `sticky` no se rompa silenciosamente y permanezca flotando por debajo del `ActionDrawer` (`z-50`).
+- **Embudo de Conversión Matemáticamente Puro (3 Pasos de Cohorte Única):**
+  - Se corrigió [VerticalFunnelCard.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/VerticalFunnelCard.jsx) para tener **exactamente 3 pasos** basados en la misma unidad de cuentas (*Customer Universe* $\rightarrow$ *Onboarded Customers* $\rightarrow$ *Active Digital Customers*).
+  - Se removió la falsa cuarta grada y se colocó el porcentaje de adopción transaccional (`Order Adoption Rate`) como un **badge informativo adosado a la base del Paso 3 (Active Digital Customers)**.
+- **Indicador Doble en Tarjetas de la Jerarquía:**
+  - Se actualizó Renglón 3 en todas las tarjetas de la jerarquía (VPs, Regiones, Mercados y Vendedores) en [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx) para mostrar la doble métrica densa: `Onb: XX.X%` | `Adop: XX.X%`.

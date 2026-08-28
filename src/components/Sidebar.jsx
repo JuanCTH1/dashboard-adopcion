@@ -9,7 +9,8 @@ import {
   PanelLeftClose,
   PanelLeft,
   Layers,
-  Network
+  Network,
+  UserCheck
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,7 +27,8 @@ export function Sidebar({
   onResetFiltros
 }) {
   const [openSections, setOpenSections] = useState({
-    periodo: true
+    periodo: true,
+    onboarding: true
   });
 
   const toggleSection = (sec) => {
@@ -35,7 +37,8 @@ export function Sidebar({
 
   const totalActiveFilters =
     (filtros.anios?.length || 0) +
-    (filtros.meses?.length || 0);
+    (filtros.meses?.length || 0) +
+    (filtros.onboarded?.length || 0);
 
   return (
     <aside
@@ -114,7 +117,7 @@ export function Sidebar({
                   <FilterListbox
                     label="Year"
                     options={ANIOS_DISPONIBLES}
-                    value={filtros.anios || [2026]}
+                    value={filtros.anios || []}
                     onChange={(val) => onFiltroChange("anios", val)}
                     grid={true}
                     gridCols={3}
@@ -124,10 +127,38 @@ export function Sidebar({
                   <FilterListbox
                     label="Month (Drag Range)"
                     options={NOMBRES_MESES}
-                    value={filtros.meses || ["Aug"]}
+                    value={filtros.meses || []}
                     onChange={(val) => onFiltroChange("meses", val)}
                     grid={true}
                     gridCols={6}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* GROUP 2: ONBOARDED (YES / NO) */}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => toggleSection("onboarding")}
+                className="w-full px-3 py-2 flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <UserCheck className="w-3.5 h-3.5 text-primary" />
+                  <span>Onboarded</span>
+                </div>
+                {openSections.onboarding ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+              </button>
+
+              {openSections.onboarding && (
+                <div className="p-2.5 bg-white dark:bg-slate-900">
+                  <FilterListbox
+                    label="Onboarded"
+                    options={["Yes", "No"]}
+                    value={filtros.onboarded || []}
+                    onChange={(val) => onFiltroChange("onboarded", val)}
+                    grid={true}
+                    gridCols={2}
                   />
                 </div>
               )}

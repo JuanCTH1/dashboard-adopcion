@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
  */
 
 export const CAT_LIGHT = [
-  "#002B99", // 1. Azul Cemex Pantone 293c
+  "#0000B3", // 1. Azul Pantone 293c
   "#53CC80", // 2. Verde Pantone 7479c
   "#FFB000", // 3. Ámbar Pantone 116c
   "#398EF4", // 4. Azul Cielo Pantone 2192c
@@ -35,7 +35,7 @@ export const CAT_DARK = [
 ];
 
 // Tokens semánticos universales
-export const OK = "#10b981", WARN = "#FFB000", BAD = "#F22331", INK = "#0f172a", MUT = "#64748b", BLUE = "#002B99";
+export const OK = "#10b981", WARN = "#FFB000", BAD = "#F22331", INK = "#0f172a", MUT = "#64748b", BLUE = "#0000B3";
 
 export function useChartTheme() {
   const [isDark, setIsDark] = useState(() => {
@@ -63,7 +63,7 @@ export function useChartTheme() {
   return {
     isDark,
     cat: isDark ? CAT_DARK : CAT_LIGHT,
-    primary: isDark ? "#398EF4" : "#002B99",
+    primary: isDark ? "#398EF4" : "#0000B3",
     secondary: isDark ? "#FFB000" : "#d97706",
     grid: isDark ? "#1e293b" : "#f1f5f9",
     textMuted: isDark ? "#94a3b8" : "#64748b",

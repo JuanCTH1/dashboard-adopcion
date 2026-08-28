@@ -19,9 +19,10 @@ export function App() {
 
   // 2. Multidimensional Context Filters (Sidebar)
   const [filtrosContexto, setFiltrosContexto] = useState({
-    anios: [2026],
-    meses: ['Aug'],
-    lineasNegocio: []
+    anios: [],
+    meses: [],
+    lineasNegocio: [],
+    onboarded: []
   });
 
   // 3. Hierarchy Active Selection (Tree Canvas)
@@ -72,9 +73,16 @@ export function App() {
 
   const handleResetFiltros = () => {
     setFiltrosContexto({
-      anios: [2026],
-      meses: ['Aug'],
-      lineasNegocio: []
+      anios: [],
+      meses: [],
+      lineasNegocio: [],
+      onboarded: []
+    });
+    setFiltrosJerarquia({
+      vpIds: [],
+      directorIds: [],
+      gerenteIds: [],
+      vendedorIds: []
     });
   };
 
@@ -91,19 +99,45 @@ export function App() {
     if (filtrosContexto.meses?.length) {
       chips.push({ key: 'meses', label: 'Months', value: filtrosContexto.meses.join(', ') });
     }
+    if (filtrosContexto.lineasNegocio?.length) {
+      chips.push({ key: 'lineasNegocio', label: 'Lines', value: filtrosContexto.lineasNegocio.join(', ') });
+    }
+    if (filtrosContexto.onboarded?.length) {
+      chips.push({ key: 'onboarded', label: 'Onboarded', value: filtrosContexto.onboarded.join(', ') });
+    }
     if (filtrosJerarquia.vpIds?.length) {
-      chips.push({ key: 'vps', label: 'VPs', value: `${filtrosJerarquia.vpIds.length} active` });
+      chips.push({ key: 'vps', label: 'VPs', value: `${filtrosJerarquia.vpIds.length} sel` });
     }
     if (filtrosJerarquia.directorIds?.length) {
-      chips.push({ key: 'directors', label: 'Directors', value: `${filtrosJerarquia.directorIds.length} active` });
+      chips.push({ key: 'directors', label: 'Regions', value: `${filtrosJerarquia.directorIds.length} sel` });
+    }
+    if (filtrosJerarquia.gerenteIds?.length) {
+      chips.push({ key: 'gerentes', label: 'Markets', value: `${filtrosJerarquia.gerenteIds.length} sel` });
+    }
+    if (filtrosJerarquia.vendedorIds?.length) {
+      chips.push({ key: 'vendedores', label: 'Reps', value: `${filtrosJerarquia.vendedorIds.length} sel` });
     }
     return chips;
   }, [filtrosContexto, filtrosJerarquia]);
 
   const handleRemoveChip = (key) => {
-    if (key === 'anios') setFiltrosContexto(prev => ({ ...prev, anios: [2026] }));
-    else if (key === 'meses') setFiltrosContexto(prev => ({ ...prev, meses: ['Aug'] }));
-    else setFiltrosContexto(prev => ({ ...prev, [key]: [] }));
+    if (key === 'anios') {
+      setFiltrosContexto(prev => ({ ...prev, anios: [] }));
+    } else if (key === 'meses') {
+      setFiltrosContexto(prev => ({ ...prev, meses: [] }));
+    } else if (key === 'lineasNegocio') {
+      setFiltrosContexto(prev => ({ ...prev, lineasNegocio: [] }));
+    } else if (key === 'onboarded') {
+      setFiltrosContexto(prev => ({ ...prev, onboarded: [] }));
+    } else if (key === 'vps') {
+      setFiltrosJerarquia(prev => ({ ...prev, vpIds: [] }));
+    } else if (key === 'directors') {
+      setFiltrosJerarquia(prev => ({ ...prev, directorIds: [] }));
+    } else if (key === 'gerentes') {
+      setFiltrosJerarquia(prev => ({ ...prev, gerenteIds: [] }));
+    } else if (key === 'vendedores') {
+      setFiltrosJerarquia(prev => ({ ...prev, vendedorIds: [] }));
+    }
   };
 
   // Data Queries UNIFICADAS QUE AFECTAN TODO EL TABLERO

@@ -52,7 +52,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     },
     {
       id: 'onboarding',
-      titulo: 'Client Onboarding Penetration',
+      titulo: 'Customer Onboarding Penetration',
       subtitulo: 'Active commercial accounts registered with active credentials',
       valor: formatPct(actual.clientes.pctOnboarding),
       subvalor: `${actual.clientes.onboarded} of ${actual.clientes.asignados} accounts`,
@@ -66,7 +66,8 @@ export function ExecutiveRibbon({ metricasGlobales }) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 select-none font-sans">
+    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md pt-1 pb-2 -mx-1 px-1 transition-all shadow-xs border-b border-border/40">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 select-none font-sans">
       {CARDS.map((card) => {
         const Icon = card.icon;
         return (
@@ -116,6 +117,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
           </Card>
         );
       })}
+      </div>
     </div>
   );
 }

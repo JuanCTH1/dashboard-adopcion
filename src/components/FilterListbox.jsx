@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
+import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -220,7 +221,7 @@ export function FilterListbox({
                 title={optStr}
               >
                 <span className="truncate">{formatLabel(opt)}</span>
-                {isSelected && <span className="text-[10px] font-bold">✔</span>}
+                {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
               </button>
             );
           })}

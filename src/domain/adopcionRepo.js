@@ -36,7 +36,7 @@ class AdopcionRepository {
       meses: this.data.MESES,
       periodoActual: this.data.periodoActual,
       anios: [2024, 2025, 2026],
-      nombresMeses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      nombresMeses: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       lineasNegocio: Object.values(LINEAS_NEGOCIO),
       regiones: this.data.REGIONES,
       vps: this.data.VPS,
@@ -47,8 +47,8 @@ class AdopcionRepository {
   }
 
   _filtrar(filtros = {}) {
-    const anios = filtros.anios?.length ? filtros.anios.map(Number) : [2026];
-    const ALL_MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    const anios = filtros.anios?.length ? filtros.anios.map(Number) : [2024, 2025, 2026];
+    const ALL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const mesesNombres = filtros.meses?.length ? filtros.meses : ALL_MONTHS;
     const lineas = filtros.lineasNegocio?.length ? filtros.lineasNegocio : (filtros.lineaNegocio ? [filtros.lineaNegocio] : []);
     const regiones = filtros.regionIds?.length ? filtros.regionIds : (filtros.regionId ? [filtros.regionId] : []);
@@ -58,12 +58,17 @@ class AdopcionRepository {
     const directorIds = filtros.directorIds?.length ? filtros.directorIds : (filtros.directorId ? [filtros.directorId] : []);
     const gerenteIds = filtros.gerenteIds?.length ? filtros.gerenteIds : (filtros.gerenteId ? [filtros.gerenteId] : []);
     const vendedorIds = filtros.vendedorIds?.length ? filtros.vendedorIds : (filtros.vendedorId ? [filtros.vendedorId] : []);
+    const onboardedFilter = filtros.onboarded?.length ? filtros.onboarded : [];
 
     // 1. FAST CLIENT FILTERING
     let clientesFiltrados = this.data.CLIENTES;
     if (lineas.length) clientesFiltrados = clientesFiltrados.filter(c => lineas.includes(c.lineaNegocio));
     if (regiones.length) clientesFiltrados = clientesFiltrados.filter(c => regiones.includes(c.regionId));
     if (plazas.length) clientesFiltrados = clientesFiltrados.filter(c => plazas.includes(c.plaza));
+    if (onboardedFilter.length === 1) {
+      const isWantOnboarded = onboardedFilter[0] === 'Yes';
+      clientesFiltrados = clientesFiltrados.filter(c => c.estaIncorporado === isWantOnboarded);
+    }
     const REGION_NAME_TO_ID = {
       'Atlantic': 'reg-1',
       'Sunbelt': 'reg-2',
@@ -137,7 +142,7 @@ class AdopcionRepository {
 
   getSerieHistorica(filtros = {}, limiteMeses = 24) {
     const meses = this.data.MESES.slice(-limiteMeses);
-    const { clientes } = this._filtrar({ ...filtros, anios: [2024, 2025, 2026], meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'] });
+    const { clientes } = this._filtrar({ ...filtros, anios: [2024, 2025, 2026], meses: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] });
     const clientIdsSet = new Set(clientes.map(c => c.id));
 
     return meses.map(m => {
