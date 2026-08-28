@@ -725,7 +725,7 @@ export function ProgressiveHierarchy({
                     <th className="py-2 px-2 w-[34%] font-bold truncate">Account / Company</th>
                     <th className="py-2 px-2 w-[18%] text-right font-bold truncate">Total Orders</th>
                     <th className="py-2 px-2 w-[16%] text-right font-bold truncate">Adoption %</th>
-                    <th className="py-2 px-2 w-[14%] text-center font-bold truncate">Channel</th>
+                    <th className="py-2 px-2 w-[14%] text-center font-bold truncate">Main Channel</th>
                     <th className="py-2 px-2 w-[14%] text-center font-bold truncate">Status</th>
                   </tr>
                 </thead>

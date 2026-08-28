@@ -711,3 +711,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se reemplazó `cust` por **`customers`** en el subtítulo gris del Ranking de Onboarding.
   - Se reemplazó `ord` por **`orders`** en el subtítulo gris del Ranking de Adopción de Pedidos.
   - **Resultado:** Textos completos (`X/Y customers` y `Xk/Yk orders`) con legibilidad corporativa perfecta.
+---
+
+## 🎯 Versión 2.67 - Renombrado de Encabezado a "Main Channel" en Tabla de Cartera (`ProgressiveHierarchy.jsx`)
+
+- **Actualización de Encabezado de Columna (`ProgressiveHierarchy.jsx`):**
+  - Se renombró la columna `Channel` a **`Main Channel`** en la tabla de cartera de clientes (*Account Portfolio*).
+  - **Resultado:** Claridad explícita sobre el canal transaccional predominante del cliente (Web, App, EDI, Phone).
