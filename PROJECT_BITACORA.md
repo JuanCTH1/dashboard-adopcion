@@ -817,3 +817,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
     - **`RMX`** (Ready Mix): Píldora Azul Cielo (`bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30 font-black text-[9px]`).
     - **`CEM`** (Cemento): Píldora Índigo (`bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 font-black text-[9px]`).
     - **`AGG`** (Agregados): Píldora Ámbar (`bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 font-black text-[9px]`).
+---
+
+## 🎯 Versión 2.81 - Interruptor de Modo de Jerarquía: "Cascade Drilldown" vs "All 4 Columns" (`ProgressiveHierarchy.jsx`)
+
+- **Nuevo Modo de Navegación de Jerarquía (`ProgressiveHierarchy.jsx`):**
+  - Se incorporó un **Toggle Switch** de 2 estados en el encabezado de la sección de jerarquía:
+    1. **`Cascade`** (Drilldown tipo Miller Columns): Muestra las columnas progresivamente paso a paso al seleccionar cada nivel.
+    2. **`All 4 Columns`** (Vista Completa de Facetas): Despliega simultáneamente las 4 columnas de jerarquía (VP Division, Regions, Markets, Sales Reps) + Tabla de Cartera.
+  - **Filtrado Interactivo en Cascada**: En el modo `All 4 Columns`, seleccionar cualquier elemento de una columna anterior (ej. `VP Readymix` o `Midwest Region`) filtra dinámicamente el contenido de las columnas a la derecha y recalcula la tabla de clientes al instante.

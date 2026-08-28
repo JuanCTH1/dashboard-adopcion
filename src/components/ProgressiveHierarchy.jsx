@@ -25,7 +25,9 @@ import {
   Info,
   ArrowRight,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Workflow,
+  LayoutGrid
 } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
@@ -131,24 +133,26 @@ export function ProgressiveHierarchy({
     });
   };
 
+  const [navMode, setNavMode] = useState('cascade'); // 'cascade' | 'all_columns'
+
   const vps = useMemo(() => {
     return adopcionRepo.getJerarquia('nacional', null, filtrosCompuestos);
   }, [filtrosCompuestos]);
 
   const directores = useMemo(() => {
-    if (selectedVpIds.length === 0) return [];
+    if (selectedVpIds.length === 0 && navMode !== 'all_columns') return [];
     return adopcionRepo.getJerarquia('vp', selectedVpIds, filtrosCompuestos);
-  }, [selectedVpIds, filtrosCompuestos]);
+  }, [selectedVpIds, filtrosCompuestos, navMode]);
 
   const gerentes = useMemo(() => {
-    if (selectedDirIds.length === 0) return [];
-    return adopcionRepo.getJerarquia('director', selectedDirIds, filtrosCompuestos);
-  }, [selectedDirIds, filtrosCompuestos]);
+    if (selectedDirIds.length === 0 && navMode !== 'all_columns') return [];
+    return adopcionRepo.getJerarquia('director', selectedDirIds, { ...filtrosCompuestos, vpIds: selectedVpIds });
+  }, [selectedDirIds, selectedVpIds, filtrosCompuestos, navMode]);
 
   const vendedores = useMemo(() => {
-    if (selectedGerIds.length === 0) return [];
-    return adopcionRepo.getJerarquia('gerente', selectedGerIds, filtrosCompuestos);
-  }, [selectedGerIds, filtrosCompuestos]);
+    if (selectedGerIds.length === 0 && navMode !== 'all_columns') return [];
+    return adopcionRepo.getJerarquia('gerente', selectedGerIds, { ...filtrosCompuestos, vpIds: selectedVpIds, directorIds: selectedDirIds });
+  }, [selectedGerIds, selectedDirIds, selectedVpIds, filtrosCompuestos, navMode]);
 
   const activeContext = useMemo(() => {
     let fNode = {
@@ -223,7 +227,39 @@ export function ProgressiveHierarchy({
           </h2>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          {/* MODE TOGGLE SWITCH: Cascade Drilldown vs All 4 Columns Visible */}
+          <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg border border-border">
+            <button
+              type="button"
+              onClick={() => setNavMode('cascade')}
+              className={cn(
+                "px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none",
+                navMode === 'cascade'
+                  ? "bg-card text-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              title="Cascading Miller Columns (Drilldown step-by-step)"
+            >
+              <Workflow className="w-3.5 h-3.5 text-primary" />
+              <span>Cascade</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setNavMode('all_columns')}
+              className={cn(
+                "px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none",
+                navMode === 'all_columns'
+                  ? "bg-card text-foreground shadow-2xs text-indigo-600 dark:text-indigo-400"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              title="Show all 4 columns side-by-side with dynamic interactive filtering"
+            >
+              <LayoutGrid className="w-3.5 h-3.5 text-indigo-500" />
+              <span>All 4 Columns</span>
+            </button>
+          </div>
+
           <Button
             variant={isFocusTableMode ? "default" : "outline"}
             size="sm"
@@ -356,7 +392,7 @@ export function ProgressiveHierarchy({
 
           {/* LEVEL 2: REGIONS */}
         <AnimatePresence mode="popLayout">
-          {selectedVpIds.length > 0 && (
+          {(navMode === 'all_columns' || selectedVpIds.length > 0) && (
             <motion.div
               layout
               key="dir-col"
@@ -486,7 +522,7 @@ export function ProgressiveHierarchy({
 
         {/* LEVEL 3: MARKETS */}
         <AnimatePresence mode="popLayout">
-          {selectedDirIds.length > 0 && (
+          {(navMode === 'all_columns' || selectedDirIds.length > 0) && (
             <motion.div
               layout
               key="ger-col"
@@ -616,7 +652,7 @@ export function ProgressiveHierarchy({
 
           {/* LEVEL 4: SALES REPRESENTATIVES */}
           <AnimatePresence mode="popLayout">
-            {selectedGerIds.length > 0 && (
+            {(navMode === 'all_columns' || selectedGerIds.length > 0) && (
               <motion.div
                 layout
                 key="rep-col"
