@@ -339,6 +339,17 @@ class AdopcionRepository {
     } else if (nivel === 'gerente') {
       delete baseFiltro.vendedorIds;
       const activeVpIds = baseFiltro.vpIds || [];
+      const activeDirIds = baseFiltro.directorIds || [];
+
+      const REGION_NAME_TO_ID = {
+        'Atlantic': 'reg-1',
+        'Sunbelt': 'reg-2',
+        'Midwest': 'reg-3',
+        'Mountain': 'reg-5',
+        'Pacific NW': 'reg-4'
+      };
+      const regionIdsFromNames = activeDirIds.map(d => REGION_NAME_TO_ID[d]).filter(Boolean);
+
       const BL_SHORT = {
         readymix: 'RMX',
         cemento: 'CEM',
@@ -348,9 +359,22 @@ class AdopcionRepository {
       nodos = this.data.VENDEDORES
         .filter(v => {
           if (activeVpIds.length > 0 && !activeVpIds.includes(v.vpId)) return false;
-          if (parentSet.size === 0) return true;
-          const parentGer = this.data.GERENTES.find(g => g.id === v.gerenteId);
-          return parentSet.has(v.gerenteId) || (parentGer && (parentSet.has(parentGer.id) || parentSet.has(parentGer.nombre) || parentSet.has(parentGer.plaza)));
+
+          if (activeDirIds.length > 0) {
+            const matchDir = activeDirIds.includes(v.directorId) ||
+              activeDirIds.includes(v.regionNombre) ||
+              regionIdsFromNames.includes(v.regionId);
+            if (!matchDir) return false;
+          }
+
+          if (parentSet.size > 0) {
+            const parentGer = this.data.GERENTES.find(g => g.id === v.gerenteId);
+            const matchGer = parentSet.has(v.gerenteId) ||
+              (parentGer && (parentSet.has(parentGer.id) || parentSet.has(parentGer.nombre) || parentSet.has(parentGer.plaza)));
+            if (!matchGer) return false;
+          }
+
+          return true;
         })
         .map(v => ({
           id: v.id,

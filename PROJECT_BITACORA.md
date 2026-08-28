@@ -888,3 +888,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
     - Tooltips y badges: **`Top 20% Pareto Customer`**.
     - Exportación CSV y omnibox de búsqueda: **`Customer Name`** y **`Search rep, city, customer...`**.
     - Glosario de definiciones: **`Onboarded Customers`**.
+---
+
+## 🎯 Versión 2.89 - Corrección de Filtrado de Vendedores por Región en Modo `Show All` (`adopcionRepo.js`)
+
+- **Filtrado Multidimensional de Vendedores (`adopcionRepo.js`):**
+  - Se corrigió la consulta de filtrado de la 4ta columna (**Sales Reps**) en `getJerarquia('gerente', ...)`.
+  - **Filtro en Cascada en Modo `Show All`:** Ahora, al hacer clic en una **Región** en la Columna 2 (ej. `Atlantic` o `Midwest`), la Columna 4 de vendedores filtra instantáneamente para mostrar **únicamente los vendedores pertenecientes a esa Región**, eliminando cualquier vendedor de otras regiones.
