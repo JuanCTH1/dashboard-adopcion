@@ -449,12 +449,12 @@ export function ProgressiveHierarchy({
                               <span
                                 key={pill}
                                 className={cn(
-                                  "text-[8px] font-black px-1 py-0.2 rounded border uppercase",
-                                  isSelected
-                                    ? "bg-indigo-700 text-white border-indigo-500"
-                                    : pill === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30"
-                                    : pill === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30"
-                                    : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                  "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                  pill === 'RMX'
+                                    ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
+                                    : pill === 'CEM'
+                                    ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
+                                    : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
                                 )}
                               >
                                 {pill}
@@ -579,12 +579,12 @@ export function ProgressiveHierarchy({
                               <span
                                 key={pill}
                                 className={cn(
-                                  "text-[8px] font-black px-1 py-0.2 rounded border uppercase",
-                                  isSelected
-                                    ? "bg-sky-700 text-white border-sky-500"
-                                    : pill === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30"
-                                    : pill === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30"
-                                    : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                  "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                  pill === 'RMX'
+                                    ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
+                                    : pill === 'CEM'
+                                    ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
+                                    : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
                                 )}
                               >
                                 {pill}
@@ -657,9 +657,21 @@ export function ProgressiveHierarchy({
                           {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                         </div>
 
-                        {/* RENGLÓN 2: PLAZA Y BL */}
-                        <div className={cn("text-[9px] truncate font-semibold", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
-                          {rep.plaza} · <b className="uppercase">{rep.bl}</b>
+                        {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
+                        <div className="flex items-center justify-between gap-1 text-[9px] my-0.5">
+                          <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
+                          <span
+                            className={cn(
+                              "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
+                              rep.bl === 'RMX'
+                                ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
+                                : rep.bl === 'CEM'
+                                ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
+                                : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
+                            )}
+                          >
+                            {rep.bl}
+                          </span>
                         </div>
 
                         {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}

@@ -627,3 +627,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Eliminación de la Restricción `max-h-[190px]` (`ProgressiveHierarchy.jsx`):**
   - Se removió la cota rígida de 190px que dejaba un hueco blanco en la parte inferior del panel derecho.
   - **Resultado:** La tabla de cartera se estira verticalmente al 100% de la altura disponible del contenedor (`flex-1 min-h-0`), con el encabezado fijo arriba, filas intermedias distribuidas y la fila de totales (`TOTALS CUSTOMERS`) anclada perfectamente al pie.
+---
+
+## 🎯 Versión 2.57 - Alto Contraste en Píldoras RMX/CEM/AGG y Micro-píldora para Sales Reps (`ProgressiveHierarchy.jsx`)
+
+- **Contraste de Alto Nivel para Píldoras Seleccionadas (`ProgressiveHierarchy.jsx`):**
+  - Se actualizaron las píldoras de línea de negocio (`RMX`, `CEM`, `AGG`) en tarjetas seleccionadas a fondos de alto brillo con texto en negro profundo (`bg-sky-300 text-slate-950`, `bg-purple-300 text-slate-950`, `bg-amber-300 text-slate-950`).
+- **Diseño de Micro-píldora Real para Sales Reps (`ProgressiveHierarchy.jsx`):**
+  - Se transformó el texto plano de línea en las tarjetas de vendedores en una micro-píldora estilizada con borde y sombra (`shadow-2xs`), alineada perfectamente a la derecha.
