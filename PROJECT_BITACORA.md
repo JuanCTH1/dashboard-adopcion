@@ -635,3 +635,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se actualizaron las píldoras de línea de negocio (`RMX`, `CEM`, `AGG`) en tarjetas seleccionadas a fondos de alto brillo con texto en negro profundo (`bg-sky-300 text-slate-950`, `bg-purple-300 text-slate-950`, `bg-amber-300 text-slate-950`).
 - **Diseño de Micro-píldora Real para Sales Reps (`ProgressiveHierarchy.jsx`):**
   - Se transformó el texto plano de línea en las tarjetas de vendedores en una micro-píldora estilizada con borde y sombra (`shadow-2xs`), alineada perfectamente a la derecha.
+---
+
+## 🎯 Versión 2.58 - Recorte de Textos a "onboard" y "adopt" en Tarjetas Jerárquicas (`ProgressiveHierarchy.jsx`)
+
+- **Recorte de Sufijos en Métricas de Tarjetas (`ProgressiveHierarchy.jsx`):**
+  - Se recortó `onboarded` a **`onboard`** y `adopted` a **`adopt`** en los 4 niveles de tarjetas de navegación (VP, Director Region, Manager Market, Sales Rep).
+  - **Resultado:** Etiquetas ultracompactas (`XX.X% onboard` y `XX.X% adopt`) para un ajuste visual perfecto.

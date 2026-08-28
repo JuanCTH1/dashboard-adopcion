@@ -338,11 +338,11 @@ export function ProgressiveHierarchy({
                         <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-white/20 text-white" : "border-border/60 text-foreground")}>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-white/80" : "text-muted-foreground")}>{vp.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(vp.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
+                            <span className="font-bold shrink-0">{formatPct(vp.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-white/80" : "text-muted-foreground")}>{formatNumber(vp.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(vp.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
+                            <span className="font-bold shrink-0">{formatPct(vp.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
                       </button>
@@ -467,11 +467,11 @@ export function ProgressiveHierarchy({
                         <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{dir.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
+                            <span className="font-bold shrink-0">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{formatNumber(dir.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
+                            <span className="font-bold shrink-0">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
                       </button>
@@ -597,11 +597,11 @@ export function ProgressiveHierarchy({
                         <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{ger.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
+                            <span className="font-bold shrink-0">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{formatNumber(ger.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
+                            <span className="font-bold shrink-0">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
                       </button>
@@ -678,11 +678,11 @@ export function ProgressiveHierarchy({
                         <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-emerald-200" : "text-muted-foreground")}>{rep.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(rep.metricas.clientes?.pctOnboarding || 0)} onboarded</span>
+                            <span className="font-bold shrink-0">{formatPct(rep.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-emerald-200" : "text-muted-foreground")}>{formatNumber(rep.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)} adopted</span>
+                            <span className="font-bold shrink-0">{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
                       </button>
