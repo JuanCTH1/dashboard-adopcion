@@ -720,13 +720,15 @@ export function ProgressiveHierarchy({
             <div className="overflow-y-auto flex-1 min-h-0 scrollbar-thin">
               <table className="w-full text-left text-xs border-collapse table-fixed">
                 <thead>
-                  <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
-                    <th className="py-2 px-1 w-[4%]"></th>
-                    <th className="py-2 px-2 w-[34%] font-bold truncate">Account / Company</th>
-                    <th className="py-2 px-2 w-[18%] text-right font-bold truncate">Total Orders</th>
-                    <th className="py-2 px-2 w-[16%] text-right font-bold truncate">Adoption %</th>
-                    <th className="py-2 px-2 w-[14%] text-center font-bold truncate">Main Channel</th>
-                    <th className="py-2 px-2 w-[14%] text-center font-bold truncate">Status</th>
+                  <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 h-8">
+                    <th className="py-2 px-1 w-[3%]"></th>
+                    <th className="py-2 px-2 w-[27%] font-bold truncate">Account / Company</th>
+                    <th className="py-2 px-2 w-[13%] text-right font-bold truncate text-sky-700 dark:text-sky-400">Online</th>
+                    <th className="py-2 px-2 w-[13%] text-right font-bold truncate text-slate-500 dark:text-slate-400">Offline</th>
+                    <th className="py-2 px-2 w-[13%] text-right font-bold truncate">Total</th>
+                    <th className="py-2 px-2 w-[11%] text-right font-bold truncate">Adoption %</th>
+                    <th className="py-2 px-2 w-[11%] text-center font-bold truncate">Main Channel</th>
+                    <th className="py-2 px-2 w-[9%] text-center font-bold truncate">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
@@ -747,13 +749,19 @@ export function ProgressiveHierarchy({
                             </button>
                           </td>
                           <td className="py-2 px-2">
-                            <div className="font-bold text-foreground flex items-center gap-1.5 text-xs truncate max-w-[180px]" title={cli.nombreEmpresa}>
+                            <div className="font-bold text-foreground flex items-center gap-1.5 text-xs truncate max-w-[170px]" title={cli.nombreEmpresa}>
                               {cli.esTopPareto && (
                                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Account" />
                               )}
                               <span className="truncate">{cli.nombreEmpresa}</span>
                             </div>
                             <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{cli.id} · <b className="uppercase">{shortBl}</b></div>
+                          </td>
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap">
+                            {formatNumber(cli.pedidosDigitales)}
+                          </td>
+                          <td className="py-2 px-2 text-right font-bold tabular-nums text-slate-500 dark:text-slate-400 text-xs whitespace-nowrap">
+                            {formatNumber(cli.pedidosAnalogos)}
                           </td>
                           <td className="py-2 px-2 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap">
                             {formatNumber(cli.pedidosTotales)}
@@ -800,7 +808,7 @@ export function ProgressiveHierarchy({
                         {/* EXPANDABLE DRAWER ROW WITH HIGH-CONTRAST VISUAL MICRO-PILLS */}
                         {isExpanded && (
                           <tr className="bg-slate-100/90 dark:bg-slate-950 border-b border-border">
-                            <td colSpan={6} className="p-3">
+                            <td colSpan={8} className="p-3">
                               <div className="bg-card p-3 rounded-lg border border-border shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
                                 {/* Digital Channel Pills */}
                                 <div className="flex items-center gap-2 flex-wrap">
@@ -849,18 +857,24 @@ export function ProgressiveHierarchy({
                           TOTALS ({totalesCartera.totalClientes} CUSTOMERS)
                         </div>
                       </td>
-                      <td className="py-1.5 px-2 text-right tabular-nums text-foreground font-bold text-xs whitespace-nowrap">
-                        {formatNumber(totalesCartera.totalPedidos)} <span className="text-[10px] font-normal">total</span>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-sky-700 dark:text-sky-400 font-black text-xs whitespace-nowrap">
+                        {formatNumber(totalesCartera.totalDigitales)}
+                      </td>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-slate-500 dark:text-slate-400 font-bold text-xs whitespace-nowrap">
+                        {formatNumber(totalesCartera.totalAnalogos)}
+                      </td>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-foreground font-black text-xs whitespace-nowrap">
+                        {formatNumber(totalesCartera.totalPedidos)}
                       </td>
                       <td className="py-1.5 px-2 text-right tabular-nums text-emerald-600 dark:text-emerald-400 font-black text-xs whitespace-nowrap">
                         {totalesCartera.pctAdopcionPonderado.toFixed(1)}%
                       </td>
                       <td className="py-1.5 px-2 text-center text-[9.5px] text-muted-foreground whitespace-nowrap">
-                        Dig: {formatNumber(totalesCartera.totalDigitales)} | Off: {formatNumber(totalesCartera.totalAnalogos)}
+                        {totalesCartera.totalClientes} Cust
                       </td>
                       <td className="py-1.5 px-2 text-center whitespace-nowrap">
                         <Badge variant="success" className="text-[9.5px] py-0 px-1.5 font-bold">
-                          {totalesCartera.onboardedCount} / {totalesCartera.totalClientes} Active
+                          {totalesCartera.onboardedCount} Active
                         </Badge>
                       </td>
                     </tr>

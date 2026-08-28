@@ -718,3 +718,13 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Actualización de Encabezado de Columna (`ProgressiveHierarchy.jsx`):**
   - Se renombró la columna `Channel` a **`Main Channel`** en la tabla de cartera de clientes (*Account Portfolio*).
   - **Resultado:** Claridad explícita sobre el canal transaccional predominante del cliente (Web, App, EDI, Phone).
+---
+
+## 🎯 Versión 2.68 - Desglose de Órdenes en Columnas "Online", "Offline" y "Total" (`ProgressiveHierarchy.jsx`)
+
+- **Partición de Columna de Órdenes (`ProgressiveHierarchy.jsx`):**
+  - Se sustituyó la columna única `Total Orders` por 3 columnas claras y estilizadas de 1 solo renglón en el encabezado (`h-8`):
+    1. **`Online`** (texto azul `text-sky-700 dark:text-sky-400` para transacciones digitales Web/App/EDI).
+    2. **`Offline`** (texto gris `text-slate-500` para compras telefónicas/analógicas).
+    3. **`Total`** (texto en negrita para la suma total).
+  - **Pie de Tabla Sincronizado:** La fila de totales inferiores (`TOTALS CUSTOMERS`) suma independientemente las órdenes `Online`, `Offline` y `Total`.
