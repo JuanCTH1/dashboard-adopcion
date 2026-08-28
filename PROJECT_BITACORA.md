@@ -895,3 +895,9 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Filtrado Multidimensional de Vendedores (`adopcionRepo.js`):**
   - Se corrigió la consulta de filtrado de la 4ta columna (**Sales Reps**) en `getJerarquia('gerente', ...)`.
   - **Filtro en Cascada en Modo `Show All`:** Ahora, al hacer clic en una **Región** en la Columna 2 (ej. `Atlantic` o `Midwest`), la Columna 4 de vendedores filtra instantáneamente para mostrar **únicamente los vendedores pertenecientes a esa Región**, eliminando cualquier vendedor de otras regiones.
+---
+
+## 🎯 Versión 2.90 - Limpieza de Leyenda Informativa en Panel Lateral (`Sidebar.jsx`)
+
+- **Remoción de Texto Secundario (`Sidebar.jsx`):**
+  - Se eliminó el párrafo de pie de panel *"VP, Region, Market & Sales Rep scope selectable in middle hierarchy workstation."*, manteniendo el sidebar limpio y enfocado exclusivamente en las casillas de selección.

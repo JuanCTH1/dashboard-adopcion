@@ -136,10 +136,6 @@ export function Sidebar({
                 gridCols={2}
               />
             </div>
-
-            <p className="text-[9.5px] text-muted-foreground leading-relaxed px-0.5">
-              VP, Region, Market & Sales Rep scope selectable in middle hierarchy workstation.
-            </p>
           </div>
         </div>
       )}
