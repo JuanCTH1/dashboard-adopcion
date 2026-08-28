@@ -236,14 +236,15 @@ export function ProgressiveHierarchy({
                 )}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-[11px]">USA National</span>
+                  <span className="font-bold text-[11px]">USA</span>
                   {isUsaSelected && <Check className="w-3 h-3 text-white" />}
                 </div>
-                <div className={cn("text-[9px]", isUsaSelected ? "text-white/90" : "text-muted-foreground")}>
-                  3 Product VPs
+                <div className={cn("text-[9px] truncate font-medium", isUsaSelected ? "text-white/90" : "text-muted-foreground")}>
+                  National
                 </div>
-                <div className={cn("text-[9px] font-mono font-bold pt-0.5 border-t border-white/20", isUsaSelected ? "text-white" : "text-foreground")}>
-                  1,288 Accounts
+                <div className={cn("text-[9px] font-mono font-bold pt-0.5 border-t border-white/20 flex items-center justify-between", isUsaSelected ? "text-white" : "text-foreground")}>
+                  <span>{formatNumber(totalesCartera?.totalPedidos || 119005)} ord</span>
+                  <span>{formatPct(totalesCartera?.pctAdopcionPonderado || 51.0)}</span>
                 </div>
               </button>
             </div>

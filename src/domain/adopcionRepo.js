@@ -65,8 +65,8 @@ class AdopcionRepository {
     if (regiones.length) clientesFiltrados = clientesFiltrados.filter(c => regiones.includes(c.regionId));
     if (plazas.length) clientesFiltrados = clientesFiltrados.filter(c => plazas.includes(c.plaza));
     if (vpIds.length) clientesFiltrados = clientesFiltrados.filter(c => vpIds.includes(c.vpId));
-    if (directorIds.length) clientesFiltrados = clientesFiltrados.filter(c => directorIds.includes(c.directorId));
-    if (gerenteIds.length) clientesFiltrados = clientesFiltrados.filter(c => gerenteIds.includes(c.gerenteId));
+    if (directorIds.length) clientesFiltrados = clientesFiltrados.filter(c => directorIds.includes(c.directorId) || directorIds.includes(c.regionNombre));
+    if (gerenteIds.length) clientesFiltrados = clientesFiltrados.filter(c => gerenteIds.includes(c.gerenteId) || gerenteIds.includes(c.plaza));
     if (vendedorIds.length) clientesFiltrados = clientesFiltrados.filter(c => vendedorIds.includes(c.vendedorId));
 
     const clientIdsSet = new Set(clientesFiltrados.map(c => c.id));
