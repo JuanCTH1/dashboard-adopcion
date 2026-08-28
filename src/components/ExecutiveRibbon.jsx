@@ -89,81 +89,98 @@ export function ExecutiveRibbon({ metricasGlobales }) {
 
   return (
     <div className="bg-background/95 backdrop-blur-md py-1 transition-all font-sans select-none">
-      {/* SEPARATED CHEVRON FUNNEL PROCESS RIBBON */}
+      {/* SEPARATED TRUE CHEVRON FUNNEL PROCESS RIBBON */}
       <div className="flex items-center gap-2 sm:gap-2.5 w-full">
         {STAGES.map((st, idx) => {
           const Icon = st.icon;
           const isLast = idx === STAGES.length - 1;
 
+          // True Chevron Clip-Path Geometry with directional right-pointing arrow
+          const chevronClip = idx === 0
+            ? 'polygon(0% 0%, calc(100% - 13px) 0%, 100% 50%, calc(100% - 13px) 100%, 0% 100%)'
+            : isLast
+            ? 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 13px 50%)'
+            : 'polygon(0% 0%, calc(100% - 13px) 0%, 100% 50%, calc(100% - 13px) 100%, 0% 100%, 13px 50%)';
+
           return (
             <React.Fragment key={st.id}>
-              {/* CHEVRON STAGE CARD WITH DIRECTIONAL FLOW */}
+              {/* TRUE CHEVRON STAGE CARD */}
               <div
-                className={cn(
-                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-slate-400 dark:hover:border-slate-700 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[98px]",
-                  st.isDominant
-                    ? "border-indigo-500/40 dark:border-indigo-500/30 shadow-xs"
-                    : "border-border"
-                )}
+                className="flex-1 min-w-0 h-[100px] relative transition-all filter drop-shadow-xs hover:drop-shadow-sm"
               >
-                {/* Top Accent Gradient Bar */}
-                <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
+                {/* Outlined Chevron Layer */}
+                <div
+                  className={cn(
+                    "w-full h-full p-2.5 flex flex-col justify-between relative overflow-hidden transition-all",
+                    idx === 0 ? "pl-3 pr-5.5 rounded-l-xl" : isLast ? "pl-5.5 pr-3 rounded-r-xl" : "pl-5.5 pr-5.5",
+                    "bg-card border border-border",
+                    st.isDominant
+                      ? "border-indigo-500/50 dark:border-indigo-500/30 ring-1 ring-indigo-500/20"
+                      : "hover:border-slate-400 dark:hover:border-slate-700"
+                  )}
+                  style={{
+                    clipPath: chevronClip
+                  }}
+                >
+                  {/* Top Accent Gradient Bar following chevron */}
+                  <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
 
-                {/* Chevron Header Row */}
-                <div className="flex items-center justify-between gap-1 mb-0.5">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <span className={`text-[8.5px] font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0 shadow-2xs`}>
-                      {st.stepNumber}
+                  {/* Chevron Header Row */}
+                  <div className="flex items-center justify-between gap-1 mb-0.5">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className={`text-[8.5px] font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0 shadow-2xs`}>
+                        {st.stepNumber}
+                      </span>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-foreground truncate">
+                        {st.title}
+                      </span>
+                      {st.isDominant && (
+                        <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 shrink-0">
+                          Final KPI
+                        </span>
+                      )}
+                    </div>
+                    <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
+                      <Icon className="w-3 h-3" />
+                    </div>
+                  </div>
+
+                  {/* Primary Metric & Delta */}
+                  <div className="flex items-baseline gap-1 flex-wrap">
+                    <span className={cn(
+                      "font-black tracking-tight tabular-nums",
+                      st.isDominant ? "text-xl text-indigo-600 dark:text-indigo-400" : "text-lg text-foreground"
+                    )}>
+                      {st.primaryLabel}
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-foreground truncate">
-                      {st.title}
-                    </span>
-                    {st.isDominant && (
-                      <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 shrink-0">
-                        Final KPI
+                    {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
+                    {st.flowDelta && (
+                      <span className="text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
+                        {st.flowDelta}
                       </span>
                     )}
                   </div>
-                  <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
-                    <Icon className="w-3 h-3" />
+
+                  {/* Subtitle Footer */}
+                  <div className="text-[9.5px] font-medium text-muted-foreground truncate border-t border-border/40 pt-1">
+                    <span className="truncate">{st.secondaryLabel}</span>
                   </div>
-                </div>
-
-                {/* Primary Metric & Delta */}
-                <div className="flex items-baseline gap-1 flex-wrap">
-                  <span className={cn(
-                    "font-black tracking-tight tabular-nums",
-                    st.isDominant ? "text-xl text-indigo-600 dark:text-indigo-400" : "text-lg text-foreground"
-                  )}>
-                    {st.primaryLabel}
-                  </span>
-                  {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
-                  {st.flowDelta && (
-                    <span className="text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
-                      {st.flowDelta}
-                    </span>
-                  )}
-                </div>
-
-                {/* Subtitle Footer */}
-                <div className="text-[9.5px] font-medium text-muted-foreground truncate border-t border-border/40 pt-1">
-                  <span className="truncate">{st.secondaryLabel}</span>
                 </div>
               </div>
 
-              {/* DIRECTIONAL CHEVRON FLOW BRIDGE BETWEEN STAGES */}
+              {/* DIRECTIONAL FLOW BADGE IN THE SEPARATION GAP */}
               {!isLast && st.nextDrop !== undefined && (
-                <div className="shrink-0 flex items-center justify-center px-0.5">
+                <div className="shrink-0 flex items-center justify-center -mx-1 z-10">
                   <div
                     className={cn(
-                      "flex items-center gap-1 px-2 py-1.5 rounded-lg border shadow-2xs tabular-nums text-[9.5px] font-black font-mono shrink-0 transition-all cursor-default",
+                      "flex items-center gap-0.5 px-2 py-1 rounded-full border shadow-2xs tabular-nums text-[9px] font-black font-mono shrink-0 transition-all cursor-default",
                       st.isBottleneck
-                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/20 ring-2 ring-rose-500/20"
-                        : "bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border-border/90 hover:bg-slate-200 dark:hover:bg-slate-700/80"
+                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/25 ring-2 ring-rose-500/20"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-border hover:bg-slate-200 dark:hover:bg-slate-700"
                     )}
-                    title={`Funnel conversion drop to next stage: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}
+                    title={`Funnel conversion drop: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}
                   >
-                    <ChevronRight className={cn("w-3.5 h-3.5 stroke-[3]", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
+                    <ChevronRight className={cn("w-3 h-3 stroke-[3]", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
                     <span>-{st.nextDrop.toFixed(0)}%</span>
                   </div>
                 </div>
