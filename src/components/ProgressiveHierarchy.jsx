@@ -743,7 +743,7 @@ export function ProgressiveHierarchy({
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-border shrink-0">
               <div className="text-xs font-black text-foreground flex items-center gap-2">
                 <ShoppingCart className="w-4 h-4 text-primary" />
-                <span>Account Portfolio ({activeContext.cartera.length} Accounts)</span>
+                <span>Customer Portfolio ({activeContext.cartera.length} Customers)</span>
               </div>
 
               <Button
@@ -762,7 +762,7 @@ export function ProgressiveHierarchy({
                 <thead>
                   <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 h-8">
                     <th className="py-2 px-1 w-[3%]"></th>
-                    <th className="py-2 px-2 w-[34%] font-bold truncate">Account / Company</th>
+                    <th className="py-2 px-2 w-[34%] font-bold truncate">Customer</th>
                     <th className="py-2 px-2 w-[15%] text-right font-bold truncate text-sky-700 dark:text-sky-400">Online</th>
                     <th className="py-2 px-2 w-[15%] text-right font-bold truncate text-slate-500 dark:text-slate-400">Offline</th>
                     <th className="py-2 px-2 w-[14%] text-right font-bold truncate">Total</th>
@@ -789,7 +789,7 @@ export function ProgressiveHierarchy({
                           <td className="py-2 px-2">
                             <div className="font-bold text-foreground flex items-center gap-1.5 text-xs truncate max-w-[170px]" title={cli.nombreEmpresa}>
                               {cli.esTopPareto && (
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Account" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
                               )}
                               <span className="truncate">{cli.nombreEmpresa}</span>
                             </div>

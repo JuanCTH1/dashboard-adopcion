@@ -12,9 +12,9 @@ export const METRIC_DEFINITIONS = {
   },
   clientes: {
     title: "Client Onboarding Penetration",
-    shortLabel: "Onboarded Accounts",
-    description: "Percentage of active commercial accounts registered with an enabled user profile on the digital platform.",
-    formula: "(Onboarded Accounts / Total Assigned Universe) * 100",
+    shortLabel: "Onboarded Customers",
+    description: "Percentage of active commercial customers registered with an enabled user profile on the digital platform.",
+    formula: "(Onboarded Customers / Total Assigned Universe) * 100",
     target: 85.0
   },
   volumen: {
@@ -27,7 +27,7 @@ export const METRIC_DEFINITIONS = {
   fttv: {
     title: "Time-to-First-Value (FTTV)",
     shortLabel: "Days to First Digital Tx",
-    description: "Average days elapsed between account creation and the first completed digital order.",
+    description: "Average days elapsed between customer creation and the first completed digital order.",
     target: 14
   }
 };

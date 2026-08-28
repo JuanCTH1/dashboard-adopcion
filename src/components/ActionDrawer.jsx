@@ -29,10 +29,10 @@ export function ActionDrawer({
       : `DIGITAL RECOVERY PLAN - ${nombreEntidad}`;
 
     let texto = `${titulo}\nGenerated on: ${new Date().toLocaleDateString('en-US')}\n\n`;
-    texto += `Account ID\tCompany\tBusiness Line\tVolume\tSales Rep\tStatus\n`;
+    texto += `Customer ID\tCustomer\tBusiness Line\tVolume\tSales Rep\tStatus\n`;
 
     listaActual.forEach(c => {
-      texto += `${c.id}\t${c.nombreEmpresa || c.id}\t${c.lineaNegocio}\t${formatNumber(c.volumen)} ${c.unidad}\t${c.vendedorNombre}\t${tabActiva === 'sinIncorporar' ? 'No Account' : 'Inactive/Reverted'}\n`;
+      texto += `${c.id}\t${c.nombreEmpresa || c.id}\t${c.lineaNegocio}\t${formatNumber(c.volumen)} ${c.unidad}\t${c.vendedorNombre}\t${tabActiva === 'sinIncorporar' ? 'Unregistered' : 'Inactive/Reverted'}\n`;
     });
 
     navigator.clipboard.writeText(texto);
@@ -75,7 +75,7 @@ export function ActionDrawer({
           <TabsList className="grid grid-cols-2 w-full mb-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
             <TabsTrigger value="sinIncorporar" className="text-xs font-bold gap-1.5 py-1.5">
               <UserX className="w-3.5 h-3.5 text-rose-500" />
-              <span>No Account ({sinIncorporar.length})</span>
+              <span>Unregistered ({sinIncorporar.length})</span>
             </TabsTrigger>
             <TabsTrigger value="inactivos" className="text-xs font-bold gap-1.5 py-1.5">
               <PhoneOff className="w-3.5 h-3.5 text-amber-500" />
@@ -83,12 +83,12 @@ export function ActionDrawer({
             </TabsTrigger>
           </TabsList>
 
-          {/* Tab 1: Accounts without Digital Account */}
+          {/* Tab 1: Customers without Digital Registration */}
           <TabsContent value="sinIncorporar" className="space-y-2.5 mt-0">
             <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <span>
-                High-volume priority accounts pending registration. <b>Owner: Sales Rep.</b>
+                High-volume priority customers pending registration. <b>Owner: Sales Rep.</b>
               </span>
             </div>
 
@@ -112,19 +112,19 @@ export function ActionDrawer({
                     {formatNumber(cli.volumen)} <span className="text-[9px] font-normal text-muted-foreground">{cli.unidad}</span>
                   </div>
                   <Badge variant="danger" className="text-[9px] py-0 px-1 font-bold mt-0.5">
-                    No Account
+                    Unregistered
                   </Badge>
                 </div>
               </div>
             ))}
           </TabsContent>
 
-          {/* Tab 2: Inactive / Reverted Accounts */}
+          {/* Tab 2: Inactive / Reverted Customers */}
           <TabsContent value="inactivos" className="space-y-2.5 mt-0">
             <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
               <span>
-                Registered accounts that relapsed to phone/offline ordering in this period. <b>Owner: CX & Sales Rep.</b>
+                Registered customers that relapsed to phone/offline ordering in this period. <b>Owner: CX & Sales Rep.</b>
               </span>
             </div>
 

@@ -32,7 +32,7 @@ export function AppHeader({
             className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium border border-border transition-all cursor-pointer shadow-xxs shrink-0"
           >
             <Search className="w-3.5 h-3.5 text-primary" />
-            <span className="hidden lg:inline">Search rep, city, account...</span>
+            <span className="hidden lg:inline">Search rep, city, customer...</span>
             <span className="lg:hidden">Search...</span>
             <kbd className="text-[10px] bg-card px-1 py-0.5 rounded border border-border text-muted-foreground font-mono ml-1 shadow-xxs hidden xl:inline">
               Ctrl+K

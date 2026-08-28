@@ -178,8 +178,8 @@ export function App() {
 
   const handleExportGlobalCsv = () => {
     const clientes = adopcionRepo._filtrar(filtrosCompuestos).clientes;
-    exportToCsv(`CX_Adoption_Account_Report`, clientes, [
-      { key: 'nombreEmpresa', label: 'Company Name' },
+    exportToCsv(`Adoption_Customer_Report`, clientes, [
+      { key: 'nombreEmpresa', label: 'Customer Name' },
       { key: 'lineaLabel', label: 'Business Line' },
       { key: 'volumenBase', label: 'Base Volume' },
       { key: 'unidad', label: 'Unit' },

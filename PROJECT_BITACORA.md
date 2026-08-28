@@ -877,3 +877,14 @@ The interface is structured in **3 Main Horizontal Tiers**:
     - **Mes 2 (ej. Febrero):** El cuello de botella pasa a ser el **Onboarding** (Step 2: Cuentas sin registrar en el portal).
     - **Mes 3 (ej. Marzo):** El cuello de botella es el **Volumen / Adopción de Órdenes** (Step 4: Cuentas activas que mantienen compras telefónicas parciales).
   - **Resultado:** Al filtrar distintos meses, el embudo resalta cuellos de botella variables y realistas en lugar de tener siempre la misma etapa débil.
+---
+
+## 🎯 Versión 2.88 - Estandarización Global de Terminología a `Customer` (`ProgressiveHierarchy.jsx`, `ActionDrawer.jsx`, `AppHeader.jsx`, `App.jsx`, `definiciones.js`)
+
+- **Eliminación Total y Definitiva de `Account` y `Company`:**
+  - Se reemplazaron todas las referencias a `Account`, `Accounts`, `Company` y `Company Name` por estrictamente **`Customer`** y **`Customers`** en toda la interfaz de usuario:
+    - Encabezado de tabla: **`Customer Portfolio (X Customers)`** y columna **`Customer`**.
+    - Píldoras de estatus: **`Unregistered`** (en lugar de "No Account").
+    - Tooltips y badges: **`Top 20% Pareto Customer`**.
+    - Exportación CSV y omnibox de búsqueda: **`Customer Name`** y **`Search rep, city, customer...`**.
+    - Glosario de definiciones: **`Onboarded Customers`**.
