@@ -687,3 +687,12 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Remoción de Insignia Redundante (`ExecutiveRibbon.jsx`):**
   - Se eliminó el texto `vs 90% Goal` del pie de la tarjeta 4.
   - **Resultado:** Las 4 tarjetas del Ribbon mantienen una alineación y formato de subtítulo perfectamente uniforme.
+---
+
+## 🎯 Versión 2.64 - División de Rankings en 2 Tablas Paralelas (Onboarding & Orders Adoption) (`LeaderboardCard.jsx`)
+
+- **Reestructuración de Módulo de Rankings (`LeaderboardCard.jsx`):**
+  - Se dividió el panel de ranking en **2 tablas simultáneas lado a lado** dentro del mismo espacio disponible (`grid grid-cols-2`):
+    1. **Tabla 1 (Izquierda):** **Onboarding Ranking** (ordenado por tasa de incorporación % + conteo de clientes `X/Y cust`).
+    2. **Tabla 2 (Derecha):** **Orders Adoption Ranking** (ordenado por tasa de adopción de órdenes % + conteo de pedidos `X/Y ord`).
+  - **Pestañas de Dimensión Compartidas:** Ambas tablas recalculan sus posiciones en paralelo al alternar las pestañas `Line`, `Reps`, `Markets`, `Regions`.
