@@ -826,3 +826,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
     1. **`Cascade`** (Drilldown tipo Miller Columns): Muestra las columnas progresivamente paso a paso al seleccionar cada nivel.
     2. **`All 4 Columns`** (Vista Completa de Facetas): Despliega simultáneamente las 4 columnas de jerarquía (VP Division, Regions, Markets, Sales Reps) + Tabla de Cartera.
   - **Filtrado Interactivo en Cascada**: En el modo `All 4 Columns`, seleccionar cualquier elemento de una columna anterior (ej. `VP Readymix` o `Midwest Region`) filtra dinámicamente el contenido de las columnas a la derecha y recalcula la tabla de clientes al instante.
+---
+
+## 🎯 Versión 2.82 - Etiquetado del Toggle de Jerarquía a `Columns: Collapse | Show All` (`ProgressiveHierarchy.jsx`)
+
+- **Actualización de Etiquetas del Interruptor (`ProgressiveHierarchy.jsx`):**
+  - Se renombró el control de navegación a **`Columns:`** con los 2 botones:
+    - **`Collapse`** (Azul Primario): Navegación progresiva en cascada de Miller Columns.
+    - **`Show All`** (Púrpura/Índigo): Despliegue simultáneo de las 4 columnas a la vista.

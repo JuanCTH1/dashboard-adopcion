@@ -228,36 +228,39 @@ export function ProgressiveHierarchy({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
-          {/* MODE TOGGLE SWITCH: Cascade Drilldown vs All 4 Columns Visible */}
-          <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800/90 p-0.5 rounded-lg border border-border">
-            <button
-              type="button"
-              onClick={() => setNavMode('cascade')}
-              className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none",
-                navMode === 'cascade'
-                  ? "bg-card text-foreground shadow-2xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Cascading Miller Columns (Drilldown step-by-step)"
-            >
-              <Workflow className="w-3.5 h-3.5 text-primary" />
-              <span>Cascade</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setNavMode('all_columns')}
-              className={cn(
-                "px-2.5 py-1 rounded-md text-[11px] font-bold transition-all flex items-center gap-1.5 cursor-pointer select-none",
-                navMode === 'all_columns'
-                  ? "bg-card text-foreground shadow-2xs text-indigo-600 dark:text-indigo-400"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Show all 4 columns side-by-side with dynamic interactive filtering"
-            >
-              <LayoutGrid className="w-3.5 h-3.5 text-indigo-500" />
-              <span>All 4 Columns</span>
-            </button>
+          {/* MODE TOGGLE SWITCH: Columns: Collapse | Show All */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/90 p-1 rounded-lg border border-border">
+            <span className="text-[10.5px] font-extrabold uppercase text-muted-foreground px-1 select-none">Columns:</span>
+            <div className="flex items-center gap-0.5 bg-card/60 p-0.5 rounded-md border border-border/60">
+              <button
+                type="button"
+                onClick={() => setNavMode('cascade')}
+                className={cn(
+                  "px-2.5 py-0.5 rounded text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
+                  navMode === 'cascade'
+                    ? "bg-primary text-primary-foreground shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="Collapse columns progressively step-by-step"
+              >
+                <Workflow className="w-3 h-3" />
+                <span>Collapse</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setNavMode('all_columns')}
+                className={cn(
+                  "px-2.5 py-0.5 rounded text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
+                  navMode === 'all_columns'
+                    ? "bg-indigo-600 text-white shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="Show all 4 hierarchy columns side-by-side"
+              >
+                <LayoutGrid className="w-3 h-3" />
+                <span>Show All</span>
+              </button>
+            </div>
           </div>
 
           <Button
