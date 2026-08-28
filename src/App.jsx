@@ -224,7 +224,15 @@ export function App() {
             metricasGlobales={metricasGlobales}
           />
 
-          {/* ROW 2: DUAL COLUMNS (LEFT: HISTORICAL TREND, RIGHT: COMMERCIAL LEADERBOARD) */}
+          {/* ROW 2: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
+          <ProgressiveHierarchy
+            filtrosCompuestos={filtrosCompuestos}
+            onHierarchyFilterChange={handleHierarchyFilterChange}
+            onOpenActionDrawer={handleOpenActionDrawer}
+            onExportCsv={handleExportGlobalCsv}
+          />
+
+          {/* ROW 3: DUAL COLUMNS (LEFT: HISTORICAL ADOPTION TREND, RIGHT: COMMERCIAL RANKING) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
             {/* Left Column (6 of 12 Cols): Adoption Trend */}
             <div className="lg:col-span-6 flex flex-col">
@@ -234,7 +242,7 @@ export function App() {
               />
             </div>
 
-            {/* Right Column (6 of 12 Cols): Commercial Leaderboard */}
+            {/* Right Column (6 of 12 Cols): Commercial Ranking */}
             <div className="lg:col-span-6 flex flex-col">
               <LeaderboardCard
                 leaderboardData={leaderboardData}
@@ -242,14 +250,6 @@ export function App() {
               />
             </div>
           </div>
-
-          {/* ROW 3: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
-          <ProgressiveHierarchy
-            filtrosCompuestos={filtrosCompuestos}
-            onHierarchyFilterChange={handleHierarchyFilterChange}
-            onOpenActionDrawer={handleOpenActionDrawer}
-            onExportCsv={handleExportGlobalCsv}
-          />
         </div>
       </main>
 

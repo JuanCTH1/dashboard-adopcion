@@ -461,3 +461,18 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - En [ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx) (VPs, Regiones, Mercados y Vendedores), Renglón 3 se formateó en 2 líneas limpias sin desbordes:
     - **Línea 1:** `28 cli` (izq) | `67.2% onboarded` (der).
     - **Línea 2:** `1,260 ord` (izq) | `54.1% adopted` (der).
+---
+
+## 🎯 Versión 2.38 - Reordenamiento de Filas (Jerarquía en Medio) & Simplificación de Ranking
+
+- **Reordenamiento de Filas en la Pantalla (`App.jsx`):**
+  - **Fila 1:** Ribbon Ejecutivo 4 Columnas Unificado ([ExecutiveRibbon.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ExecutiveRibbon.jsx)).
+  - **Fila 2:** Navegabilidad de Jerarquía + Tabla de Cartera ([ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx)) — ahora al centro del flujo de trabajo.
+  - **Fila 3:** Disposición Doble en Par: Tendencia de Adopción ([AdoptionTrendCard.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/AdoptionTrendCard.jsx)) a la izquierda (6 cols) + Ranking ([LeaderboardCard.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/LeaderboardCard.jsx)) a la derecha (6 cols).
+- **Simplificación del Ranking (`LeaderboardCard.jsx`):**
+  - **Título Simplificado:** Renombrado simplemente a **`Ranking`**.
+  - **Eliminación de Subtítulo y Buscador:** Se removió el subtítulo redundante y el cuadro de búsqueda para máxima limpieza.
+  - **Eliminación de Columna Benchmark:** Se retiró la barra gráfica de benchmark, dejando una tabla ligera de 5 columnas (Rank, Entity, Line, Onboarded, Adopted).
+  - **Control de Altura (`max-h-[175px]`):** Mantiene exactamente ~4 filas visibles con scroll interno, garantizando 0 scroll vertical innecesario.
+- **Expansión de Tarjeta de Tendencia (`AdoptionTrendCard.jsx`):**
+  - Reconvertida en una tarjeta completa con gráfico de área extendido, gradiente y ejes para ocupar la misma altura que la tarjeta de Ranking a su derecha.

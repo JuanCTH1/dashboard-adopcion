@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
-import { ResponsiveContainer, AreaChart, Area, YAxis, Tooltip } from 'recharts';
+import { Card } from '@/components/ui/card';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
+import { TrendingUp, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChartTheme } from '@/lib/theme';
 
@@ -18,46 +20,91 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
     });
   }, [serieHistorica, filtros]);
 
-  const strokeColor = isDark ? '#38bdf8' : '#002B99';
+  const strokeColor = isDark ? '#38bdf8' : '#0000B3';
   const last = filteredData[filteredData.length - 1];
   const first = filteredData[0];
   const trendUp = last && first ? last.pctAdopcionPedidos >= first.pctAdopcionPedidos : true;
+  const delta = last && first ? (last.pctAdopcionPedidos - first.pctAdopcionPedidos).toFixed(1) : '0.0';
 
   return (
-    <div className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-2 h-16 shadow-2xs font-sans select-none">
-      <div className="shrink-0">
-        <div className="text-[9px] font-extrabold uppercase tracking-wider text-muted-foreground">Tendencia Adopción</div>
-        <div className={cn("text-sm font-black tabular-nums", trendUp ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
-          {last ? `${last.pctAdopcionPedidos}%` : '—'} <span className="text-[10px] font-medium text-muted-foreground">últimos {filteredData.length} meses</span>
+    <Card className="p-4 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none font-sans h-full flex flex-col justify-between">
+      {/* Top Accent Bar */}
+      <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-sky-500 to-indigo-500" />
+
+      {/* CARD HEADER */}
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
+        <div>
+          <div className="flex items-center gap-1.5">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-foreground font-sans">
+              Tendencia de Adopción
+            </h3>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">
+            Histórico transaccional ({filteredData.length} meses)
+          </p>
+        </div>
+
+        <div className="text-right">
+          <div className={cn("text-sm font-black tabular-nums", trendUp ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
+            {last ? `${last.pctAdopcionPedidos}%` : '—'}
+          </div>
+          <div className="text-[9.5px] font-bold text-muted-foreground">
+            {trendUp ? `▲ +${delta} pp` : `▼ ${delta} pp`}
+          </div>
         </div>
       </div>
-      <div className="flex-1 h-full min-w-[160px]">
+
+      {/* FULL AREA CHART */}
+      <div className="flex-1 min-h-[150px] w-full pt-1">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={filteredData} margin={{ top: 8, right: 6, left: 6, bottom: 2 }}>
+          <AreaChart data={filteredData} margin={{ top: 8, right: 10, left: -20, bottom: 0 }}>
             <defs>
-              <linearGradient id="trend-grad-mini" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={strokeColor} stopOpacity={0.3} />
-                <stop offset="100%" stopColor={strokeColor} stopOpacity={0} />
+              <linearGradient id="trend-grad-full" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={strokeColor} stopOpacity={0.35} />
+                <stop offset="100%" stopColor={strokeColor} stopOpacity={0.02} />
               </linearGradient>
             </defs>
-            <YAxis hide domain={['dataMin - 4', 'dataMax + 4']} />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 9, fill: isDark ? '#94a3b8' : '#64748b' }}
+              domain={['dataMin - 5', 'dataMax + 5']}
+              unit="%"
+            />
+            <XAxis
+              dataKey="label"
+              tickLine={false}
+              axisLine={false}
+              tick={{ fontSize: 8.5, fill: isDark ? '#94a3b8' : '#64748b' }}
+              interval="preserveStartEnd"
+            />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload?.length) {
                   const d = payload[0].payload;
                   return (
-                    <div className="bg-slate-900 text-white px-2 py-1 rounded text-[11px] shadow-xl border border-slate-700">
-                      <b>{d.label}</b>: {d.pctAdopcionPedidos}%
+                    <div className="bg-slate-900 text-white px-2.5 py-1.5 rounded-lg text-xs shadow-xl border border-slate-700 font-sans">
+                      <div className="font-bold text-[11px] text-sky-400">{d.label}</div>
+                      <div className="text-[11px]">Adopción: <b>{d.pctAdopcionPedidos}%</b></div>
                     </div>
                   );
                 }
                 return null;
               }}
             />
-            <Area type="monotone" dataKey="pctAdopcionPedidos" stroke={strokeColor} strokeWidth={2} fill="url(#trend-grad-mini)" dot={false} activeDot={{ r: 3, fill: strokeColor }} />
+            <Area
+              type="monotone"
+              dataKey="pctAdopcionPedidos"
+              stroke={strokeColor}
+              strokeWidth={2.5}
+              fill="url(#trend-grad-full)"
+              dot={false}
+              activeDot={{ r: 4, fill: strokeColor, stroke: '#fff', strokeWidth: 1.5 }}
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </Card>
   );
 }

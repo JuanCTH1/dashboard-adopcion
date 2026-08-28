@@ -1,14 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { BulletGraph } from './BulletGraph';
-import { Trophy, Search, UserCheck, ShoppingCart, ChevronRight } from 'lucide-react';
+import { Trophy, UserCheck, ShoppingCart, ChevronRight } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 
 export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
   const [dimension, setDimension] = useState('market_line'); // 'market_line' | 'sales_reps' | 'markets' | 'regions'
   const [sortBy, setSortBy] = useState('adopcion'); // 'adopcion' | 'onboarding'
-  const [searchTerm, setSearchTerm] = useState('');
 
   const processedData = useMemo(() => {
     if (!leaderboardData || leaderboardData.length === 0) return [];
@@ -26,17 +24,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
       filtered = filtered.filter(item => item.tipo === 'region');
     }
 
-    // 2. Search term filter
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(item =>
-        item.nombre.toLowerCase().includes(term) ||
-        (item.persona && item.persona.toLowerCase().includes(term)) ||
-        (item.lineaNegocio && item.lineaNegocio.toLowerCase().includes(term))
-      );
-    }
-
-    // 3. Sort by chosen percentage metric
+    // 2. Sort by chosen percentage metric
     filtered.sort((a, b) => {
       if (sortBy === 'adopcion') {
         return b.adopcionPct - a.adopcionPct;
@@ -45,7 +33,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
       }
     });
 
-    // 4. Assign ranks and bottom 20% flags
+    // 3. Assign ranks and bottom 20% flags
     const totalCount = filtered.length;
     const bottomThreshold = Math.ceil(totalCount * 0.2);
 
@@ -55,7 +43,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
       isTop3: index < 3,
       isBottom20: totalCount >= 5 && index >= totalCount - bottomThreshold
     }));
-  }, [leaderboardData, dimension, sortBy, searchTerm]);
+  }, [leaderboardData, dimension, sortBy]);
 
   return (
     <Card className="p-4 bg-card border border-border shadow-xs rounded-xl relative overflow-hidden select-none font-sans h-full flex flex-col justify-between">
@@ -63,40 +51,23 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-500 via-primary to-emerald-500" />
 
       {/* HEADER & CONTROLS */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-border">
-        <div>
-          <div className="flex items-center gap-2">
-            <Trophy className="w-4 h-4 text-amber-500" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-foreground font-sans">
-              Commercial Leaderboard & Benchmark
-            </h3>
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">
-            Ranking by Onboarding & Adoption rates
-          </p>
+      <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
+        <div className="flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-amber-500" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-foreground font-sans">
+            Ranking
+          </h3>
         </div>
 
         {/* CONTROLS ROW */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          {/* Search Box */}
-          <div className="relative min-w-[120px]">
-            <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-7 pr-2 py-0.5 text-[11px] rounded-lg border border-border bg-slate-50 dark:bg-slate-900 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
-
+        <div className="flex items-center gap-1.5">
           {/* Dimension Tabs */}
           <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border">
             <button
               type="button"
               onClick={() => setDimension('market_line')}
               className={cn(
-                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
+                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'market_line' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -106,7 +77,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('sales_reps')}
               className={cn(
-                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
+                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'sales_reps' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -116,7 +87,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('markets')}
               className={cn(
-                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
+                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'markets' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -126,7 +97,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setDimension('regions')}
               className={cn(
-                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
+                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all cursor-pointer",
                 dimension === 'regions' ? "bg-card text-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -140,7 +111,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setSortBy('adopcion')}
               className={cn(
-                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
+                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
                 sortBy === 'adopcion' ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -151,7 +122,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
               type="button"
               onClick={() => setSortBy('onboarding')}
               className={cn(
-                "px-1.5 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
+                "px-2 py-0.5 text-[9.5px] font-bold rounded transition-all flex items-center gap-1 cursor-pointer",
                 sortBy === 'onboarding' ? "bg-primary text-white shadow-2xs" : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -162,31 +133,28 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
         </div>
       </div>
 
-      {/* LEADERBOARD TABLE (~4 ROWS VISIBLE) */}
-      <div className="overflow-x-auto max-h-[195px] overflow-y-auto scrollbar-thin flex-1">
+      {/* RANKING TABLE (~4 ROWS VISIBLE) */}
+      <div className="overflow-x-auto max-h-[175px] overflow-y-auto scrollbar-thin flex-1">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
             <tr className="border-b border-border text-[9.5px] font-bold uppercase tracking-wider text-muted-foreground bg-slate-100/80 dark:bg-slate-800/80 sticky top-0 z-10">
               <th className="py-1.5 px-2 w-10 text-center">Rank</th>
-              <th className="py-1.5 px-2">Entity / Scope</th>
+              <th className="py-1.5 px-2">Entity</th>
               <th className="py-1.5 px-2 w-12">Line</th>
-              <th className="py-1.5 px-2 w-28">Onboarded</th>
-              <th className="py-1.5 px-2 w-28">Adopted</th>
-              <th className="py-1.5 px-2 w-28 text-center">Benchmark</th>
+              <th className="py-1.5 px-2 w-32">Onboarded</th>
+              <th className="py-1.5 px-2 w-32">Adopted</th>
               <th className="py-1.5 px-2 w-6 text-center"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60">
             {processedData.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-xs text-muted-foreground">
-                  No ranking entities match the current filter criteria.
+                <td colSpan={6} className="py-6 text-center text-xs text-muted-foreground">
+                  No entities match current filter.
                 </td>
               </tr>
             ) : (
               processedData.map((item) => {
-                const activeVal = sortBy === 'adopcion' ? item.adopcionPct : item.onboardingPct;
-
                 return (
                   <tr
                     key={`${item.tipo}-${item.id}`}
@@ -226,7 +194,7 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                     {/* Entity Name */}
                     <td className="py-1.5 px-2">
                       <div className="font-bold text-[11px] text-foreground group-hover:text-primary transition-colors flex items-center gap-1">
-                        <span className="truncate max-w-[120px]">{item.nombre}</span>
+                        <span className="truncate max-w-[130px]">{item.nombre}</span>
                         {item.isBottom20 && (
                           <Badge variant="danger" className="text-[7.5px] py-0 px-0.5 font-bold shrink-0">
                             ⚠️
@@ -266,15 +234,6 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
                       <div className="text-[8.5px] text-muted-foreground">
                         ({formatNumber(item.digitalOrders)} ord)
                       </div>
-                    </td>
-
-                    {/* Visual Benchmark Bullet Graph */}
-                    <td className="py-1.5 px-2">
-                      <BulletGraph
-                        actual={activeVal}
-                        target={90.0}
-                        label=""
-                      />
                     </td>
 
                     {/* Arrow Action */}
