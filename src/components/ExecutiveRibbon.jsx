@@ -44,7 +44,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       icon: UserCheck,
       colorGrad: 'from-emerald-600 to-teal-700',
       accentBg: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-400',
-      flowDelta: `▲+${deltas?.clientesMoM || 2.1}% this month`,
+      flowDelta: `▲+${deltas?.clientesMoMNetos || 48} this month`,
       nextDrop: dropOffStage2,
       isBottleneck: worstBottleneck === 2
     },
@@ -58,7 +58,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       icon: Activity,
       colorGrad: 'from-sky-500 to-blue-600',
       accentBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-400',
-      flowDelta: `▲+1.2% this month`,
+      flowDelta: `▲+${deltas?.activosMoMNetos || 18} this month`,
       nextDrop: dropOffStage3,
       isBottleneck: worstBottleneck === 3
     },

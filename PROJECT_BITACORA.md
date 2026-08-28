@@ -549,3 +549,9 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **3er Conector de Transición en Embudo (`ExecutiveRibbon.jsx`):**
   - Se agregó el tercer conector de transición entre la Etapa 3 (**Active**) y la Etapa 4 (**Digital Adoption**), mostrando la brecha de ordenes analógicas respecto al 100% de la adopción digital.
   - Ahora las 3 transiciones intermedias (`Total Customers ➔ Onboarded ➔ Active ➔ Digital Adoption`) cuentan con sus 3 conectores visibles y perfectamente alineados entre tarjetas.
+---
+
+## 🎯 Versión 2.47 - Deltas de Crecimiento en Números Enteros (`ExecutiveRibbon.jsx`)
+
+- **Deltas en Números Enteros para Etapa 2 y 3 (`ExecutiveRibbon.jsx`):**
+  - Se cambió el formato del delta de crecimiento mensual en la tarjeta 2 (**Onboarded**) y tarjeta 3 (**Active**) de porcentaje (`%`) a **números enteros netos de cuentas** (`▲+48 this month` y `▲+18 this month`).
