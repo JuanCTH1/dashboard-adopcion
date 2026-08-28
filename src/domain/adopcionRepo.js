@@ -70,7 +70,7 @@ class AdopcionRepository {
 
     const clientIdsSet = new Set(clientesFiltrados.map(c => c.id));
 
-    // 2. FAST PERIOD LOOKUP (O(1) MAP LOOKUP INSTEAD OF 43,200 ARRAY SCANS)
+    // 2. FAST PERIOD LOOKUP (O(1) MAP LOOKUP)
     const mesesValidosKeys = [];
     this.data.MESES.forEach(m => {
       if (anios.includes(m.anio) && mesesNombres.includes(m.nombreMes)) {
@@ -145,7 +145,18 @@ class AdopcionRepository {
     let nodos = [];
     const parentSet = new Set(Array.isArray(parentIds) ? parentIds : [parentIds].filter(Boolean));
 
+    // Base filter clean of level selection to compute true node metrics
+    const baseFiltro = { ...filtros };
+    delete baseFiltro.vpId;
+    delete baseFiltro.directorId;
+    delete baseFiltro.gerenteId;
+    delete baseFiltro.vendedorId;
+
     if (nivel === 'nacional') {
+      delete baseFiltro.vpIds;
+      delete baseFiltro.directorIds;
+      delete baseFiltro.gerenteIds;
+      delete baseFiltro.vendedorIds;
       nodos = this.data.VPS.map(vp => ({
         id: vp.id,
         nombre: vp.nombre,
@@ -155,6 +166,9 @@ class AdopcionRepository {
         unidad: vp.unidad
       }));
     } else if (nivel === 'vp') {
+      delete baseFiltro.directorIds;
+      delete baseFiltro.gerenteIds;
+      delete baseFiltro.vendedorIds;
       nodos = this.data.DIRECTORES
         .filter(d => parentSet.size === 0 || parentSet.has(d.vpId))
         .map(d => ({
@@ -166,6 +180,8 @@ class AdopcionRepository {
           regionId: d.regionId
         }));
     } else if (nivel === 'director') {
+      delete baseFiltro.gerenteIds;
+      delete baseFiltro.vendedorIds;
       nodos = this.data.GERENTES
         .filter(g => parentSet.size === 0 || parentSet.has(g.directorId))
         .map(g => ({
@@ -177,6 +193,7 @@ class AdopcionRepository {
           vpId: g.vpId
         }));
     } else if (nivel === 'gerente') {
+      delete baseFiltro.vendedorIds;
       nodos = this.data.VENDEDORES
         .filter(v => parentSet.size === 0 || parentSet.has(v.gerenteId))
         .map(v => ({
@@ -192,7 +209,7 @@ class AdopcionRepository {
     }
 
     return nodos.map(nodo => {
-      let nodoFiltro = { ...filtros };
+      let nodoFiltro = { ...baseFiltro };
       if (nodo.tipo === 'VP') nodoFiltro.vpId = nodo.id;
       else if (nodo.tipo === 'Director') nodoFiltro.directorId = nodo.id;
       else if (nodo.tipo === 'Gerente') nodoFiltro.gerenteId = nodo.id;
