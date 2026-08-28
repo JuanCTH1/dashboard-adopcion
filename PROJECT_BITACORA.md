@@ -834,3 +834,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se renombró el control de navegación a **`Columns:`** con los 2 botones:
     - **`Collapse`** (Azul Primario): Navegación progresiva en cascada de Miller Columns.
     - **`Show All`** (Púrpura/Índigo): Despliegue simultáneo de las 4 columnas a la vista.
+---
+
+## 🎯 Versión 2.83 - Establecimiento de `Show All` como Modo por Defecto y Primer Botón (`ProgressiveHierarchy.jsx`)
+
+- **Ajuste de Preferencia Predeterminada y Orden Visual (`ProgressiveHierarchy.jsx`):**
+  - Se configuró **`Show All`** como el estado por defecto (`useState('all_columns')`) al cargar la aplicación.
+  - Se reordenaron los botones del toggle para colocar **`Show All`** en primer lugar y **`Collapse`** en segundo lugar.
