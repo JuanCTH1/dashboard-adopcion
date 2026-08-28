@@ -217,3 +217,19 @@ The interface is structured in **3 Main Horizontal Tiers**:
     - **Modo Oscuro:** Tarjeta con relieve slate-800 y borde slate-600 que destaca con contraste perfecto sobre el fondo oscuro sin confundirse ni verse "demasiado negro".
 - **Scrollbars Estilizados:**
   - Se añadieron estilos CSS personalizados para scrollbars finos y redondeados (::-webkit-scrollbar), tanto para temas claros como oscuros.
+---
+
+## 🎯 Versión 2.14 - Rediseño de Tarjetas a 3 Renglones, Filtro Multi-BL Geográfico Definitivo & Tabla Fluida SIN Scroll Horizontal
+
+- **Corrección Definitiva de Coincidencia Multi-BL (Nodos Geográficos):**
+  - Se identificó la causa raíz: los IDs de las tarjetas regionales y de mercado estaban utilizando el ID interno del primer director en lugar del identificador geográfico unificado (.nombre y m.nombre).
+  - Al seleccionar 1 Región (ej. Atlantic) con 2 VPs/BLs (ej. Readymix + Bulk Cement), ahora el repositorio busca y encuentra **el 100% de los gerentes y vendedores de ambas líneas de negocio** asociadas a la zona geográfica sin omitir ninguna.
+- **Rediseño de Tarjetas a 3 Renglones:**
+  - Las tarjetas en las columnas de la jerarquía ahora están estructuradas en 3 renglones verticales limpios:
+    1. **Renglón 1:** Nombre de la entidad + Check e icono de Info (i).
+    2. **Renglón 2:** Nombre de liderazgo o Micro-insignias por línea (RMX · CEM).
+    3. **Renglón 3:** Volumen de Órdenes y % de Adopción (1,420 ord | 51.5%).
+- **Eliminación Total del Scroll Horizontal en la Tabla:**
+  - Se removió la barra de scroll horizontal (overflow-x-auto) de la tabla derecha.
+  - Se optimizaron los anchos de las columnas de la jerarquía (w-44 / 176px), liberando más de 200px de espacio horizontal.
+  - La tabla utiliza w-full table-fixed con proporciones porcentuales para que el portafolio de cuentas se visualice fluido, amplio y sin ningún empaquetamiento ni barra de desplazamiento horizontal.
