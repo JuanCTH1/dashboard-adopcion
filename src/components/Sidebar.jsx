@@ -115,19 +115,19 @@ export function Sidebar({
                 value={filtros.meses || []}
                 onChange={(val) => onFiltroChange("meses", val)}
                 grid={true}
-                gridCols={4}
+                gridCols={2}
               />
             </div>
 
-            {/* 2 COLUMNS FOR ONBOARDED AND ACTIVE */}
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs p-2 grid grid-cols-2 gap-2">
+            {/* ONBOARDED AND ACTIVE STACKED VERTICALLY */}
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs p-2 space-y-2">
               <FilterListbox
                 label="Onboarded"
                 options={["Yes", "No"]}
                 value={filtros.onboarded || []}
                 onChange={(val) => onFiltroChange("onboarded", val)}
                 grid={true}
-                gridCols={1}
+                gridCols={2}
               />
               <FilterListbox
                 label="Active"
@@ -135,7 +135,7 @@ export function Sidebar({
                 value={filtros.activos || []}
                 onChange={(val) => onFiltroChange("activos", val)}
                 grid={true}
-                gridCols={1}
+                gridCols={2}
               />
             </div>
 

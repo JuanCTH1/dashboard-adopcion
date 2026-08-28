@@ -206,7 +206,7 @@ export function ProgressiveHierarchy({
   }, [activeContext.cartera]);
 
   return (
-    <Card className="p-5 bg-card border border-border shadow-xs rounded-xl flex flex-col relative overflow-hidden select-none space-y-4 font-sans">
+    <Card className="p-3.5 bg-card border border-border shadow-xs rounded-xl flex flex-col relative overflow-hidden select-none space-y-2.5 font-sans">
       {/* Top Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-700 via-indigo-500 to-sky-400" />
 
@@ -765,7 +765,7 @@ export function ProgressiveHierarchy({
             </div>
 
             {/* EXPANDABLE TABLE WITH ZERO HORIZONTAL SCROLLBARS */}
-            <div className="overflow-y-auto scrollbar-thin flex-1 min-h-0">
+            <div className="overflow-y-auto max-h-[190px] scrollbar-thin flex-1 min-h-0">
               <table className="w-full text-left text-xs border-collapse table-fixed">
                 <thead>
                   <tr className="border-b border-border text-xs font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">

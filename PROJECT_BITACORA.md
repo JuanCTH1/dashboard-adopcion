@@ -488,3 +488,15 @@ The interface is structured in **3 Main Horizontal Tiers**:
   - Se cambió el encabezado de la columna de línea de negocio de "Line" a **`BL`** (Business Line).
 - **Poda de Fila de Totales en Cartera (`ProgressiveHierarchy.jsx`):**
   - Se redujo el padding vertical de la fila inferior de totales en la tabla de cartera (`py-1.5 px-2`), eliminando la línea redundante de `Onboarding Rate: XX%` para dejar un pie de tabla compacto y de baja altura.
+---
+
+## 🎯 Versión 2.40 - Conector Estático en Funnel, Meses en 2 Columnas y Ajuste para Cero-Scroll Vertical
+
+- **Conector de Cuello de Botella Estático (`ExecutiveRibbon.jsx`):**
+  - Se removió la animación de parpadeo (`animate-pulse`). El conector de caída es ahora una cápsula horizontal estática en rojo sólido (`bg-rose-500 text-white`) con la flecha alineada horizontalmente (`➔ -28%`).
+- **Disposición de Filtros en Sidebar (`Sidebar.jsx`):**
+  - El filtro de **Meses** se configuró en **2 columnas** (`gridCols={2}`).
+  - Los filtros de **Onboarded** y **Active** se apilaron verticalmente (uno arriba del otro).
+- **Optimización de Altura para Cero Scroll Vertical:**
+  - Se compactó la altura del Ribbon (`py-1`, `text-lg`).
+  - Se estableció un límite de altura `max-h-[190px]` en la tabla de cartera ([ProgressiveHierarchy.jsx](file:///c:/Users/jtatto/Claude/Projects/Dashboard%20Adopcion%20CX/src/components/ProgressiveHierarchy.jsx)), logrando que todo el tablero encaje perfectamente en la pantalla sin necesidad de scroll vertical.

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Users, UserCheck, Activity, Target, ArrowRight, TrendingUp } from 'lucide-react';
+import { Users, UserCheck, Activity, Target, ArrowRight } from 'lucide-react';
 import { formatNumber, formatPct, cn } from '@/lib/utils';
 
 export function ExecutiveRibbon({ metricasGlobales }) {
@@ -67,10 +66,8 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     }
   ];
 
-  const dropOffs = [dropOffStage1, dropOffStage2, null];
-
   return (
-    <div className="bg-background/95 backdrop-blur-md py-1.5 transition-all font-sans select-none">
+    <div className="bg-background/95 backdrop-blur-md py-1 transition-all font-sans select-none">
       <div className="flex items-stretch gap-0 relative">
         {STAGES.map((st, idx) => {
           const Icon = st.icon;
@@ -81,50 +78,48 @@ export function ExecutiveRibbon({ metricasGlobales }) {
             <React.Fragment key={st.id}>
               <Card
                 className={cn(
-                  "flex-1 min-w-0 p-3 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-center",
+                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-primary/40 transition-all rounded-xl relative overflow-hidden flex flex-col justify-center",
                   st.isDominant ? "border-primary/50 shadow-xs ring-1 ring-primary/20" : "border-border"
                 )}
               >
                 <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground truncate">
+                <div className="flex items-center justify-between gap-1.5 mb-0.5">
+                  <span className="text-[9.5px] font-extrabold uppercase tracking-wider text-muted-foreground truncate">
                     {st.title}
                   </span>
-                  <div className={`p-1 rounded-lg ${st.accentBg} shrink-0`}>
-                    <Icon className="w-3.5 h-3.5" />
+                  <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
+                    <Icon className="w-3 h-3" />
                   </div>
                 </div>
                 <div className="flex items-baseline gap-1.5 flex-wrap">
-                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-2xl text-primary" : "text-xl text-foreground")}>
+                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-primary" : "text-lg text-foreground")}>
                     {st.primaryLabel}
                   </span>
-                  {st.primaryUnit && <span className="text-[10px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
+                  {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
                   {st.flowDelta && (
-                    <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
+                    <span className="text-[8.5px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
                       {st.flowDelta}
                     </span>
                   )}
                 </div>
-                <div className="text-[10px] font-medium text-muted-foreground mt-0.5 truncate">
+                <div className="text-[9.5px] font-medium text-muted-foreground mt-0.5 truncate">
                   {st.secondaryLabel}
                 </div>
                 {st.isDominant && (
-                  <div className="text-[9px] font-bold text-primary mt-0.5">vs 90.0% Meta</div>
+                  <div className="text-[8.5px] font-bold text-primary mt-0.5">vs 90.0% Meta</div>
                 )}
               </Card>
 
               {!isLast && (
-                <div className="flex flex-col items-center justify-center w-14 shrink-0 z-10 -mx-3">
+                <div className="flex items-center justify-center w-11 shrink-0 z-10 -mx-2.5">
                   <div className={cn(
-                    "flex flex-col items-center justify-center w-11 h-11 rounded-full border-2 shadow-md tabular-nums",
+                    "flex items-center justify-center gap-0.5 px-2 py-0.5 rounded-full border shadow-2xs tabular-nums text-[9.5px] font-black font-mono shrink-0",
                     isBottleneck
-                      ? "bg-rose-500 border-rose-300 text-white animate-pulse"
-                      : "bg-card border-border text-muted-foreground"
+                      ? "bg-rose-500 text-white border-rose-400 shadow-rose-500/20"
+                      : "bg-card text-slate-600 dark:text-slate-300 border-border"
                   )}>
-                    <ArrowRight className="w-3 h-3 opacity-70 -mb-0.5" />
-                    <span className="text-[10px] font-black leading-none">
-                      -{(idx === 0 ? dropOffStage1 : dropOffStage2).toFixed(0)}%
-                    </span>
+                    <ArrowRight className="w-2.5 h-2.5 shrink-0 stroke-[2.5]" />
+                    <span>-{(idx === 0 ? dropOffStage1 : dropOffStage2).toFixed(0)}%</span>
                   </div>
                 </div>
               )}
