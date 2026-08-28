@@ -728,3 +728,10 @@ The interface is structured in **3 Main Horizontal Tiers**:
     2. **`Offline`** (texto gris `text-slate-500` para compras telefónicas/analógicas).
     3. **`Total`** (texto en negrita para la suma total).
   - **Pie de Tabla Sincronizado:** La fila de totales inferiores (`TOTALS CUSTOMERS`) suma independientemente las órdenes `Online`, `Offline` y `Total`.
+---
+
+## 🎯 Versión 2.69 - Remoción Completa de FTTV y Códigos Sintéticos "CLI" (`ProgressiveHierarchy.jsx`, `ActionDrawer.jsx`, `App.jsx`)
+
+- **Limpieza de Identificadores Sintéticos y Métrica FTTV:**
+  - Se removió el código inventado `CLI-XXXXX` de los nombres de clientes en la tabla de cartera (`ProgressiveHierarchy.jsx`), ActionDrawer (`ActionDrawer.jsx`) y reporte CSV (`App.jsx`).
+  - Se eliminaron las insignias y referencias a la métrica **FTTV** (días a la primera compra) de todo el tablero.

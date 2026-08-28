@@ -755,7 +755,7 @@ export function ProgressiveHierarchy({
                               )}
                               <span className="truncate">{cli.nombreEmpresa}</span>
                             </div>
-                            <div className="text-[10px] text-muted-foreground font-mono mt-0.5">{cli.id} · <b className="uppercase">{shortBl}</b></div>
+                            <div className="text-[10px] text-muted-foreground font-mono mt-0.5"><b className="uppercase">{shortBl}</b></div>
                           </td>
                           <td className="py-2 px-2 text-right font-bold tabular-nums text-sky-700 dark:text-sky-400 text-xs whitespace-nowrap">
                             {formatNumber(cli.pedidosDigitales)}
@@ -827,16 +827,12 @@ export function ProgressiveHierarchy({
                                   </Badge>
                                 </div>
 
-                                {/* Offline & FTTV Pills */}
+                                {/* Offline Pill */}
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-[11px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
                                   <Badge variant="outline" className="gap-1 text-xs font-bold py-0.5 px-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
                                     <PhoneCall className="w-3.5 h-3.5 text-amber-500" />
                                     <span>Phone: <b>{cli.pedidosAnalogos}</b></span>
-                                  </Badge>
-                                  <Badge variant="outline" className="gap-1 text-xs font-bold py-0.5 px-2.5 text-muted-foreground border-border">
-                                    <Clock className="w-3.5 h-3.5 text-primary" />
-                                    <span>FTTV: <b>{cli.fttv ? `${cli.fttv} days` : 'Pending'}</b></span>
                                   </Badge>
                                 </div>
                               </div>

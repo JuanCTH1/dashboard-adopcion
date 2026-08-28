@@ -139,7 +139,7 @@ export function ActionDrawer({
                     <span className="font-bold text-xs text-foreground truncate">{cli.nombreEmpresa || cli.id}</span>
                   </div>
                   <div className="text-[10px] text-muted-foreground mt-0.5 truncate">
-                    {cli.lineaNegocio.toUpperCase()} · FTTV: {cli.fttv != null ? `${cli.fttv} days` : 'Pending'}
+                    {cli.lineaNegocio.toUpperCase()} · Rep: {cli.vendedorNombre} · City: {cli.plaza}
                   </div>
                 </div>
 

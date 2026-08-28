@@ -179,14 +179,12 @@ export function App() {
   const handleExportGlobalCsv = () => {
     const clientes = adopcionRepo._filtrar(filtrosCompuestos).clientes;
     exportToCsv(`CX_Adoption_Account_Report`, clientes, [
-      { key: 'id', label: 'Account ID' },
       { key: 'nombreEmpresa', label: 'Company Name' },
       { key: 'lineaLabel', label: 'Business Line' },
       { key: 'volumenBase', label: 'Base Volume' },
       { key: 'unidad', label: 'Unit' },
       { key: 'estaIncorporado', label: 'Onboarded' },
-      { key: 'esActivo', label: 'Digital Active' },
-      { key: 'fttv', label: 'FTTV Days' }
+      { key: 'esActivo', label: 'Digital Active' }
     ]);
   };
 
