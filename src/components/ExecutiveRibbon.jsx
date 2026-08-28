@@ -80,45 +80,47 @@ export function ExecutiveRibbon({ metricasGlobales }) {
       secondaryLabel: `${formatCompactNumber(p.digitales)} orders`,
       exactTooltip: `${formatNumber(p.digitales)} adopted digital orders (out of ${formatNumber(p.totales)} total)`,
       icon: Target,
-      colorGrad: 'from-amber-500 to-orange-600',
-      accentBg: 'bg-amber-500/10 text-amber-700 dark:text-amber-400',
-      badgeBg: 'bg-amber-500 text-white',
+      colorGrad: 'from-indigo-600 to-violet-600',
+      accentBg: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400',
+      badgeBg: 'bg-indigo-600 text-white',
       isDominant: true
     }
   ];
 
   return (
     <div className="bg-background/95 backdrop-blur-md py-1 transition-all font-sans select-none">
-      {/* CHEVRON FUNNEL PROCESS RIBBON */}
-      <div className="flex items-center gap-1.5 w-full">
+      {/* SEPARATED CHEVRON FUNNEL PROCESS RIBBON */}
+      <div className="flex items-center gap-2 sm:gap-2.5 w-full">
         {STAGES.map((st, idx) => {
           const Icon = st.icon;
           const isLast = idx === STAGES.length - 1;
 
           return (
             <React.Fragment key={st.id}>
-              {/* CHEVRON STAGE CARD */}
+              {/* CHEVRON STAGE CARD WITH DIRECTIONAL FLOW */}
               <div
                 className={cn(
-                  "flex-1 min-w-0 p-2.5 bg-card border border-border shadow-2xs hover:border-slate-400 dark:hover:border-slate-700 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[96px]",
-                  st.isDominant && "border-amber-500/40 dark:border-amber-500/30 shadow-xs"
+                  "flex-1 min-w-0 p-2.5 bg-card border shadow-2xs hover:border-slate-400 dark:hover:border-slate-700 transition-all rounded-xl relative overflow-hidden flex flex-col justify-between h-[98px]",
+                  st.isDominant
+                    ? "border-indigo-500/40 dark:border-indigo-500/30 shadow-xs"
+                    : "border-border"
                 )}
               >
-                {/* Top Accent Line */}
+                {/* Top Accent Gradient Bar */}
                 <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${st.colorGrad}`} />
 
                 {/* Chevron Header Row */}
                 <div className="flex items-center justify-between gap-1 mb-0.5">
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <span className={`text-[8.5px] font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0`}>
+                    <span className={`text-[8.5px] font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0 shadow-2xs`}>
                       {st.stepNumber}
                     </span>
                     <span className="text-[10px] font-black uppercase tracking-wider text-foreground truncate">
                       {st.title}
                     </span>
                     {st.isDominant && (
-                      <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shrink-0">
-                        Target
+                      <span className="text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 shrink-0">
+                        Final KPI
                       </span>
                     )}
                   </div>
@@ -129,7 +131,10 @@ export function ExecutiveRibbon({ metricasGlobales }) {
 
                 {/* Primary Metric & Delta */}
                 <div className="flex items-baseline gap-1 flex-wrap">
-                  <span className={cn("font-black tracking-tight tabular-nums", st.isDominant ? "text-xl text-amber-600 dark:text-amber-400" : "text-lg text-foreground")}>
+                  <span className={cn(
+                    "font-black tracking-tight tabular-nums",
+                    st.isDominant ? "text-xl text-indigo-600 dark:text-indigo-400" : "text-lg text-foreground"
+                  )}>
                     {st.primaryLabel}
                   </span>
                   {st.primaryUnit && <span className="text-[9.5px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
@@ -146,19 +151,19 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                 </div>
               </div>
 
-              {/* CHEVRON FLOW BADGE BETWEEN STAGES */}
+              {/* DIRECTIONAL CHEVRON FLOW BRIDGE BETWEEN STAGES */}
               {!isLast && st.nextDrop !== undefined && (
                 <div className="shrink-0 flex items-center justify-center px-0.5">
                   <div
                     className={cn(
-                      "flex items-center gap-0.5 px-2 py-1 rounded-lg border shadow-2xs tabular-nums text-[9.5px] font-black font-mono shrink-0 transition-all",
+                      "flex items-center gap-1 px-2 py-1.5 rounded-lg border shadow-2xs tabular-nums text-[9.5px] font-black font-mono shrink-0 transition-all cursor-default",
                       st.isBottleneck
-                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/20"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-border"
+                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/20 ring-2 ring-rose-500/20"
+                        : "bg-slate-100/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-200 border-border/90 hover:bg-slate-200 dark:hover:bg-slate-700/80"
                     )}
-                    title={`Conversion drop to next stage: -${st.nextDrop.toFixed(0)}%`}
+                    title={`Funnel conversion drop to next stage: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}
                   >
-                    <ChevronRight className="w-3.5 h-3.5 stroke-[3] text-primary dark:text-sky-400" />
+                    <ChevronRight className={cn("w-3.5 h-3.5 stroke-[3]", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
                     <span>-{st.nextDrop.toFixed(0)}%</span>
                   </div>
                 </div>
