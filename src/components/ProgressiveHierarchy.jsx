@@ -449,12 +449,9 @@ export function ProgressiveHierarchy({
           )}
         </AnimatePresence>
 
-        {/* RIGHT HAND PERMANENT TABLE: GPU HARDWARE LAYER PROMOTED */}
-        <motion.div
-          layout
-          transition={INSTANT_FLUID_TRANSITION}
-          style={{ willChange: "transform", transform: "translateZ(0)" }}
-          className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
+        {/* RIGHT HAND PERMANENT TABLE: NATIVE CSS GPU COMPOSITED TRANSITION (ZERO JS MEASUREMENT STUTTER) */}
+        <div
+          className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
         >
           <div>
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-border">
@@ -631,7 +628,7 @@ export function ProgressiveHierarchy({
               </table>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </Card>
   );
