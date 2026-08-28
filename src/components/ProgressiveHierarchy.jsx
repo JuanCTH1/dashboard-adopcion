@@ -45,6 +45,28 @@ export function ProgressiveHierarchy({
   const [selectedGerIds, setSelectedGerIds] = useState([]);
   const [selectedRepIds, setSelectedRepIds] = useState([]);
 
+  // Drag-to-select state
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    const handleMouseUp = () => setIsDragging(false);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => window.removeEventListener('mouseup', handleMouseUp);
+  }, []);
+
+  const handleCardMouseDown = (setFn, currentSelected, id, e) => {
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    toggleSelection(setFn, currentSelected, id);
+  };
+
+  const handleCardMouseEnter = (setFn, currentSelected, id) => {
+    if (!isDragging) return;
+    if (!currentSelected.includes(id)) {
+      startTransition(() => setFn(prev => [...prev, id]));
+    }
+  };
+
   // Expandable table rows state
   const [expandedRowIds, setExpandedRowIds] = useState(new Set());
 
@@ -247,15 +269,16 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
-                  {vps.map(vp => {
+                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
+                  {vps.map((vp, idx) => {
                     const isSelected = selectedVpIds.includes(vp.id);
                     return (
                       <button
                         key={vp.id}
-                        onClick={() => toggleSelection(setSelectedVpIds, selectedVpIds, vp.id)}
+                        onMouseDown={(e) => handleCardMouseDown(setSelectedVpIds, selectedVpIds, vp.id, e)}
+                        onMouseEnter={() => handleCardMouseEnter(setSelectedVpIds, selectedVpIds, vp.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -301,15 +324,16 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin">
-                {directores.map(dir => {
+              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin select-none">
+                {directores.map((dir, idx) => {
                   const isSelected = selectedDirIds.includes(dir.id);
                   return (
                     <div key={dir.id} className="relative group">
                       <button
-                        onClick={() => toggleSelection(setSelectedDirIds, selectedDirIds, dir.id)}
+                        onMouseDown={(e) => handleCardMouseDown(setSelectedDirIds, selectedDirIds, dir.id, e)}
+                        onMouseEnter={() => handleCardMouseEnter(setSelectedDirIds, selectedDirIds, dir.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs",
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -351,8 +375,11 @@ export function ProgressiveHierarchy({
                         )}
                       </button>
 
-                      {/* EXECUTIVE RICH TOOLTIP ON HOVER */}
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200">
+                      {/* EXECUTIVE RICH TOOLTIP ON HOVER WITH SMART NON-CLIPPING POSITIONING */}
+                      <div className={cn(
+                        "absolute left-1/2 -translate-x-1/2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200",
+                        idx === 0 ? "top-full mt-2" : "bottom-full mb-2"
+                      )}>
                         <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
                           <span>{dir.nombre} Region</span>
                           <span className="text-slate-400 font-normal">Leadership</span>
@@ -407,15 +434,16 @@ export function ProgressiveHierarchy({
                 )}
               </div>
 
-              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin">
-                {gerentes.map(ger => {
+              <div className="w-[188px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto overflow-x-visible scrollbar-thin select-none">
+                {gerentes.map((ger, idx) => {
                   const isSelected = selectedGerIds.includes(ger.id);
                   return (
                     <div key={ger.id} className="relative group">
                       <button
-                        onClick={() => toggleSelection(setSelectedGerIds, selectedGerIds, ger.id)}
+                        onMouseDown={(e) => handleCardMouseDown(setSelectedGerIds, selectedGerIds, ger.id, e)}
+                        onMouseEnter={() => handleCardMouseEnter(setSelectedGerIds, selectedGerIds, ger.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs",
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-1 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -457,8 +485,11 @@ export function ProgressiveHierarchy({
                         )}
                       </button>
 
-                      {/* EXECUTIVE RICH TOOLTIP ON HOVER */}
-                      <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200">
+                      {/* EXECUTIVE RICH TOOLTIP ON HOVER WITH SMART NON-CLIPPING POSITIONING */}
+                      <div className={cn(
+                        "absolute left-1/2 -translate-x-1/2 z-50 hidden group-hover:block w-56 p-2.5 bg-slate-900 text-white rounded-xl shadow-2xl text-[10px] border border-slate-700 pointer-events-none transition-all animate-in fade-in duration-200",
+                        idx === 0 ? "top-full mt-2" : "bottom-full mb-2"
+                      )}>
                         <div className="font-extrabold text-sky-400 uppercase tracking-wider text-[9px] mb-1.5 pb-1 border-b border-slate-800 flex items-center justify-between">
                           <span>{ger.nombre} Market</span>
                           <span className="text-slate-400 font-normal">Managers</span>
@@ -513,15 +544,16 @@ export function ProgressiveHierarchy({
                   )}
                 </div>
 
-                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin">
+                <div className="w-[172px] flex-1 flex flex-col justify-center space-y-1.5 py-2 overflow-y-auto scrollbar-thin select-none">
                   {vendedores.map(rep => {
                     const isSelected = selectedRepIds.includes(rep.id);
                     return (
                       <button
                         key={rep.id}
-                        onClick={() => toggleSelection(setSelectedRepIds, selectedRepIds, rep.id)}
+                        onMouseDown={(e) => handleCardMouseDown(setSelectedRepIds, selectedRepIds, rep.id, e)}
+                        onMouseEnter={() => handleCardMouseEnter(setSelectedRepIds, selectedRepIds, rep.id)}
                         className={cn(
-                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs",
+                          "w-full text-left p-2 rounded-lg border transition-all flex flex-col gap-0.5 cursor-pointer text-xs select-none",
                           isSelected
                             ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"

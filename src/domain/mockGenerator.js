@@ -127,25 +127,25 @@ export function generateDataset(seed = 20260828) {
   const VENDEDORES = [];
   let vIdx = 0;
   GERENTES.forEach(ger => {
-    const numReps = 2;
+    const numReps = 5; // EXACTLY 5 Sales Reps per Market Manager
     const regionObj = REGIONES.find(r => r.id === ger.regionId);
     for (let i = 0; i < numReps; i++) {
-      if (vIdx < NOMBRES_VENDEDORES.length) {
-        const plaza = regionObj.plazas[i % regionObj.plazas.length];
-        VENDEDORES.push({
-          id: `rep-${vIdx + 1}`,
-          nombre: NOMBRES_VENDEDORES[vIdx],
-          gerenteId: ger.id,
-          directorId: ger.directorId,
-          vpId: ger.vpId,
-          lineaNegocio: ger.lineaNegocio,
-          regionId: ger.regionId,
-          regionNombre: regionObj.nombre,
-          plaza: plaza,
-          empujeOnboarding: rand() * 0.4 + 0.6
-        });
-        vIdx++;
-      }
+      const nameIndex = (vIdx % NOMBRES_VENDEDORES.length);
+      const nameSuffix = Math.floor(vIdx / NOMBRES_VENDEDORES.length) > 0 ? ` Jr.` : '';
+      const repName = `${NOMBRES_VENDEDORES[nameIndex]}${nameSuffix}`;
+      VENDEDORES.push({
+        id: `rep-${vIdx + 1}`,
+        nombre: repName,
+        gerenteId: ger.id,
+        directorId: ger.directorId,
+        vpId: ger.vpId,
+        lineaNegocio: ger.lineaNegocio,
+        regionId: ger.regionId,
+        regionNombre: regionObj?.nombre || 'USA National',
+        plaza: ger.nombre, // Physical market city name
+        empujeOnboarding: rand() * 0.4 + 0.6
+      });
+      vIdx++;
     }
   });
 
