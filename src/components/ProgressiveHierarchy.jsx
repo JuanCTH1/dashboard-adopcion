@@ -581,10 +581,67 @@ export function ProgressiveHierarchy({
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
                         )}
                       >
-                        {/* RENGLÓN 1: NOMBRE */}
+                        {/* RENGLÓN 1: NOMBRE + INFO */}
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-[11px] truncate">{vp.nombre}</span>
-                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                          <div className="flex items-center gap-1">
+                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                            <button
+                              type="button"
+                              onMouseEnter={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover({
+                                  title: vp.nombre,
+                                  tipo: 'Business Line Leadership',
+                                  personasDetalle: [{
+                                    bl: BL_SHORT[vp.lineaNegocio] || 'BL',
+                                    blFull: vp.nombre,
+                                    persona: vp.persona,
+                                    clientesAsignados: vp.metricas.clientes?.asignados,
+                                    clientesOnboarded: vp.metricas.clientes?.onboarded,
+                                    pctOnboarding: vp.metricas.clientes?.pctOnboarding,
+                                    digitales: vp.metricas.pedidos?.digitales,
+                                    totales: vp.metricas.pedidos?.totales,
+                                    pctAdopcion: vp.metricas.pedidos?.pctAdopcion
+                                  }],
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              onMouseLeave={() => setHoveredPopover(null)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover(prev => prev ? null : {
+                                  title: vp.nombre,
+                                  tipo: 'Business Line Leadership',
+                                  personasDetalle: [{
+                                    bl: BL_SHORT[vp.lineaNegocio] || 'BL',
+                                    blFull: vp.nombre,
+                                    persona: vp.persona,
+                                    clientesAsignados: vp.metricas.clientes?.asignados,
+                                    clientesOnboarded: vp.metricas.clientes?.onboarded,
+                                    pctOnboarding: vp.metricas.clientes?.pctOnboarding,
+                                    digitales: vp.metricas.pedidos?.digitales,
+                                    totales: vp.metricas.pedidos?.totales,
+                                    pctAdopcion: vp.metricas.pedidos?.pctAdopcion
+                                  }],
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              className={cn(
+                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                isSelected ? "hover:bg-blue-700 text-blue-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
+                              )}
+                              title="Leadership Breakdown"
+                            >
+                              <Info className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* RENGLÓN 2: PERSONA / LÍNEA */}
@@ -909,10 +966,67 @@ export function ProgressiveHierarchy({
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
                         )}
                       >
-                        {/* RENGLÓN 1: NOMBRE */}
+                        {/* RENGLÓN 1: NOMBRE + INFO */}
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-[11px] truncate">{rep.nombre}</span>
-                          {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                          <div className="flex items-center gap-1">
+                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                            <button
+                              type="button"
+                              onMouseEnter={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover({
+                                  title: rep.nombre,
+                                  tipo: `${rep.plaza} · ${rep.regionNombre}`,
+                                  personasDetalle: [{
+                                    bl: rep.bl,
+                                    blFull: rep.lineaNegocio || rep.bl,
+                                    persona: rep.nombre,
+                                    clientesAsignados: rep.metricas.clientes?.asignados,
+                                    clientesOnboarded: rep.metricas.clientes?.onboarded,
+                                    pctOnboarding: rep.metricas.clientes?.pctOnboarding,
+                                    digitales: rep.metricas.pedidos?.digitales,
+                                    totales: rep.metricas.pedidos?.totales,
+                                    pctAdopcion: rep.metricas.pedidos?.pctAdopcion
+                                  }],
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              onMouseLeave={() => setHoveredPopover(null)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setHoveredPopover(prev => prev ? null : {
+                                  title: rep.nombre,
+                                  tipo: `${rep.plaza} · ${rep.regionNombre}`,
+                                  personasDetalle: [{
+                                    bl: rep.bl,
+                                    blFull: rep.lineaNegocio || rep.bl,
+                                    persona: rep.nombre,
+                                    clientesAsignados: rep.metricas.clientes?.asignados,
+                                    clientesOnboarded: rep.metricas.clientes?.onboarded,
+                                    pctOnboarding: rep.metricas.clientes?.pctOnboarding,
+                                    digitales: rep.metricas.pedidos?.digitales,
+                                    totales: rep.metricas.pedidos?.totales,
+                                    pctAdopcion: rep.metricas.pedidos?.pctAdopcion
+                                  }],
+                                  x: rect.left + rect.width / 2,
+                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
+                                  pos: rect.top < 260 ? 'bottom' : 'top'
+                                });
+                              }}
+                              className={cn(
+                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
+                              )}
+                              title="Performance Breakdown"
+                            >
+                              <Info className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
@@ -1203,30 +1317,52 @@ export function ProgressiveHierarchy({
             top: `${hoveredPopover.y}px`,
             transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
           }}
-          className="z-[9999] w-64 p-3 bg-card/95 text-foreground dark:bg-slate-900/95 dark:text-slate-100 rounded-xl shadow-2xl border border-border/90 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150"
+          className="z-[9999] w-84 p-3.5 bg-card/98 text-foreground dark:bg-slate-900/98 dark:text-slate-100 rounded-xl shadow-2xl border-2 border-slate-300 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150 font-sans select-none"
         >
-          <div className="font-black text-primary dark:text-sky-300 uppercase tracking-wider text-[9.5px] pb-1.5 border-b border-border/70 flex items-center justify-between">
-            <span>{hoveredPopover.title}</span>
-            <span className="text-muted-foreground font-semibold">{hoveredPopover.tipo}</span>
+          <div className="font-black text-primary dark:text-sky-300 uppercase tracking-wider text-[10px] pb-2 border-b border-border/80 flex items-center justify-between">
+            <span className="font-bold">{hoveredPopover.title}</span>
+            <span className="text-muted-foreground font-semibold text-[9px]">{hoveredPopover.tipo}</span>
           </div>
 
-          <div className="space-y-1.5 pt-2">
-            {hoveredPopover.personasDetalle?.map(p => (
-              <div key={p.bl} className="flex items-center justify-between gap-2 text-[10.5px]">
-                <span className="font-bold text-foreground flex items-center gap-1.5 min-w-0">
-                  <span className={cn(
-                    "text-[8px] font-black px-1.5 py-0.2 rounded uppercase border shrink-0",
-                    p.bl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
-                    p.bl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
-                    "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
-                  )}>
-                    {p.bl}
-                  </span>
-                  <span className="truncate max-w-[100px] text-foreground">{p.persona}</span>
-                </span>
-                <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold text-[10px] shrink-0">
-                  {formatCompactNumber(p.totales)} ord · {formatPct(p.pctAdopcion)}
-                </span>
+          <div className="space-y-2.5 pt-2.5 divide-y divide-border/50">
+            {hoveredPopover.personasDetalle?.map((p, idx) => (
+              <div key={p.bl + idx} className={cn("space-y-1 text-[10.5px]", idx > 0 ? "pt-2" : "")}>
+                {/* Header: Business Line & Persona */}
+                <div className="flex items-center justify-between gap-1.5 font-bold">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className={cn(
+                      "text-[8.5px] font-black px-1.5 py-0.5 rounded border uppercase shrink-0",
+                      p.bl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
+                      p.bl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
+                      "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                    )}>
+                      {p.blFull || p.bl}
+                    </span>
+                    <span className="truncate text-foreground text-[10.5px]">{p.persona}</span>
+                  </div>
+                </div>
+
+                {/* Metrics Details */}
+                <div className="grid grid-cols-2 gap-2 text-[9.5px] bg-slate-50 dark:bg-slate-800/60 p-2 rounded-lg border border-border/60">
+                  <div>
+                    <div className="text-muted-foreground font-medium">Customers</div>
+                    <div className="font-mono font-bold text-foreground">
+                      {formatNumber(p.clientesOnboarded || 0)} / {formatNumber(p.clientesAsignados || 0)}
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold ml-1">
+                        ({formatPct(p.pctOnboarding || 0)})
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground font-medium">Orders Adoption</div>
+                    <div className="font-mono font-bold text-foreground">
+                      {formatNumber(p.digitales || 0)} / {formatNumber(p.totales || 0)}
+                      <span className="text-indigo-600 dark:text-indigo-400 font-bold ml-1">
+                        ({formatPct(p.pctAdopcion || 0)})
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

@@ -913,7 +913,11 @@ class AdopcionRepository {
             blFull: vp.nombre,
             persona: dirObj?.persona || 'Regional Director',
             totales: pMetricas.pedidos.totales,
-            pctAdopcion: pMetricas.pedidos.pctAdopcion
+            digitales: pMetricas.pedidos.digitales,
+            pctAdopcion: pMetricas.pedidos.pctAdopcion,
+            clientesAsignados: pMetricas.clientes.asignados,
+            clientesOnboarded: pMetricas.clientes.onboarded,
+            pctOnboarding: pMetricas.clientes.pctOnboarding
           });
         });
 
@@ -1000,7 +1004,11 @@ class AdopcionRepository {
             blFull: vp.nombre,
             persona: gerObj?.persona || 'Market Manager',
             totales: pMetricas.pedidos.totales,
-            pctAdopcion: pMetricas.pedidos.pctAdopcion
+            digitales: pMetricas.pedidos.digitales,
+            pctAdopcion: pMetricas.pedidos.pctAdopcion,
+            clientesAsignados: pMetricas.clientes.asignados,
+            clientesOnboarded: pMetricas.clientes.onboarded,
+            pctOnboarding: pMetricas.clientes.pctOnboarding
           });
         });
 

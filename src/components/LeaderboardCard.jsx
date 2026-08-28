@@ -71,31 +71,31 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
             type="button"
             onClick={() => setDimension('market_line')}
             className={cn(
-              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
+              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer whitespace-nowrap",
               dimension === 'market_line'
                 ? "bg-primary text-primary-foreground font-black shadow-xs"
                 : "text-muted-foreground hover:text-foreground font-medium"
             )}
           >
-            Line
+            Business Line
           </button>
           <button
             type="button"
-            onClick={() => setDimension('sales_reps')}
+            onClick={() => setDimension('regions')}
             className={cn(
-              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
-              dimension === 'sales_reps'
+              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer whitespace-nowrap",
+              dimension === 'regions'
                 ? "bg-primary text-primary-foreground font-black shadow-xs"
                 : "text-muted-foreground hover:text-foreground font-medium"
             )}
           >
-            Reps
+            Regions
           </button>
           <button
             type="button"
             onClick={() => setDimension('markets')}
             className={cn(
-              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
+              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer whitespace-nowrap",
               dimension === 'markets'
                 ? "bg-primary text-primary-foreground font-black shadow-xs"
                 : "text-muted-foreground hover:text-foreground font-medium"
@@ -105,15 +105,15 @@ export function LeaderboardCard({ leaderboardData = [], onOpenActionDrawer }) {
           </button>
           <button
             type="button"
-            onClick={() => setDimension('regions')}
+            onClick={() => setDimension('sales_reps')}
             className={cn(
-              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer",
-              dimension === 'regions'
+              "px-2 py-0.5 text-[9.5px] rounded-md transition-all cursor-pointer whitespace-nowrap",
+              dimension === 'sales_reps'
                 ? "bg-primary text-primary-foreground font-black shadow-xs"
                 : "text-muted-foreground hover:text-foreground font-medium"
             )}
           >
-            Regions
+            Reps
           </button>
         </div>
       </div>
