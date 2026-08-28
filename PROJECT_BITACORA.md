@@ -596,3 +596,11 @@ The interface is structured in **3 Main Horizontal Tiers**:
 - **Prevención de Traslape de Textos en Etiquetas (`FilterListbox.jsx`):**
   - Se simplificó la cabecera de cada bloque de filtro a un enlace compacto `Clear (N)` a la derecha.
   - **Resultado:** Las palabras de las etiquetas (`Year`, `Month`, `Onboarded`, `Active`) ya no son tapadas ni encimadas por insignias o botones redundantes.
+---
+
+## 🎯 Versión 2.53 - Eliminación de Columna "Country" y Estandarización 100% Inglés ("customers" / "orders") (`ProgressiveHierarchy.jsx`)
+
+- **Eliminación de la Columna "Country" / "USA National Scope":**
+  - Se removió la referencia a nivel de país en la cabecera de la jerarquía progresiva (`All Divisions`).
+- **Estandarización de Términos al Inglés ("customers" / "orders"):**
+  - Se reemplazaron todas las palabras en español (`cuentas`, `órdenes`, `cli`, `ord`) por **`customers`** y **`orders`** en los 4 niveles de tarjetas (VP, Region, Market, Sales Rep) y en los totales del pie de la tabla (`TOTALS (N CUSTOMERS)`).
