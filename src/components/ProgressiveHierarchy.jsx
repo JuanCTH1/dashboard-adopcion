@@ -451,7 +451,7 @@ export function ProgressiveHierarchy({
 
         {/* RIGHT HAND PERMANENT TABLE: GPU HARDWARE LAYER PROMOTED */}
         <motion.div
-          layout="position"
+          layout
           transition={INSTANT_FLUID_TRANSITION}
           style={{ willChange: "transform", transform: "translateZ(0)" }}
           className="flex-1 min-w-[540px] bg-slate-50 dark:bg-slate-900/80 p-3 rounded-xl border border-border flex flex-col justify-between shadow-2xs"
@@ -478,17 +478,17 @@ export function ProgressiveHierarchy({
               </Button>
             </div>
 
-            {/* EXPANDABLE TABLE WITH SCANNABLE MICRO-PILLS */}
+            {/* EXPANDABLE TABLE WITH ZERO REFLOW FIXED LAYOUT */}
             <div className="overflow-y-auto max-h-[310px] scrollbar-thin">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-xs border-collapse table-fixed">
                 <thead>
                   <tr className="border-b border-border text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-850 sticky top-0 z-10">
-                    <th className="py-1.5 px-2 w-6"></th>
-                    <th className="py-1.5 px-2">Account / Company</th>
-                    <th className="py-1.5 px-2 text-right font-bold">Total Orders</th>
-                    <th className="py-1.5 px-2 text-right font-bold">Adoption %</th>
-                    <th className="py-1.5 px-2 text-center font-bold">Primary Channel</th>
-                    <th className="py-1.5 px-2 text-center font-bold">Status</th>
+                    <th className="py-1.5 px-2 w-[4%]"></th>
+                    <th className="py-1.5 px-2 w-[32%] truncate">Account / Company</th>
+                    <th className="py-1.5 px-2 w-[18%] text-right font-bold truncate">Total Orders</th>
+                    <th className="py-1.5 px-2 w-[16%] text-right font-bold truncate">Adoption %</th>
+                    <th className="py-1.5 px-2 w-[16%] text-center font-bold truncate">Primary Channel</th>
+                    <th className="py-1.5 px-2 w-[14%] text-center font-bold truncate">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/60">
