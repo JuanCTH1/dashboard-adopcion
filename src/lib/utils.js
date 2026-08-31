@@ -19,8 +19,12 @@ export function formatPct(num) {
 export function formatCompactNumber(num) {
   if (num == null || isNaN(num)) return '0';
   const val = Number(num);
+  if (val >= 10000) {
+    return Math.round(val / 1000) + 'k';
+  }
   if (val >= 1000) {
-    return (val / 1000).toFixed(1) + 'k';
+    const formatted = (val / 1000).toFixed(1);
+    return (formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted) + 'k';
   }
   return formatNumber(val);
 }

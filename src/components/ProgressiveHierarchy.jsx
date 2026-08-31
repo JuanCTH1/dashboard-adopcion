@@ -1108,7 +1108,7 @@ Commercial Leadership`;
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.clientes?.pctOnboarding || 0)}</span>
+                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.clientes?.pctOnboarding || 0)}%</span>
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
@@ -1118,7 +1118,7 @@ Commercial Leadership`;
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)}</span>
+                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.pedidos?.pctAdopcion || 0)}%</span>
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
@@ -1238,7 +1238,7 @@ Commercial Leadership`;
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.clientes?.pctOnboarding || 0)}</span>
+                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.clientes?.pctOnboarding || 0)}%</span>
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
@@ -1248,7 +1248,7 @@ Commercial Leadership`;
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)}</span>
+                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.pedidos?.pctAdopcion || 0)}%</span>
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
@@ -1388,7 +1388,7 @@ Commercial Leadership`;
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
+                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.clientes?.pctOnboarding || 0)}%</span>
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
@@ -1398,7 +1398,7 @@ Commercial Leadership`;
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
+                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.pedidos?.pctAdopcion || 0)}%</span>
                                 <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
