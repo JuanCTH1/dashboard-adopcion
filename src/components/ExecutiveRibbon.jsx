@@ -156,22 +156,38 @@ export function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) 
                     )}
                   </div>
 
-                  {/* Subtitle Footer */}
-                  <div className="text-xs font-medium text-muted-foreground truncate border-t border-border/40 pt-1">
-                    <span className="truncate">{st.secondaryLabel}</span>
+                  {/* Subtitle Footer with clear visual lane divider */}
+                  <div className={cn(
+                    "text-xs font-medium truncate pt-1 relative transition-colors",
+                    idx === 2
+                      ? "border-t-2 border-sky-500/60 dark:border-sky-400/50 text-slate-800 dark:text-slate-200 font-semibold"
+                      : "border-t border-slate-300/90 dark:border-slate-700 text-muted-foreground"
+                  )}>
+                    <div className="flex items-center justify-between">
+                      <span className="truncate">{st.secondaryLabel}</span>
+                      {idx === 2 && (
+                        <span
+                          className="w-1.5 h-1.5 rounded-full bg-sky-500 shadow-sky-500/50 shadow-xs shrink-0 ml-1"
+                          title="Orders Flow Anchor Point"
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* DIRECTIONAL FLOW VECTOR BADGE IN THE SEPARATION GAP */}
               {!isLast && st.nextDrop !== undefined && (
-                <div className="shrink-0 flex items-center justify-center -mx-1.5 z-10">
+                <div className={cn(
+                  "shrink-0 z-10 -mx-1.5 sm:-mx-2 transition-all",
+                  idx === 2 ? "self-end mb-[8px]" : "self-center"
+                )}>
                   <div
                     className={cn(
                       "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",
                       st.isBottleneck
                         ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/30 ring-2 ring-rose-500/25 animate-pulse-subtle"
-                        : "bg-card/95 backdrop-blur-xs text-foreground border-border hover:border-primary/50 shadow-2xs"
+                        : "bg-card/95 backdrop-blur-xs text-foreground border-slate-300 dark:border-slate-700 hover:border-primary/50 shadow-2xs"
                     )}
                     title={`Funnel conversion drop to next stage: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}
                   >
