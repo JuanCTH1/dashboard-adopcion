@@ -102,12 +102,12 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
               Embudo de Conversión & Adopción de Clientes
             </h3>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
+          <p className="text-[12px] text-muted-foreground mt-0.5 font-medium">
             Seguimiento de retención paso a paso: Universo Base ➔ Onboarding Comercial ➔ Uso Digital Activo ➔ Share de Pedidos.
           </p>
         </div>
 
-        <Badge variant="outline" className="text-[11px] font-bold text-primary border-primary/30 w-fit px-2.5 py-0.5 shadow-2xs">
+        <Badge variant="outline" className="text-[12px] font-bold text-primary border-primary/30 w-fit px-2.5 py-0.5 shadow-2xs">
           Objetivo Corporativo: 90.0%
         </Badge>
       </div>
@@ -132,10 +132,10 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
               {/* Encabezado del Paso */}
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider", st.accentBg)}>
+                  <span className={cn("text-[12px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider", st.accentBg)}>
                     {st.paso}
                   </span>
-                  <span className="text-[11px] font-black text-foreground tabular-nums">
+                  <span className="text-[12px] font-black text-foreground tabular-nums">
                     {st.isPct ? `${st.valor.toFixed(1)}%` : `${st.pctBase.toFixed(0)}% base`}
                   </span>
                 </div>
@@ -143,7 +143,7 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
                 <div className="text-xs font-bold text-foreground">
                   {st.titulo}
                 </div>
-                <div className="text-[10px] text-muted-foreground font-medium truncate">
+                <div className="text-[12px] text-muted-foreground font-medium truncate">
                   {st.subtitulo}
                 </div>
 
@@ -172,7 +172,7 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
 
                 {/* Diagnóstico de Fuga / Cumplimiento */}
                 {st.fugaCount != null && st.fugaCount > 0 ? (
-                  <div className="flex items-center justify-between text-[10px] font-semibold text-rose-600 dark:text-rose-400">
+                  <div className="flex items-center justify-between text-[12px] font-semibold text-rose-600 dark:text-rose-400">
                     <span className="flex items-center gap-1 font-bold">
                       <TrendingDown className="w-3 h-3" />
                       <span>-{st.fugaCount} ({st.fugaPct.toFixed(0)}%)</span>
@@ -182,14 +182,14 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
                     </span>
                   </div>
                 ) : isLast ? (
-                  <div className="flex items-center justify-between text-[10px]">
+                  <div className="flex items-center justify-between text-[12px]">
                     <span className={cn("font-bold", st.valor >= 90 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
                       {st.valor >= 90 ? "✔ Objetivo Cumplido" : `Brecha: ${(90.0 - st.valor).toFixed(1)}%`}
                     </span>
                     <span className="text-muted-foreground font-semibold">Obj: 90%</span>
                   </div>
                 ) : (
-                  <div className="text-[10px] text-muted-foreground font-medium">
+                  <div className="text-[12px] text-muted-foreground font-medium">
                     {st.diagnostico}
                   </div>
                 )}

@@ -387,21 +387,23 @@ export function App() {
             onExportCsv={handleExportGlobalCsv}
           />
 
-          {/* ROW 3: DUAL COLUMNS (LEFT: HISTORICAL ADOPTION TREND, RIGHT: COMMERCIAL RANKING) */}
+          {/* ROW 3: DUAL COLUMNS (LEFT: COMMERCIAL RANKING, RIGHT: HISTORICAL ADOPTION TREND) */}
+          {/* Ranking va primero (izquierda = se lee primero): es el lever de comportamiento
+              que confirmamos apalancar — el trend chart es contexto, no la prioridad. */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-            {/* Left Column (6 of 12 Cols): Adoption Trend */}
-            <div className="lg:col-span-6 flex flex-col">
-              <AdoptionTrendCard
-                serieHistorica={metricasGlobales.serieHistorica}
-                filtros={filtrosCompuestos}
-              />
-            </div>
-
-            {/* Right Column (6 of 12 Cols): Commercial Ranking */}
+            {/* Left Column (6 of 12 Cols): Commercial Ranking */}
             <div className="lg:col-span-6 flex flex-col">
               <LeaderboardCard
                 leaderboardData={leaderboardData}
                 onOpenActionDrawer={handleOpenActionDrawer}
+              />
+            </div>
+
+            {/* Right Column (6 of 12 Cols): Adoption Trend */}
+            <div className="lg:col-span-6 flex flex-col">
+              <AdoptionTrendCard
+                serieHistorica={metricasGlobales.serieHistorica}
+                filtros={filtrosCompuestos}
               />
             </div>
           </div>

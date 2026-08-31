@@ -13,10 +13,10 @@ const BUTTON_VARIANTS = {
 
 const BUTTON_SIZES = {
   default: "h-8 px-3 py-1.5",
-  sm: "h-7 rounded-md px-2.5 text-[11px]",
+  sm: "h-7 rounded-md px-2.5 text-[12px]",
   lg: "h-9 rounded-lg px-4 text-sm",
   icon: "h-7 w-7 p-0 flex items-center justify-center",
-  compact: "h-6 px-2 text-[11px] rounded"
+  compact: "h-6 px-2 text-[12px] rounded"
 };
 
 export const Button = React.forwardRef(({ className, variant = "default", size = "default", ...props }, ref) => {

@@ -62,7 +62,7 @@ export function HierarchyTable({
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-border">
         <div>
-          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <div className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-primary" />
             <span>Navegación Horizontal Multinivel (Drill-Down de Izquierda a Derecha)</span>
           </div>
@@ -94,7 +94,7 @@ export function HierarchyTable({
       <div className="flex gap-3 mt-4 overflow-x-auto pb-2 scrollbar-thin items-stretch min-h-[380px]">
         {/* COLUMNA 1: Vicepresidencias */}
         <div className="w-56 shrink-0 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-border flex flex-col">
-          <div className="text-[11px] font-bold uppercase text-primary mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
+          <div className="text-[12px] font-bold uppercase text-primary mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
             <Building className="w-3.5 h-3.5" />
             <span>Vicepresidencias</span>
           </div>
@@ -121,7 +121,7 @@ export function HierarchyTable({
                     <span className="font-bold truncate">{vp.nombre}</span>
                     <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
                   </div>
-                  <div className={cn("text-[10px] flex items-center justify-between", isSelected ? "text-white/90" : "text-muted-foreground")}>
+                  <div className={cn("text-[12px] flex items-center justify-between", isSelected ? "text-white/90" : "text-muted-foreground")}>
                     <span>{formatPct(vp.metricas.pedidos.pctAdopcion)} adopción</span>
                     <span>{vp.metricas.clientes.asignados} clientes</span>
                   </div>
@@ -133,7 +133,7 @@ export function HierarchyTable({
 
         {/* COLUMNA 2: Direcciones Regionales */}
         <div className="w-60 shrink-0 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-border flex flex-col">
-          <div className="text-[11px] font-bold uppercase text-indigo-600 dark:text-indigo-400 mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
+          <div className="text-[12px] font-bold uppercase text-indigo-600 dark:text-indigo-400 mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
             <Briefcase className="w-3.5 h-3.5" />
             <span>Direcciones ({directores.length})</span>
           </div>
@@ -159,7 +159,7 @@ export function HierarchyTable({
                     <span className="font-bold truncate">{dir.nombre}</span>
                     <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
                   </div>
-                  <div className={cn("text-[10px] flex items-center justify-between", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                  <div className={cn("text-[12px] flex items-center justify-between", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
                     <span>{formatPct(dir.metricas.pedidos.pctAdopcion)} adopción</span>
                     <span>{dir.metricas.clientes.asignados} clientes</span>
                   </div>
@@ -171,7 +171,7 @@ export function HierarchyTable({
 
         {/* COLUMNA 3: Gerencias de Plaza */}
         <div className="w-60 shrink-0 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-border flex flex-col">
-          <div className="text-[11px] font-bold uppercase text-sky-600 dark:text-sky-400 mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
+          <div className="text-[12px] font-bold uppercase text-sky-600 dark:text-sky-400 mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
             <Users className="w-3.5 h-3.5" />
             <span>Gerencias ({gerentes.length})</span>
           </div>
@@ -196,7 +196,7 @@ export function HierarchyTable({
                     <span className="font-bold truncate">{ger.nombre}</span>
                     <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
                   </div>
-                  <div className={cn("text-[10px] flex items-center justify-between", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                  <div className={cn("text-[12px] flex items-center justify-between", isSelected ? "text-sky-100" : "text-muted-foreground")}>
                     <span>{formatPct(ger.metricas.pedidos.pctAdopcion)} adopción</span>
                     <span>{ger.metricas.clientes.asignados} clientes</span>
                   </div>
@@ -208,7 +208,7 @@ export function HierarchyTable({
 
         {/* COLUMNA 4: Fuerza de Ventas (Vendedores) */}
         <div className="w-64 shrink-0 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-border flex flex-col">
-          <div className="text-[11px] font-bold uppercase text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
+          <div className="text-[12px] font-bold uppercase text-emerald-600 dark:text-emerald-400 mb-2 flex items-center gap-1.5 pb-2 border-b border-border">
             <User className="w-3.5 h-3.5" />
             <span>Vendedores ({vendedores.length})</span>
           </div>
@@ -230,14 +230,14 @@ export function HierarchyTable({
                     <div className="flex items-center gap-1.5 truncate">
                       <span className="font-bold truncate">{rep.nombre}</span>
                       {rep.plaza && (
-                        <span className={cn("text-[9px] px-1 rounded font-semibold", isSelected ? "bg-emerald-700 text-white" : "bg-muted text-muted-foreground")}>
+                        <span className={cn("text-[12px] px-1 rounded font-semibold", isSelected ? "bg-emerald-700 text-white" : "bg-muted text-muted-foreground")}>
                           {rep.plaza}
                         </span>
                       )}
                     </div>
                     <ChevronRight className={cn("w-3.5 h-3.5 shrink-0", isSelected ? "text-white" : "text-muted-foreground")} />
                   </div>
-                  <div className={cn("text-[10px] flex items-center justify-between", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
+                  <div className={cn("text-[12px] flex items-center justify-between", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
                     <span>{formatPct(rep.metricas.pedidos.pctAdopcion)} adopción</span>
                     <span>{rep.metricas.clientes.asignados} clientes</span>
                   </div>
@@ -254,11 +254,11 @@ export function HierarchyTable({
             <div>
               <div className="text-xs font-black text-foreground flex items-center gap-2">
                 <span>{currentRepObj?.nombre || 'Vendedor'}</span>
-                <Badge variant="outline" className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                <Badge variant="outline" className="text-[12px] font-bold text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
                   {carteraVendedor.length} Clientes Asignados
                 </Badge>
               </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">
+              <div className="text-[12px] text-muted-foreground mt-0.5">
                 Plaza {currentRepObj?.plaza || 'Nacional'} · Adopción: <b>{formatPct(currentRepObj?.metricas?.pedidos?.pctAdopcion || 0)}</b> (Objetivo 90%)
               </div>
             </div>
@@ -277,7 +277,7 @@ export function HierarchyTable({
           <div className="flex-1 overflow-y-auto max-h-[300px] scrollbar-thin">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="border-b border-border text-[10px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
+                <tr className="border-b border-border text-[12px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10">
                   <th className="py-1.5 px-2">Cliente</th>
                   <th className="py-1.5 px-2 text-right">Volumen</th>
                   <th className="py-1.5 px-2 text-center">Onboarding</th>
@@ -299,22 +299,22 @@ export function HierarchyTable({
                     </td>
                     <td className="py-1.5 px-2 text-center">
                       {cli.estaIncorporado ? (
-                        <Badge variant="success" className="text-[9px] py-0 px-1 font-bold">
+                        <Badge variant="success" className="text-[12px] py-0 px-1 font-bold">
                           ✔ Onboarded
                         </Badge>
                       ) : (
-                        <Badge variant="danger" className="text-[9px] py-0 px-1 font-bold">
+                        <Badge variant="danger" className="text-[12px] py-0 px-1 font-bold">
                           Sin cuenta
                         </Badge>
                       )}
                     </td>
                     <td className="py-1.5 px-2 text-center">
                       {cli.esActivo ? (
-                        <Badge variant="success" className="text-[9px] py-0 px-1 font-bold">Activo</Badge>
+                        <Badge variant="success" className="text-[12px] py-0 px-1 font-bold">Activo</Badge>
                       ) : cli.esRevertido ? (
-                        <Badge variant="warning" className="text-[9px] py-0 px-1 font-bold">Revertido</Badge>
+                        <Badge variant="warning" className="text-[12px] py-0 px-1 font-bold">Revertido</Badge>
                       ) : (
-                        <Badge variant="outline" className="text-[9px] py-0 px-1 text-muted-foreground">Inactivo</Badge>
+                        <Badge variant="outline" className="text-[12px] py-0 px-1 text-muted-foreground">Inactivo</Badge>
                       )}
                     </td>
                     <td className="py-1.5 px-2 text-right font-bold tabular-nums">

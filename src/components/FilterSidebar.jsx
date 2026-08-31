@@ -42,7 +42,7 @@ export function FilterSidebar({
       <div className="p-4 flex-1 overflow-y-auto space-y-4 text-xs">
         {/* 1. Línea de Negocio */}
         <div>
-          <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
+          <label className="block text-[12px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
             Línea de Negocio
           </label>
           <div className="space-y-1">
@@ -74,7 +74,7 @@ export function FilterSidebar({
 
         {/* 2. Región Geográfica */}
         <div>
-          <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
+          <label className="block text-[12px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
             Región
           </label>
           <select
@@ -94,7 +94,7 @@ export function FilterSidebar({
 
         {/* 3. Plaza / Ciudad */}
         <div>
-          <label className="block text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
+          <label className="block text-[12px] font-bold text-muted-foreground uppercase tracking-wider mb-1.5">
             Plaza / Ciudad
           </label>
           <select

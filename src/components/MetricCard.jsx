@@ -63,7 +63,7 @@ export function MetricCard({
           {deltaMoM != null && (
             <div
               className={cn(
-                "text-[11px] font-semibold flex items-center gap-0.5 shrink-0 px-2 py-0.5 rounded-full border tabular-nums select-none",
+                "text-[12px] font-semibold flex items-center gap-0.5 shrink-0 px-2 py-0.5 rounded-full border tabular-nums select-none",
                 isPositive
                   ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                   : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20"
@@ -100,7 +100,7 @@ export function MetricCard({
         )}
 
         {subtitulo && (
-          <div className="text-[11px] font-medium text-muted-foreground mt-1.5 truncate">
+          <div className="text-[12px] font-medium text-muted-foreground mt-1.5 truncate">
             {subtitulo}
           </div>
         )}

@@ -32,7 +32,7 @@ export function LensSelector({ activeLens, onLensChange, volumeCompatible, volum
 
   return (
     <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-border/80 select-none">
-      <div className="text-[10px] font-bold text-muted-foreground uppercase px-2 tracking-wider hidden sm:block">
+      <div className="text-[12px] font-bold text-muted-foreground uppercase px-2 tracking-wider hidden sm:block">
         Lente:
       </div>
 
@@ -73,7 +73,7 @@ export function LensSelector({ activeLens, onLensChange, volumeCompatible, volum
                       <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                       <span>Lente de Volumen Deshabilitado</span>
                     </div>
-                    <div className="text-[11px] text-slate-300 leading-normal">{opt.tooltip}</div>
+                    <div className="text-[12px] text-slate-300 leading-normal">{opt.tooltip}</div>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

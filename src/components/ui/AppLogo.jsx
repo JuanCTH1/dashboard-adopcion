@@ -13,11 +13,11 @@ export function AppLogo({ className }) {
           <span className="font-extrabold text-sm tracking-tight text-foreground font-sans">
             ADOPTION
           </span>
-          <span className="text-[9px] font-bold text-primary px-1.5 py-0.2 rounded-full bg-primary/10 border border-primary/20">
+          <span className="text-[12px] font-bold text-primary px-1.5 py-0.2 rounded-full bg-primary/10 border border-primary/20">
             PRO
           </span>
         </div>
-        <div className="text-[10px] text-muted-foreground font-medium mt-0.5">
+        <div className="text-[12px] text-muted-foreground font-medium mt-0.5">
           Tablero de Gestión Comercial & Digital
         </div>
       </div>

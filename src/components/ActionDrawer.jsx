@@ -47,14 +47,14 @@ export function ActionDrawer({
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+            <span className="text-[12px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
               Weekly Commercial Execution Plan
             </span>
           </div>
           <h2 className="text-sm font-bold text-foreground mt-0.5 truncate max-w-[280px]">
             {nombreEntidad}
           </h2>
-          <div className="text-[11px] text-muted-foreground mt-0.5 font-medium">
+          <div className="text-[12px] text-muted-foreground mt-0.5 font-medium">
             {tipoEntidad} Scope · {formatNumber(volumenEnRiesgoTotal)} units at risk
           </div>
         </div>
@@ -85,7 +85,7 @@ export function ActionDrawer({
 
           {/* Tab 1: Customers without Digital Registration */}
           <TabsContent value="sinIncorporar" className="space-y-2.5 mt-0">
-            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
+            <div className="text-[12px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <span>
                 High-volume priority customers pending registration. <b>Owner: Sales Rep.</b>
@@ -99,19 +99,19 @@ export function ActionDrawer({
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold text-slate-400">#{idx + 1}</span>
+                    <span className="text-[12px] font-bold text-slate-400">#{idx + 1}</span>
                     <span className="font-bold text-xs text-foreground truncate">{cli.nombreEmpresa || cli.id}</span>
                   </div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                  <div className="text-[12px] text-muted-foreground mt-0.5 truncate">
                     {cli.lineaNegocio.toUpperCase()} · Rep: {cli.vendedorNombre} · City: {cli.plaza}
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
                   <div className="text-xs font-bold text-foreground tabular-nums">
-                    {formatNumber(cli.volumen)} <span className="text-[9px] font-normal text-muted-foreground">{cli.unidad}</span>
+                    {formatNumber(cli.volumen)} <span className="text-[12px] font-normal text-muted-foreground">{cli.unidad}</span>
                   </div>
-                  <Badge variant="danger" className="text-[9px] py-0 px-1 font-bold mt-0.5">
+                  <Badge variant="danger" className="text-[12px] py-0 px-1 font-bold mt-0.5">
                     Unregistered
                   </Badge>
                 </div>
@@ -121,7 +121,7 @@ export function ActionDrawer({
 
           {/* Tab 2: Inactive / Reverted Customers */}
           <TabsContent value="inactivos" className="space-y-2.5 mt-0">
-            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
+            <div className="text-[12px] text-muted-foreground bg-slate-50 dark:bg-slate-800 p-2.5 rounded-lg border border-border/80 flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
               <span>
                 Registered customers that relapsed to phone/offline ordering in this period. <b>Owner: CX & Sales Rep.</b>
@@ -135,19 +135,19 @@ export function ActionDrawer({
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold text-slate-400">#{idx + 1}</span>
+                    <span className="text-[12px] font-bold text-slate-400">#{idx + 1}</span>
                     <span className="font-bold text-xs text-foreground truncate">{cli.nombreEmpresa || cli.id}</span>
                   </div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                  <div className="text-[12px] text-muted-foreground mt-0.5 truncate">
                     {cli.lineaNegocio.toUpperCase()} · Rep: {cli.vendedorNombre} · City: {cli.plaza}
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
                   <div className="text-xs font-bold text-foreground tabular-nums">
-                    {formatNumber(cli.volumen)} <span className="text-[9px] font-normal text-muted-foreground">{cli.unidad}</span>
+                    {formatNumber(cli.volumen)} <span className="text-[12px] font-normal text-muted-foreground">{cli.unidad}</span>
                   </div>
-                  <Badge variant="warning" className="text-[9px] py-0 px-1 font-bold mt-0.5">
+                  <Badge variant="warning" className="text-[12px] py-0 px-1 font-bold mt-0.5">
                     Analog Relapse
                   </Badge>
                 </div>

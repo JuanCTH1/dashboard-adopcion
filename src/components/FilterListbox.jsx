@@ -132,14 +132,14 @@ export function FilterListbox({
     <div className={cn("p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 select-none shadow-2xs", className)}>
       {/* Cabecera sin encimarse ni tapar etiquetas */}
       <div className="flex items-center justify-between gap-1 mb-1.5 shrink-0">
-        <span className="text-[10px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">
+        <span className="text-[12px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">
           {label}
         </span>
         {selectedSet.size > 0 && (
           <button
             type="button"
             onClick={() => onChange([])}
-            className="text-[9px] text-primary dark:text-sky-400 hover:underline font-bold shrink-0 cursor-pointer"
+            className="text-[12px] text-primary dark:text-sky-400 hover:underline font-bold shrink-0 cursor-pointer"
             title={`Clear ${label} filter`}
           >
             Clear ({selectedSet.size})
@@ -153,7 +153,7 @@ export function FilterListbox({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder={`Buscar ${label.toLowerCase()}...`}
-            className="w-full px-2.5 py-1 text-[11px] rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary shadow-xxs"
+            className="w-full px-2.5 py-1 text-[12px] rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary shadow-xxs"
           />
         </div>
       )}
@@ -185,7 +185,7 @@ export function FilterListbox({
                 onMouseDown={(e) => handleMouseDown(e, optStr)}
                 onMouseEnter={() => handleMouseEnter(optStr)}
                 className={cn(
-                  "text-center py-1 text-[10px] rounded-lg border transition-all cursor-pointer select-none",
+                  "text-center py-1 text-[12px] rounded-lg border transition-all cursor-pointer select-none",
                   btnClass
                 )}
                 title={optStr}
@@ -217,7 +217,7 @@ export function FilterListbox({
                 onMouseDown={(e) => handleMouseDown(e, optStr)}
                 onMouseEnter={() => handleMouseEnter(optStr)}
                 className={cn(
-                  "w-full text-left px-2.5 py-1.5 text-[11px] rounded-lg border transition-all flex items-center justify-between cursor-pointer select-none",
+                  "w-full text-left px-2.5 py-1.5 text-[12px] rounded-lg border transition-all flex items-center justify-between cursor-pointer select-none",
                   btnClass
                 )}
                 title={optStr}

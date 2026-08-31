@@ -55,8 +55,8 @@ export function Sidebar({
             <Layers className="w-3 h-3" />
           </div>
           <div className="truncate">
-            <div className="font-extrabold text-[10px] tracking-tight text-slate-800 dark:text-slate-100 font-sans truncate">ADOPTION</div>
-            <div className="text-[7.5px] text-muted-foreground font-bold uppercase truncate">FILTERS</div>
+            <div className="font-extrabold text-[12px] tracking-tight text-slate-800 dark:text-slate-100 font-sans truncate">ADOPTION</div>
+            <div className="text-[12px] text-muted-foreground font-bold uppercase truncate">FILTERS</div>
           </div>
         </div>
 
@@ -78,20 +78,20 @@ export function Sidebar({
           <div className="h-7 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100/80 dark:bg-slate-900/80 text-xs shrink-0">
             {totalActiveFilters > 0 ? (
               <>
-                <Badge variant="default" className="px-1 py-0 text-[8px] h-3.5 min-w-3.5 justify-center font-bold">
+                <Badge variant="default" className="px-1 py-0 text-[12px] h-3.5 min-w-3.5 justify-center font-bold">
                   {totalActiveFilters} active
                 </Badge>
 
                 <button
                   onClick={onResetFiltros}
-                  className="text-[9.5px] text-primary dark:text-sky-400 hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
+                  className="text-[12px] text-primary dark:text-sky-400 hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
                 >
                   <RotateCcw className="w-2.5 h-2.5" />
                   Reset
                 </button>
               </>
             ) : (
-              <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Global Filters</span>
+              <span className="text-[12px] text-muted-foreground font-bold uppercase tracking-wider">Global Filters</span>
             )}
           </div>
 
@@ -152,7 +152,7 @@ export function Sidebar({
             <Filter className="w-4 h-4" />
           </button>
           {totalActiveFilters > 0 && (
-            <Badge variant="default" className="w-5 h-5 rounded-full p-0 flex items-center justify-center text-[10px] font-bold">
+            <Badge variant="default" className="w-5 h-5 rounded-full p-0 flex items-center justify-center text-[12px] font-bold">
               {totalActiveFilters}
             </Badge>
           )}

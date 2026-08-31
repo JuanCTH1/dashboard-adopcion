@@ -34,7 +34,7 @@ export function AppHeader({
             <Search className="w-3.5 h-3.5 text-primary" />
             <span className="hidden lg:inline">Search rep, city, customer...</span>
             <span className="lg:hidden">Search...</span>
-            <kbd className="text-[10px] bg-card px-1 py-0.5 rounded border border-border text-muted-foreground font-mono ml-1 shadow-xxs hidden xl:inline">
+            <kbd className="text-[12px] bg-card px-1 py-0.5 rounded border border-border text-muted-foreground font-mono ml-1 shadow-xxs hidden xl:inline">
               Ctrl+K
             </kbd>
           </button>
@@ -49,7 +49,7 @@ export function AppHeader({
                 <Badge
                   key={chip.key}
                   variant="info"
-                  className="gap-1 text-[10px] font-semibold pl-2 pr-1 py-0.5 shadow-xxs border-sky-500/30 shrink-0"
+                  className="gap-1 text-[12px] font-semibold pl-2 pr-1 py-0.5 shadow-xxs border-sky-500/30 shrink-0"
                 >
                   <span><b>{chip.label}:</b> {chip.value}</span>
                   <button
@@ -66,7 +66,7 @@ export function AppHeader({
               <button
                 type="button"
                 onClick={onClearAllChips}
-                className="text-[10px] text-primary hover:underline font-bold shrink-0 cursor-pointer ml-1"
+                className="text-[12px] text-primary hover:underline font-bold shrink-0 cursor-pointer ml-1"
               >
                 Clear all
               </button>

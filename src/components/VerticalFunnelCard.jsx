@@ -78,12 +78,12 @@ export function VerticalFunnelCard({ funnelSteps }) {
               Customer Conversion Funnel
             </h3>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">
+          <p className="text-[12px] text-muted-foreground mt-0.5 font-medium">
             3-Stage customer pipeline & drop-off analysis
           </p>
         </div>
 
-        <Badge variant="outline" className="text-[10px] font-bold text-primary border-primary/30 shrink-0">
+        <Badge variant="outline" className="text-[12px] font-bold text-primary border-primary/30 shrink-0">
           Goal: 90%
         </Badge>
       </div>
@@ -106,7 +106,7 @@ export function VerticalFunnelCard({ funnelSteps }) {
                     <div className="text-xs font-bold text-foreground truncate">
                       {st.titulo}
                     </div>
-                    <div className="text-[10px] text-muted-foreground truncate">
+                    <div className="text-[12px] text-muted-foreground truncate">
                       {st.subtitulo}
                     </div>
                   </div>
@@ -115,9 +115,9 @@ export function VerticalFunnelCard({ funnelSteps }) {
                 <div className="text-right shrink-0">
                   <div className="text-base font-black text-foreground tabular-nums">
                     {formatNumber(st.valor)}
-                    <span className="text-[10px] font-normal text-muted-foreground ml-1">acc.</span>
+                    <span className="text-[12px] font-normal text-muted-foreground ml-1">acc.</span>
                   </div>
-                  <div className="text-[10px] font-bold text-muted-foreground">
+                  <div className="text-[12px] font-bold text-muted-foreground">
                     {st.pctBase.toFixed(0)}% base
                   </div>
                 </div>
@@ -125,7 +125,7 @@ export function VerticalFunnelCard({ funnelSteps }) {
 
               {/* Vertical Drop-Off Connector */}
               {!isLast && st.fugaCount != null && (
-                <div className="px-3 py-1 flex items-center justify-between text-[10px] bg-rose-500/10 border border-rose-500/20 rounded-lg text-rose-600 dark:text-rose-400 font-semibold mx-1">
+                <div className="px-3 py-1 flex items-center justify-between text-[12px] bg-rose-500/10 border border-rose-500/20 rounded-lg text-rose-600 dark:text-rose-400 font-semibold mx-1">
                   <div className="flex items-center gap-1">
                     <ArrowDown className="w-3 h-3 text-rose-500" />
                     <span>Drop-off: <b>-{formatNumber(st.fugaCount)}</b> {st.fugaLabel}</span>
@@ -145,14 +145,14 @@ export function VerticalFunnelCard({ funnelSteps }) {
             </div>
             <div>
               <div className="text-xs font-bold text-foreground">Order Adoption Rate</div>
-              <div className="text-[10px] text-muted-foreground">Digital order share among active customers</div>
+              <div className="text-[12px] text-muted-foreground">Digital order share among active customers</div>
             </div>
           </div>
           <div className="text-right shrink-0">
             <div className="text-sm font-black text-amber-600 dark:text-amber-400 tabular-nums">
               {formatPct(pctAdopcion)}
             </div>
-            <div className="text-[9px] font-bold text-muted-foreground">vs 90.0% Goal</div>
+            <div className="text-[12px] font-bold text-muted-foreground">vs 90.0% Goal</div>
           </div>
         </div>
       </div>

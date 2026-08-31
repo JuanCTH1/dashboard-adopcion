@@ -62,15 +62,15 @@ export function generateDataset(seed = 20260828) {
 
   // 3. BUSINESS LINES
   const VPS = [
-    { id: 'vp-readymix', nombre: 'Readymix Concrete', persona: 'Sarah Jenkins', lineaNegocio: 'readymix', unidad: 'cu yd' },
-    { id: 'vp-cemento', nombre: 'Bulk Cement', persona: 'Michael Chang', lineaNegocio: 'cemento', unidad: 'tons' },
-    { id: 'vp-agregados', nombre: 'Quarries & Aggregates', persona: 'David Miller', lineaNegocio: 'agregados', unidad: 'tons' }
+    { id: 'vp-readymix', nombre: 'Readymix', persona: 'Sarah Jenkins', lineaNegocio: 'readymix', unidad: 'cu yd' },
+    { id: 'vp-cemento', nombre: 'Cement', persona: 'Michael Chang', lineaNegocio: 'cemento', unidad: 'tons' },
+    { id: 'vp-agregados', nombre: 'Aggregates', persona: 'David Miller', lineaNegocio: 'agregados', unidad: 'tons' }
   ];
 
   // Business Line Scale & Behavioral Traits
   const LINEAS_CONFIG = {
     readymix: {
-      label: 'Readymix Concrete',
+      label: 'Readymix',
       unidad: 'cu yd',
       accountDensity: 1.25,
       orderFreqRange: [8, 26],
@@ -80,7 +80,7 @@ export function generateDataset(seed = 20260828) {
       channelMix: { web: 0.50, app: 0.42, edi: 0.08 }
     },
     cemento: {
-      label: 'Bulk Cement',
+      label: 'Cement',
       unidad: 'tons',
       accountDensity: 0.65,
       orderFreqRange: [2, 9],
@@ -90,7 +90,7 @@ export function generateDataset(seed = 20260828) {
       channelMix: { web: 0.35, app: 0.12, edi: 0.53 }
     },
     agregados: {
-      label: 'Aggregates & Quarries',
+      label: 'Aggregates',
       unidad: 'tons',
       accountDensity: 0.95,
       orderFreqRange: [10, 34],

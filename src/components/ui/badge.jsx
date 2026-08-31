@@ -17,7 +17,7 @@ export function Badge({ className, variant = "default", ...props }) {
   return (
     <div
       className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring tabular-nums select-none",
+        "inline-flex items-center rounded-full border px-2 py-0.5 text-[12px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring tabular-nums select-none",
         variantClass,
         className
       )}

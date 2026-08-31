@@ -307,7 +307,7 @@ export function CommandPalette({
           )}
 
           <div className="flex items-center gap-1 shrink-0">
-            <kbd className="px-1.5 py-0.5 text-[9px] font-mono font-bold bg-muted text-muted-foreground border border-border rounded shadow-2xs">
+            <kbd className="px-1.5 py-0.5 text-[12px] font-mono font-bold bg-muted text-muted-foreground border border-border rounded shadow-2xs">
               ESC
             </kbd>
           </div>
@@ -329,7 +329,7 @@ export function CommandPalette({
                 setSelectedIndex(0);
               }}
               className={cn(
-                "px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap",
+                "px-2.5 py-1 rounded-lg text-[12px] font-bold transition-all cursor-pointer whitespace-nowrap",
                 activeTab === tab.id
                   ? "bg-primary text-primary-foreground shadow-2xs"
                   : "text-muted-foreground hover:text-foreground hover:bg-slate-200/60 dark:hover:bg-slate-800"
@@ -345,9 +345,9 @@ export function CommandPalette({
           {/* A. QUICK ACTIONS & PRESETS */}
           {filteredResults.actions.length > 0 && (
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground px-2 py-1 flex items-center justify-between">
+              <div className="text-[12px] font-extrabold uppercase tracking-wider text-muted-foreground px-2 py-1 flex items-center justify-between">
                 <span>Quick Actions & Presets</span>
-                <span className="text-[9px] font-mono">{filteredResults.actions.length}</span>
+                <span className="text-[12px] font-mono">{filteredResults.actions.length}</span>
               </div>
               <div className="space-y-1">
                 {filteredResults.actions.map(act => {
@@ -375,12 +375,12 @@ export function CommandPalette({
                         </div>
                         <div className="truncate">
                           <div className="text-xs font-bold text-foreground truncate">{act.title}</div>
-                          <div className="text-[10.5px] text-muted-foreground truncate">{act.subtitle}</div>
+                          <div className="text-[12px] text-muted-foreground truncate">{act.subtitle}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {isHighlighted && (
-                          <span className="text-[10px] font-mono font-bold text-primary flex items-center gap-0.5">
+                          <span className="text-[12px] font-mono font-bold text-primary flex items-center gap-0.5">
                             Execute <CornerDownLeft className="w-3 h-3" />
                           </span>
                         )}
@@ -395,9 +395,9 @@ export function CommandPalette({
           {/* B. CUSTOMERS */}
           {filteredResults.clientes.length > 0 && (
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-primary px-2 py-1 flex items-center justify-between">
+              <div className="text-[12px] font-extrabold uppercase tracking-wider text-primary px-2 py-1 flex items-center justify-between">
                 <span>Customers</span>
-                <span className="text-[9px] font-mono">{filteredResults.clientes.length}</span>
+                <span className="text-[12px] font-mono">{filteredResults.clientes.length}</span>
               </div>
               <div className="space-y-1">
                 {filteredResults.clientes.map(cli => {
@@ -430,7 +430,7 @@ export function CommandPalette({
                             )}
                             <span className="truncate">{cli.nombreEmpresa || cli.id}</span>
                             <span className={cn(
-                              "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
+                              "text-[12px] font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
                               shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                               shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                               "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
@@ -438,7 +438,7 @@ export function CommandPalette({
                               {shortBl}
                             </span>
                           </div>
-                          <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 truncate mt-0.5">
+                          <div className="text-[12px] text-muted-foreground flex items-center gap-1.5 truncate mt-0.5">
                             <span>{cli.plaza || 'USA'}</span>
                             <span>·</span>
                             <span>{cli.id}</span>
@@ -452,20 +452,20 @@ export function CommandPalette({
 
                       <div className="flex items-center gap-2 shrink-0 ml-2">
                         {!cli.estaIncorporado ? (
-                          <Badge variant="danger" className="text-[9px] py-0.2 px-1.5 font-bold">
+                          <Badge variant="danger" className="text-[12px] py-0.2 px-1.5 font-bold">
                             Pending
                           </Badge>
                         ) : cli.pedidosDigitales > 0 ? (
-                          <Badge variant="success" className="text-[9px] py-0.2 px-1.5 font-bold">
+                          <Badge variant="success" className="text-[12px] py-0.2 px-1.5 font-bold">
                             Active
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="text-[9px] py-0.2 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                          <Badge variant="secondary" className="text-[12px] py-0.2 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
                             Onboarded
                           </Badge>
                         )}
                         {isHighlighted && (
-                          <span className="text-[10px] font-mono font-bold text-primary flex items-center gap-0.5">
+                          <span className="text-[12px] font-mono font-bold text-primary flex items-center gap-0.5">
                             <CornerDownLeft className="w-3 h-3" />
                           </span>
                         )}
@@ -480,9 +480,9 @@ export function CommandPalette({
           {/* C. SALES REPS */}
           {filteredResults.vendedores.length > 0 && (
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 px-2 py-1 flex items-center justify-between">
+              <div className="text-[12px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 px-2 py-1 flex items-center justify-between">
                 <span>Sales Representatives</span>
-                <span className="text-[9px] font-mono">{filteredResults.vendedores.length}</span>
+                <span className="text-[12px] font-mono">{filteredResults.vendedores.length}</span>
               </div>
               <div className="space-y-1">
                 {filteredResults.vendedores.map(rep => {
@@ -509,17 +509,17 @@ export function CommandPalette({
                         </div>
                         <div className="truncate">
                           <div className="text-xs font-bold text-foreground truncate">{rep.nombre}</div>
-                          <div className="text-[10.5px] text-muted-foreground truncate">
+                          <div className="text-[12px] text-muted-foreground truncate">
                             {rep.plaza} · {rep.regionNombre} · {rep.id}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        <Badge variant="outline" className="text-[9.5px] font-bold">
+                        <Badge variant="outline" className="text-[12px] font-bold">
                           {rep.bl || 'BL'}
                         </Badge>
                         {isHighlighted && (
-                          <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                          <span className="text-[12px] font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
                             Filter <CornerDownLeft className="w-3 h-3" />
                           </span>
                         )}
@@ -534,9 +534,9 @@ export function CommandPalette({
           {/* D. MARKETS */}
           {filteredResults.gerentes.length > 0 && (
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-sky-600 dark:text-sky-400 px-2 py-1 flex items-center justify-between">
+              <div className="text-[12px] font-extrabold uppercase tracking-wider text-sky-600 dark:text-sky-400 px-2 py-1 flex items-center justify-between">
                 <span>Markets & Plazas</span>
-                <span className="text-[9px] font-mono">{filteredResults.gerentes.length}</span>
+                <span className="text-[12px] font-mono">{filteredResults.gerentes.length}</span>
               </div>
               <div className="space-y-1">
                 {filteredResults.gerentes.map(ger => {
@@ -563,12 +563,12 @@ export function CommandPalette({
                         </div>
                         <div className="truncate">
                           <div className="text-xs font-bold text-foreground truncate">{ger.nombre} Market</div>
-                          <div className="text-[10.5px] text-muted-foreground truncate">{ger.persona || 'Market Manager'}</div>
+                          <div className="text-[12px] text-muted-foreground truncate">{ger.persona || 'Market Manager'}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {isHighlighted && (
-                          <span className="text-[10px] font-mono font-bold text-sky-600 dark:text-sky-400 flex items-center gap-0.5">
+                          <span className="text-[12px] font-mono font-bold text-sky-600 dark:text-sky-400 flex items-center gap-0.5">
                             Filter <CornerDownLeft className="w-3 h-3" />
                           </span>
                         )}
@@ -583,9 +583,9 @@ export function CommandPalette({
           {/* E. REGIONS */}
           {filteredResults.directores.length > 0 && (
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 px-2 py-1 flex items-center justify-between">
+              <div className="text-[12px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 px-2 py-1 flex items-center justify-between">
                 <span>Regions</span>
-                <span className="text-[9px] font-mono">{filteredResults.directores.length}</span>
+                <span className="text-[12px] font-mono">{filteredResults.directores.length}</span>
               </div>
               <div className="space-y-1">
                 {filteredResults.directores.map(dir => {
@@ -612,12 +612,12 @@ export function CommandPalette({
                         </div>
                         <div className="truncate">
                           <div className="text-xs font-bold text-foreground truncate">{dir.nombre} Region</div>
-                          <div className="text-[10.5px] text-muted-foreground truncate">{dir.persona || 'Regional Director'}</div>
+                          <div className="text-[12px] text-muted-foreground truncate">{dir.persona || 'Regional Director'}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {isHighlighted && (
-                          <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5">
+                          <span className="text-[12px] font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5">
                             Filter <CornerDownLeft className="w-3 h-3" />
                           </span>
                         )}
@@ -632,9 +632,9 @@ export function CommandPalette({
           {/* F. BUSINESS LINES */}
           {filteredResults.vps.length > 0 && (
             <div>
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-primary px-2 py-1 flex items-center justify-between">
+              <div className="text-[12px] font-extrabold uppercase tracking-wider text-primary px-2 py-1 flex items-center justify-between">
                 <span>Business Lines</span>
-                <span className="text-[9px] font-mono">{filteredResults.vps.length}</span>
+                <span className="text-[12px] font-mono">{filteredResults.vps.length}</span>
               </div>
               <div className="space-y-1">
                 {filteredResults.vps.map(vp => {
@@ -661,12 +661,12 @@ export function CommandPalette({
                         </div>
                         <div className="truncate">
                           <div className="text-xs font-bold text-foreground truncate">{vp.nombre} Business Line</div>
-                          <div className="text-[10.5px] text-muted-foreground truncate">{vp.persona || 'VP Leadership'}</div>
+                          <div className="text-[12px] text-muted-foreground truncate">{vp.persona || 'VP Leadership'}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {isHighlighted && (
-                          <span className="text-[10px] font-mono font-bold text-primary flex items-center gap-0.5">
+                          <span className="text-[12px] font-mono font-bold text-primary flex items-center gap-0.5">
                             Filter <CornerDownLeft className="w-3 h-3" />
                           </span>
                         )}
@@ -683,7 +683,7 @@ export function CommandPalette({
             <div className="py-12 text-center text-xs text-muted-foreground flex flex-col items-center justify-center space-y-2">
               <Search className="w-8 h-8 text-muted-foreground/40" />
               <div className="font-bold text-foreground">No matching results found for "{query}"</div>
-              <div className="text-[11px] text-muted-foreground max-w-sm">
+              <div className="text-[12px] text-muted-foreground max-w-sm">
                 Try searching for a customer name (e.g. <i>Apex</i>), client ID (<i>CLI-00123</i>), market (<i>Dallas</i>), or command (<i>Export</i>).
               </div>
             </div>
@@ -691,24 +691,24 @@ export function CommandPalette({
         </div>
 
         {/* 4. KEYBOARD SHORTCUTS FOOTER */}
-        <div className="px-4 py-2 border-t border-border/80 bg-slate-50/80 dark:bg-slate-900/80 text-[10.5px] text-muted-foreground flex items-center justify-between shrink-0">
+        <div className="px-4 py-2 border-t border-border/80 bg-slate-50/80 dark:bg-slate-900/80 text-[12px] text-muted-foreground flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1 py-0.2 text-[9px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">↑</kbd>
-              <kbd className="px-1 py-0.2 text-[9px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">↓</kbd>
+              <kbd className="px-1 py-0.2 text-[12px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">↑</kbd>
+              <kbd className="px-1 py-0.2 text-[12px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">↓</kbd>
               <span>Navigate</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.2 text-[9px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">↵</kbd>
+              <kbd className="px-1.5 py-0.2 text-[12px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">↵</kbd>
               <span>Select</span>
             </span>
             <span className="flex items-center gap-1 hidden sm:inline-flex">
-              <kbd className="px-1.5 py-0.2 text-[9px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">Tab</kbd>
+              <kbd className="px-1.5 py-0.2 text-[12px] font-mono font-bold bg-muted border border-border rounded shadow-2xs">Tab</kbd>
               <span>Category</span>
             </span>
           </div>
 
-          <div className="text-[10px] font-semibold text-primary">
+          <div className="text-[12px] font-semibold text-primary">
             {flatItems.length} result{flatItems.length !== 1 ? 's' : ''}
           </div>
         </div>

@@ -40,7 +40,7 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
               Tendencia de Adopción
             </h3>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">
+          <p className="text-[12px] text-muted-foreground mt-0.5 font-medium">
             Histórico transaccional ({filteredData.length} meses)
           </p>
         </div>
@@ -49,7 +49,7 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
           <div className={cn("text-sm font-black tabular-nums", trendUp ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")}>
             {last ? `${last.pctAdopcionPedidos}%` : '—'}
           </div>
-          <div className="text-[9.5px] font-bold text-muted-foreground">
+          <div className="text-[12px] font-bold text-muted-foreground">
             {trendUp ? `▲ +${delta} pp` : `▼ ${delta} pp`}
           </div>
         </div>
@@ -85,8 +85,8 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
                   const d = payload[0].payload;
                   return (
                     <div className="bg-slate-900 text-white px-2.5 py-1.5 rounded-lg text-xs shadow-xl border border-slate-700 font-sans">
-                      <div className="font-bold text-[11px] text-sky-400">{d.label}</div>
-                      <div className="text-[11px]">Adopción: <b>{d.pctAdopcionPedidos}%</b></div>
+                      <div className="font-bold text-[12px] text-sky-400">{d.label}</div>
+                      <div className="text-[12px]">Adopción: <b>{d.pctAdopcionPedidos}%</b></div>
                     </div>
                   );
                 }

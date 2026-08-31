@@ -382,19 +382,26 @@ export function ProgressiveHierarchy({
     };
 
     let titulo = "USA";
+    let singleVp = null;
     if (selectedRepIds.length) titulo = `${selectedRepIds.length} Sales Rep(s)`;
     else if (selectedGerIds.length) titulo = `${selectedGerIds.length} Manager(s)`;
     else if (selectedDirIds.length) titulo = `${selectedDirIds.length} Director(s)`;
-    else if (selectedVpIds.length) titulo = `${selectedVpIds.length} Business Line(s)`;
+    else if (selectedVpIds.length === 1) {
+      singleVp = vps.find(v => v.id === selectedVpIds[0]) || null;
+      titulo = singleVp ? singleVp.nombre : `${selectedVpIds.length} Business Line(s)`;
+    } else if (selectedVpIds.length > 1) {
+      titulo = `${selectedVpIds.length} Business Lines`;
+    }
 
     const cartera = adopcionRepo.getCartera(null, fNode);
 
     return {
       fNode,
       titulo,
+      singleVp,
       cartera
     };
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, filtrosCompuestos]);
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, filtrosCompuestos, vps]);
 
   // Weighted totals calculation for footer
   const totalesCartera = useMemo(() => {
@@ -495,28 +502,82 @@ export function ProgressiveHierarchy({
       {/* Top Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-700 via-indigo-500 to-sky-400" />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-border">
-        <div className="flex items-center gap-2">
+      {/* Header — título, chips de Business Line y controles en una sola fila (fusionadas
+          para ganar altura; antes eran dos renglones separados). */}
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_auto] items-center gap-2.5 pb-3 border-b border-border">
+        <div className="flex items-center gap-2 min-w-0">
           <Layers className="w-3.5 h-3.5 text-primary shrink-0" />
-          <h2 className="text-sm font-black text-foreground tracking-tight">
+          <h2 className="text-sm font-black text-foreground tracking-tight truncate">
             {activeContext.titulo}
-            <span className="ml-2 text-[11px] font-semibold text-muted-foreground">
-              {totalesCartera?.totalClientes || 0} customers · <CustomTooltip text={formatNumber(totalesCartera?.totalPedidos || 0)}><span>{formatCompactNumber(totalesCartera?.totalPedidos || 0)} orders</span></CustomTooltip>
-            </span>
+            {activeContext.singleVp ? (
+              <span className="ml-2 text-[12px] font-semibold text-muted-foreground">
+                <span className="text-primary font-black">{formatPct(activeContext.singleVp.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                {' · '}{activeContext.singleVp.persona}
+              </span>
+            ) : (
+              <span className="ml-2 text-[12px] font-semibold text-muted-foreground">
+                {totalesCartera?.totalClientes || 0} customers · <CustomTooltip text={formatNumber(totalesCartera?.totalPedidos || 0)}><span>{formatCompactNumber(totalesCartera?.totalPedidos || 0)} orders</span></CustomTooltip>
+              </span>
+            )}
           </h2>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+        {/* BUSINESS LINE — lente transversal sobre la cadena Región→Mercado→Rep. Multi-selección
+            con drag (mismo mecanismo que las columnas). Sin etiqueta ni ícono: los nombres ya dicen qué son.
+            Columna de ancho flexible pero fija en su carril de grid — el título ya no la puede empujar. */}
+        <div className="flex items-center gap-1.5 flex-wrap select-none">
+          {vps.map((vp) => {
+            const isSelected = selectedVpIds.includes(vp.id);
+            return (
+              <button
+                key={vp.id}
+                onMouseDown={(e) => { if (e.button === 0) startDragSelect('vp', vp.id, selectedVpIds, handleSetVps); }}
+                onMouseEnter={(e) => {
+                  handleDragEnter('vp', vp.id, handleSetVps);
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setHoveredPopover({
+                    title: vp.nombre,
+                    tipo: 'Business Line Leadership',
+                    personasDetalle: [{
+                      bl: BL_SHORT[vp.lineaNegocio] || 'BL',
+                      blFull: vp.nombre,
+                      persona: vp.persona,
+                      clientesAsignados: vp.metricas.clientes?.asignados,
+                      clientesOnboarded: vp.metricas.clientes?.onboarded,
+                      pctOnboarding: vp.metricas.clientes?.pctOnboarding,
+                      digitales: vp.metricas.pedidos?.digitales,
+                      totales: vp.metricas.pedidos?.totales,
+                      pctAdopcion: vp.metricas.pedidos?.pctAdopcion
+                    }],
+                    x: rect.left + rect.width / 2,
+                    y: rect.bottom + 8,
+                    pos: 'bottom'
+                  });
+                }}
+                onMouseLeave={() => setHoveredPopover(null)}
+                className={cn(
+                  "px-2.5 py-1.5 rounded-lg border transition-colors duration-150 cursor-pointer select-none",
+                  isSelected
+                    ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                    : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                )}
+              >
+                <span className="font-bold text-[12px]">{vp.nombre}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           {/* MODE TOGGLE SWITCH: Columns: Show All | Collapse */}
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/90 p-1 rounded-lg border border-border">
-            <span className="text-[10.5px] font-extrabold uppercase text-muted-foreground px-1 select-none">Columns:</span>
+            <span className="text-[12px] font-extrabold uppercase text-muted-foreground px-1 select-none">Columns:</span>
             <div className="flex items-center gap-0.5 bg-card/60 p-0.5 rounded-md border border-border/60">
               <button
                 type="button"
                 onClick={() => setNavMode('all_columns')}
                 className={cn(
-                  "px-2.5 py-0.5 rounded text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
+                  "px-2.5 py-0.5 rounded text-[12px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
                   navMode === 'all_columns'
                     ? "bg-indigo-600 text-white shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -530,15 +591,15 @@ export function ProgressiveHierarchy({
                 type="button"
                 onClick={() => setNavMode('cascade')}
                 className={cn(
-                  "px-2.5 py-0.5 rounded text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
+                  "px-2.5 py-0.5 rounded text-[12px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
                   navMode === 'cascade'
                     ? "bg-primary text-primary-foreground shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                title="Collapse columns progressively step-by-step"
+                title="Guided: reveal one level at a time as you select"
               >
                 <Workflow className="w-3 h-3" />
-                <span>Collapse</span>
+                <span>Guided</span>
               </button>
             </div>
           </div>
@@ -568,26 +629,26 @@ export function ProgressiveHierarchy({
       {isFocusTableMode && (
         <div className="bg-slate-100 dark:bg-slate-900/90 p-2 px-3 rounded-lg border border-border text-xs font-medium flex items-center justify-between gap-2 shadow-2xs">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-primary flex items-center gap-1 text-[11px] uppercase">
+            <span className="font-bold text-primary flex items-center gap-1 text-[12px] uppercase">
               <Globe className="w-3.5 h-3.5" /> USA National
             </span>
             <span className="text-muted-foreground">›</span>
             <div className="flex items-center gap-1 flex-wrap">
               {selectedVpIds.length === 0 ? (
-                <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground">
+                <Badge variant="outline" className="text-[12px] font-bold text-muted-foreground">
                   All Business Lines Active
                 </Badge>
               ) : (
                 vps.filter(v => selectedVpIds.includes(v.id)).map(v => (
-                  <Badge key={v.id} className="text-[10px] font-bold bg-primary/10 text-primary border-primary/30">
+                  <Badge key={v.id} className="text-[12px] font-bold bg-primary/10 text-primary border-primary/30">
                     {v.nombre}
                   </Badge>
                 ))
               )}
             </div>
           </div>
-          <span className="text-[10px] text-muted-foreground font-semibold hidden md:inline">
-            (Country & Business Lines collapsed to focus on Markets & Table)
+          <span className="text-[12px] text-muted-foreground font-semibold hidden md:inline">
+            (Regions, Markets & Reps collapsed to focus on the Table)
           </span>
         </div>
       )}
@@ -595,135 +656,9 @@ export function ProgressiveHierarchy({
       {/* HORIZONTAL CASCADED COLUMNS UNIFIED WITH LAYOUTGROUP AND POPLAYOUT */}
       <LayoutGroup>
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin items-stretch h-[375px] max-h-[375px] relative">
-          {/* LEVEL 1: BUSINESS LINES (STAGE 1 - FIRST COLUMN) */}
-          <AnimatePresence mode="popLayout">
-            {!isFocusTableMode && (
-              <motion.div
-                layout
-                key="vp-col"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={FLIP_TRANSITION}
-                className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
-              >
-                <div className="w-[134px] text-[10px] font-bold uppercase text-primary flex items-center justify-between pb-1 border-b border-border">
-                  <div className="flex items-center gap-1">
-                    <Building className="w-3 h-3" />
-                    <span>Business Line</span>
-                  </div>
-                  {selectedVpIds.length > 0 && (
-                    <button onClick={handleClearVps} className="text-[9px] text-primary hover:underline font-bold cursor-pointer">
-                      Clear
-                    </button>
-                  )}
-                </div>
-
-                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
-                  {vps.map((vp) => {
-                    const isSelected = selectedVpIds.includes(vp.id);
-                    return (
-                      <button
-                        key={vp.id}
-                        onMouseDown={(e) => { if (e.button === 0) startDragSelect('vp', vp.id, selectedVpIds, handleSetVps); }}
-                        onMouseEnter={() => handleDragEnter('vp', vp.id, handleSetVps)}
-                        className={cn(
-                          "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
-                          isSelected
-                            ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                        )}
-                      >
-                        {/* RENGLÓN 1: NOMBRE + INFO */}
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-[11px] truncate">{vp.nombre}</span>
-                          <div className="flex items-center gap-1">
-                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                            <button
-                              type="button"
-                              onMouseEnter={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover({
-                                  title: vp.nombre,
-                                  tipo: 'Business Line Leadership',
-                                  personasDetalle: [{
-                                    bl: BL_SHORT[vp.lineaNegocio] || 'BL',
-                                    blFull: vp.nombre,
-                                    persona: vp.persona,
-                                    clientesAsignados: vp.metricas.clientes?.asignados,
-                                    clientesOnboarded: vp.metricas.clientes?.onboarded,
-                                    pctOnboarding: vp.metricas.clientes?.pctOnboarding,
-                                    digitales: vp.metricas.pedidos?.digitales,
-                                    totales: vp.metricas.pedidos?.totales,
-                                    pctAdopcion: vp.metricas.pedidos?.pctAdopcion
-                                  }],
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
-                              onMouseLeave={() => setHoveredPopover(null)}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover(prev => prev ? null : {
-                                  title: vp.nombre,
-                                  tipo: 'Business Line Leadership',
-                                  personasDetalle: [{
-                                    bl: BL_SHORT[vp.lineaNegocio] || 'BL',
-                                    blFull: vp.nombre,
-                                    persona: vp.persona,
-                                    clientesAsignados: vp.metricas.clientes?.asignados,
-                                    clientesOnboarded: vp.metricas.clientes?.onboarded,
-                                    pctOnboarding: vp.metricas.clientes?.pctOnboarding,
-                                    digitales: vp.metricas.pedidos?.digitales,
-                                    totales: vp.metricas.pedidos?.totales,
-                                    pctAdopcion: vp.metricas.pedidos?.pctAdopcion
-                                  }],
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
-                              className={cn(
-                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                isSelected ? "hover:bg-blue-700 text-blue-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
-                              )}
-                              title="Leadership Breakdown"
-                            >
-                              <Info className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* RENGLÓN 2: PERSONA / LÍNEA */}
-                        <div className={cn("text-[9px] truncate font-medium", isSelected ? "text-white/90" : "text-muted-foreground")}>
-                          {vp.persona}
-                        </div>
-
-                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-white/20 text-white" : "border-border/60 text-foreground")}>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-white/80" : "text-muted-foreground")}>{vp.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(vp.metricas.clientes?.pctOnboarding || 0)} onboard</span>
-                          </div>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate cursor-help", isSelected ? "text-white/80" : "text-muted-foreground")} title={`${formatNumber(vp.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(vp.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(vp.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* LEVEL 2: REGIONS */}
           <AnimatePresence mode="popLayout">
-            {(navMode === 'all_columns' || selectedVpIds.length > 0) && (
+            {!isFocusTableMode && (navMode === 'all_columns' || selectedVpIds.length > 0) && (
               <motion.div
                 layout
                 key="dir-col"
@@ -731,21 +666,21 @@ export function ProgressiveHierarchy({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="min-w-[215px] max-w-[290px] flex-1 h-[365px] bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-[134px] text-[10px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-full text-[12px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <Briefcase className="w-3 h-3" />
                     <span>Regions</span>
                   </div>
                   {selectedDirIds.length > 0 && (
-                    <button onClick={handleClearDirs} className="text-[9px] text-indigo-600 hover:underline font-bold cursor-pointer">
+                    <button onClick={handleClearDirs} className="text-[12px] text-indigo-600 hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
                 </div>
 
-                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+                <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                   {directores.map((dir) => {
                     const isSelected = selectedDirIds.includes(dir.id);
                     return (
@@ -762,11 +697,12 @@ export function ProgressiveHierarchy({
                         >
                           {/* RENGLÓN 1: NOMBRE + INFO */}
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-[11px] truncate">{dir.nombre}</span>
+                            <span className="font-bold text-[12.5px] truncate">{dir.nombre}</span>
                             <div className="flex items-center gap-1">
                               {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                              <button
-                                type="button"
+                              <span
+                                role="button"
+                                tabIndex={0}
                                 onMouseEnter={(e) => {
                                   e.stopPropagation();
                                   const rect = e.currentTarget.getBoundingClientRect();
@@ -803,13 +739,13 @@ export function ProgressiveHierarchy({
                                 title="Leadership Breakdown"
                               >
                                 <Info className="w-3 h-3" />
-                              </button>
+                              </span>
                             </div>
                           </div>
 
                           {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
                           {dir.isSingleVp ? (
-                            <div className={cn("text-[9px] truncate font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                            <div className={cn("text-[12px] truncate font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
                               {dir.persona}
                             </div>
                           ) : (
@@ -818,7 +754,7 @@ export function ProgressiveHierarchy({
                                 <span
                                   key={pill}
                                   className={cn(
-                                    "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                    "text-[12px] font-black px-1.5 py-0.5 rounded border uppercase shadow-2xs",
                                     pill === 'RMX'
                                       ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                       : pill === 'CEM'
@@ -833,14 +769,14 @@ export function ProgressiveHierarchy({
                           )}
 
                           {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
+                          <div className={cn("text-[12px] pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
                             <div className="truncate flex items-center justify-between gap-1">
                               <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{dir.metricas.clientes?.asignados || 0} cust</span>
-                              <span className="font-bold shrink-0">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                              <span className="font-black text-[12px] shrink-0 tabular-nums">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                             </div>
                             <div className="truncate flex items-center justify-between gap-1">
                               <span className={cn("truncate cursor-help", isSelected ? "text-indigo-200" : "text-muted-foreground")} title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)} orders</span>
-                              <span className="font-bold shrink-0">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                              <span className="font-black text-[12px] shrink-0 tabular-nums">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                             </div>
                           </div>
                         </button>
@@ -854,7 +790,7 @@ export function ProgressiveHierarchy({
 
           {/* LEVEL 3: MARKETS */}
           <AnimatePresence mode="popLayout">
-            {(navMode === 'all_columns' || selectedDirIds.length > 0) && (
+            {!isFocusTableMode && (navMode === 'all_columns' || selectedDirIds.length > 0) && (
               <motion.div
                 layout
                 key="ger-col"
@@ -862,21 +798,21 @@ export function ProgressiveHierarchy({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="min-w-[215px] max-w-[290px] flex-1 h-[365px] bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-[134px] text-[10px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-full text-[12px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <Users className="w-3 h-3" />
                     <span>Markets</span>
                   </div>
                   {selectedGerIds.length > 0 && (
-                    <button onClick={handleClearGers} className="text-[9px] text-sky-600 hover:underline font-bold cursor-pointer">
+                    <button onClick={handleClearGers} className="text-[12px] text-sky-600 hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
                 </div>
 
-                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+                <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                   {gerentes.map((ger) => {
                     const isSelected = selectedGerIds.includes(ger.id);
                     return (
@@ -893,11 +829,12 @@ export function ProgressiveHierarchy({
                         >
                           {/* RENGLÓN 1: NOMBRE + INFO */}
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-[11px] truncate">{ger.nombre}</span>
+                            <span className="font-bold text-[12.5px] truncate">{ger.nombre}</span>
                             <div className="flex items-center gap-1">
                               {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                              <button
-                                type="button"
+                              <span
+                                role="button"
+                                tabIndex={0}
                                 onMouseEnter={(e) => {
                                   e.stopPropagation();
                                   const rect = e.currentTarget.getBoundingClientRect();
@@ -934,13 +871,13 @@ export function ProgressiveHierarchy({
                                 title="Managers Breakdown"
                               >
                                 <Info className="w-3 h-3" />
-                              </button>
+                              </span>
                             </div>
                           </div>
 
                           {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
                           {ger.isSingleVp ? (
-                            <div className={cn("text-[9px] truncate font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                            <div className={cn("text-[12px] truncate font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
                               {ger.persona}
                             </div>
                           ) : (
@@ -949,7 +886,7 @@ export function ProgressiveHierarchy({
                                 <span
                                   key={pill}
                                   className={cn(
-                                    "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                    "text-[12px] font-black px-1.5 py-0.5 rounded border uppercase shadow-2xs",
                                     pill === 'RMX'
                                       ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                       : pill === 'CEM'
@@ -964,14 +901,14 @@ export function ProgressiveHierarchy({
                           )}
 
                           {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
+                          <div className={cn("text-[12px] pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
                             <div className="truncate flex items-center justify-between gap-1">
                               <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{ger.metricas.clientes?.asignados || 0} cust</span>
-                              <span className="font-bold shrink-0">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                              <span className="font-black text-[12px] shrink-0 tabular-nums">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                             </div>
                             <div className="truncate flex items-center justify-between gap-1">
                               <span className={cn("truncate cursor-help", isSelected ? "text-sky-200" : "text-muted-foreground")} title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)} orders</span>
-                              <span className="font-bold shrink-0">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                              <span className="font-black text-[12px] shrink-0 tabular-nums">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                             </div>
                           </div>
                         </button>
@@ -985,7 +922,7 @@ export function ProgressiveHierarchy({
 
           {/* LEVEL 4: SALES REPRESENTATIVES */}
           <AnimatePresence mode="popLayout">
-            {(navMode === 'all_columns' || selectedGerIds.length > 0) && (
+            {!isFocusTableMode && (navMode === 'all_columns' || selectedGerIds.length > 0) && (
               <motion.div
                 layout
                 key="rep-col"
@@ -993,21 +930,21 @@ export function ProgressiveHierarchy({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="w-[150px] h-[365px] shrink-0 bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="min-w-[215px] max-w-[290px] flex-1 h-[365px] bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-[134px] text-[10px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-full text-[12px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <User className="w-3 h-3" />
                     <span>Sales Reps</span>
                   </div>
                   {selectedRepIds.length > 0 && (
-                    <button onClick={handleClearReps} className="text-[9px] text-emerald-600 hover:underline font-bold cursor-pointer">
+                    <button onClick={handleClearReps} className="text-[12px] text-emerald-600 hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
                 </div>
 
-                <div className="w-[134px] flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
+                <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                   {vendedores.map(rep => {
                     const isSelected = selectedRepIds.includes(rep.id);
                     return (
@@ -1024,11 +961,12 @@ export function ProgressiveHierarchy({
                       >
                         {/* RENGLÓN 1: NOMBRE + INFO */}
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-[11px] truncate">{rep.nombre}</span>
+                          <span className="font-bold text-[12.5px] truncate">{rep.nombre}</span>
                           <div className="flex items-center gap-1">
                             {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
-                            <button
-                              type="button"
+                            <span
+                              role="button"
+                              tabIndex={0}
                               onMouseEnter={(e) => {
                                 e.stopPropagation();
                                 const rect = e.currentTarget.getBoundingClientRect();
@@ -1081,16 +1019,16 @@ export function ProgressiveHierarchy({
                               title="Performance Breakdown"
                             >
                               <Info className="w-3 h-3" />
-                            </button>
+                            </span>
                           </div>
                         </div>
 
                         {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
-                        <div className="flex items-center justify-between gap-1 text-[9px] my-0.5">
+                        <div className="flex items-center justify-between gap-1 text-[12px] my-0.5">
                           <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
                           <span
                             className={cn(
-                              "text-[8px] font-black px-1.5 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
+                              "text-[12px] font-black px-1.5 py-0.5 rounded border uppercase shrink-0 shadow-2xs",
                               rep.bl === 'RMX'
                                 ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                 : rep.bl === 'CEM'
@@ -1103,14 +1041,14 @@ export function ProgressiveHierarchy({
                         </div>
 
                         {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                        <div className={cn("text-[8.5px] pt-1 mt-0.5 border-t flex flex-col gap-0.5 font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
+                        <div className={cn("text-[12px] pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate", isSelected ? "text-emerald-200" : "text-muted-foreground")}>{rep.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-bold shrink-0">{formatPct(rep.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                            <span className="font-black text-[12px] shrink-0 tabular-nums">{formatPct(rep.metricas.clientes?.pctOnboarding || 0)} onboard</span>
                           </div>
                           <div className="truncate flex items-center justify-between gap-1">
                             <span className={cn("truncate cursor-help", isSelected ? "text-emerald-200" : "text-muted-foreground")} title={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-bold shrink-0">{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                            <span className="font-black text-[12px] shrink-0 tabular-nums">{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                           </div>
                         </div>
                       </button>
@@ -1148,7 +1086,7 @@ export function ProgressiveHierarchy({
               <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 scrollbar-thin">
                 <table className="w-full text-left text-xs border-collapse table-fixed">
                   <thead>
-                    <tr className="border-b border-border text-[11px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 h-7.5 select-none">
+                    <tr className="border-b border-border text-[12px] font-bold text-muted-foreground bg-slate-100 dark:bg-slate-800 sticky top-0 z-10 h-7.5 select-none">
                       <th className="py-1.5 px-0.5 w-[3%] text-center"></th>
                       <th
                         onClick={() => handleSort('nombreEmpresa')}
@@ -1237,7 +1175,7 @@ export function ProgressiveHierarchy({
                               </div>
                               <div className="mt-0.5 flex items-center">
                                 <span className={cn(
-                                  "text-[8.5px] font-black px-1.5 py-0.2 rounded border uppercase tracking-wider",
+                                  "text-[12px] font-black px-1.5 py-0.2 rounded border uppercase tracking-wider",
                                   shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                                   shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                                   "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
@@ -1272,15 +1210,15 @@ export function ProgressiveHierarchy({
                             </td>
                             <td className="py-1.5 px-1 text-center whitespace-nowrap">
                               {!cli.estaIncorporado ? (
-                                <Badge variant="danger" className="text-[9.5px] py-0.5 px-1.5 font-bold">
+                                <Badge variant="danger" className="text-[12px] py-0.5 px-1.5 font-bold">
                                   Pending
                                 </Badge>
                               ) : cli.pedidosDigitales > 0 ? (
-                                <Badge variant="success" className="text-[9.5px] py-0.5 px-1.5 font-bold">
+                                <Badge variant="success" className="text-[12px] py-0.5 px-1.5 font-bold">
                                   Active
                                 </Badge>
                               ) : (
-                                <Badge variant="secondary" className="text-[9.5px] py-0.5 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                <Badge variant="secondary" className="text-[12px] py-0.5 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
                                   Onboarded
                                 </Badge>
                               )}
@@ -1294,16 +1232,16 @@ export function ProgressiveHierarchy({
                                 <div className="bg-card p-2.5 rounded-lg border border-border shadow-2xs flex flex-wrap items-center justify-between gap-2.5 text-xs">
                                   {/* Digital Channel Pills */}
                                   <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Digital:</span>
-                                    <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                    <span className="text-[12px] font-bold text-muted-foreground uppercase mr-1">Digital:</span>
+                                    <Badge variant="info" className="gap-1 text-[12px] font-bold py-0.5 px-2 bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
                                       <Laptop className="w-3 h-3 text-sky-500" />
                                       <span>Web: <b>{cli.pedidosWeb}</b></span>
                                     </Badge>
-                                    <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30">
+                                    <Badge variant="info" className="gap-1 text-[12px] font-bold py-0.5 px-2 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30">
                                       <Smartphone className="w-3 h-3 text-indigo-500" />
                                       <span>App: <b>{cli.pedidosApp}</b></span>
                                     </Badge>
-                                    <Badge variant="info" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
+                                    <Badge variant="info" className="gap-1 text-[12px] font-bold py-0.5 px-2 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30">
                                       <Server className="w-3 h-3 text-emerald-500" />
                                       <span>EDI: <b>{cli.pedidosEdi}</b></span>
                                     </Badge>
@@ -1311,8 +1249,8 @@ export function ProgressiveHierarchy({
 
                                   {/* Offline Pill */}
                                   <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-[10px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
-                                    <Badge variant="outline" className="gap-1 text-[11px] font-bold py-0.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
+                                    <span className="text-[12px] font-bold text-muted-foreground uppercase mr-1">Offline:</span>
+                                    <Badge variant="outline" className="gap-1 text-[12px] font-bold py-0.5 px-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700">
                                       <PhoneCall className="w-3 h-3 text-amber-500" />
                                       <span>Phone: <b>{cli.pedidosAnalogos}</b></span>
                                     </Badge>
@@ -1331,7 +1269,7 @@ export function ProgressiveHierarchy({
                     <tfoot className="sticky bottom-0 z-10 bg-slate-200 dark:bg-slate-800 font-bold border-t-2 border-primary/40 text-foreground text-xs shadow-md">
                       <tr>
                         <td colSpan={2} className="py-1.5 px-1.5">
-                          <div className="font-black uppercase text-[10.5px] text-primary truncate">
+                          <div className="font-black uppercase text-[12px] text-primary truncate">
                             TOTAL ({totalesCartera.totalClientes})
                           </div>
                         </td>
@@ -1375,33 +1313,33 @@ export function ProgressiveHierarchy({
           }}
           className="z-[9999] w-84 p-3.5 bg-card/98 text-foreground dark:bg-slate-900/98 dark:text-slate-100 rounded-xl shadow-2xl border-2 border-slate-300 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150 font-sans select-none"
         >
-          <div className="font-black text-primary dark:text-sky-300 uppercase tracking-wider text-[10px] pb-2 border-b border-border/80 flex items-center justify-between">
+          <div className="font-black text-primary dark:text-sky-300 uppercase tracking-wider text-[12px] pb-2 border-b border-border/80 flex items-center justify-between">
             <span className="font-bold">{hoveredPopover.title}</span>
-            <span className="text-muted-foreground font-semibold text-[9px]">{hoveredPopover.tipo}</span>
+            <span className="text-muted-foreground font-semibold text-[12px]">{hoveredPopover.tipo}</span>
           </div>
 
           <div className="space-y-2.5 pt-2.5 divide-y divide-border/50">
             {hoveredPopover.personasDetalle?.map((p, idx) => (
-              <div key={p.bl + idx} className={cn("space-y-1 text-[10.5px]", idx > 0 ? "pt-2" : "")}>
+              <div key={p.bl + idx} className={cn("space-y-1 text-[12px]", idx > 0 ? "pt-2" : "")}>
                 {/* Header: Business Line & Persona */}
                 <div className="flex items-center justify-between gap-1.5 font-bold">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className={cn(
-                      "text-[8.5px] font-black px-1.5 py-0.5 rounded border uppercase shrink-0",
+                      "text-[12px] font-black px-1.5 py-0.5 rounded border uppercase shrink-0",
                       p.bl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                       p.bl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                       "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
                     )}>
                       {p.blFull || p.bl}
                     </span>
-                    <span className="truncate text-foreground text-[10.5px]">{p.persona}</span>
+                    <span className="truncate text-foreground text-[12px]">{p.persona}</span>
                   </div>
                 </div>
 
                 {/* Metrics Details */}
-                <div className="grid grid-cols-2 gap-2 text-[9.5px] bg-slate-50 dark:bg-slate-800/60 p-2 rounded-lg border border-border/60">
+                <div className="grid grid-cols-2 gap-2 text-[12px] bg-slate-50 dark:bg-slate-800/60 p-2 rounded-lg border border-border/60">
                   <div>
-                    <div className="text-muted-foreground font-semibold text-[9px]">Onboarded Customers</div>
+                    <div className="text-muted-foreground font-semibold text-[12px]">Onboarded Customers</div>
                     <div className="font-mono font-bold text-foreground">
                       {formatNumber(p.clientesOnboarded || 0)} / {formatNumber(p.clientesAsignados || 0)}
                       <span className="text-emerald-600 dark:text-emerald-400 font-black ml-1">
@@ -1410,7 +1348,7 @@ export function ProgressiveHierarchy({
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground font-semibold text-[9px]">Orders Adoption</div>
+                    <div className="text-muted-foreground font-semibold text-[12px]">Orders Adoption</div>
                     <div className="font-mono font-bold text-foreground">
                       {formatNumber(p.digitales || 0)} / {formatNumber(p.totales || 0)}
                       <span className="text-indigo-600 dark:text-indigo-400 font-black ml-1">
