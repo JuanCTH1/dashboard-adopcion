@@ -173,7 +173,11 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                   "shrink-0 z-30 -mx-1.5 sm:-mx-2 transition-all",
                   idx === 2 ? "self-end mb-[8px]" : "self-center"
                 )}>
-                  <CustomTooltip position="top" text={`${st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}${st.isBottleneck ? ' · Primary Bottleneck' : ''}`}>
+                  <CustomTooltip
+                    position="top"
+                    offsetY={idx === 2 ? -65 : -32}
+                    text={`${st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}${st.isBottleneck ? ' · Primary Bottleneck' : ''}`}
+                  >
                     <div
                       className={cn(
                         "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",

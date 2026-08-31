@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react"
 import { HelpCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function CustomTooltip({ text, content, children, position = "top", delay = 200, className = "", style }) {
+export function CustomTooltip({ text, content, children, position = "top", delay = 200, className = "", style, offsetY = 0, offsetX = 0 }) {
   const [isVisible, setIsVisible] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0, isBottom: false });
   const triggerRef = useRef(null);
@@ -17,8 +17,8 @@ export function CustomTooltip({ text, content, children, position = "top", delay
         const rect = triggerRef.current.getBoundingClientRect();
         const isBottom = position === "bottom";
         setCoords({
-          x: rect.left + rect.width / 2,
-          y: isBottom ? rect.bottom + 8 : rect.top - 8,
+          x: rect.left + rect.width / 2 + offsetX,
+          y: (isBottom ? rect.bottom + 8 : rect.top - 8) + offsetY,
           isBottom
         });
         setIsVisible(true);
@@ -48,7 +48,7 @@ export function CustomTooltip({ text, content, children, position = "top", delay
           style={{
             position: "fixed",
             left: `${Math.max(140, Math.min(typeof window !== 'undefined' ? window.innerWidth - 140 : 500, coords.x))}px`,
-            top: `${Math.max(40, coords.y)}px`,
+            top: `${Math.max(6, coords.y)}px`,
             transform: coords.isBottom ? "translate(-50%, 0)" : "translate(-50%, -100%)"
           }}
           className="z-[999999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md max-w-xs text-left leading-snug select-none font-sans transition-opacity duration-100"
