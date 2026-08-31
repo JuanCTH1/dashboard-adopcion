@@ -134,7 +134,7 @@ function RankingBlock({ title, icon: Icon, accent, rows, total, variant, mode, o
   const hidden = Math.max(0, total - TOP_N);
 
   return (
-    <div className="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-border flex flex-col min-h-0">
+    <div className="bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col min-h-0">
       <div className={cn("flex items-center justify-between pb-1.5 mb-1 border-b border-border/80 text-xs font-black uppercase tracking-wider shrink-0", accent)}>
         <div className="flex items-center gap-1.5">
           <Icon className="w-3.5 h-3.5" />

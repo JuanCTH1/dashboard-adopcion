@@ -956,7 +956,7 @@ Commercial Leadership`;
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
               >
                 <div className="w-full text-[12px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
@@ -1099,7 +1099,7 @@ Commercial Leadership`;
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
               >
                 <div className="w-full text-[12px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
@@ -1242,7 +1242,7 @@ Commercial Leadership`;
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={FLIP_TRANSITION}
-                className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-50 dark:bg-slate-900/80 p-2 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+                className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
               >
                 <div className="w-full text-xs font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
@@ -1401,7 +1401,7 @@ Commercial Leadership`;
           <motion.div
             layout
             transition={FLIP_TRANSITION}
-            className="flex-1 min-w-[340px] h-full bg-slate-50 dark:bg-slate-900/80 p-2.5 rounded-xl border border-border flex flex-col shadow-2xs overflow-hidden"
+            className="flex-1 min-w-[340px] h-full bg-slate-100/90 dark:bg-slate-950/45 p-2.5 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
           >
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
               {/* TOP HEADER WITH INTEGRATED TAB TOGGLE */}
