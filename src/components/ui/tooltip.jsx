@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react"
 import { HelpCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function CustomTooltip({ text, content, children, position = "top", delay = 320, className = "", style }) {
+export function CustomTooltip({ text, content, children, position = "top", delay = 200, className = "", style }) {
   const [isVisible, setIsVisible] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0, isBottom: false });
   const triggerRef = useRef(null);
@@ -31,9 +31,6 @@ export function CustomTooltip({ text, content, children, position = "top", delay
     setIsVisible(false);
   };
 
-  const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-  const winWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
-
   return (
     <>
       <span
@@ -50,11 +47,11 @@ export function CustomTooltip({ text, content, children, position = "top", delay
         <div
           style={{
             position: "fixed",
-            left: `${Math.max(140, Math.min(winWidth - 140, coords.x))}px`,
-            ...(coords.isBottom ? { top: `${coords.y}px` } : { bottom: `${Math.max(10, winHeight - coords.y)}px` }),
-            transform: "translateX(-50%)"
+            left: `${Math.max(140, Math.min(typeof window !== 'undefined' ? window.innerWidth - 140 : 500, coords.x))}px`,
+            top: `${Math.max(40, coords.y)}px`,
+            transform: coords.isBottom ? "translate(-50%, 0)" : "translate(-50%, -100%)"
           }}
-          className="z-[999999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md max-w-xs text-left leading-snug select-none font-sans transition-opacity duration-150"
+          className="z-[999999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md max-w-xs text-left leading-snug select-none font-sans transition-opacity duration-100"
         >
           {content || text}
         </div>
