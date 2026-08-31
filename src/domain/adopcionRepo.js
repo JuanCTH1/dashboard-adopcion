@@ -43,6 +43,7 @@ class AdopcionRepository {
     this.data.CLIENTES.forEach(c => {
       this.clientMap.set(c.id, c);
       this.txByClient.set(c.id, []);
+      c.txMap = new Map();
     });
 
     this.data.TRANSACCIONES.forEach(t => {
@@ -54,6 +55,11 @@ class AdopcionRepository {
       const clientTxs = this.txByClient.get(t.clienteId);
       if (clientTxs) {
         clientTxs.push(t);
+      }
+
+      const client = this.clientMap.get(t.clienteId);
+      if (client) {
+        client.txMap.set(t.periodo, t);
       }
     });
 
@@ -71,7 +77,7 @@ class AdopcionRepository {
 
     // LRU / Memoization Cache
     this.cache = new Map();
-    this.maxCacheSize = 100;
+    this.maxCacheSize = 300;
   }
 
   getDefiniciones() {
@@ -334,11 +340,12 @@ class AdopcionRepository {
       if (repAcc) repAcc.clientesAsignados.add(c.id);
     });
 
-    // 3. SINGLE PASS OVER FILTERED CLIENT TRANSACTIONS
+    // 3. FAST PASS OVER FILTERED CLIENT TRANSACTIONS IN ACTIVE FILTER PERIOD
     const numClients = filteredClients.length;
+    const numValidMonths = validMonthKeys.length;
+
     for (let cIdx = 0; cIdx < numClients; cIdx++) {
       const client = filteredClients[cIdx];
-      const txs = this.txByClient.get(client.id) || [];
       const clientAcc = byClient.get(client.id);
 
       const vAcc = byVp.get(client.vpId);
@@ -348,28 +355,10 @@ class AdopcionRepository {
       const mvAcc = byMarketAndVp.get(`${client.plaza}_${client.vpId}`);
       const repAcc = byRepId.get(client.vendedorId);
 
-      const numTxs = txs.length;
-      for (let tIdx = 0; tIdx < numTxs; tIdx++) {
-        const t = txs[tIdx];
-        const pKey = t.periodo;
-
-        // Month tracker for full 36-month timeline
-        const mObj = byMonth.get(pKey);
-        if (mObj) {
-          mObj.pedidosTotales += t.pedidosTotales;
-          mObj.pedidosDigitales += t.pedidosDigitales;
-          mObj.pedidosAnalogos += t.pedidosAnalogos;
-          mObj.periodClients.add(t.clienteId);
-          if (t.pedidosDigitales > 0) mObj.digitalClients.add(t.clienteId);
-          if (t.estaIncorporado) mObj.onboardedClients.add(t.clienteId);
-
-          if (t.lineaNegocio === 'readymix') mObj.volumenConcreto += t.volumenDigital;
-          else if (t.lineaNegocio === 'cemento') mObj.volumenCemento += t.volumenDigital;
-          else if (t.lineaNegocio === 'agregados') mObj.volumenAgregados += t.volumenDigital;
-        }
-
-        // Only process transactions in active filter period
-        if (!validMonthKeysSet.has(pKey)) continue;
+      for (let mIdx = 0; mIdx < numValidMonths; mIdx++) {
+        const pKey = validMonthKeys[mIdx];
+        const t = client.txMap?.get(pKey);
+        if (!t) continue;
 
         // Global accumulators
         globalOrders.totales += t.pedidosTotales;
@@ -406,26 +395,96 @@ class AdopcionRepository {
           if (t.pedidosDigitales > 0) clientAcc.activeMonths++;
         }
 
-        // Entity accumulators helper
-        const addTxToEntity = (acc) => {
-          if (!acc) return;
-          acc.pedidosTotales += t.pedidosTotales;
-          acc.pedidosDigitales += t.pedidosDigitales;
-          acc.pedidosAnalogos += t.pedidosAnalogos;
-          acc.pedidosWeb += t.pedidosWeb;
-          acc.pedidosApp += t.pedidosApp;
-          acc.pedidosEdi += t.pedidosEdi;
-          acc.volumenTotal += t.volumenTotal;
-          acc.volumenDigital += t.volumenDigital;
-          acc.periodClients.add(t.clienteId);
-        };
+        // Direct inlined entity accumulators (0 function call overhead)
+        if (vAcc) {
+          vAcc.pedidosTotales += t.pedidosTotales;
+          vAcc.pedidosDigitales += t.pedidosDigitales;
+          vAcc.pedidosAnalogos += t.pedidosAnalogos;
+          vAcc.pedidosWeb += t.pedidosWeb;
+          vAcc.pedidosApp += t.pedidosApp;
+          vAcc.pedidosEdi += t.pedidosEdi;
+          vAcc.volumenTotal += t.volumenTotal;
+          vAcc.volumenDigital += t.volumenDigital;
+          vAcc.periodClients.add(t.clienteId);
+        }
+        if (rAcc) {
+          rAcc.pedidosTotales += t.pedidosTotales;
+          rAcc.pedidosDigitales += t.pedidosDigitales;
+          rAcc.pedidosAnalogos += t.pedidosAnalogos;
+          rAcc.pedidosWeb += t.pedidosWeb;
+          rAcc.pedidosApp += t.pedidosApp;
+          rAcc.pedidosEdi += t.pedidosEdi;
+          rAcc.volumenTotal += t.volumenTotal;
+          rAcc.volumenDigital += t.volumenDigital;
+          rAcc.periodClients.add(t.clienteId);
+        }
+        if (rvAcc) {
+          rvAcc.pedidosTotales += t.pedidosTotales;
+          rvAcc.pedidosDigitales += t.pedidosDigitales;
+          rvAcc.pedidosAnalogos += t.pedidosAnalogos;
+          rvAcc.pedidosWeb += t.pedidosWeb;
+          rvAcc.pedidosApp += t.pedidosApp;
+          rvAcc.pedidosEdi += t.pedidosEdi;
+          rvAcc.volumenTotal += t.volumenTotal;
+          rvAcc.volumenDigital += t.volumenDigital;
+          rvAcc.periodClients.add(t.clienteId);
+        }
+        if (mAcc) {
+          mAcc.pedidosTotales += t.pedidosTotales;
+          mAcc.pedidosDigitales += t.pedidosDigitales;
+          mAcc.pedidosAnalogos += t.pedidosAnalogos;
+          mAcc.pedidosWeb += t.pedidosWeb;
+          mAcc.pedidosApp += t.pedidosApp;
+          mAcc.pedidosEdi += t.pedidosEdi;
+          mAcc.volumenTotal += t.volumenTotal;
+          mAcc.volumenDigital += t.volumenDigital;
+          mAcc.periodClients.add(t.clienteId);
+        }
+        if (mvAcc) {
+          mvAcc.pedidosTotales += t.pedidosTotales;
+          mvAcc.pedidosDigitales += t.pedidosDigitales;
+          mvAcc.pedidosAnalogos += t.pedidosAnalogos;
+          mvAcc.pedidosWeb += t.pedidosWeb;
+          mvAcc.pedidosApp += t.pedidosApp;
+          mvAcc.pedidosEdi += t.pedidosEdi;
+          mvAcc.volumenTotal += t.volumenTotal;
+          mvAcc.volumenDigital += t.volumenDigital;
+          mvAcc.periodClients.add(t.clienteId);
+        }
+        if (repAcc) {
+          repAcc.pedidosTotales += t.pedidosTotales;
+          repAcc.pedidosDigitales += t.pedidosDigitales;
+          repAcc.pedidosAnalogos += t.pedidosAnalogos;
+          repAcc.pedidosWeb += t.pedidosWeb;
+          repAcc.pedidosApp += t.pedidosApp;
+          repAcc.pedidosEdi += t.pedidosEdi;
+          repAcc.volumenTotal += t.volumenTotal;
+          repAcc.volumenDigital += t.volumenDigital;
+          repAcc.periodClients.add(t.clienteId);
+        }
+      }
+    }
 
-        addTxToEntity(vAcc);
-        addTxToEntity(rAcc);
-        addTxToEntity(rvAcc);
-        addTxToEntity(mAcc);
-        addTxToEntity(mvAcc);
-        addTxToEntity(repAcc);
+    // 3b. TIMELINE ACCUMULATOR (FOR HISTORICAL TREND CHARTS)
+    for (let cIdx = 0; cIdx < numClients; cIdx++) {
+      const client = filteredClients[cIdx];
+      const txs = this.txByClient.get(client.id) || [];
+      const numTxs = txs.length;
+      for (let tIdx = 0; tIdx < numTxs; tIdx++) {
+        const t = txs[tIdx];
+        const mObj = byMonth.get(t.periodo);
+        if (mObj) {
+          mObj.pedidosTotales += t.pedidosTotales;
+          mObj.pedidosDigitales += t.pedidosDigitales;
+          mObj.pedidosAnalogos += t.pedidosAnalogos;
+          mObj.periodClients.add(t.clienteId);
+          if (t.pedidosDigitales > 0) mObj.digitalClients.add(t.clienteId);
+          if (t.estaIncorporado) mObj.onboardedClients.add(t.clienteId);
+
+          if (t.lineaNegocio === 'readymix') mObj.volumenConcreto += t.volumenDigital;
+          else if (t.lineaNegocio === 'cemento') mObj.volumenCemento += t.volumenDigital;
+          else if (t.lineaNegocio === 'agregados') mObj.volumenAgregados += t.volumenDigital;
+        }
       }
     }
 

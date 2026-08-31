@@ -81,13 +81,10 @@ export function Sidebar({
           <button
             type="button"
             onClick={onToggle}
-            className="w-full h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer relative"
+            className="w-full h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
             title="Expand Filters"
           >
             <PanelLeft className="w-4 h-4 text-primary" />
-            {totalActiveFilters > 0 && (
-              <span className="absolute top-1 right-2 w-2 h-2 rounded-full bg-primary" />
-            )}
           </button>
         )}
       </div>
@@ -248,16 +245,11 @@ export function Sidebar({
             <button
               type="button"
               onClick={onToggle}
-              className="w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 bg-white dark:bg-slate-900 border border-border text-slate-700 dark:text-slate-300 hover:border-primary/50 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-2xs group relative"
+              className="w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 bg-white dark:bg-slate-900 border border-border text-slate-700 dark:text-slate-300 hover:border-primary/50 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-2xs group"
               title="Open full filters panel (Year, Month, Onboarded, Active)"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
+              <SlidersHorizontal className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
               <span className="text-[10px] font-bold leading-none text-muted-foreground group-hover:text-primary">More</span>
-              {totalActiveFilters > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center shadow-2xs">
-                  {totalActiveFilters}
-                </span>
-              )}
             </button>
           </div>
 
