@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, UserCheck, Target, X, List, TrendingUp, Copy, Check, Award, Mail } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
+import { adopcionRepo } from '@/domain/adopcionRepo';
 
 const TOP_N = 3;
 
@@ -174,6 +175,12 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
     : 'Jul';
   const monthName = MONTH_NAMES[rawMonth] || rawMonth || 'July';
 
+  // Email is ALWAYS compiled for the latest completed full month (July 2026)
+  const EMAIL_MONTH_NAME = 'July';
+  const emailLeaderboardData = useMemo(() => {
+    return adopcionRepo.getLeaderboard({ anios: [2026], meses: ['Jul'] });
+  }, []);
+
   const activeTipo = useMemo(
     () => DIMENSIONS.find(d => d.key === dimension)?.tipo,
     [dimension]
@@ -198,23 +205,18 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
   const activeOnboardingList = rankingMode === 'most_improved' ? improvedOnboarding : standingsOnboarding;
   const activeAdoptionList = rankingMode === 'most_improved' ? improvedAdoption : standingsAdoption;
 
-  const handleRowClick = (item) => {
-    setExpanded(null);
-    onSelectEntity?.(item);
-  };
-
   const dimLabel = DIMENSIONS.find(d => d.key === dimension)?.label || 'Sales Reps';
   const modalRows = expanded === 'onboarding' ? activeOnboardingList : activeAdoptionList;
   const modalTitle = expanded === 'onboarding'
     ? (rankingMode === 'most_improved' ? 'Top Movers: Customers Onboarding (New Accounts)' : 'Customers Onboarding Standings')
     : (rankingMode === 'most_improved' ? 'Top Movers: Digital Orders Adoption (MoM)' : 'Digital Orders Adoption Standings');
 
-  // Trigger Outlook Email & Copy Styled Rich HTML Table to Clipboard (Always copies full monthly national ranking)
+  // Trigger Outlook Email & Copy Styled Rich HTML Table to Clipboard (Always copies full latest completed monthly national ranking: July)
   const handleSendEmail = () => {
-    // 1. Compute Top 3 across all dimensions (National Monthly Dataset - Independent of active UI filters)
-    const allReps = (leaderboardData || []).filter(i => i.tipo === 'sales_rep');
-    const allMkts = (leaderboardData || []).filter(i => i.tipo === 'market');
-    const allRegs = (leaderboardData || []).filter(i => i.tipo === 'region');
+    // 1. Compute Top 3 across all dimensions (Latest completed full month: July 2026)
+    const allReps = (emailLeaderboardData || []).filter(i => i.tipo === 'sales_rep');
+    const allMkts = (emailLeaderboardData || []).filter(i => i.tipo === 'market');
+    const allRegs = (emailLeaderboardData || []).filter(i => i.tipo === 'region');
 
     // Rank Reps Onboarding by newly onboarded accounts in the month
     const topRepsOnb = rank(allReps, 'newOnboardedMonth').slice(0, 3);
@@ -227,7 +229,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
     const topMktAdop = rank(allMkts, 'adopcionPct')[0];
     const topMktMover = rank(allMkts, 'momDeltaAdopcion')[0];
 
-    const subject = `${monthName} Digital Adoption & Customers Onboarding Pulse | American Cements USA`;
+    const subject = `${EMAIL_MONTH_NAME} Digital Adoption & Customers Onboarding Pulse | American Cements USA`;
 
     // 2. Build Rich HTML for Clipboard locked to 580px table width (Outlook-compatible fixed width)
     const richHtml = `
@@ -235,7 +237,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
         <tr>
           <td>
             <p style="margin: 0 0 12px 0;">Hello team,</p>
-            <p style="margin: 0 0 12px 0;">Please find below our ${monthName} pulse on customer digital adoption and account onboarding across <strong>American Cements USA</strong>.</p>
+            <p style="margin: 0 0 12px 0;">Please find below our ${EMAIL_MONTH_NAME} pulse on customer digital adoption and account onboarding across <strong>American Cements USA</strong>.</p>
             <p style="margin: 0 0 18px 0;">Special recognition to our top performers for expanding our digital customer base and driving order conversion this month.</p>
             
             <h3 style="color: #0000B3; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">⭐ SALES REPS SPOTLIGHT</h3>
@@ -470,7 +472,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
               ) : (
                 <>
                   <Mail className="w-3 h-3 text-primary" />
-                  <span className="text-xs font-bold">{monthName} Leaderboard (Email)</span>
+                  <span className="text-xs font-bold">July Leaderboard (Email)</span>
                 </>
               )}
             </button>

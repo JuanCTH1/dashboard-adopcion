@@ -246,21 +246,14 @@ export function App() {
   }, [filtrosCompuestos]);
 
   const leaderboardData = useMemo(() => {
-    // Rankings reflect context filters (period, BL) and hierarchy down to markets (VP, Region, Market),
-    // but NEVER single sales reps, so reps are always compared with their peers.
+    // Rankings are strictly time-based (period, year, month) benchmarks.
+    // They are intentionally independent of hierarchy selections.
     const fLeaderboard = {
-      ...filtrosContexto,
-      vpIds: filtrosJerarquia.vpIds,
-      directorIds: filtrosJerarquia.directorIds,
-      gerenteIds: filtrosJerarquia.gerenteIds
+      anios: filtrosContexto.anios,
+      meses: filtrosContexto.meses
     };
     return adopcionRepo.getLeaderboard(fLeaderboard);
-  }, [
-    filtrosContexto,
-    filtrosJerarquia.vpIds,
-    filtrosJerarquia.directorIds,
-    filtrosJerarquia.gerenteIds
-  ]);
+  }, [filtrosContexto.anios, filtrosContexto.meses]);
 
   const clientesAccion = useMemo(() => {
     let fAccion = { ...filtrosCompuestos };
