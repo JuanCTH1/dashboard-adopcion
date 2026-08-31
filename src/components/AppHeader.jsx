@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { AppLogo } from '@/components/ui/AppLogo';
 import { cn } from '@/lib/utils';
 
-export function AppHeader({
+export const AppHeader = React.memo(function AppHeader({
   sidebarOpen,
   onToggleSidebar,
   activeChips = [],
@@ -159,4 +159,4 @@ export function AppHeader({
       </div>
     </header>
   );
-}
+});

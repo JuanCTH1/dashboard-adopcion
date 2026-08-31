@@ -5,7 +5,7 @@ import { TrendingUp, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChartTheme } from '@/lib/theme';
 
-export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
+export const AdoptionTrendCard = React.memo(function AdoptionTrendCard({ serieHistorica = [], filtros }) {
   const { isDark } = useChartTheme();
 
   const filteredData = useMemo(() => {
@@ -107,4 +107,4 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
       </div>
     </Card>
   );
-}
+});

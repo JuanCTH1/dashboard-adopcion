@@ -62,7 +62,7 @@ const BL_SHORT = {
   'Aggregates': 'AGG'
 };
 
-export function ProgressiveHierarchy({
+export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   filtrosCompuestos = {},
   onHierarchyFilterChange,
   onOpenActionDrawer,
@@ -2010,5 +2010,5 @@ Commercial Leadership`;
       )}
     </Card>
   );
-}
+});
 

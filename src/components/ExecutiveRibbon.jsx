@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Users, UserCheck, Activity, Target, ChevronRight, ChevronsRight } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 
-export function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) {
+export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) {
   if (!metricasGlobales || !metricasGlobales.actual) return null;
 
   const { actual, deltas } = metricasGlobales;
@@ -189,4 +189,4 @@ export function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) 
       </div>
     </div>
   );
-}
+});

@@ -26,7 +26,7 @@ const SIDEBAR_SPRING = {
   damping: 30
 };
 
-export function Sidebar({
+export const Sidebar = React.memo(function Sidebar({
   isOpen,
   onToggle,
   filtros,
@@ -68,10 +68,11 @@ export function Sidebar({
   };
 
   return (
-    <motion.aside
-      animate={{ width: isOpen ? 180 : 64 }}
-      transition={SIDEBAR_SPRING}
-      className="relative h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs z-40 shrink-0 select-none font-sans overflow-visible"
+    <aside
+      className={cn(
+        "relative h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs z-40 shrink-0 select-none font-sans overflow-visible transition-[width] duration-200 ease-in-out will-change-[width]",
+        isOpen ? "w-[180px]" : "w-16"
+      )}
     >
       {/* Botón flotante a media altura en el borde divisor (Disponible tanto colapsado como expandido) */}
       <button
@@ -368,9 +369,9 @@ export function Sidebar({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.aside>
+    </aside>
   );
-}
+});
 
 
 

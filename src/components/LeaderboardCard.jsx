@@ -175,7 +175,7 @@ function RankingBlock({ title, icon: Icon, accent, rows, total, variant, mode, o
   );
 }
 
-export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }) {
+export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }) {
   const [dimension, setDimension] = useState('sales_reps');
   const [rankingMode, setRankingMode] = useState('standings'); // 'standings' | 'most_improved'
   const [expanded, setExpanded] = useState(null); // null | 'onboarding' | 'adoption'
@@ -665,4 +665,4 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
       )}
     </>
   );
-}
+});
