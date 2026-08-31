@@ -156,22 +156,9 @@ export function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) 
                     )}
                   </div>
 
-                  {/* Subtitle Footer with clear visual lane divider */}
-                  <div className={cn(
-                    "text-xs font-medium truncate pt-1 relative transition-colors",
-                    idx === 2
-                      ? "border-t-2 border-sky-500/60 dark:border-sky-400/50 text-slate-800 dark:text-slate-200 font-semibold"
-                      : "border-t border-slate-300/90 dark:border-slate-700 text-muted-foreground"
-                  )}>
-                    <div className="flex items-center justify-between">
-                      <span className="truncate">{st.secondaryLabel}</span>
-                      {idx === 2 && (
-                        <span
-                          className="w-1.5 h-1.5 rounded-full bg-sky-500 shadow-sky-500/50 shadow-xs shrink-0 ml-1"
-                          title="Orders Flow Anchor Point"
-                        />
-                      )}
-                    </div>
+                  {/* Subtitle Footer with clear visual lane divider across all stages */}
+                  <div className="text-xs font-semibold truncate pt-1 border-t-2 border-slate-300/90 dark:border-slate-700 text-muted-foreground transition-colors">
+                    <span className="truncate">{st.secondaryLabel}</span>
                   </div>
                 </div>
               </div>

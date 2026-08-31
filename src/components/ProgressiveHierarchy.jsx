@@ -568,6 +568,48 @@ export function ProgressiveHierarchy({
     }
   };
 
+  // Safe Viewport Clamping for Leadership / Info Popovers (Zero Top/Bottom Clipping)
+  const handleShowLeadershipPopover = (e, data) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const popoverHeight = Math.min(420, (data.personasDetalle?.length || 1) * 95 + 80);
+    const popoverWidth = 340;
+
+    let top = 0;
+    let pos = 'bottom';
+
+    // Prioritize opening below button if it fits, else open above, else clamp inside viewport
+    if (rect.bottom + popoverHeight <= window.innerHeight - 15) {
+      top = rect.bottom + 8;
+      pos = 'bottom';
+    } else if (rect.top - popoverHeight >= 65) {
+      top = rect.top - 8;
+      pos = 'top';
+    } else {
+      top = Math.max(65, Math.min(window.innerHeight - popoverHeight - 15, rect.top - 40));
+      pos = 'bottom';
+    }
+
+    let left = rect.left + rect.width / 2;
+    left = Math.max(popoverWidth / 2 + 15, Math.min(window.innerWidth - popoverWidth / 2 - 15, left));
+
+    setHoveredPopover({
+      ...data,
+      x: left,
+      y: top,
+      pos
+    });
+  };
+
+  const handleToggleLeadershipPopover = (e, data) => {
+    e.stopPropagation();
+    if (hoveredPopover) {
+      setHoveredPopover(null);
+    } else {
+      handleShowLeadershipPopover(e, data);
+    }
+  };
+
   // Reset showAllActionPlan when hierarchy selection changes
   useEffect(() => {
     setShowAllActionPlan(false);
@@ -992,35 +1034,21 @@ Commercial Leadership`;
                               <span
                                 role="button"
                                 tabIndex={0}
-                                onMouseEnter={(e) => {
-                                  e.stopPropagation();
-                                  const rect = e.currentTarget.getBoundingClientRect();
-                                  setHoveredPopover({
-                                    title: `${dir.nombre} Region`,
-                                    tipo: 'Leadership',
-                                    personasDetalle: dir.personasDetalle,
-                                    totales: dir.metricas.pedidos.totales,
-                                    pctAdopcion: dir.metricas.pedidos.pctAdopcion,
-                                    x: rect.left + rect.width / 2,
-                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                    pos: rect.top < 260 ? 'bottom' : 'top'
-                                  });
-                                }}
+                                onMouseEnter={(e) => handleShowLeadershipPopover(e, {
+                                  title: `${dir.nombre} Region`,
+                                  tipo: 'Leadership',
+                                  personasDetalle: dir.personasDetalle,
+                                  totales: dir.metricas.pedidos.totales,
+                                  pctAdopcion: dir.metricas.pedidos.pctAdopcion
+                                })}
                                 onMouseLeave={() => setHoveredPopover(null)}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const rect = e.currentTarget.getBoundingClientRect();
-                                  setHoveredPopover(prev => prev ? null : {
-                                    title: `${dir.nombre} Region`,
-                                    tipo: 'Leadership',
-                                    personasDetalle: dir.personasDetalle,
-                                    totales: dir.metricas.pedidos.totales,
-                                    pctAdopcion: dir.metricas.pedidos.pctAdopcion,
-                                    x: rect.left + rect.width / 2,
-                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                    pos: rect.top < 260 ? 'bottom' : 'top'
-                                  });
-                                }}
+                                onClick={(e) => handleToggleLeadershipPopover(e, {
+                                  title: `${dir.nombre} Region`,
+                                  tipo: 'Leadership',
+                                  personasDetalle: dir.personasDetalle,
+                                  totales: dir.metricas.pedidos.totales,
+                                  pctAdopcion: dir.metricas.pedidos.pctAdopcion
+                                })}
                                 className={cn(
                                   "p-0.5 rounded transition-colors cursor-pointer shrink-0",
                                   isSelected ? "hover:bg-indigo-700 text-indigo-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
@@ -1135,35 +1163,21 @@ Commercial Leadership`;
                               <span
                                 role="button"
                                 tabIndex={0}
-                                onMouseEnter={(e) => {
-                                  e.stopPropagation();
-                                  const rect = e.currentTarget.getBoundingClientRect();
-                                  setHoveredPopover({
-                                    title: `${ger.nombre} Market`,
-                                    tipo: 'Managers',
-                                    personasDetalle: ger.personasDetalle,
-                                    totales: ger.metricas.pedidos.totales,
-                                    pctAdopcion: ger.metricas.pedidos.pctAdopcion,
-                                    x: rect.left + rect.width / 2,
-                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                    pos: rect.top < 260 ? 'bottom' : 'top'
-                                  });
-                                }}
+                                onMouseEnter={(e) => handleShowLeadershipPopover(e, {
+                                  title: `${ger.nombre} Market`,
+                                  tipo: 'Managers',
+                                  personasDetalle: ger.personasDetalle,
+                                  totales: ger.metricas.pedidos.totales,
+                                  pctAdopcion: ger.metricas.pedidos.pctAdopcion
+                                })}
                                 onMouseLeave={() => setHoveredPopover(null)}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const rect = e.currentTarget.getBoundingClientRect();
-                                  setHoveredPopover(prev => prev ? null : {
-                                    title: `${ger.nombre} Market`,
-                                    tipo: 'Managers',
-                                    personasDetalle: ger.personasDetalle,
-                                    totales: ger.metricas.pedidos.totales,
-                                    pctAdopcion: ger.metricas.pedidos.pctAdopcion,
-                                    x: rect.left + rect.width / 2,
-                                    y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                    pos: rect.top < 260 ? 'bottom' : 'top'
-                                  });
-                                }}
+                                onClick={(e) => handleToggleLeadershipPopover(e, {
+                                  title: `${ger.nombre} Market`,
+                                  tipo: 'Managers',
+                                  personasDetalle: ger.personasDetalle,
+                                  totales: ger.metricas.pedidos.totales,
+                                  pctAdopcion: ger.metricas.pedidos.pctAdopcion
+                                })}
                                 className={cn(
                                   "p-0.5 rounded transition-colors cursor-pointer shrink-0",
                                   isSelected ? "hover:bg-sky-700 text-sky-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
@@ -1293,51 +1307,37 @@ Commercial Leadership`;
                             <span
                               role="button"
                               tabIndex={0}
-                              onMouseEnter={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover({
-                                  title: rep.nombre,
-                                  tipo: `${rep.plaza} · ${rep.regionNombre}`,
-                                  personasDetalle: [{
-                                    bl: rep.bl,
-                                    blFull: rep.lineaNegocio || rep.bl,
-                                    persona: rep.nombre,
-                                    clientesAsignados: rep.metricas.clientes?.asignados,
-                                    clientesOnboarded: rep.metricas.clientes?.onboarded,
-                                    pctOnboarding: rep.metricas.clientes?.pctOnboarding,
-                                    digitales: rep.metricas.pedidos?.digitales,
-                                    totales: rep.metricas.pedidos?.totales,
-                                    pctAdopcion: rep.metricas.pedidos?.pctAdopcion
-                                  }],
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
+                              onMouseEnter={(e) => handleShowLeadershipPopover(e, {
+                                title: rep.nombre,
+                                tipo: `${rep.plaza} · ${rep.regionNombre}`,
+                                personasDetalle: [{
+                                  bl: rep.bl,
+                                  blFull: rep.lineaNegocio || rep.bl,
+                                  persona: rep.nombre,
+                                  clientesAsignados: rep.metricas.clientes?.asignados,
+                                  clientesOnboarded: rep.metricas.clientes?.onboarded,
+                                  pctOnboarding: rep.metricas.clientes?.pctOnboarding,
+                                  digitales: rep.metricas.pedidos?.digitales,
+                                  totales: rep.metricas.pedidos?.totales,
+                                  pctAdopcion: rep.metricas.pedidos?.pctAdopcion
+                                }]
+                              })}
                               onMouseLeave={() => setHoveredPopover(null)}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredPopover(prev => prev ? null : {
-                                  title: rep.nombre,
-                                  tipo: `${rep.plaza} · ${rep.regionNombre}`,
-                                  personasDetalle: [{
-                                    bl: rep.bl,
-                                    blFull: rep.lineaNegocio || rep.bl,
-                                    persona: rep.nombre,
-                                    clientesAsignados: rep.metricas.clientes?.asignados,
-                                    clientesOnboarded: rep.metricas.clientes?.onboarded,
-                                    pctOnboarding: rep.metricas.clientes?.pctOnboarding,
-                                    digitales: rep.metricas.pedidos?.digitales,
-                                    totales: rep.metricas.pedidos?.totales,
-                                    pctAdopcion: rep.metricas.pedidos?.pctAdopcion
-                                  }],
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top < 260 ? rect.bottom + 8 : rect.top - 8,
-                                  pos: rect.top < 260 ? 'bottom' : 'top'
-                                });
-                              }}
+                              onClick={(e) => handleToggleLeadershipPopover(e, {
+                                title: rep.nombre,
+                                tipo: `${rep.plaza} · ${rep.regionNombre}`,
+                                personasDetalle: [{
+                                  bl: rep.bl,
+                                  blFull: rep.lineaNegocio || rep.bl,
+                                  persona: rep.nombre,
+                                  clientesAsignados: rep.metricas.clientes?.asignados,
+                                  clientesOnboarded: rep.metricas.clientes?.onboarded,
+                                  pctOnboarding: rep.metricas.clientes?.pctOnboarding,
+                                  digitales: rep.metricas.pedidos?.digitales,
+                                  totales: rep.metricas.pedidos?.totales,
+                                  pctAdopcion: rep.metricas.pedidos?.pctAdopcion
+                                }]
+                              })}
                               className={cn(
                                 "p-0.5 rounded transition-colors cursor-pointer shrink-0",
                                 isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
@@ -1909,7 +1909,7 @@ Commercial Leadership`;
             top: `${hoveredPopover.y}px`,
             transform: hoveredPopover.pos === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0)'
           }}
-          className="z-[9999] w-84 p-3.5 bg-card/98 text-foreground dark:bg-slate-900/98 dark:text-slate-100 rounded-xl shadow-2xl border-2 border-slate-300 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150 font-sans select-none"
+          className="z-[9999] w-84 max-h-[85vh] overflow-y-auto scrollbar-thin p-3.5 bg-card/98 text-foreground dark:bg-slate-900/98 dark:text-slate-100 rounded-xl shadow-2xl border-2 border-slate-300 dark:border-slate-600 pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-150 font-sans select-none"
         >
           <div className="font-black text-primary dark:text-sky-300 uppercase tracking-wider text-[12px] pb-2 border-b border-border/80 flex items-center justify-between">
             <span className="font-bold">{hoveredPopover.title}</span>
