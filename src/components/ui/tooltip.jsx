@@ -15,14 +15,10 @@ export function CustomTooltip({ text, content, children, position = "top", delay
     timerRef.current = setTimeout(() => {
       if (triggerRef.current) {
         const rect = triggerRef.current.getBoundingClientRect();
-        const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
-        let isBottom = position === "bottom";
-        if (position === "top" && rect.top < 30) isBottom = true;
-        if (position === "bottom" && rect.bottom > winHeight - 60) isBottom = false;
-
+        const isBottom = position === "bottom";
         setCoords({
           x: rect.left + rect.width / 2,
-          y: isBottom ? rect.bottom + 8 : Math.max(10, rect.top - 8),
+          y: isBottom ? rect.bottom + 8 : Math.max(30, rect.top - 8),
           isBottom
         });
         setIsVisible(true);
