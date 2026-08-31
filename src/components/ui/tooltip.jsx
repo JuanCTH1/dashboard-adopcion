@@ -18,7 +18,7 @@ export function CustomTooltip({ text, content, children, position = "top", delay
         const isBottom = position === "bottom";
         setCoords({
           x: rect.left + rect.width / 2,
-          y: isBottom ? rect.bottom + 8 : Math.max(30, rect.top - 8),
+          y: isBottom ? rect.bottom + 8 : rect.top - 8,
           isBottom
         });
         setIsVisible(true);
