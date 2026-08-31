@@ -1478,41 +1478,37 @@ Commercial Leadership`;
                       </div>
 
                       {/* Segmented Stacked Progress Bar */}
-                      <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 flex overflow-hidden p-0.5 gap-0.5">
+                      <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-800 flex overflow-hidden p-0.5 gap-0.5">
                         {orderComposition.digitalOrders > 0 && (
-                          <CustomTooltip text={`Digital Adopted: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctDigital}%` }}
-                              className="h-full bg-emerald-500 rounded-full transition-all duration-300 cursor-help"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctDigital}%` }}
+                            className="h-full bg-emerald-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
+                            title={`Digital Adopted: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(1)}%)`}
+                          />
                         )}
 
                         {orderComposition.lowAdoptionOrders > 0 && (
-                          <CustomTooltip text={`Low Adoption (Analog orders from Onboarded): ${formatNumber(orderComposition.lowAdoptionOrders)} orders (${orderComposition.pctLowAdopt.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctLowAdopt}%` }}
-                              className="h-full bg-amber-500 rounded-full transition-all duration-300 cursor-help"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctLowAdopt}%` }}
+                            className="h-full bg-amber-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
+                            title={`Low Adoption (Analog orders from Onboarded): ${formatNumber(orderComposition.lowAdoptionOrders)} orders (${orderComposition.pctLowAdopt.toFixed(1)}%)`}
+                          />
                         )}
 
                         {orderComposition.notOnboardedOrders > 0 && (
-                          <CustomTooltip text={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctNotOnb}%` }}
-                              className="h-full bg-rose-500 rounded-full transition-all duration-300 cursor-help"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctNotOnb}%` }}
+                            className="h-full bg-rose-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
+                            title={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(1)}%)`}
+                          />
                         )}
 
                         {orderComposition.excludedOrders > 0 && (
-                          <CustomTooltip text={`Excluded Accounts: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctExcluded}%` }}
-                              className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 cursor-help"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctExcluded}%` }}
+                            className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
+                            title={`Excluded Accounts: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(1)}%)`}
+                          />
                         )}
                       </div>
 
