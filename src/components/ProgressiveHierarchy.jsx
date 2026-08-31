@@ -785,7 +785,7 @@ export function ProgressiveHierarchy({
                                 <span
                                   key={pill}
                                   className={cn(
-                                    "text-xs font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shadow-2xs",
                                     pill === 'RMX'
                                       ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                       : pill === 'CEM'
@@ -929,7 +929,7 @@ export function ProgressiveHierarchy({
                                 <span
                                   key={pill}
                                   className={cn(
-                                    "text-xs font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
+                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shadow-2xs",
                                     pill === 'RMX'
                                       ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                       : pill === 'CEM'
@@ -1083,7 +1083,7 @@ export function ProgressiveHierarchy({
                           <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
                           <span
                             className={cn(
-                              "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
+                              "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
                               rep.bl === 'RMX'
                                 ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                 : rep.bl === 'CEM'
@@ -1214,7 +1214,7 @@ export function ProgressiveHierarchy({
                               {/* Commercial Context */}
                               <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
                                 <span className={cn(
-                                  "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
+                                  "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
                                   shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                                   shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                                   "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
@@ -1363,7 +1363,7 @@ export function ProgressiveHierarchy({
                                 </div>
                                 <div className="mt-0.5 flex items-center">
                                   <span className={cn(
-                                    "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
+                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
                                     shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                                     shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                                     "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
@@ -1494,7 +1494,7 @@ export function ProgressiveHierarchy({
                 <div className="flex items-center justify-between gap-1.5 font-bold">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className={cn(
-                      "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
+                      "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
                       p.bl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                       p.bl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                       "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"

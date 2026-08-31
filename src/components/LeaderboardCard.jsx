@@ -90,7 +90,7 @@ function RankingRow({ item, variant, mode, dense }) {
             {item.nombre}
           </span>
           {item.tipo === 'market_line' && item.lineaNegocio && (
-            <span className="text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0 bg-slate-500/10 text-muted-foreground border-border">
+            <span className="text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 bg-slate-500/10 text-muted-foreground border-border">
               {BL_SHORT[item.lineaNegocio] || 'BL'}
             </span>
           )}
@@ -244,11 +244,13 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
     const topMktAdop = rank(allMkts, 'adopcionPct')[0];
     const topMktMover = rank(allMkts, 'momDeltaAdopcion')[0];
 
-    const subject = isLive
+    const isAugustLive = targetMonth === 'Aug';
+
+    const subject = isAugustLive
       ? `[LIVE PULSE] August 2026 Digital Adoption & Onboarding Sprint | American Cements USA`
       : `[OFFICIAL] July 2026 Digital Adoption & Customers Onboarding Leaderboard | American Cements USA`;
 
-    const statusBanner = targetMonth === 'Aug'
+    const statusBanner = isAugustLive
       ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-left: 4px solid #059669; border-radius: 0 6px 6px 0;">
           <tr>
             <td style="padding: 10px 14px;">
@@ -266,13 +268,29 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
           </tr>
         </table>`;
 
+    const introParagraph = isAugustLive
+      ? `<p style="margin: 0 0 14px 0;">Please find below our mid-month <strong>August 2026 Live Sprint Pulse</strong> on customer digital adoption and account onboarding across <strong>American Cements USA</strong>. Great momentum so far—let's keep pushing hard through month close!</p>`
+      : `<p style="margin: 0 0 14px 0;">Congratulations to our commercial teams on an outstanding performance in <strong>July 2026</strong>! Please find below the official closed standings, top performers, and recognition across <strong>American Cements USA</strong>.</p>`;
+
+    const closingParagraph = isAugustLive
+      ? `<p style="margin-top: 20px; font-size: 13px; color: #475569;">
+          Let's keep up the great energy, continue engaging our customers, and close this sprint strong!<br/><br/>
+          <strong style="color: #0f172a;">Commercial Leadership Team</strong><br/>
+          American Cements USA
+        </p>`
+      : `<p style="margin-top: 20px; font-size: 13px; color: #475569;">
+          Congratulations once again to all our top performers for driving customer digital transformation!<br/><br/>
+          <strong style="color: #0f172a;">Commercial Leadership Team</strong><br/>
+          American Cements USA
+        </p>`;
+
     // 2. Build Rich HTML for Clipboard locked to 580px table width (Outlook-compatible fixed width)
     const richHtml = `
       <table width="580" cellpadding="0" cellspacing="0" border="0" style="width: 580px; max-width: 580px; font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; line-height: 1.6; font-size: 13px;">
         <tr>
           <td>
             <p style="margin: 0 0 10px 0;">Hello team,</p>
-            <p style="margin: 0 0 14px 0;">Please find below our ${monthLabel} pulse on customer digital adoption and account onboarding across <strong>American Cements USA</strong>.</p>
+            ${introParagraph}
             
             ${statusBanner}
 
@@ -395,18 +413,16 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
               </tr>
             </table>
 
-            <p style="margin-top: 20px; font-size: 13px; color: #475569;">
-              Thank you for your ongoing commitment to our digital customer experience.<br/><br/>
-              <strong style="color: #0f172a;">Commercial Leadership Team</strong><br/>
-              American Cements USA
-            </p>
+            ${closingParagraph}
           </td>
         </tr>
       </table>
     `;
 
     // Plain text fallback
-    const plainFallback = `Hello team,\n\nPlease find attached our ${monthLabel} pulse on customer digital adoption and account onboarding across American Cements USA.\n(Paste with Ctrl + V to view full styled cards).`;
+    const plainFallback = isAugustLive
+      ? `Hello team,\n\nPlease find attached our August 2026 mid-month sprint pulse on customer digital adoption and onboarding across American Cements USA. Let's close strong!\n(Paste with Ctrl + V to view full styled cards).`
+      : `Hello team,\n\nCongratulations to our commercial teams on July 2026 results! Attached is the official closed leaderboard for customer digital adoption and onboarding across American Cements USA.\n(Paste with Ctrl + V to view full styled cards).`;
 
     // Write rich HTML to clipboard immediately
     try {
@@ -637,7 +653,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
                         <div className="font-bold text-foreground hover:text-primary transition-colors flex items-center gap-1.5">
                           <span>{item.nombre}</span>
                           {item.tipo === 'market_line' && item.lineaNegocio && (
-                            <span className="text-xs font-black px-1 py-0.2 rounded border uppercase bg-slate-500/10 text-muted-foreground border-border">
+                            <span className="text-[10px] font-black px-1 py-0.2 rounded border uppercase bg-slate-500/10 text-muted-foreground border-border">
                               {BL_SHORT[item.lineaNegocio] || 'BL'}
                             </span>
                           )}
