@@ -1498,7 +1498,7 @@ Commercial Leadership`;
                           <CustomTooltip
                             className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctDigital}%` }}
-                            text={`Digital: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(0)}%)`}
+                            text={`Digital: ${formatNumber(orderComposition.digitalOrders)} orders`}
                           >
                             <div className="w-full h-full bg-emerald-500 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
                           </CustomTooltip>
@@ -1508,7 +1508,7 @@ Commercial Leadership`;
                           <CustomTooltip
                             className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctLowAdopt}%` }}
-                            text={`Low Adoption: ${formatNumber(orderComposition.lowAdoptionOrders)} orders (${orderComposition.pctLowAdopt.toFixed(0)}%)`}
+                            text={`Low Adoption: ${formatNumber(orderComposition.lowAdoptionOrders)} orders`}
                           >
                             <div className="w-full h-full bg-amber-500 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
                           </CustomTooltip>
@@ -1518,7 +1518,7 @@ Commercial Leadership`;
                           <CustomTooltip
                             className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctNotOnb}%` }}
-                            text={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(0)}%)`}
+                            text={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders`}
                           >
                             <div className="w-full h-full bg-rose-500 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
                           </CustomTooltip>
@@ -1528,7 +1528,7 @@ Commercial Leadership`;
                           <CustomTooltip
                             className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctExcluded}%` }}
-                            text={`Excluded: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(0)}%)`}
+                            text={`Excluded: ${formatNumber(orderComposition.excludedOrders)} orders`}
                           >
                             <div className="w-full h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
                           </CustomTooltip>
