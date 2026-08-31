@@ -1,4 +1,5 @@
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { FilterListbox } from "./FilterListbox";
 import {
   Filter,
@@ -14,6 +15,12 @@ import { cn } from "@/lib/utils";
 
 const NOMBRES_MESES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const ANIOS_DISPONIBLES = [2024, 2025, 2026];
+
+const SIDEBAR_SPRING = {
+  type: "spring",
+  stiffness: 350,
+  damping: 30
+};
 
 export function Sidebar({
   isOpen,
@@ -48,26 +55,32 @@ export function Sidebar({
   };
 
   return (
-    <aside
-      className={cn(
-        "relative h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs transition-all duration-200 z-40 shrink-0 select-none font-sans",
-        isOpen ? "w-[180px]" : "w-16"
-      )}
+    <motion.aside
+      animate={{ width: isOpen ? 180 : 64 }}
+      transition={SIDEBAR_SPRING}
+      className="relative h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs z-40 shrink-0 select-none font-sans overflow-visible"
     >
-      {/* Botón flotante a media altura en el borde divisor para ocultar/colapsar (Patrón Linear / Notion) */}
-      {isOpen && (
-        <button
-          type="button"
-          onClick={onToggle}
-          className="absolute top-1/2 -translate-y-1/2 -right-3.5 z-50 w-7 h-11 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/60 hover:scale-105 active:scale-95 transition-all cursor-pointer group"
-          title="Collapse filters sidebar"
-        >
-          <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:text-primary group-hover:-translate-x-0.5 transition-all" />
-        </button>
-      )}
+      {/* Botón flotante a media altura en el borde divisor para ocultar/colapsar (Estático, sin desplazamiento en hover) */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.button
+            key="collapse-handle"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={SIDEBAR_SPRING}
+            type="button"
+            onClick={onToggle}
+            className="absolute top-1/2 -translate-y-1/2 -right-3.5 z-50 w-7 h-11 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/60 transition-colors cursor-pointer"
+            title="Collapse filters sidebar"
+          >
+            <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* 1. Sidebar Header */}
-      <div className="h-11 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0">
+      <div className="h-11 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 overflow-hidden">
         {isOpen ? (
           <div className="flex items-center gap-2 overflow-hidden min-w-0">
             <div className="w-5 h-5 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
@@ -89,185 +102,212 @@ export function Sidebar({
         )}
       </div>
 
-      {/* 2. Expanded Sidebar Content */}
-      {isOpen ? (
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-50 dark:bg-slate-950">
-          {/* Active Filter Counter & Reset */}
-          <div className="h-7 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100/80 dark:bg-slate-900/80 text-xs shrink-0">
-            {totalActiveFilters > 0 ? (
-              <>
-                <span className="text-xs text-primary dark:text-sky-400 font-bold tabular-nums">
-                  {totalActiveFilters} active
-                </span>
+      {/* 2. Content with Smooth Crossfade */}
+      <AnimatePresence mode="wait" initial={false}>
+        {isOpen ? (
+          <motion.div
+            key="expanded-content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+            className="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-50 dark:bg-slate-950"
+          >
+            {/* Active Filter Counter & Reset */}
+            <div className="h-7 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100/80 dark:bg-slate-900/80 text-xs shrink-0">
+              {totalActiveFilters > 0 ? (
+                <>
+                  <span className="text-xs text-primary dark:text-sky-400 font-bold tabular-nums">
+                    {totalActiveFilters} active
+                  </span>
 
-                <button
-                  onClick={onResetFiltros}
-                  className="text-xs text-primary dark:text-sky-400 hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
-                >
-                  <RotateCcw className="w-2.5 h-2.5" />
-                  Reset
-                </button>
-              </>
-            ) : (
-              <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">FILTERS</span>
+                  <button
+                    onClick={onResetFiltros}
+                    className="text-xs text-primary dark:text-sky-400 hover:underline font-bold flex items-center gap-0.5 cursor-pointer"
+                  >
+                    <RotateCcw className="w-2.5 h-2.5" />
+                    Reset
+                  </button>
+                </>
+              ) : (
+                <span className="text-xs text-muted-foreground font-bold uppercase tracking-wider">FILTERS</span>
+              )}
+            </div>
+
+            {/* Scrollable Block List */}
+            <div className="flex-1 overflow-y-auto px-2 py-2.5 space-y-2.5 text-left scrollbar-thin">
+              <div className="rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-2xs p-2 space-y-2">
+                {/* CURRENT & PREVIOUS MONTH PRESETS */}
+                <div className="flex flex-col gap-1.5">
+                  <button
+                    type="button"
+                    onClick={handleSelectCurrent}
+                    className={cn(
+                      "w-full py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-between border transition-all cursor-pointer shadow-2xs",
+                      isCurrentMonth
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                        : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+                    )}
+                    title={isCurrentMonth ? "Click to deselect (Show all)" : "Filter by Current Month (Aug 2026)"}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className={cn(
+                        "w-2 h-2 rounded-full shrink-0",
+                        isCurrentMonth
+                          ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)] animate-pulse"
+                          : "bg-slate-300 dark:bg-slate-600"
+                      )} />
+                      <span>August (Live)</span>
+                    </div>
+                    <span className={cn("text-[10px] font-bold", isCurrentMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleSelectPrevious}
+                    className={cn(
+                      "w-full py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-between border transition-all cursor-pointer shadow-2xs",
+                      isPrevMonth
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                        : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
+                    )}
+                    title={isPrevMonth ? "Click to deselect (Show all)" : "Filter by Previous Month (July 2026)"}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+                      <span>July (Official)</span>
+                    </div>
+                    <span className={cn("text-[10px] font-bold", isPrevMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
+                  </button>
+                </div>
+
+                <FilterListbox
+                  label="Year"
+                  options={ANIOS_DISPONIBLES}
+                  value={filtros.anios || []}
+                  onChange={(val) => onFiltroChange("anios", val)}
+                  grid={true}
+                  gridCols={3}
+                  formatLabel={yr => `'${String(yr).slice(2)}`}
+                />
+                <FilterListbox
+                  label="Month"
+                  options={NOMBRES_MESES}
+                  value={filtros.meses || []}
+                  onChange={(val) => onFiltroChange("meses", val)}
+                  grid={true}
+                  gridFlow="col"
+                  gridRows={6}
+                />
+              </div>
+
+              {/* ONBOARDED AND ACTIVE STACKED */}
+              <div className="rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-2xs p-2 space-y-2">
+                <FilterListbox
+                  label="Onboarded"
+                  options={["Yes", "No"]}
+                  value={filtros.onboarded || []}
+                  onChange={(val) => onFiltroChange("onboarded", val)}
+                  grid={true}
+                  gridCols={2}
+                />
+                <FilterListbox
+                  label="Active"
+                  options={["Yes", "No"]}
+                  value={filtros.activos || []}
+                  onChange={(val) => onFiltroChange("activos", val)}
+                  grid={true}
+                  gridCols={2}
+                />
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          /* 3. Collapsed State: Spacious, Clean 2-Button Time Switcher + Modern Filters Trigger */
+          <motion.div
+            key="collapsed-content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+            className="flex-1 flex flex-col items-center py-3 px-2 justify-between min-h-0 overflow-hidden"
+          >
+            <div className="flex flex-col items-center gap-2.5 w-full">
+              {/* Quick Button 1: August (Live Sprint / Today) */}
+              <button
+                type="button"
+                onClick={handleSelectCurrent}
+                className={cn(
+                  "w-11 h-13 rounded-xl flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer shadow-2xs",
+                  isCurrentMonth
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs ring-2 ring-primary/25"
+                    : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                )}
+                title="Filter by Current Month: August 2026 (Live Sprint)"
+              >
+                <span className={cn(
+                  "w-2 h-2 rounded-full shrink-0",
+                  isCurrentMonth
+                    ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)] animate-pulse"
+                    : "bg-slate-300 dark:bg-slate-600"
+                )} />
+                <div className="flex flex-col items-center leading-none">
+                  <span className="text-xs font-black tracking-tight">AUG</span>
+                  <span className={cn("text-[10px] font-bold mt-0.5", isCurrentMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
+                </div>
+              </button>
+
+              {/* Quick Button 2: July (Official Closed) */}
+              <button
+                type="button"
+                onClick={handleSelectPrevious}
+                className={cn(
+                  "w-11 h-13 rounded-xl flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer shadow-2xs",
+                  isPrevMonth
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs ring-2 ring-primary/25"
+                    : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                )}
+                title="Filter by Previous Month: July 2026 (Official Closed)"
+              >
+                <Calendar className="w-3.5 h-3.5 shrink-0 opacity-80" />
+                <div className="flex flex-col items-center leading-none">
+                  <span className="text-xs font-black tracking-tight">JUL</span>
+                  <span className={cn("text-[10px] font-bold mt-0.5", isPrevMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
+                </div>
+              </button>
+
+              {/* Subtle Divider */}
+              <div className="w-7 h-px bg-border/80 my-0.5" />
+
+              {/* Clean, Spacious "Filters" Expander Trigger */}
+              <button
+                type="button"
+                onClick={onToggle}
+                className="w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 bg-white dark:bg-slate-900 border border-border text-slate-700 dark:text-slate-300 hover:border-primary/50 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-2xs group"
+                title="Open full filters panel (Year, Month, Onboarded, Active)"
+              >
+                <SlidersHorizontal className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-bold leading-none text-muted-foreground group-hover:text-primary">More</span>
+              </button>
+            </div>
+
+            {/* Bottom Reset Button if customized */}
+            {totalActiveFilters > 0 && (
+              <button
+                type="button"
+                onClick={onResetFiltros}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                title="Reset all filters"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
             )}
-          </div>
-
-          {/* Scrollable Block List */}
-          <div className="flex-1 overflow-y-auto px-2 py-2.5 space-y-2.5 text-left scrollbar-thin">
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-2xs p-2 space-y-2">
-              {/* CURRENT & PREVIOUS MONTH PRESETS */}
-              <div className="flex flex-col gap-1.5">
-                <button
-                  type="button"
-                  onClick={handleSelectCurrent}
-                  className={cn(
-                    "w-full py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-between border transition-all cursor-pointer shadow-2xs",
-                    isCurrentMonth
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                      : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
-                  )}
-                  title={isCurrentMonth ? "Click to deselect (Show all)" : "Filter by Current Month (Aug 2026)"}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_6px_rgba(16,185,129,0.9)] animate-pulse" />
-                    <span>August (Live)</span>
-                  </div>
-                  <span className={cn("text-[10px] font-bold", isCurrentMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSelectPrevious}
-                  className={cn(
-                    "w-full py-1.5 px-2.5 rounded-lg text-xs font-bold flex items-center justify-between border transition-all cursor-pointer shadow-2xs",
-                    isPrevMonth
-                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                      : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
-                  )}
-                  title={isPrevMonth ? "Click to deselect (Show all)" : "Filter by Previous Month (July 2026)"}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
-                    <span>July (Official)</span>
-                  </div>
-                  <span className={cn("text-[10px] font-bold", isPrevMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
-                </button>
-              </div>
-
-              <FilterListbox
-                label="Year"
-                options={ANIOS_DISPONIBLES}
-                value={filtros.anios || []}
-                onChange={(val) => onFiltroChange("anios", val)}
-                grid={true}
-                gridCols={3}
-                formatLabel={yr => `'${String(yr).slice(2)}`}
-              />
-              <FilterListbox
-                label="Month"
-                options={NOMBRES_MESES}
-                value={filtros.meses || []}
-                onChange={(val) => onFiltroChange("meses", val)}
-                grid={true}
-                gridFlow="col"
-                gridRows={6}
-              />
-            </div>
-
-            {/* ONBOARDED AND ACTIVE STACKED */}
-            <div className="rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-2xs p-2 space-y-2">
-              <FilterListbox
-                label="Onboarded"
-                options={["Yes", "No"]}
-                value={filtros.onboarded || []}
-                onChange={(val) => onFiltroChange("onboarded", val)}
-                grid={true}
-                gridCols={2}
-              />
-              <FilterListbox
-                label="Active"
-                options={["Yes", "No"]}
-                value={filtros.activos || []}
-                onChange={(val) => onFiltroChange("activos", val)}
-                grid={true}
-                gridCols={2}
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* 3. Collapsed State: Spacious, Clean 2-Button Time Switcher + Modern Filters Trigger */
-        <div className="flex-1 flex flex-col items-center py-3 px-2 justify-between min-h-0">
-          <div className="flex flex-col items-center gap-2.5 w-full">
-            {/* Quick Button 1: August (Live Sprint / Today) */}
-            <button
-              type="button"
-              onClick={handleSelectCurrent}
-              className={cn(
-                "w-11 h-13 rounded-xl flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer shadow-2xs",
-                isCurrentMonth
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs ring-2 ring-primary/25"
-                  : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              )}
-              title="Filter by Current Month: August 2026 (Live Sprint)"
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 shadow-[0_0_6px_rgba(16,185,129,0.9)] animate-pulse" />
-              <div className="flex flex-col items-center leading-none">
-                <span className="text-xs font-black tracking-tight">AUG</span>
-                <span className={cn("text-[10px] font-bold mt-0.5", isCurrentMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
-              </div>
-            </button>
-
-            {/* Quick Button 2: July (Official Closed) */}
-            <button
-              type="button"
-              onClick={handleSelectPrevious}
-              className={cn(
-                "w-11 h-13 rounded-xl flex flex-col items-center justify-center gap-1 border transition-all cursor-pointer shadow-2xs",
-                isPrevMonth
-                  ? "bg-primary text-primary-foreground border-primary shadow-xs ring-2 ring-primary/25"
-                  : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-              )}
-              title="Filter by Previous Month: July 2026 (Official Closed)"
-            >
-              <Calendar className="w-3.5 h-3.5 shrink-0 opacity-80" />
-              <div className="flex flex-col items-center leading-none">
-                <span className="text-xs font-black tracking-tight">JUL</span>
-                <span className={cn("text-[10px] font-bold mt-0.5", isPrevMonth ? "text-white/80" : "text-muted-foreground")}>'26</span>
-              </div>
-            </button>
-
-            {/* Subtle Divider */}
-            <div className="w-7 h-px bg-border/80 my-0.5" />
-
-            {/* Clean, Spacious "Filters" Expander Trigger */}
-            <button
-              type="button"
-              onClick={onToggle}
-              className="w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 bg-white dark:bg-slate-900 border border-border text-slate-700 dark:text-slate-300 hover:border-primary/50 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-2xs group"
-              title="Open full filters panel (Year, Month, Onboarded, Active)"
-            >
-              <SlidersHorizontal className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-bold leading-none text-muted-foreground group-hover:text-primary">More</span>
-            </button>
-          </div>
-
-          {/* Bottom Reset Button if customized */}
-          {totalActiveFilters > 0 && (
-            <button
-              type="button"
-              onClick={onResetFiltros}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-              title="Reset all filters"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-      )}
-    </aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.aside>
   );
 }
+
 
 
