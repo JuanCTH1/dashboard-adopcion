@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react"
 import { HelpCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function CustomTooltip({ text, content, children, position = "top", delay = 220, className = "" }) {
+export function CustomTooltip({ text, content, children, position = "top", delay = 320, className = "", style }) {
   const [isVisible, setIsVisible] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0, isBottom: false });
   const triggerRef = useRef(null);
@@ -17,12 +17,12 @@ export function CustomTooltip({ text, content, children, position = "top", delay
         const rect = triggerRef.current.getBoundingClientRect();
         const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
         let isBottom = position === "bottom";
-        if (position === "top" && rect.top < 70) isBottom = true;
-        if (position === "bottom" && rect.bottom > winHeight - 70) isBottom = false;
+        if (position === "top" && rect.top < 30) isBottom = true;
+        if (position === "bottom" && rect.bottom > winHeight - 60) isBottom = false;
 
         setCoords({
           x: rect.left + rect.width / 2,
-          y: isBottom ? rect.bottom + 8 : rect.top - 8,
+          y: isBottom ? rect.bottom + 8 : Math.max(10, rect.top - 8),
           isBottom
         });
         setIsVisible(true);
@@ -40,6 +40,7 @@ export function CustomTooltip({ text, content, children, position = "top", delay
       <span
         ref={triggerRef}
         className={cn("inline-flex items-center", className)}
+        style={style}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -54,7 +55,7 @@ export function CustomTooltip({ text, content, children, position = "top", delay
             top: `${coords.y}px`,
             transform: coords.isBottom ? "translate(-50%, 0)" : "translate(-50%, -100%)"
           }}
-          className="z-[99999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100 max-w-xs text-left leading-snug select-none font-sans"
+          className="z-[999999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100 max-w-xs text-left leading-snug select-none font-sans"
         >
           {content || text}
         </div>

@@ -225,6 +225,7 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
 
   const handleSetGers = useCallback((nextGers) => {
     let nextReps = selectedRepIds;
+    let nextDirs = selectedDirIds;
 
     if (nextGers.length === 0) {
       nextReps = [];
@@ -234,24 +235,49 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
         const rep = repMap.get(rId);
         return rep ? allowedMarkets.has(rep.plaza) : true;
       });
+      // Auto-seleccionar regiones correspondientes
+      const inferredDirs = Array.from(new Set(nextGers.map(m => MARKET_TO_REGION[m]).filter(Boolean)));
+      if (inferredDirs.length > 0) {
+        nextDirs = Array.from(new Set([...selectedDirIds, ...inferredDirs]));
+      }
     }
 
     onHierarchyFilterChange?.({
       vpIds: selectedVpIds,
-      directorIds: selectedDirIds,
+      directorIds: nextDirs,
       gerenteIds: nextGers,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedRepIds, repMap, onHierarchyFilterChange]);
+  }, [selectedVpIds, selectedDirIds, selectedRepIds, MARKET_TO_REGION, repMap, onHierarchyFilterChange]);
 
   const handleSetReps = useCallback((nextReps) => {
+    let nextGers = selectedGerIds;
+    let nextDirs = selectedDirIds;
+
+    if (nextReps.length > 0) {
+      const inferredMarkets = new Set(selectedGerIds);
+      const inferredDirs = new Set(selectedDirIds);
+      nextReps.forEach(rId => {
+        const rep = repMap.get(rId);
+        if (rep) {
+          if (rep.plaza) {
+            inferredMarkets.add(rep.plaza);
+            if (MARKET_TO_REGION[rep.plaza]) inferredDirs.add(MARKET_TO_REGION[rep.plaza]);
+          }
+          if (rep.regionNombre) inferredDirs.add(rep.regionNombre);
+        }
+      });
+      nextGers = Array.from(inferredMarkets);
+      nextDirs = Array.from(inferredDirs);
+    }
+
     onHierarchyFilterChange?.({
       vpIds: selectedVpIds,
-      directorIds: selectedDirIds,
-      gerenteIds: selectedGerIds,
+      directorIds: nextDirs,
+      gerenteIds: nextGers,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, onHierarchyFilterChange]);
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, MARKET_TO_REGION, repMap, onHierarchyFilterChange]);
 
   const startDragSelect = useCallback((columnType, id, currentSelectedArray, onSetCallback) => {
     isMouseDownRef.current = true;
@@ -1085,12 +1111,10 @@ Commercial Leadership`;
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
-                              <CustomTooltip text={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>
-                                <div className="flex items-baseline gap-1 truncate cursor-help">
-                                  <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
-                                  <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
-                                </div>
-                              </CustomTooltip>
+                              <div className="flex items-baseline gap-1 truncate">
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
+                              </div>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)}</span>
                                 <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
@@ -1246,13 +1270,13 @@ Commercial Leadership`;
                 transition={FLIP_TRANSITION}
                 className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-full text-xs font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
+                <div className="w-full text-[12px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
                   <div className="flex items-center gap-1">
                     <User className="w-3 h-3" />
                     <span>Sales Reps</span>
                   </div>
                   {selectedRepIds.length > 0 && (
-                    <button onClick={handleClearReps} className="text-xs text-emerald-600 hover:underline font-bold cursor-pointer">
+                    <button onClick={handleClearReps} className="text-[12px] text-emerald-600 hover:underline font-bold cursor-pointer">
                       Clear
                     </button>
                   )}
@@ -1262,120 +1286,121 @@ Commercial Leadership`;
                   {vendedores.map(rep => {
                     const isSelected = selectedRepIds.includes(rep.id);
                     return (
-                      <button
-                        key={rep.id}
-                        onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
-                        onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
-                        className={cn(
-                          "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
-                          isSelected
-                            ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
-                            : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                        )}
-                      >
-                        {/* RENGLÓN 1: NOMBRE + ACCIONES (EMAIL & INFO) */}
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs truncate">{rep.nombre}</span>
-                          <div className="flex items-center gap-1 shrink-0">
+                      <div key={rep.id} className="relative group">
+                        <button
+                          onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
+                          onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
+                          className={cn(
+                            "w-full text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col gap-0.5 cursor-pointer text-xs select-none",
+                            isSelected
+                              ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
+                              : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
+                          )}
+                        >
+                          {/* RENGLÓN 1: NOMBRE + ACCIONES (EMAIL & INFO) */}
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-[12.5px] truncate">{rep.nombre}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={(e) => handleSendRepEmail(rep, e)}
+                                className={cn(
+                                  "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                  copiedEmailRepId === rep.id
+                                    ? "bg-emerald-500 text-white"
+                                    : (isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
+                                )}
+                              >
+                                {copiedEmailRepId === rep.id ? <Check className="w-3 h-3 text-emerald-100" /> : <Mail className="w-3 h-3" />}
+                              </span>
+
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onMouseEnter={(e) => handleShowLeadershipPopover(e, {
+                                  title: rep.nombre,
+                                  tipo: `${rep.plaza} · ${rep.regionNombre}`,
+                                  personasDetalle: [{
+                                    bl: rep.bl,
+                                    blFull: rep.lineaNegocio || rep.bl,
+                                    persona: rep.nombre,
+                                    clientesAsignados: rep.metricas.clientes?.asignados,
+                                    clientesOnboarded: rep.metricas.clientes?.onboarded,
+                                    pctOnboarding: rep.metricas.clientes?.pctOnboarding,
+                                    digitales: rep.metricas.pedidos?.digitales,
+                                    totales: rep.metricas.pedidos?.totales,
+                                    pctAdopcion: rep.metricas.pedidos?.pctAdopcion
+                                  }]
+                                })}
+                                onMouseLeave={() => setHoveredPopover(null)}
+                                onClick={(e) => handleToggleLeadershipPopover(e, {
+                                  title: rep.nombre,
+                                  tipo: `${rep.plaza} · ${rep.regionNombre}`,
+                                  personasDetalle: [{
+                                    bl: rep.bl,
+                                    blFull: rep.lineaNegocio || rep.bl,
+                                    persona: rep.nombre,
+                                    clientesAsignados: rep.metricas.clientes?.asignados,
+                                    clientesOnboarded: rep.metricas.clientes?.onboarded,
+                                    pctOnboarding: rep.metricas.clientes?.pctOnboarding,
+                                    digitales: rep.metricas.pedidos?.digitales,
+                                    totales: rep.metricas.pedidos?.totales,
+                                    pctAdopcion: rep.metricas.pedidos?.pctAdopcion
+                                  }]
+                                })}
+                                className={cn(
+                                  "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                  isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
+                                )}
+                              >
+                                <Info className="w-3 h-3" />
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
+                          <div className="flex items-center justify-between gap-1 text-xs my-0.5">
+                            <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
                             <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(e) => handleSendRepEmail(rep, e)}
                               className={cn(
-                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                copiedEmailRepId === rep.id
-                                  ? "bg-emerald-500 text-white"
-                                  : (isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
+                                "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
+                                rep.bl === 'RMX'
+                                  ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
+                                  : rep.bl === 'CEM'
+                                  ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
+                                  : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
                               )}
                             >
-                              {copiedEmailRepId === rep.id ? <Check className="w-3 h-3 text-emerald-100" /> : <Mail className="w-3 h-3" />}
-                            </span>
-
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onMouseEnter={(e) => handleShowLeadershipPopover(e, {
-                                title: rep.nombre,
-                                tipo: `${rep.plaza} · ${rep.regionNombre}`,
-                                personasDetalle: [{
-                                  bl: rep.bl,
-                                  blFull: rep.lineaNegocio || rep.bl,
-                                  persona: rep.nombre,
-                                  clientesAsignados: rep.metricas.clientes?.asignados,
-                                  clientesOnboarded: rep.metricas.clientes?.onboarded,
-                                  pctOnboarding: rep.metricas.clientes?.pctOnboarding,
-                                  digitales: rep.metricas.pedidos?.digitales,
-                                  totales: rep.metricas.pedidos?.totales,
-                                  pctAdopcion: rep.metricas.pedidos?.pctAdopcion
-                                }]
-                              })}
-                              onMouseLeave={() => setHoveredPopover(null)}
-                              onClick={(e) => handleToggleLeadershipPopover(e, {
-                                title: rep.nombre,
-                                tipo: `${rep.plaza} · ${rep.regionNombre}`,
-                                personasDetalle: [{
-                                  bl: rep.bl,
-                                  blFull: rep.lineaNegocio || rep.bl,
-                                  persona: rep.nombre,
-                                  clientesAsignados: rep.metricas.clientes?.asignados,
-                                  clientesOnboarded: rep.metricas.clientes?.onboarded,
-                                  pctOnboarding: rep.metricas.clientes?.pctOnboarding,
-                                  digitales: rep.metricas.pedidos?.digitales,
-                                  totales: rep.metricas.pedidos?.totales,
-                                  pctAdopcion: rep.metricas.pedidos?.pctAdopcion
-                                }]
-                              })}
-                              className={cn(
-                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
-                              )}
-                            >
-                              <Info className="w-3 h-3" />
+                              {rep.bl}
                             </span>
                           </div>
-                        </div>
 
-                        {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
-                        <div className="flex items-center justify-between gap-1 text-xs my-0.5">
-                          <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
-                          <span
-                            className={cn(
-                              "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
-                              rep.bl === 'RMX'
-                                ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
-                                : rep.bl === 'CEM'
-                                ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
-                                : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
-                            )}
-                          >
-                            {rep.bl}
-                          </span>
-                        </div>
-
-                        {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                        <div className={cn("text-xs pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
-                          <div className="flex items-center justify-between gap-1">
-                            <div className="flex items-baseline gap-1 truncate">
-                              <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{rep.metricas.clientes?.asignados || 0}</span>
-                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
+                          {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
+                          <div className={cn("text-xs pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-baseline gap-1 truncate">
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{rep.metricas.clientes?.asignados || 0}</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
+                              </div>
+                              <div className="flex items-baseline gap-1 shrink-0">
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
+                              </div>
                             </div>
-                            <div className="flex items-baseline gap-1 shrink-0">
-                              <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
-                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-baseline gap-1 truncate">
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
+                              </div>
+                              <div className="flex items-baseline gap-1 shrink-0">
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between gap-1">
-                            <div className="flex items-baseline gap-1 truncate">
-                              <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
-                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
-                            </div>
-                            <div className="flex items-baseline gap-1 shrink-0">
-                              <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
-                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
-                            </div>
-                          </div>
-                        </div>
-                      </button>
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -1466,31 +1491,43 @@ Commercial Leadership`;
                       {/* Segmented Stacked Progress Bar */}
                       <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-800 flex overflow-hidden p-0.5 gap-0.5">
                         {orderComposition.digitalOrders > 0 && (
-                          <div
+                          <CustomTooltip
+                            className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctDigital}%` }}
-                            className="h-full bg-emerald-500 rounded-full transition-all duration-300 min-w-[6px]"
-                          />
+                            text={`Digital Adopted: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(1)}%)`}
+                          >
+                            <div className="w-full h-full bg-emerald-500 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
+                          </CustomTooltip>
                         )}
 
                         {orderComposition.lowAdoptionOrders > 0 && (
-                          <div
+                          <CustomTooltip
+                            className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctLowAdopt}%` }}
-                            className="h-full bg-amber-500 rounded-full transition-all duration-300 min-w-[6px]"
-                          />
+                            text={`Low Adoption: ${formatNumber(orderComposition.lowAdoptionOrders)} offline orders from onboarded accounts (${orderComposition.pctLowAdopt.toFixed(1)}%)`}
+                          >
+                            <div className="w-full h-full bg-amber-500 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
+                          </CustomTooltip>
                         )}
 
                         {orderComposition.notOnboardedOrders > 0 && (
-                          <div
+                          <CustomTooltip
+                            className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctNotOnb}%` }}
-                            className="h-full bg-rose-500 rounded-full transition-all duration-300 min-w-[6px]"
-                          />
+                            text={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(1)}%)`}
+                          >
+                            <div className="w-full h-full bg-rose-500 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
+                          </CustomTooltip>
                         )}
 
                         {orderComposition.excludedOrders > 0 && (
-                          <div
+                          <CustomTooltip
+                            className="h-full block shrink-0 cursor-pointer"
                             style={{ width: `${orderComposition.pctExcluded}%` }}
-                            className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 min-w-[6px]"
-                          />
+                            text={`Excluded Accounts: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(1)}%)`}
+                          >
+                            <div className="w-full h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 min-w-[6px] hover:opacity-90" />
+                          </CustomTooltip>
                         )}
                       </div>
 
