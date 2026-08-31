@@ -39,7 +39,7 @@ export function CustomTooltip({ text, children, position = "top" }) {
             top: `${coords.y}px`,
             transform: position === "bottom" ? "translate(-50%, 0)" : "translate(-50%, -100%)"
           }}
-          className="z-[9999] pointer-events-none rounded-lg bg-card/98 dark:bg-slate-900/98 text-foreground px-2.5 py-1.5 text-xs font-bold shadow-xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100 max-w-xs text-left leading-normal"
+          className="z-[9999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100 max-w-xs text-left leading-snug select-none font-sans"
         >
           {text}
         </div>
@@ -52,7 +52,7 @@ export function MetricInfoTooltip({ titulo, descripcion, tipo = "propuesta" }) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <div className="relative inline-flex items-center">
+    <div className="relative inline-flex items-center select-none font-sans">
       <button
         type="button"
         onMouseEnter={() => setIsVisible(true)}
@@ -66,15 +66,20 @@ export function MetricInfoTooltip({ titulo, descripcion, tipo = "propuesta" }) {
       </button>
 
       {isVisible && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-50 overflow-hidden rounded-xl bg-card/98 dark:bg-slate-900/98 p-3 text-xs text-foreground shadow-2xl border-2 border-slate-300 dark:border-slate-600 max-w-xs w-64 leading-relaxed pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95">
-          {titulo && <div className="font-bold text-[12px] text-primary dark:text-sky-400 mb-0.5">{titulo}</div>}
-          <div className="text-[12px] text-muted-foreground">{descripcion}</div>
-          {tipo === "propuesta" && (
-            <div className="mt-1.5 pt-1 border-t border-border/60 text-[12px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">
-              ⚡ Definición propuesta pendiente de ratificar
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-[9999] overflow-hidden rounded-xl bg-card/98 dark:bg-slate-900/98 p-3 text-xs text-foreground dark:text-slate-100 shadow-2xl border-2 border-slate-300 dark:border-slate-600 max-w-xs w-68 leading-relaxed pointer-events-none backdrop-blur-md animate-in fade-in-0 zoom-in-95">
+          {titulo && (
+            <div className="font-bold text-[12px] text-primary dark:text-sky-300 uppercase tracking-wider pb-1 mb-1.5 border-b border-border/80 flex items-center justify-between">
+              <span>{titulo}</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">KPI Details</span>
             </div>
           )}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-card dark:border-t-slate-900" />
+          <div className="text-[12px] text-muted-foreground leading-normal">{descripcion}</div>
+          {tipo === "propuesta" && (
+            <div className="mt-2 pt-1.5 border-t border-border/60 text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <span>⚡</span>
+              <span>Definición propuesta pendiente de ratificar</span>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -94,5 +99,15 @@ export function TooltipTrigger({ asChild, children, ...props }) {
 }
 
 export function TooltipContent({ children, className, ...props }) {
-  return <div className={cn("text-xs", className)} {...props}>{children}</div>;
+  return (
+    <div
+      className={cn(
+        "rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 p-3 text-xs font-medium shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 font-sans select-none",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
 }

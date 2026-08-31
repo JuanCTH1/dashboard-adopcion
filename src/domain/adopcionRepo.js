@@ -994,7 +994,27 @@ class AdopcionRepository {
 
   getJerarquia(nivel = 'nacional', parentIds = [], filtros = {}) {
     const parentSet = new Set(Array.isArray(parentIds) ? parentIds : [parentIds].filter(Boolean));
-    const activeVpIds = filtros.vpIds?.length ? filtros.vpIds : (filtros.vpId ? [filtros.vpId] : []);
+    
+    // Resolve active VPs from both vpIds AND lineasNegocio filters
+    const rawVpIds = filtros.vpIds?.length ? filtros.vpIds : (filtros.vpId ? [filtros.vpId] : []);
+    const activeVpSet = new Set(rawVpIds);
+    const activeLines = filtros.lineasNegocio?.length ? filtros.lineasNegocio : (filtros.lineaNegocio ? [filtros.lineaNegocio] : []);
+    
+    if (activeLines.length > 0) {
+      const lineSet = new Set(activeLines.map(l => String(l).toLowerCase()));
+      this.data.VPS.forEach(v => {
+        if (
+          lineSet.has(v.lineaNegocio?.toLowerCase()) ||
+          lineSet.has(v.id?.toLowerCase()) ||
+          lineSet.has(v.nombre?.toLowerCase()) ||
+          lineSet.has(BL_SHORT[v.lineaNegocio]?.toLowerCase())
+        ) {
+          activeVpSet.add(v.id);
+        }
+      });
+    }
+
+    const activeVpIds = Array.from(activeVpSet);
     const isSingleVp = activeVpIds.length === 1;
     const singleVpId = isSingleVp ? activeVpIds[0] : null;
 
@@ -1042,7 +1062,7 @@ class AdopcionRepository {
         // Personas by VP line in this region
         const personasDetalle = [];
         this.data.VPS.forEach(vp => {
-          if (parentSet.size > 0 && !parentSet.has(vp.id)) return;
+          if (activeVpIds.length > 0 && !activeVpIds.includes(vp.id)) return;
 
           const dirObj = this.data.DIRECTORES.find(d => d.nombre === regionName && d.vpId === vp.id);
           const rvAcc = agg.byRegionAndVp.get(`${regionName}_${vp.id}`);

@@ -84,9 +84,17 @@ export const AdoptionTrendCard = React.memo(function AdoptionTrendCard({ serieHi
                 if (active && payload?.length) {
                   const d = payload[0].payload;
                   return (
-                    <div className="bg-slate-900 text-white px-2.5 py-1.5 rounded-lg text-xs shadow-xl border border-slate-700 font-sans">
-                      <div className="font-bold text-[12px] text-sky-400">{d.label}</div>
-                      <div className="text-[12px]">Adoption: <b>{d.pctAdopcionPedidos}%</b></div>
+                    <div className="bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 p-2.5 rounded-xl shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md font-sans text-xs min-w-[130px] select-none">
+                      <div className="font-bold text-[12px] text-primary dark:text-sky-300 uppercase tracking-wider pb-1 border-b border-border/70 flex items-center justify-between">
+                        <span>{d.label}</span>
+                        <span className="text-[10px] text-muted-foreground font-semibold">Trend</span>
+                      </div>
+                      <div className="mt-1.5 flex items-center justify-between gap-3 text-xs">
+                        <span className="text-muted-foreground font-medium">Adoption:</span>
+                        <span className="font-black text-indigo-600 dark:text-indigo-400 tabular-nums">
+                          {d.pctAdopcionPedidos}%
+                        </span>
+                      </div>
                     </div>
                   );
                 }

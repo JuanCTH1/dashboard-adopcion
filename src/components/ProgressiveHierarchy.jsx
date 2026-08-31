@@ -385,18 +385,18 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
 
   const directores = useMemo(() => {
     if (selectedVpIds.length === 0 && navMode !== 'all_columns') return [];
-    return adopcionRepo.getJerarquia('vp', selectedVpIds, baseContextFilters);
+    return adopcionRepo.getJerarquia('vp', selectedVpIds, { ...baseContextFilters, vpIds: selectedVpIds });
   }, [selectedVpIds, baseContextFilters, navMode]);
 
   const gerentes = useMemo(() => {
     if (selectedDirIds.length === 0 && navMode !== 'all_columns') return [];
-    return adopcionRepo.getJerarquia('director', selectedDirIds, baseContextFilters);
-  }, [selectedDirIds, baseContextFilters, navMode]);
+    return adopcionRepo.getJerarquia('director', selectedDirIds, { ...baseContextFilters, vpIds: selectedVpIds });
+  }, [selectedDirIds, selectedVpIds, baseContextFilters, navMode]);
 
   const vendedores = useMemo(() => {
     if (selectedGerIds.length === 0 && navMode !== 'all_columns') return [];
-    return adopcionRepo.getJerarquia('gerente', selectedGerIds, baseContextFilters);
-  }, [selectedGerIds, baseContextFilters, navMode]);
+    return adopcionRepo.getJerarquia('gerente', selectedGerIds, { ...baseContextFilters, vpIds: selectedVpIds, directorIds: selectedDirIds });
+  }, [selectedGerIds, selectedDirIds, selectedVpIds, baseContextFilters, navMode]);
 
   const activeContext = useMemo(() => {
     let fNode = {
