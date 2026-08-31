@@ -476,7 +476,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
           </div>
 
           {/* Dimension Selector + Dual Email Actions (Zero Emojis, Pure Vectors) */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-2 ml-auto shrink-0">
             {/* Dimension Pills */}
             <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border select-none">
               {DIMENSIONS.map(d => (
@@ -495,6 +495,9 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
                 </button>
               ))}
             </div>
+
+            {/* Separator */}
+            <div className="h-4 w-px bg-border/80 mx-0.5 shrink-0" />
 
             {/* Dual Email Actions */}
             <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border select-none">
@@ -519,7 +522,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
                 ) : (
                   <Award className="w-3 h-3 text-amber-500" />
                 )}
-                <span>{copiedTarget === 'Jul' ? 'Copied July!' : 'July (Official)'}</span>
+                <span>{copiedTarget === 'Jul' ? 'Copied!' : 'July (Official)'}</span>
               </button>
 
               {/* August (Live) */}
@@ -539,7 +542,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
                 ) : (
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                 )}
-                <span>{copiedTarget === 'Aug' ? 'Copied Aug!' : 'August (Live)'}</span>
+                <span>{copiedTarget === 'Aug' ? 'Copied!' : 'August (Live)'}</span>
               </button>
             </div>
           </div>

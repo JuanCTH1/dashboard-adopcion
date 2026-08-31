@@ -801,13 +801,25 @@ export function ProgressiveHierarchy({
 
                           {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
                           <div className={cn("text-xs pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
-                            <div className="truncate flex items-center justify-between gap-1">
-                              <span className={cn("truncate", isSelected ? "text-indigo-200" : "text-muted-foreground")}>{dir.metricas.clientes?.asignados || 0} cust</span>
-                              <span className="font-black text-xs shrink-0 tabular-nums">{formatPct(dir.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-baseline gap-1 truncate">
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{dir.metricas.clientes?.asignados || 0}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>cust</span>
+                              </div>
+                              <div className="flex items-baseline gap-1 shrink-0">
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.clientes?.pctOnboarding || 0)}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>onboard</span>
+                              </div>
                             </div>
-                            <div className="truncate flex items-center justify-between gap-1">
-                              <span className={cn("truncate cursor-help", isSelected ? "text-indigo-200" : "text-muted-foreground")} title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)} orders</span>
-                              <span className="font-black text-xs shrink-0 tabular-nums">{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
+                              </div>
+                              <div className="flex items-baseline gap-1 shrink-0">
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
+                              </div>
                             </div>
                           </div>
                         </button>
@@ -933,13 +945,25 @@ export function ProgressiveHierarchy({
 
                           {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
                           <div className={cn("text-xs pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
-                            <div className="truncate flex items-center justify-between gap-1">
-                              <span className={cn("truncate", isSelected ? "text-sky-200" : "text-muted-foreground")}>{ger.metricas.clientes?.asignados || 0} cust</span>
-                              <span className="font-black text-xs shrink-0 tabular-nums">{formatPct(ger.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-baseline gap-1 truncate">
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{ger.metricas.clientes?.asignados || 0}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>cust</span>
+                              </div>
+                              <div className="flex items-baseline gap-1 shrink-0">
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.clientes?.pctOnboarding || 0)}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>onboard</span>
+                              </div>
                             </div>
-                            <div className="truncate flex items-center justify-between gap-1">
-                              <span className={cn("truncate cursor-help", isSelected ? "text-sky-200" : "text-muted-foreground")} title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)} orders</span>
-                              <span className="font-black text-xs shrink-0 tabular-nums">{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
+                              </div>
+                              <div className="flex items-baseline gap-1 shrink-0">
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)}</span>
+                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
+                              </div>
                             </div>
                           </div>
                         </button>
@@ -1073,13 +1097,25 @@ export function ProgressiveHierarchy({
 
                         {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
                         <div className={cn("text-xs pt-1.5 mt-1 border-t flex flex-col gap-1 font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate", isSelected ? "text-emerald-200" : "text-muted-foreground")}>{rep.metricas.clientes?.asignados || 0} cust</span>
-                            <span className="font-black text-xs shrink-0 tabular-nums">{formatPct(rep.metricas.clientes?.pctOnboarding || 0)} onboard</span>
+                          <div className="flex items-center justify-between gap-1">
+                            <div className="flex items-baseline gap-1 truncate">
+                              <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{rep.metricas.clientes?.asignados || 0}</span>
+                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
+                            </div>
+                            <div className="flex items-baseline gap-1 shrink-0">
+                              <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
+                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
+                            </div>
                           </div>
-                          <div className="truncate flex items-center justify-between gap-1">
-                            <span className={cn("truncate cursor-help", isSelected ? "text-emerald-200" : "text-muted-foreground")} title={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)} orders</span>
-                            <span className="font-black text-xs shrink-0 tabular-nums">{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
+                          <div className="flex items-center justify-between gap-1">
+                            <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>
+                              <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
+                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
+                            </div>
+                            <div className="flex items-baseline gap-1 shrink-0">
+                              <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
+                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
+                            </div>
                           </div>
                         </div>
                       </button>
