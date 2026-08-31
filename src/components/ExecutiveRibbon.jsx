@@ -169,10 +169,7 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
 
               {/* DIRECTIONAL FLOW VECTOR BADGE IN THE SEPARATION GAP */}
               {!isLast && st.nextDrop !== undefined && (
-                <div className={cn(
-                  "shrink-0 z-10 -mx-1.5 sm:-mx-2 transition-all",
-                  idx === 2 ? "self-end mb-[8px]" : "self-center"
-                )}>
+                <div className="shrink-0 z-10 -mx-1.5 sm:-mx-2 self-center transition-all">
                   <CustomTooltip position="top" text={`${st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}${st.isBottleneck ? ' · Primary Bottleneck' : ''}`}>
                     <div
                       className={cn(
