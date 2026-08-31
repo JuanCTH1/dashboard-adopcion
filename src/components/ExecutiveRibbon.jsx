@@ -157,7 +157,7 @@ export function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) 
                   </div>
 
                   {/* Subtitle Footer with clear visual lane divider across all stages */}
-                  <div className="text-xs font-semibold truncate pt-1 border-t-2 border-slate-300/90 dark:border-slate-700 text-muted-foreground transition-colors">
+                  <div className="text-xs font-semibold truncate pt-1 border-t-2 border-slate-300/90 dark:border-slate-700 text-muted-foreground transition-colors text-right flex justify-end">
                     <span className="truncate">{st.secondaryLabel}</span>
                   </div>
                 </div>
