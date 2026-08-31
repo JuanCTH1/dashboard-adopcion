@@ -277,18 +277,18 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
             
             ${statusBanner}
 
-            <h3 style="color: #0000B3; margin: 18px 0 10px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">SALES REPS SPOTLIGHT</h3>
+            <h3 style="color: #0000B3; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">⭐ SALES REPS SPOTLIGHT</h3>
 
             <!-- Card 1: Customers Onboarding -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
               <tr>
                 <td style="padding: 12px 16px;">
-                  <div style="font-weight: bold; color: #0f172a; margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">CUSTOMERS ONBOARDING</div>
+                  <div style="font-weight: bold; color: #0f172a; margin-bottom: 8px; font-size: 13px;">🏆 CUSTOMERS ONBOARDING</div>
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
                     ${topRepsOnb.map((r, i) => `
                       <tr>
-                        <td width="30" style="width: 30px; padding: 3px 0; vertical-align: middle;"><span style="font-weight: bold; color: ${i === 0 ? '#b45309' : i === 1 ? '#475569' : '#92400e'};">#${i + 1}</span></td>
-                        <td style="padding: 3px 0; vertical-align: middle;"><strong>${r.nombre}</strong></td>
+                        <td width="28" style="width: 28px; padding: 3px 0; vertical-align: middle;">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</td>
+                        <td style="padding: 3px 0; vertical-align: middle;"><strong>#${i + 1} ${r.nombre}</strong></td>
                         <td align="right" style="text-align: right; padding: 3px 0; vertical-align: middle; white-space: nowrap;">
                           <strong style="color: #059669;">+${r.newOnboardedMonth || 0} new accounts</strong>
                           <span style="color: #64748b; font-size: 12px; margin-left: 6px;">(${r.onboardedCount}/${r.assignedCount} total)</span>
@@ -304,12 +304,12 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
               <tr>
                 <td style="padding: 12px 16px;">
-                  <div style="font-weight: bold; color: #0f172a; margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">DIGITAL ADOPTION</div>
+                  <div style="font-weight: bold; color: #0f172a; margin-bottom: 8px; font-size: 13px;">🏆 DIGITAL ADOPTION</div>
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
                     ${topRepsAdop.map((r, i) => `
                       <tr>
-                        <td width="30" style="width: 30px; padding: 3px 0; vertical-align: middle;"><span style="font-weight: bold; color: ${i === 0 ? '#b45309' : i === 1 ? '#475569' : '#92400e'};">#${i + 1}</span></td>
-                        <td style="padding: 3px 0; vertical-align: middle;"><strong>${r.nombre}</strong></td>
+                        <td width="28" style="width: 28px; padding: 3px 0; vertical-align: middle;">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</td>
+                        <td style="padding: 3px 0; vertical-align: middle;"><strong>#${i + 1} ${r.nombre}</strong></td>
                         <td align="right" style="text-align: right; padding: 3px 0; vertical-align: middle; white-space: nowrap; color: #0000B3; font-weight: bold;">
                           ${formatPct(r.adopcionPct)} Digital Orders
                         </td>
@@ -324,12 +324,12 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
               <tr>
                 <td style="padding: 12px 16px;">
-                  <div style="font-weight: bold; color: #0f172a; margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">TOP ADOPTION MOVERS</div>
+                  <div style="font-weight: bold; color: #0f172a; margin-bottom: 8px; font-size: 13px;">🔥 TOP ADOPTION MOVERS</div>
                   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
                     ${topRepsMovers.map((r, i) => `
                       <tr>
-                        <td width="30" style="width: 30px; padding: 3px 0; vertical-align: middle;"><span style="font-weight: bold; color: #059669;">#${i + 1}</span></td>
-                        <td style="padding: 3px 0; vertical-align: middle;"><strong>${r.nombre}</strong></td>
+                        <td width="28" style="width: 28px; padding: 3px 0; vertical-align: middle;">🚀</td>
+                        <td style="padding: 3px 0; vertical-align: middle;"><strong>#${i + 1} ${r.nombre}</strong></td>
                         <td align="right" style="text-align: right; padding: 3px 0; vertical-align: middle; white-space: nowrap;">
                           <strong style="color: #059669;">▲ +${(r.momDeltaAdopcion ?? r.momDelta ?? 0).toFixed(1)}% MoM</strong>
                           <span style="color: #64748b; font-size: 12px; margin-left: 6px;">→ now at ${formatPct(r.adopcionPct)}</span>
@@ -341,23 +341,23 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
               </tr>
             </table>
 
-            <!-- Title: Regions & Markets -->
-            <h3 style="color: #0000B3; margin: 18px 0 10px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">REGIONS & MARKETS</h3>
+            <!-- Title: Regions & Markets (outside the card) -->
+            <h3 style="color: #0000B3; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">🏢 REGIONS & MARKETS</h3>
 
             <!-- Card 4: Regions & Markets -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
               <tr>
                 <td style="padding: 12px 16px;">
                   <div style="margin-bottom: 10px;">
-                    <div style="font-weight: bold; color: #334155; margin-bottom: 4px; font-size: 12px;">REGIONS:</div>
+                    <div style="font-weight: bold; color: #334155; margin-bottom: 4px;">📍 REGIONS:</div>
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 13px; margin-left: 4px;">
                       <tr>
-                        <td width="100" style="width: 100px; padding: 2px 0;">Leader:</td>
+                        <td width="100" style="width: 100px; padding: 2px 0;">🥇 Leader:</td>
                         <td style="padding: 2px 0;"><strong>${topRegAdop?.nombre || 'Sunbelt Region'}</strong></td>
                         <td align="right" style="text-align: right; padding: 2px 0; color: #0000B3; font-weight: bold;">(${formatPct(topRegAdop?.adopcionPct || 0)})</td>
                       </tr>
                       <tr>
-                        <td width="100" style="width: 100px; padding: 2px 0;">Top Mover:</td>
+                        <td width="100" style="width: 100px; padding: 2px 0;">🚀 Top Mover:</td>
                         <td style="padding: 2px 0;"><strong>${topRegMover?.nombre || 'Pacific NW Region'}</strong></td>
                         <td align="right" style="text-align: right; padding: 2px 0; color: #059669; font-weight: bold;">(▲ +${(topRegMover?.momDeltaAdopcion || 0).toFixed(1)}% MoM)</td>
                       </tr>
@@ -365,15 +365,15 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
                   </div>
 
                   <div>
-                    <div style="font-weight: bold; color: #334155; margin-bottom: 4px; font-size: 12px;">MARKETS:</div>
+                    <div style="font-weight: bold; color: #334155; margin-bottom: 4px;">🏢 MARKETS:</div>
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 13px; margin-left: 4px;">
                       <tr>
-                        <td width="100" style="width: 100px; padding: 2px 0;">Leader:</td>
+                        <td width="100" style="width: 100px; padding: 2px 0;">🥇 Leader:</td>
                         <td style="padding: 2px 0;"><strong>${topMktAdop?.nombre || 'Salt Lake Market'}</strong></td>
                         <td align="right" style="text-align: right; padding: 2px 0; color: #0000B3; font-weight: bold;">(${formatPct(topMktAdop?.adopcionPct || 0)})</td>
                       </tr>
                       <tr>
-                        <td width="100" style="width: 100px; padding: 2px 0;">Top Mover:</td>
+                        <td width="100" style="width: 100px; padding: 2px 0;">🚀 Top Mover:</td>
                         <td style="padding: 2px 0;"><strong>${topMktMover?.nombre || 'Phoenix Market'}</strong></td>
                         <td align="right" style="text-align: right; padding: 2px 0; color: #059669; font-weight: bold;">(▲ +${(topMktMover?.momDeltaAdopcion || 0).toFixed(1)}% MoM)</td>
                       </tr>
@@ -383,7 +383,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
               </tr>
             </table>
 
-            <!-- Focus block -->
+            <!-- Card 5: Focus for this month -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 18px; background-color: #eff6ff; border-left: 4px solid #0000B3; border-radius: 0 8px 8px 0;">
               <tr>
                 <td style="padding: 12px 16px;">
