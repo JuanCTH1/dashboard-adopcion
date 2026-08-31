@@ -1035,7 +1035,7 @@ Commercial Leadership`;
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('director', dir.id, selectedDirIds, handleSetDirs); }}
                           onMouseEnter={() => handleDragEnter('director', dir.id, handleSetDirs)}
                           className={cn(
-                            "w-full h-[88px] min-h-[88px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
+                            "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
                               ? "bg-indigo-600 text-white border-indigo-700 font-bold shadow-xs"
                               : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -1043,7 +1043,7 @@ Commercial Leadership`;
                         >
                           {/* RENGLÓN 1: NOMBRE + INFO */}
                           <div className="flex items-center justify-between h-[18px]">
-                            <span className="font-bold text-[12px] truncate">{dir.nombre}</span>
+                            <span className="font-bold text-xs truncate">{dir.nombre}</span>
                             <div className="flex items-center gap-1 shrink-0">
                               <span
                                 role="button"
@@ -1074,7 +1074,7 @@ Commercial Leadership`;
                           </div>
 
                           {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
-                          <div className="h-[16px] flex items-center justify-between text-[11px] overflow-hidden">
+                          <div className="h-[17px] flex items-center justify-between text-xs overflow-hidden">
                             {dir.isSingleVp ? (
                               <span className={cn("truncate font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
                                 {dir.persona}
@@ -1085,7 +1085,7 @@ Commercial Leadership`;
                                   <span
                                     key={pill}
                                     className={cn(
-                                      "text-[9.5px] font-black px-1 py-0 rounded border uppercase shadow-2xs leading-tight",
+                                      "text-[10px] font-black px-1 py-0.2 rounded border uppercase shadow-2xs leading-tight",
                                       pill === 'RMX'
                                         ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                         : pill === 'CEM'
@@ -1101,25 +1101,25 @@ Commercial Leadership`;
                           </div>
 
                           {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-[11px] font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
+                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-xs font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{dir.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>cust</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.clientes?.pctOnboarding || 0)}%</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>onboard</span>
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.clientes?.pctOnboarding || 0)}%</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.pedidos?.pctAdopcion || 0)}%</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.pedidos?.pctAdopcion || 0)}%</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
                           </div>
@@ -1165,7 +1165,7 @@ Commercial Leadership`;
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('gerente', ger.id, selectedGerIds, handleSetGers); }}
                           onMouseEnter={() => handleDragEnter('gerente', ger.id, handleSetGers)}
                           className={cn(
-                            "w-full h-[88px] min-h-[88px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
+                            "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
                               ? "bg-sky-600 text-white border-sky-700 font-bold shadow-xs"
                               : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -1173,7 +1173,7 @@ Commercial Leadership`;
                         >
                           {/* RENGLÓN 1: NOMBRE + INFO */}
                           <div className="flex items-center justify-between h-[18px]">
-                            <span className="font-bold text-[12px] truncate">{ger.nombre}</span>
+                            <span className="font-bold text-[12.5px] truncate">{ger.nombre}</span>
                             <div className="flex items-center gap-1 shrink-0">
                               <span
                                 role="button"
@@ -1204,7 +1204,7 @@ Commercial Leadership`;
                           </div>
 
                           {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
-                          <div className="h-[16px] flex items-center justify-between text-[11px] overflow-hidden">
+                          <div className="h-[17px] flex items-center justify-between text-xs overflow-hidden">
                             {ger.isSingleVp ? (
                               <span className={cn("truncate font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
                                 {ger.persona}
@@ -1215,7 +1215,7 @@ Commercial Leadership`;
                                   <span
                                     key={pill}
                                     className={cn(
-                                      "text-[9.5px] font-black px-1 py-0 rounded border uppercase shadow-2xs leading-tight",
+                                      "text-[10px] font-black px-1 py-0.2 rounded border uppercase shadow-2xs leading-tight",
                                       pill === 'RMX'
                                         ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                         : pill === 'CEM'
@@ -1231,25 +1231,25 @@ Commercial Leadership`;
                           </div>
 
                           {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-[11px] font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
+                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-xs font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{ger.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>cust</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.clientes?.pctOnboarding || 0)}%</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>onboard</span>
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.clientes?.pctOnboarding || 0)}%</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.pedidos?.pctAdopcion || 0)}%</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.pedidos?.pctAdopcion || 0)}%</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
                           </div>
@@ -1295,7 +1295,7 @@ Commercial Leadership`;
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
                           onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
                           className={cn(
-                            "w-full h-[88px] min-h-[88px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
+                            "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
                               ? "bg-emerald-600 text-white border-emerald-700 font-bold shadow-xs"
                               : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
@@ -1303,7 +1303,7 @@ Commercial Leadership`;
                         >
                           {/* RENGLÓN 1: NOMBRE + ACCIONES (EMAIL & INFO) */}
                           <div className="flex items-center justify-between h-[18px]">
-                            <span className="font-bold text-[12px] truncate">{rep.nombre}</span>
+                            <span className="font-bold text-[12.5px] truncate">{rep.nombre}</span>
                             <div className="flex items-center gap-1 shrink-0">
                               <span
                                 role="button"
@@ -1364,11 +1364,11 @@ Commercial Leadership`;
                           </div>
 
                           {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
-                          <div className="h-[16px] flex items-center justify-between gap-1 text-[11px] overflow-hidden">
+                          <div className="h-[17px] flex items-center justify-between gap-1 text-xs overflow-hidden">
                             <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
                             <span
                               className={cn(
-                                "text-[9.5px] font-black px-1 py-0 rounded border uppercase shrink-0 shadow-2xs leading-tight",
+                                "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 shadow-2xs leading-tight",
                                 rep.bl === 'RMX'
                                   ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                   : rep.bl === 'CEM'
@@ -1381,25 +1381,25 @@ Commercial Leadership`;
                           </div>
 
                           {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-[11px] font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
+                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-xs font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{rep.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.clientes?.pctOnboarding || 0)}%</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.clientes?.pctOnboarding || 0)}%</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-[10.5px] tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.pedidos?.pctAdopcion || 0)}%</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
+                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.pedidos?.pctAdopcion || 0)}%</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
                           </div>
