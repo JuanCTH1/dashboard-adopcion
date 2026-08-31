@@ -38,6 +38,7 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
       accentBg: 'bg-blue-600/10 text-blue-700 dark:text-blue-400',
       badgeBg: 'bg-blue-600 text-white',
       nextDrop: dropOffStage1,
+      nextDropText: `${formatNumber(c.asignados - c.onboarded)} customers not onboarded (-${dropOffStage1.toFixed(0)}%)`,
       isBottleneck: worstBottleneck === 1
     },
     {
@@ -54,6 +55,7 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
       badgeBg: 'bg-emerald-600 text-white',
       flowDelta: `▲+${deltas?.clientesMoMNetos || 48} this month`,
       nextDrop: dropOffStage2,
+      nextDropText: `${formatNumber(c.onboarded - c.activos)} onboarded customers without digital orders (-${dropOffStage2.toFixed(0)}%)`,
       isBottleneck: worstBottleneck === 2
     },
     {
@@ -70,6 +72,7 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
       badgeBg: 'bg-sky-500 text-white',
       flowDelta: `▲+${deltas?.activosMoMNetos || 18} this month`,
       nextDrop: dropOffStage3,
+      nextDropText: `${formatNumber(activeOrders - p.digitales)} analog orders from active customers to convert (-${dropOffStage3.toFixed(0)}%)`,
       isBottleneck: worstBottleneck === 3
     },
     {
@@ -170,7 +173,7 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                   "shrink-0 z-10 -mx-1.5 sm:-mx-2 transition-all",
                   idx === 2 ? "self-end mb-[8px]" : "self-center"
                 )}>
-                  <CustomTooltip text={`Funnel conversion drop: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}>
+                  <CustomTooltip position="top" text={`${st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}${st.isBottleneck ? ' · Primary Bottleneck' : ''}`}>
                     <div
                       className={cn(
                         "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",

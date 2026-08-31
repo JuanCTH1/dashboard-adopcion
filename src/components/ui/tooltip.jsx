@@ -2,31 +2,46 @@ import React, { useState, useRef } from "react"
 import { HelpCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export function CustomTooltip({ text, children, position = "top" }) {
+export function CustomTooltip({ text, content, children, position = "top", delay = 220, className = "" }) {
   const [isVisible, setIsVisible] = useState(false);
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [coords, setCoords] = useState({ x: 0, y: 0, isBottom: false });
   const triggerRef = useRef(null);
+  const timerRef = useRef(null);
 
-  if (!text) return children;
+  if (!text && !content) return children;
 
   const handleMouseEnter = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setCoords({
-        x: rect.left + rect.width / 2,
-        y: position === "bottom" ? rect.bottom + 6 : rect.top - 6
-      });
-    }
-    setIsVisible(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        const winHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+        let isBottom = position === "bottom";
+        if (position === "top" && rect.top < 70) isBottom = true;
+        if (position === "bottom" && rect.bottom > winHeight - 70) isBottom = false;
+
+        setCoords({
+          x: rect.left + rect.width / 2,
+          y: isBottom ? rect.bottom + 8 : rect.top - 8,
+          isBottom
+        });
+        setIsVisible(true);
+      }
+    }, delay);
+  };
+
+  const handleMouseLeave = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setIsVisible(false);
   };
 
   return (
     <>
       <span
         ref={triggerRef}
-        className="inline-block cursor-default"
+        className={cn("inline-flex items-center", className)}
         onMouseEnter={handleMouseEnter}
-        onMouseLeave={() => setIsVisible(false)}
+        onMouseLeave={handleMouseLeave}
       >
         {children}
       </span>
@@ -37,11 +52,11 @@ export function CustomTooltip({ text, children, position = "top" }) {
             position: "fixed",
             left: `${Math.max(140, Math.min(typeof window !== 'undefined' ? window.innerWidth - 140 : 500, coords.x))}px`,
             top: `${coords.y}px`,
-            transform: position === "bottom" ? "translate(-50%, 0)" : "translate(-50%, -100%)"
+            transform: coords.isBottom ? "translate(-50%, 0)" : "translate(-50%, -100%)"
           }}
-          className="z-[9999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100 max-w-xs text-left leading-snug select-none font-sans"
+          className="z-[99999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100 max-w-xs text-left leading-snug select-none font-sans"
         >
-          {text}
+          {content || text}
         </div>
       )}
     </>

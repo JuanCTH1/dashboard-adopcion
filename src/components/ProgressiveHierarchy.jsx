@@ -1215,12 +1215,10 @@ Commercial Leadership`;
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
-                              <CustomTooltip text={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>
-                                <div className="flex items-baseline gap-1 truncate cursor-help">
-                                  <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
-                                  <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
-                                </div>
-                              </CustomTooltip>
+                              <div className="flex items-baseline gap-1 truncate">
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
+                              </div>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)}</span>
                                 <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
@@ -1279,21 +1277,19 @@ Commercial Leadership`;
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-xs truncate">{rep.nombre}</span>
                           <div className="flex items-center gap-1 shrink-0">
-                            <CustomTooltip text={copiedEmailRepId === rep.id ? "Email copied & opened!" : "Send 85% Target Action Plan Email to Rep"}>
-                              <span
-                                role="button"
-                                tabIndex={0}
-                                onClick={(e) => handleSendRepEmail(rep, e)}
-                                className={cn(
-                                  "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                  copiedEmailRepId === rep.id
-                                    ? "bg-emerald-500 text-white"
-                                    : (isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
-                                )}
-                              >
-                                {copiedEmailRepId === rep.id ? <Check className="w-3 h-3 text-emerald-100" /> : <Mail className="w-3 h-3" />}
-                              </span>
-                            </CustomTooltip>
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => handleSendRepEmail(rep, e)}
+                              className={cn(
+                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                copiedEmailRepId === rep.id
+                                  ? "bg-emerald-500 text-white"
+                                  : (isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
+                              )}
+                            >
+                              {copiedEmailRepId === rep.id ? <Check className="w-3 h-3 text-emerald-100" /> : <Mail className="w-3 h-3" />}
+                            </span>
 
                             <span
                               role="button"
@@ -1369,12 +1365,10 @@ Commercial Leadership`;
                             </div>
                           </div>
                           <div className="flex items-center justify-between gap-1">
-                            <CustomTooltip text={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>
-                              <div className="flex items-baseline gap-1 truncate cursor-help">
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
-                              </div>
-                            </CustomTooltip>
+                            <div className="flex items-baseline gap-1 truncate">
+                              <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
+                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
+                            </div>
                             <div className="flex items-baseline gap-1 shrink-0">
                               <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
                               <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
@@ -1472,39 +1466,31 @@ Commercial Leadership`;
                       {/* Segmented Stacked Progress Bar */}
                       <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-800 flex overflow-hidden p-0.5 gap-0.5">
                         {orderComposition.digitalOrders > 0 && (
-                          <CustomTooltip text={`Digital Adopted: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctDigital}%` }}
-                              className="h-full bg-emerald-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctDigital}%` }}
+                            className="h-full bg-emerald-500 rounded-full transition-all duration-300 min-w-[6px]"
+                          />
                         )}
 
                         {orderComposition.lowAdoptionOrders > 0 && (
-                          <CustomTooltip text={`Low Adoption (Analog orders from Onboarded): ${formatNumber(orderComposition.lowAdoptionOrders)} orders (${orderComposition.pctLowAdopt.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctLowAdopt}%` }}
-                              className="h-full bg-amber-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctLowAdopt}%` }}
+                            className="h-full bg-amber-500 rounded-full transition-all duration-300 min-w-[6px]"
+                          />
                         )}
 
                         {orderComposition.notOnboardedOrders > 0 && (
-                          <CustomTooltip text={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctNotOnb}%` }}
-                              className="h-full bg-rose-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctNotOnb}%` }}
+                            className="h-full bg-rose-500 rounded-full transition-all duration-300 min-w-[6px]"
+                          />
                         )}
 
                         {orderComposition.excludedOrders > 0 && (
-                          <CustomTooltip text={`Excluded Accounts: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(1)}%)`}>
-                            <div
-                              style={{ width: `${orderComposition.pctExcluded}%` }}
-                              className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
-                            />
-                          </CustomTooltip>
+                          <div
+                            style={{ width: `${orderComposition.pctExcluded}%` }}
+                            className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 min-w-[6px]"
+                          />
                         )}
                       </div>
 
@@ -1623,7 +1609,23 @@ Commercial Leadership`;
 
                               {/* Action Buttons: Quick Copy Script + Tooltip Details */}
                               <div className="flex items-center gap-1.5 shrink-0">
-                                <CustomTooltip text={`Orders: ${formatNumber(cli.pedidosDigitales)} online · ${formatNumber(cli.pedidosAnalogos)} offline (${cli.pctAdopcionPedidos}% adoption) | Volume: ${formatCompactNumber(cli.volumenMes)} ${cli.unidad || 'Tons'}`}>
+                                <CustomTooltip
+                                  content={
+                                    <div className="p-1 space-y-1.5 min-w-[170px]">
+                                      <div className="font-bold text-xs text-primary dark:text-sky-300 pb-1 border-b border-border/70 truncate">
+                                        {cli.nombreEmpresa}
+                                      </div>
+                                      <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                                        <span className="text-muted-foreground">Digital orders:</span>
+                                        <span className="font-bold text-right text-emerald-600 dark:text-emerald-400 tabular-nums">{formatNumber(cli.pedidosDigitales)}</span>
+                                        <span className="text-muted-foreground">Offline orders:</span>
+                                        <span className="font-bold text-right text-foreground tabular-nums">{formatNumber(cli.pedidosAnalogos)}</span>
+                                        <span className="text-muted-foreground">Adoption:</span>
+                                        <span className="font-bold text-right text-primary dark:text-sky-400 tabular-nums">{cli.pctAdopcionPedidos}%</span>
+                                      </div>
+                                    </div>
+                                  }
+                                >
                                   <div className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-foreground cursor-help">
                                     <Info className="w-3.5 h-3.5" />
                                   </div>
