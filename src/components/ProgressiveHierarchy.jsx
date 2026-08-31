@@ -1043,7 +1043,6 @@ Commercial Leadership`;
                                   "p-0.5 rounded transition-colors cursor-pointer shrink-0",
                                   isSelected ? "hover:bg-indigo-700 text-indigo-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
                                 )}
-                                title="Leadership Breakdown"
                               >
                                 <Info className="w-3 h-3" />
                               </span>
@@ -1172,7 +1171,6 @@ Commercial Leadership`;
                                   "p-0.5 rounded transition-colors cursor-pointer shrink-0",
                                   isSelected ? "hover:bg-sky-700 text-sky-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
                                 )}
-                                title="Managers Breakdown"
                               >
                                 <Info className="w-3 h-3" />
                               </span>
@@ -1332,7 +1330,6 @@ Commercial Leadership`;
                                 "p-0.5 rounded transition-colors cursor-pointer shrink-0",
                                 isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
                               )}
-                              title="Performance Breakdown"
                             >
                               <Info className="w-3 h-3" />
                             </span>
