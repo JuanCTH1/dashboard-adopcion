@@ -36,7 +36,8 @@ import {
   Copy,
   Zap,
   MapPin,
-  Target
+  Target,
+  Mail
 } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
@@ -621,6 +622,99 @@ export function ProgressiveHierarchy({
 
   const actionableAccountsCount = actionPlanData.totalNeededCount;
 
+  const [copiedEmailRepId, setCopiedEmailRepId] = useState(null);
+
+  const handleSendRepEmail = useCallback((rep, e) => {
+    e.stopPropagation();
+
+    // Get rep's cartera
+    const repCartera = adopcionRepo.getCartera(null, {
+      ...filtrosCompuestos,
+      vendedorIds: [rep.id]
+    }) || [];
+
+    let totalOrders = 0;
+    let currentDigital = 0;
+    const len = repCartera.length;
+    for (let i = 0; i < len; i++) {
+      const c = repCartera[i];
+      totalOrders += (c.pedidosTotales || 0);
+      currentDigital += (c.pedidosDigitales || 0);
+    }
+
+    const currentPct = totalOrders > 0 ? ((currentDigital / totalOrders) * 100).toFixed(1) : '0.0';
+    const targetDigital = Math.ceil(0.85 * totalOrders);
+    const gap = Math.max(0, targetDigital - currentDigital);
+
+    const candidates = [];
+    for (let i = 0; i < len; i++) {
+      const c = repCartera[i];
+      const potentialOrdersGain = !c.estaIncorporado
+        ? (c.pedidosTotales || c.volumenBase || 0)
+        : (c.pedidosAnalogos || 0);
+      if (potentialOrdersGain > 0) {
+        const type = !c.estaIncorporado
+          ? 'onboarding'
+          : (c.pedidosAnalogos > 0 ? 'habit_shift' : 'retained');
+        if (type !== 'retained') {
+          candidates.push({ ...c, potentialOrdersGain, type });
+        }
+      }
+    }
+    candidates.sort((a, b) => b.potentialOrdersGain - a.potentialOrdersGain);
+
+    let neededAccounts = [];
+    if (gap === 0 || Number(currentPct) >= 85.0) {
+      neededAccounts = candidates.slice(0, 3);
+    } else {
+      let accumulated = 0;
+      for (let i = 0; i < candidates.length; i++) {
+        neededAccounts.push(candidates[i]);
+        accumulated += candidates[i].potentialOrdersGain;
+        if (accumulated >= gap) break;
+      }
+    }
+
+    const totalGain = neededAccounts.reduce((sum, a) => sum + a.potentialOrdersGain, 0);
+    const projectedDigital = currentDigital + totalGain;
+    const projectedPct = totalOrders > 0 ? Math.min(100, ((projectedDigital / totalOrders) * 100)).toFixed(1) : '100.0';
+
+    const subject = `Action Plan: Path to 85% Digital Adoption | ${rep.nombre}`;
+
+    const accountLines = neededAccounts.map((acc, i) => {
+      const issue = acc.type === 'onboarding' ? 'Not Onboarded' : `Low Adoption (${acc.pedidosAnalogos} offline ord/mo)`;
+      return `  ${i + 1}. ${acc.nombreEmpresa} [${issue}] -> Potential Gain: +${formatNumber(acc.potentialOrdersGain)} digital orders/mo`;
+    }).join('\n');
+
+    const body = `Hi ${rep.nombre},
+
+Here is your focused digital adoption coaching plan to reach our 85.0% target:
+
+• Current Digital Adoption: ${currentPct}% (${formatNumber(currentDigital)} of ${formatNumber(totalOrders)} orders)
+• Target: 85.0% Digital Adoption
+• Gap to Target: ${formatNumber(gap)} orders/month
+
+Priority Action Items (${neededAccounts.length} Key Accounts):
+${accountLines || '  (All accounts currently digital)'}
+
+Projected Impact:
+By converting these ${neededAccounts.length} accounts to digital ordering, your portfolio will reach ${projectedPct}% adoption.
+
+Let me know how we can support you in onboarding and converting these accounts this month.
+
+Best regards,
+Commercial Leadership`;
+
+    // Open default email client
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
+
+    // Also copy body text to clipboard as backup
+    navigator.clipboard.writeText(body);
+    setCopiedEmailRepId(rep.id);
+    setTimeout(() => setCopiedEmailRepId(null), 2500);
+  }, [filtrosCompuestos]);
+
   const handleCopyScript = useCallback((client) => {
     const isHabit = client.type === 'habit_shift';
     const repName = client.vendedorNombre || 'your sales rep';
@@ -801,7 +895,6 @@ export function ProgressiveHierarchy({
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-[12.5px] truncate">{dir.nombre}</span>
                             <div className="flex items-center gap-1">
-                              {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                               <span
                                 role="button"
                                 tabIndex={0}
@@ -945,7 +1038,6 @@ export function ProgressiveHierarchy({
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-[12.5px] truncate">{ger.nombre}</span>
                             <div className="flex items-center gap-1">
-                              {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
                               <span
                                 role="button"
                                 tabIndex={0}
@@ -1085,11 +1177,25 @@ export function ProgressiveHierarchy({
                             : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
                         )}
                       >
-                        {/* RENGLÓN 1: NOMBRE + INFO */}
+                        {/* RENGLÓN 1: NOMBRE + ACCIONES (EMAIL & INFO) */}
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-xs truncate">{rep.nombre}</span>
-                          <div className="flex items-center gap-1">
-                            {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}
+                          <div className="flex items-center gap-1 shrink-0">
+                            <span
+                              role="button"
+                              tabIndex={0}
+                              onClick={(e) => handleSendRepEmail(rep, e)}
+                              className={cn(
+                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                copiedEmailRepId === rep.id
+                                  ? "bg-emerald-500 text-white"
+                                  : (isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
+                              )}
+                              title={copiedEmailRepId === rep.id ? "Email copied to clipboard & opened!" : "Send 85% Target Action Plan Email to Rep"}
+                            >
+                              {copiedEmailRepId === rep.id ? <Check className="w-3 h-3 text-emerald-100" /> : <Mail className="w-3 h-3" />}
+                            </span>
+
                             <span
                               role="button"
                               tabIndex={0}
