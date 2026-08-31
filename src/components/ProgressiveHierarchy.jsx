@@ -670,6 +670,49 @@ export function ProgressiveHierarchy({
 
   const actionableAccountsCount = actionPlanData.totalNeededCount;
 
+  // Horizontal Orders Breakdown: Digital (Green), Low Adoption (Amber), Not Onboarded (Red), Excluded (Gray)
+  const orderComposition = useMemo(() => {
+    const cart = activeContext.cartera || [];
+    let totalOrders = 0;
+    let digitalOrders = 0;
+    let lowAdoptionOrders = 0;
+    let notOnboardedOrders = 0;
+    let excludedOrders = 0;
+
+    const len = cart.length;
+    for (let i = 0; i < len; i++) {
+      const c = cart[i];
+      const orders = c.pedidosTotales || 0;
+      totalOrders += orders;
+
+      if (exclusionManager.isExcluded(c.id)) {
+        excludedOrders += orders;
+      } else if (!c.estaIncorporado) {
+        notOnboardedOrders += orders;
+      } else {
+        digitalOrders += (c.pedidosDigitales || 0);
+        lowAdoptionOrders += (c.pedidosAnalogos || 0);
+      }
+    }
+
+    const pctDigital = totalOrders > 0 ? (digitalOrders / totalOrders) * 100 : 0;
+    const pctLowAdopt = totalOrders > 0 ? (lowAdoptionOrders / totalOrders) * 100 : 0;
+    const pctNotOnb = totalOrders > 0 ? (notOnboardedOrders / totalOrders) * 100 : 0;
+    const pctExcluded = totalOrders > 0 ? (excludedOrders / totalOrders) * 100 : 0;
+
+    return {
+      totalOrders,
+      digitalOrders,
+      lowAdoptionOrders,
+      notOnboardedOrders,
+      excludedOrders,
+      pctDigital,
+      pctLowAdopt,
+      pctNotOnb,
+      pctExcluded
+    };
+  }, [activeContext.cartera, exclusionsVersion]);
+
   const [copiedEmailRepId, setCopiedEmailRepId] = useState(null);
 
   const handleSendRepEmail = useCallback((rep, e) => {
@@ -1424,6 +1467,79 @@ Commercial Leadership`;
               {/* PANEL BODY: ACTION PLAN OR CUSTOMER DETAIL */}
               {rightPanelTab === 'action_plan' ? (
                 <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 scrollbar-thin space-y-2 pr-0.5">
+                  {/* HORIZONTAL ORDER MIX BREAKDOWN BAR */}
+                  {orderComposition.totalOrders > 0 && (
+                    <div className="p-2 rounded-xl bg-card border border-border shadow-2xs space-y-1.5 shrink-0">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-muted-foreground uppercase tracking-wider text-[10px]">Order Mix Breakdown</span>
+                        <span className="font-extrabold text-foreground tabular-nums text-[11px]">
+                          {formatNumber(orderComposition.totalOrders)} orders
+                        </span>
+                      </div>
+
+                      {/* Segmented Stacked Progress Bar */}
+                      <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 flex overflow-hidden p-0.5 gap-0.5">
+                        {orderComposition.digitalOrders > 0 && (
+                          <CustomTooltip text={`Digital Adopted: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctDigital}%` }}
+                              className="h-full bg-emerald-500 rounded-full transition-all duration-300 cursor-help"
+                            />
+                          </CustomTooltip>
+                        )}
+
+                        {orderComposition.lowAdoptionOrders > 0 && (
+                          <CustomTooltip text={`Low Adoption (Analog orders from Onboarded): ${formatNumber(orderComposition.lowAdoptionOrders)} orders (${orderComposition.pctLowAdopt.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctLowAdopt}%` }}
+                              className="h-full bg-amber-500 rounded-full transition-all duration-300 cursor-help"
+                            />
+                          </CustomTooltip>
+                        )}
+
+                        {orderComposition.notOnboardedOrders > 0 && (
+                          <CustomTooltip text={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctNotOnb}%` }}
+                              className="h-full bg-rose-500 rounded-full transition-all duration-300 cursor-help"
+                            />
+                          </CustomTooltip>
+                        )}
+
+                        {orderComposition.excludedOrders > 0 && (
+                          <CustomTooltip text={`Excluded Accounts: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctExcluded}%` }}
+                              className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 cursor-help"
+                            />
+                          </CustomTooltip>
+                        )}
+                      </div>
+
+                      {/* Micro-Legend */}
+                      <div className="flex items-center justify-between text-[10px] text-muted-foreground flex-wrap gap-x-2 gap-y-0.5 pt-0.5">
+                        <div className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          <span className="text-foreground">Digital: <b>{orderComposition.pctDigital.toFixed(0)}%</b></span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                          <span className="text-foreground">Low Adopt: <b>{orderComposition.pctLowAdopt.toFixed(0)}%</b></span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                          <span className="text-foreground">Not Onb: <b>{orderComposition.pctNotOnb.toFixed(0)}%</b></span>
+                        </div>
+                        {orderComposition.excludedOrders > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-600 shrink-0" />
+                            <span className="text-foreground">Excluded: <b>{orderComposition.pctExcluded.toFixed(0)}%</b></span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {actionPlanData.visibleClients.length === 0 ? (
                     <div className="p-4 text-center text-xs text-muted-foreground bg-card rounded-xl border border-border">
                       <Sparkles className="w-6 h-6 text-emerald-500 mx-auto mb-1.5 opacity-80" />
