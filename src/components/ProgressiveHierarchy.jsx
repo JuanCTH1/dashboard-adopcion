@@ -224,15 +224,7 @@ export function ProgressiveHierarchy({
   }, [selectedVpIds, selectedGerIds, selectedRepIds, REGION_TO_MARKETS, repMap, onHierarchyFilterChange]);
 
   const handleSetGers = useCallback((nextGers) => {
-    let nextDirs = [...selectedDirIds];
     let nextReps = selectedRepIds;
-
-    nextGers.forEach(gId => {
-      const reg = MARKET_TO_REGION[gId];
-      if (reg && !nextDirs.includes(reg)) {
-        nextDirs.push(reg);
-      }
-    });
 
     if (nextGers.length === 0) {
       nextReps = [];
@@ -246,33 +238,20 @@ export function ProgressiveHierarchy({
 
     onHierarchyFilterChange?.({
       vpIds: selectedVpIds,
-      directorIds: nextDirs,
+      directorIds: selectedDirIds,
       gerenteIds: nextGers,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedRepIds, MARKET_TO_REGION, repMap, onHierarchyFilterChange]);
+  }, [selectedVpIds, selectedDirIds, selectedRepIds, repMap, onHierarchyFilterChange]);
 
   const handleSetReps = useCallback((nextReps) => {
-    let nextVps = [...selectedVpIds];
-    let nextDirs = [...selectedDirIds];
-    let nextGers = [...selectedGerIds];
-
-    nextReps.forEach(rId => {
-      const rep = repMap.get(rId);
-      if (rep) {
-        if (rep.vpId && !nextVps.includes(rep.vpId)) nextVps.push(rep.vpId);
-        if (rep.regionNombre && !nextDirs.includes(rep.regionNombre)) nextDirs.push(rep.regionNombre);
-        if (rep.plaza && !nextGers.includes(rep.plaza)) nextGers.push(rep.plaza);
-      }
-    });
-
     onHierarchyFilterChange?.({
-      vpIds: nextVps,
-      directorIds: nextDirs,
-      gerenteIds: nextGers,
+      vpIds: selectedVpIds,
+      directorIds: selectedDirIds,
+      gerenteIds: selectedGerIds,
       vendedorIds: nextReps
     });
-  }, [selectedVpIds, selectedDirIds, selectedGerIds, repMap, onHierarchyFilterChange]);
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, onHierarchyFilterChange]);
 
   const startDragSelect = useCallback((columnType, id, currentSelectedArray, onSetCallback) => {
     isMouseDownRef.current = true;
@@ -298,15 +277,14 @@ export function ProgressiveHierarchy({
       dragTouchedRef.current = new Set();
       window.removeEventListener("mouseup", handleMouseUp);
     };
-
     window.addEventListener("mouseup", handleMouseUp);
   }, []);
 
   const handleDragEnter = useCallback((columnType, id, onSetCallback) => {
     if (!isMouseDownRef.current || dragColumnRef.current !== columnType) return;
     if (dragTouchedRef.current.has(id)) return;
-    dragTouchedRef.current.add(id);
 
+    dragTouchedRef.current.add(id);
     const session = dragSessionSetRef.current;
     if (!session) return;
 
@@ -388,25 +366,37 @@ export function ProgressiveHierarchy({
     });
   };
 
-  // Instant O(1) Hierarchy queries
+  // Base context filters (temporal/business line scope) to share single cached aggregate across all levels
+  const baseContextFilters = useMemo(() => {
+    return {
+      anios: filtrosCompuestos.anios,
+      meses: filtrosCompuestos.meses,
+      lineasNegocio: filtrosCompuestos.lineasNegocio,
+      onboarded: filtrosCompuestos.onboarded,
+      activos: filtrosCompuestos.activos,
+      excluirNoViables: filtrosCompuestos.excluirNoViables
+    };
+  }, [filtrosCompuestos.anios, filtrosCompuestos.meses, filtrosCompuestos.lineasNegocio, filtrosCompuestos.onboarded, filtrosCompuestos.activos, filtrosCompuestos.excluirNoViables]);
+
+  // Instant 0ms Hierarchy queries
   const vps = useMemo(() => {
-    return adopcionRepo.getJerarquia('nacional', null, filtrosCompuestos);
-  }, [filtrosCompuestos]);
+    return adopcionRepo.getJerarquia('nacional', null, baseContextFilters);
+  }, [baseContextFilters]);
 
   const directores = useMemo(() => {
     if (selectedVpIds.length === 0 && navMode !== 'all_columns') return [];
-    return adopcionRepo.getJerarquia('vp', selectedVpIds, filtrosCompuestos);
-  }, [selectedVpIds, filtrosCompuestos, navMode]);
+    return adopcionRepo.getJerarquia('vp', selectedVpIds, baseContextFilters);
+  }, [selectedVpIds, baseContextFilters, navMode]);
 
   const gerentes = useMemo(() => {
     if (selectedDirIds.length === 0 && navMode !== 'all_columns') return [];
-    return adopcionRepo.getJerarquia('director', selectedDirIds, { ...filtrosCompuestos, vpIds: selectedVpIds });
-  }, [selectedDirIds, selectedVpIds, filtrosCompuestos, navMode]);
+    return adopcionRepo.getJerarquia('director', selectedDirIds, baseContextFilters);
+  }, [selectedDirIds, baseContextFilters, navMode]);
 
   const vendedores = useMemo(() => {
     if (selectedGerIds.length === 0 && navMode !== 'all_columns') return [];
-    return adopcionRepo.getJerarquia('gerente', selectedGerIds, { ...filtrosCompuestos, vpIds: selectedVpIds, directorIds: selectedDirIds });
-  }, [selectedGerIds, selectedDirIds, selectedVpIds, filtrosCompuestos, navMode]);
+    return adopcionRepo.getJerarquia('gerente', selectedGerIds, baseContextFilters);
+  }, [selectedGerIds, baseContextFilters, navMode]);
 
   const activeContext = useMemo(() => {
     let fNode = {
