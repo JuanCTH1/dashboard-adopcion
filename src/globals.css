@@ -6,8 +6,8 @@
   --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* MODO DÍA CALIBRADO: Fondo gris suave #e2e7ee (reduce el brillo global) + Tarjetas blanco puro #ffffff */
-  --background: #e2e7ee;
+  /* MODO DÍA CALIBRADO: Fondo gris tenue y balanceado #e9eef5 + Tarjetas blanco puro #ffffff */
+  --background: #e9eef5;
   --foreground: #0f172a;
   
   --card: #ffffff;
