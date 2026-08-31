@@ -1490,7 +1490,7 @@ Commercial Leadership`;
                               {exclusionManager.isExcluded(cli.id) ? (
                                 <div className="flex items-center gap-1.5 text-xs min-w-0">
                                   <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 shrink-0" title={exclusionManager.getReason(cli.id)}>
-                                    Opt-Out: {exclusionManager.getReason(cli.id)}
+                                    Excluded: {exclusionManager.getReason(cli.id)}
                                   </Badge>
                                 </div>
                               ) : isLowAdoption ? (
@@ -1517,7 +1517,7 @@ Commercial Leadership`;
                                   </div>
                                 </CustomTooltip>
 
-                                {/* Opt-out / Restore button */}
+                                {/* Exclude / Restore button */}
                                 {exclusionManager.isExcluded(cli.id) ? (
                                   <button
                                     type="button"
@@ -1535,7 +1535,7 @@ Commercial Leadership`;
                                     type="button"
                                     onClick={(e) => handleOpenExclusionMenu(cli, e)}
                                     className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-amber-600 transition-colors cursor-pointer"
-                                    title="Opt-out non-viable client with reason"
+                                    title="Exclude client with reason"
                                   >
                                     <ShieldAlert className="w-3.5 h-3.5" />
                                   </button>
@@ -1677,7 +1677,7 @@ Commercial Leadership`;
                                   {exclusionManager.isExcluded(cli.id) ? (
                                     <div className="flex items-center gap-1">
                                       <Badge variant="warning" className="text-[10px] py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30" title={exclusionManager.getReason(cli.id)}>
-                                        Opt-Out
+                                        Excluded
                                       </Badge>
                                       <button
                                         type="button"
@@ -1872,7 +1872,7 @@ Commercial Leadership`;
             {/* Clean Header */}
             <div className="px-2 py-1 pb-1.5 border-b border-border/60 mb-1 flex items-center justify-between">
               <div className="min-w-0">
-                <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Mark Non-Viable</span>
+                <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Exclude Account</span>
                 <span className="text-xs font-bold truncate block text-slate-800 dark:text-slate-200">{exclusionMenuClient.nombreEmpresa}</span>
               </div>
               <button

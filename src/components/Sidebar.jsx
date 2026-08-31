@@ -234,8 +234,8 @@ export function Sidebar({
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Base Target</span>
                   {excludedCount > 0 && (
-                    <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20">
-                      {excludedCount} opt-out
+                    <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                      {excludedCount} excluded
                     </span>
                   )}
                 </div>
