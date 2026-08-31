@@ -6,12 +6,12 @@
 const STORAGE_KEY = 'dashboard_cx_excluded_clients_v1';
 
 export const EXCLUSION_REASONS = [
-  'Corporate / Procurement Policy',
-  'Explicit Client Refusal / Friction',
-  'Requires Direct EDI / ERP Integration',
-  'Credit Hold / Commercial Dispute',
-  'Operational / Connectivity Barrier',
-  'Other / Temporary Hold'
+  { id: 'procurement', label: 'Procurement Policy', icon: '🏛️' },
+  { id: 'refusal', label: 'Client Refusal', icon: '🚫' },
+  { id: 'edi', label: 'Requires EDI / ERP', icon: '🔌' },
+  { id: 'dispute', label: 'Commercial Dispute', icon: '⚖️' },
+  { id: 'field', label: 'Tech / Field Barrier', icon: '👷' },
+  { id: 'other', label: 'Other Reason', icon: '📝' }
 ];
 
 class ExclusionManager {
@@ -74,10 +74,11 @@ class ExclusionManager {
   }
 
   excludeClient(clientId, reason, note = '') {
+    const reasonLabel = typeof reason === 'object' && reason !== null ? (reason.label || reason.id) : (reason || EXCLUSION_REASONS[0].label);
     this.exclusions = {
       ...this.exclusions,
       [clientId]: {
-        reason: reason || EXCLUSION_REASONS[0],
+        reason: reasonLabel,
         note: note || '',
         excludedAt: new Date().toISOString()
       }

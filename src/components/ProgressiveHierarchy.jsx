@@ -542,11 +542,22 @@ export function ProgressiveHierarchy({
   const handleOpenExclusionMenu = (cli, e) => {
     e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
+    const width = 230;
+    // Align menu cleanly to the right edge of the button to avoid viewport overflow
+    let left = rect.right - width;
+    if (left < 10) left = 10;
+    if (left + width > window.innerWidth - 10) left = window.innerWidth - width - 10;
+
+    let top = rect.bottom + 4;
+    if (top + 220 > window.innerHeight) {
+      top = Math.max(10, rect.top - 220);
+    }
+
     setExclusionMenuClient({
       id: cli.id,
       nombreEmpresa: cli.nombreEmpresa,
-      x: Math.min(window.innerWidth - 270, Math.max(10, rect.left)),
-      y: rect.bottom + 6 < window.innerHeight - 250 ? rect.bottom + 6 : Math.max(10, rect.top - 240)
+      x: left,
+      y: top
     });
   };
 
@@ -1815,46 +1826,62 @@ Commercial Leadership`;
         </div>
       )}
 
-      {/* EXCLUSION / OPT-OUT REASONS DROPDOWN MODAL POPOVER */}
+      {/* EXCLUSION / OPT-OUT REASONS DROPDOWN MODAL POPOVER WITH OUTSIDE CLICK BACKDROP */}
       {exclusionMenuClient && (
-        <div
-          style={{
-            position: 'fixed',
-            left: `${exclusionMenuClient.x}px`,
-            top: `${exclusionMenuClient.y}px`
-          }}
-          className="z-[99999] w-72 p-2 bg-white dark:bg-slate-900 text-foreground rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 animate-in fade-in-0 zoom-in-95 duration-150 font-sans select-none"
-        >
-          <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-border/80 px-1">
-            <div className="min-w-0">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Opt-out / Exclude</span>
-              <span className="text-xs font-bold truncate block">{exclusionMenuClient.nombreEmpresa}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setExclusionMenuClient(null)}
-              className="text-xs text-muted-foreground hover:text-foreground p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
+        <>
+          {/* Transparent full-viewport backdrop to close immediately on click outside */}
+          <div
+            className="fixed inset-0 z-[99998] cursor-default bg-black/5 dark:bg-black/20"
+            onClick={(e) => {
+              e.stopPropagation();
+              setExclusionMenuClient(null);
+            }}
+          />
 
-          <div className="text-[10px] font-bold text-slate-500 uppercase px-1 mb-1">Select reason for non-viability:</div>
-
-          <div className="space-y-0.5">
-            {EXCLUSION_REASONS.map((reason) => (
+          <div
+            style={{
+              position: 'fixed',
+              left: `${exclusionMenuClient.x}px`,
+              top: `${exclusionMenuClient.y}px`
+            }}
+            className="z-[99999] w-[235px] p-1.5 bg-white/98 dark:bg-slate-900/98 backdrop-blur-md text-foreground rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in-0 zoom-in-95 duration-100 font-sans select-none"
+          >
+            {/* Clean Header */}
+            <div className="px-2 py-1 pb-1.5 border-b border-border/60 mb-1 flex items-center justify-between">
+              <div className="min-w-0">
+                <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Mark Non-Viable</span>
+                <span className="text-xs font-bold truncate block text-slate-800 dark:text-slate-200">{exclusionMenuClient.nombreEmpresa}</span>
+              </div>
               <button
-                key={reason}
                 type="button"
-                onClick={() => handleSelectExclusionReason(reason)}
-                className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between group"
+                onClick={() => setExclusionMenuClient(null)}
+                className="text-xs text-muted-foreground hover:text-foreground p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                title="Close"
               >
-                <span className="truncate">{reason}</span>
-                <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 text-amber-600 transition-opacity shrink-0" />
+                ✕
               </button>
-            ))}
+            </div>
+
+            {/* Clean, icon-driven Reasons List */}
+            <div className="space-y-0.5">
+              {EXCLUSION_REASONS.map((r) => {
+                const reasonLabel = typeof r === 'object' ? r.label : r;
+                const icon = typeof r === 'object' ? r.icon : '🚫';
+                return (
+                  <button
+                    key={reasonLabel}
+                    type="button"
+                    onClick={() => handleSelectExclusionReason(r)}
+                    className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-2 group"
+                  >
+                    <span className="text-xs shrink-0">{icon}</span>
+                    <span className="truncate flex-1">{reasonLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </Card>
   );
