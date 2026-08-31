@@ -175,7 +175,7 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                 )}>
                   <CustomTooltip
                     position="top"
-                    offsetY={idx === 2 ? -65 : -32}
+                    offsetY={-65}
                     text={`${st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}${st.isBottleneck ? ' · Primary Bottleneck' : ''}`}
                   >
                     <div
