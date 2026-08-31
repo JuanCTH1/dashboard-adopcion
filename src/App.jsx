@@ -127,9 +127,13 @@ export function App() {
     return () => window.removeEventListener('keydown', handleGlobalNavKeys);
   }, [isSearchOpen, isActionDrawerOpen, smoothScrollTo]);
 
-  const handleFiltroChange = (key, val) => {
-    setFiltrosContexto(prev => ({ ...prev, [key]: val }));
-  };
+  const handleFiltroChange = useCallback((keyOrUpdates, val) => {
+    if (typeof keyOrUpdates === 'object' && keyOrUpdates !== null) {
+      setFiltrosContexto(prev => ({ ...prev, ...keyOrUpdates }));
+    } else {
+      setFiltrosContexto(prev => ({ ...prev, [keyOrUpdates]: val }));
+    }
+  }, []);
 
   const handleResetFiltros = () => {
     setFiltrosContexto({
