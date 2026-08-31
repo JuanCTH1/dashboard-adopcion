@@ -24,7 +24,8 @@ export function App() {
     meses: ['Aug'],
     lineasNegocio: [],
     onboarded: [],
-    activos: []
+    activos: [],
+    excluirNoViables: false
   });
 
   // 3. Hierarchy Active Selection (Tree Canvas)
@@ -141,7 +142,8 @@ export function App() {
       meses: ['Aug'],
       lineasNegocio: [],
       onboarded: [],
-      activos: []
+      activos: [],
+      excluirNoViables: false
     });
     setFiltrosJerarquia({
       vpIds: [],
@@ -172,6 +174,10 @@ export function App() {
       if (filtrosContexto.meses?.length) {
         chips.push({ key: 'meses', label: '', value: filtrosContexto.meses.join(', ') });
       }
+    }
+
+    if (filtrosContexto.excluirNoViables) {
+      chips.push({ key: 'excluirNoViables', label: 'Base', value: 'Actionable (SAM)' });
     }
 
     if (filtrosContexto.lineasNegocio?.length) {
@@ -209,6 +215,8 @@ export function App() {
   const handleRemoveChip = (key) => {
     if (key === 'periodo') {
       setFiltrosContexto(prev => ({ ...prev, anios: [], meses: [] }));
+    } else if (key === 'excluirNoViables') {
+      setFiltrosContexto(prev => ({ ...prev, excluirNoViables: false }));
     } else if (key === 'anios') {
       setFiltrosContexto(prev => ({ ...prev, anios: [] }));
     } else if (key === 'meses') {
@@ -407,6 +415,7 @@ export function App() {
           {/* ROW 1: EXECUTIVE KPI RIBBON */}
           <ExecutiveRibbon
             metricasGlobales={metricasGlobales}
+            isActionableBase={Boolean(filtrosCompuestos.excluirNoViables)}
           />
 
           {/* ROW 2: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}

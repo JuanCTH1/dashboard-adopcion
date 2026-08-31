@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FilterListbox } from "./FilterListbox";
 import {
@@ -8,11 +8,14 @@ import {
   ChevronLeft,
   ChevronRight,
   PanelLeft,
-  SlidersHorizontal
+  SlidersHorizontal,
+  ShieldAlert,
+  Sliders
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { exclusionManager } from "@/domain/exclusionManager";
 
 const NOMBRES_MESES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const ANIOS_DISPONIBLES = [2024, 2025, 2026];
@@ -30,6 +33,14 @@ export function Sidebar({
   onFiltroChange,
   onResetFiltros
 }) {
+  const [excludedCount, setExcludedCount] = useState(exclusionManager.getExcludedCount());
+
+  useEffect(() => {
+    return exclusionManager.subscribe(() => {
+      setExcludedCount(exclusionManager.getExcludedCount());
+    });
+  }, []);
+
   const isCurrentMonth = (filtros.anios?.length === 1 && filtros.anios[0] === 2026 && filtros.meses?.length === 1 && filtros.meses[0] === 'Aug');
   const isPrevMonth = (filtros.anios?.length === 1 && filtros.anios[0] === 2026 && filtros.meses?.length === 1 && filtros.meses[0] === 'Jul');
 
@@ -37,7 +48,8 @@ export function Sidebar({
     (filtros.anios?.length || 0) +
     (filtros.meses?.length || 0) +
     (filtros.onboarded?.length || 0) +
-    (filtros.activos?.length || 0);
+    (filtros.activos?.length || 0) +
+    (filtros.excluirNoViables ? 1 : 0);
 
   const handleSelectCurrent = () => {
     if (isCurrentMonth) {
@@ -216,6 +228,45 @@ export function Sidebar({
                   gridCols={2}
                 />
               </div>
+
+              {/* TARGET BASE: TOTAL VS ACTIONABLE (SAM) */}
+              <div className="rounded-xl border border-slate-200/80 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-2xs p-2 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Base Target</span>
+                  {excludedCount > 0 && (
+                    <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 px-1 py-0.2 rounded border border-amber-500/20">
+                      {excludedCount} opt-out
+                    </span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-1 bg-white dark:bg-slate-900 p-1 rounded-lg border border-border">
+                  <button
+                    type="button"
+                    onClick={() => onFiltroChange("excluirNoViables", false)}
+                    className={cn(
+                      "py-1 text-[11px] font-bold rounded transition-colors cursor-pointer text-center",
+                      !filtros.excluirNoViables
+                        ? "bg-primary text-primary-foreground shadow-2xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Total (All)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onFiltroChange("excluirNoViables", true)}
+                    className={cn(
+                      "py-1 text-[11px] font-bold rounded transition-colors cursor-pointer text-center",
+                      filtros.excluirNoViables
+                        ? "bg-primary text-primary-foreground shadow-2xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                    title="Excludes non-viable accounts to show actionable market (SAM)"
+                  >
+                    Actionable
+                  </button>
+                </div>
+              </div>
             </div>
           </motion.div>
         ) : (
@@ -272,6 +323,22 @@ export function Sidebar({
                 </div>
               </button>
 
+              {/* Quick Button 3: Target Base Toggle (ALL vs SAM) */}
+              <button
+                type="button"
+                onClick={() => onFiltroChange("excluirNoViables", !filtros.excluirNoViables)}
+                className={cn(
+                  "w-11 h-10 rounded-xl flex flex-col items-center justify-center border transition-all cursor-pointer shadow-2xs",
+                  filtros.excluirNoViables
+                    ? "bg-amber-600 text-white border-amber-600 shadow-xs ring-2 ring-amber-500/25"
+                    : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                )}
+                title={filtros.excluirNoViables ? "Currently showing Actionable Base (SAM) - Click for All Accounts" : "Currently showing All Accounts - Click for Actionable Base (SAM)"}
+              >
+                <span className="text-[11px] font-black leading-none">{filtros.excluirNoViables ? "SAM" : "ALL"}</span>
+                <span className={cn("text-[9px] font-semibold mt-0.5", filtros.excluirNoViables ? "text-white/80" : "text-muted-foreground")}>Base</span>
+              </button>
+
               {/* Subtle Divider */}
               <div className="w-7 h-px bg-border/80 my-0.5" />
 
@@ -280,7 +347,7 @@ export function Sidebar({
                 type="button"
                 onClick={onToggle}
                 className="w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 bg-white dark:bg-slate-900 border border-border text-slate-700 dark:text-slate-300 hover:border-primary/50 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-2xs group"
-                title="Open full filters panel (Year, Month, Onboarded, Active)"
+                title="Open full filters panel (Year, Month, Onboarded, Active, Base)"
               >
                 <SlidersHorizontal className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-bold leading-none text-muted-foreground group-hover:text-primary">More</span>

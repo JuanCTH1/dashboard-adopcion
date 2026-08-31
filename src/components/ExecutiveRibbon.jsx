@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Users, UserCheck, Activity, Target, ChevronRight, ChevronsRight } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 
-export function ExecutiveRibbon({ metricasGlobales }) {
+export function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) {
   if (!metricasGlobales || !metricasGlobales.actual) return null;
 
   const { actual, deltas } = metricasGlobales;
@@ -27,11 +27,11 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     {
       id: 'universo',
       stepNumber: '01',
-      title: 'Total Customers',
+      title: isActionableBase ? 'Viable Customers (SAM)' : 'Total Customers',
       primaryLabel: `${formatNumber(c.asignados)}`,
       primaryUnit: 'customers',
-      secondaryLabel: `${formatCompactNumber(p.totales)} total orders`,
-      exactTooltip: `${formatNumber(p.totales)} total orders`,
+      secondaryLabel: `${formatCompactNumber(p.totales)} ${isActionableBase ? 'viable orders' : 'total orders'}`,
+      exactTooltip: `${formatNumber(p.totales)} total orders ${isActionableBase ? '(Actionable SAM Base)' : ''}`,
       icon: Users,
       colorGrad: 'from-blue-600 to-indigo-700',
       accentBg: 'bg-blue-600/10 text-blue-700 dark:text-blue-400',
@@ -74,11 +74,11 @@ export function ExecutiveRibbon({ metricasGlobales }) {
     {
       id: 'adopcion',
       stepNumber: '04',
-      title: 'Orders Adoption',
+      title: isActionableBase ? 'Actionable Adoption (SAM)' : 'Orders Adoption',
       primaryLabel: `${formatPct(p.pctAdopcion)}`,
       primaryUnit: '',
       secondaryLabel: `${formatCompactNumber(p.digitales)} orders`,
-      exactTooltip: `${formatNumber(p.digitales)} adopted digital orders (out of ${formatNumber(p.totales)} total)`,
+      exactTooltip: `${formatNumber(p.digitales)} adopted digital orders (out of ${formatNumber(p.totales)} ${isActionableBase ? 'viable' : 'total'})`,
       icon: Target,
       colorGrad: 'from-indigo-600 to-violet-600',
       accentBg: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400',

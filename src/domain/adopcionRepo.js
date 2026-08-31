@@ -6,6 +6,7 @@
 import { generateDataset } from './mockGenerator.js';
 import { calculateAggregations, buildFunnel, validateVolumeCompatibility } from './aggregation.js';
 import { METRIC_DEFINITIONS, LINEAS_NEGOCIO } from './definiciones.js';
+import { exclusionManager } from './exclusionManager.js';
 
 const BL_SHORT = {
   readymix: 'RMX',
@@ -78,6 +79,11 @@ class AdopcionRepository {
     // LRU / Memoization Cache
     this.cache = new Map();
     this.maxCacheSize = 300;
+
+    // Invalidate cache on client exclusion change
+    exclusionManager.subscribe(() => {
+      this.cache.clear();
+    });
   }
 
   getDefiniciones() {
@@ -111,7 +117,9 @@ class AdopcionRepository {
       vps: filtros.vpIds?.slice().sort() || (filtros.vpId ? [filtros.vpId] : []),
       dirs: filtros.directorIds?.slice().sort() || (filtros.directorId ? [filtros.directorId] : []),
       gers: filtros.gerenteIds?.slice().sort() || (filtros.gerenteId ? [filtros.gerenteId] : []),
-      reps: filtros.vendedorIds?.slice().sort() || (filtros.vendedorId ? [filtros.vendedorId] : [])
+      reps: filtros.vendedorIds?.slice().sort() || (filtros.vendedorId ? [filtros.vendedorId] : []),
+      excluirNoViables: Boolean(filtros.excluirNoViables),
+      excludedCount: exclusionManager.getExcludedCount()
     });
   }
 
@@ -126,6 +134,8 @@ class AdopcionRepository {
     const vendedorIds = filtros.vendedorIds?.length ? filtros.vendedorIds : (filtros.vendedorId ? [filtros.vendedorId] : []);
     const onboardedFilter = filtros.onboarded?.length ? filtros.onboarded : [];
     const activosFilter = filtros.activos?.length ? filtros.activos : [];
+    const excluirNoViables = Boolean(filtros.excluirNoViables);
+    const exclusions = excluirNoViables ? exclusionManager.getExclusions() : null;
 
     const hasLineas = lineas.length > 0;
     const hasRegiones = regiones.length > 0;
@@ -167,6 +177,7 @@ class AdopcionRepository {
     for (let i = 0; i < len; i++) {
       const c = allClients[i];
 
+      if (excluirNoViables && exclusions && exclusions[c.id]) continue;
       if (hasLineas && !lineasSet.has(c.lineaNegocio)) continue;
       if (hasRegiones && !regionesSet.has(c.regionId)) continue;
       if (hasPlazas && !plazasSet.has(c.plaza)) continue;
@@ -680,6 +691,9 @@ class AdopcionRepository {
         digitalShare: Number((c.digitalShare * 100).toFixed(1)),
         primaryChannel,
         esTopPareto: c.esTopPareto,
+        isExcluded: exclusionManager.isExcluded(c.id),
+        exclusionReason: exclusionManager.getReason(c.id),
+        exclusionDetails: exclusionManager.getDetails(c.id),
         regionNombre: c.regionNombre,
         regionId: c.regionId,
         plaza: c.plaza || this.data.GERENTES.find(g => g.id === c.gerenteId)?.nombre || 'Market',

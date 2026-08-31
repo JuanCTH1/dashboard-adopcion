@@ -37,10 +37,14 @@ import {
   Zap,
   MapPin,
   Target,
-  Mail
+  Mail,
+  ShieldAlert,
+  RotateCcw,
+  MoreVertical
 } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
+import { exclusionManager, EXCLUSION_REASONS } from '@/domain/exclusionManager';
 
 // Unified single-clock FLIP transition
 const FLIP_TRANSITION = {
@@ -525,6 +529,34 @@ export function ProgressiveHierarchy({
   const [showAllActionPlan, setShowAllActionPlan] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
+  // Exclusion Menu State & Reactive Sync
+  const [exclusionsVersion, setExclusionsVersion] = useState(0);
+  const [exclusionMenuClient, setExclusionMenuClient] = useState(null);
+
+  useEffect(() => {
+    return exclusionManager.subscribe(() => {
+      setExclusionsVersion(v => v + 1);
+    });
+  }, []);
+
+  const handleOpenExclusionMenu = (cli, e) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    setExclusionMenuClient({
+      id: cli.id,
+      nombreEmpresa: cli.nombreEmpresa,
+      x: Math.min(window.innerWidth - 270, Math.max(10, rect.left)),
+      y: rect.bottom + 6 < window.innerHeight - 250 ? rect.bottom + 6 : Math.max(10, rect.top - 240)
+    });
+  };
+
+  const handleSelectExclusionReason = (reason) => {
+    if (exclusionMenuClient) {
+      exclusionManager.excludeClient(exclusionMenuClient.id, reason);
+      setExclusionMenuClient(null);
+    }
+  };
+
   // Reset showAllActionPlan when hierarchy selection changes
   useEffect(() => {
     setShowAllActionPlan(false);
@@ -533,7 +565,10 @@ export function ProgressiveHierarchy({
   const TARGET_ADOPTION_PCT = 85.0;
 
   const actionPlanData = useMemo(() => {
-    const cart = activeContext.cartera || [];
+    const rawCart = activeContext.cartera || [];
+    // Always filter out non-viable / opted-out accounts from the Action Plan critical path
+    const cart = rawCart.filter(c => !exclusionManager.isExcluded(c.id));
+
     if (!cart.length) {
       return {
         allNeededClients: [],
@@ -618,7 +653,7 @@ export function ProgressiveHierarchy({
       gapOrders,
       targetReached
     };
-  }, [activeContext.cartera, showAllActionPlan]);
+  }, [activeContext.cartera, showAllActionPlan, exclusionsVersion]);
 
   const actionableAccountsCount = actionPlanData.totalNeededCount;
 
@@ -627,11 +662,13 @@ export function ProgressiveHierarchy({
   const handleSendRepEmail = useCallback((rep, e) => {
     e.stopPropagation();
 
-    // Get rep's cartera
-    const repCartera = adopcionRepo.getCartera(null, {
+    // Get rep's cartera (excluding non-viable accounts)
+    const rawRepCartera = adopcionRepo.getCartera(null, {
       ...filtrosCompuestos,
       vendedorIds: [rep.id]
     }) || [];
+
+    const repCartera = rawRepCartera.filter(c => !exclusionManager.isExcluded(c.id));
 
     let totalOrders = 0;
     let currentDigital = 0;
@@ -1460,22 +1497,32 @@ Commercial Leadership`;
                                   </div>
                                 </CustomTooltip>
 
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleCopyScript(cli)}
-                                  className={cn(
-                                    "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
-                                    isCopied
-                                      ? "bg-emerald-500 text-white border-emerald-500"
-                                      : "hover:bg-primary hover:text-primary-foreground"
-                                  )}
-                                  title="Copy 1-on-1 coaching script for sales rep"
-                                >
-                                  {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                  <span>{isCopied ? 'Copied' : 'Script'}</span>
-                                </Button>
-                              </div>
+                                  {/* Opt-out / Exclude button */}
+                                  <button
+                                    type="button"
+                                    onClick={(e) => handleOpenExclusionMenu(cli, e)}
+                                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-amber-600 transition-colors cursor-pointer"
+                                    title="Opt-out non-viable client with reason (removes from Action Plan)"
+                                  >
+                                    <ShieldAlert className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCopyScript(cli)}
+                                    className={cn(
+                                      "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
+                                      isCopied
+                                        ? "bg-emerald-500 text-white border-emerald-500"
+                                        : "hover:bg-primary hover:text-primary-foreground"
+                                    )}
+                                    title="Copy 1-on-1 coaching script for sales rep"
+                                  >
+                                    {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                    <span>{isCopied ? 'Copied' : 'Script'}</span>
+                                  </Button>
+                                </div>
                             </div>
                           </div>
                         );
@@ -1592,19 +1639,50 @@ Commercial Leadership`;
                                 </span>
                               </td>
                               <td className="py-1.5 px-1.5 text-center whitespace-nowrap">
-                                {!cli.estaIncorporado ? (
-                                  <Badge variant="danger" className="text-xs py-0.5 px-1.5 font-bold">
-                                    Pending
-                                  </Badge>
-                                ) : cli.pedidosDigitales > 0 ? (
-                                  <Badge variant="success" className="text-xs py-0.5 px-1.5 font-bold">
-                                    Active
-                                  </Badge>
-                                ) : (
-                                  <Badge variant="secondary" className="text-xs py-0.5 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
-                                    Onboarded
-                                  </Badge>
-                                )}
+                                <div className="flex items-center justify-center gap-1">
+                                  {exclusionManager.isExcluded(cli.id) ? (
+                                    <div className="flex items-center gap-1">
+                                      <Badge variant="warning" className="text-[10px] py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30" title={exclusionManager.getReason(cli.id)}>
+                                        Opt-Out
+                                      </Badge>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          exclusionManager.includeClient(cli.id);
+                                        }}
+                                        className="p-0.5 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 text-emerald-600 transition-colors cursor-pointer"
+                                        title="Restore customer into active adoption targets"
+                                      >
+                                        <RotateCcw className="w-3 h-3" />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      {!cli.estaIncorporado ? (
+                                        <Badge variant="danger" className="text-xs py-0.5 px-1.5 font-bold">
+                                          Pending
+                                        </Badge>
+                                      ) : cli.pedidosDigitales > 0 ? (
+                                        <Badge variant="success" className="text-xs py-0.5 px-1.5 font-bold">
+                                          Active
+                                        </Badge>
+                                      ) : (
+                                        <Badge variant="secondary" className="text-xs py-0.5 px-1.5 font-bold bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30">
+                                          Onboarded
+                                        </Badge>
+                                      )}
+                                      <button
+                                        type="button"
+                                        onClick={(e) => handleOpenExclusionMenu(cli, e)}
+                                        className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-amber-600 transition-colors cursor-pointer"
+                                        title="Tag customer as Non-Viable / Exclude with reason"
+                                      >
+                                        <ShieldAlert className="w-3 h-3" />
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               </td>
                             </tr>
 
@@ -1732,6 +1810,48 @@ Commercial Leadership`;
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* EXCLUSION / OPT-OUT REASONS DROPDOWN MODAL POPOVER */}
+      {exclusionMenuClient && (
+        <div
+          style={{
+            position: 'fixed',
+            left: `${exclusionMenuClient.x}px`,
+            top: `${exclusionMenuClient.y}px`
+          }}
+          className="z-[99999] w-72 p-2 bg-white dark:bg-slate-900 text-foreground rounded-xl shadow-2xl border border-slate-300 dark:border-slate-700 animate-in fade-in-0 zoom-in-95 duration-150 font-sans select-none"
+        >
+          <div className="flex items-center justify-between pb-1.5 mb-1.5 border-b border-border/80 px-1">
+            <div className="min-w-0">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Opt-out / Exclude</span>
+              <span className="text-xs font-bold truncate block">{exclusionMenuClient.nombreEmpresa}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setExclusionMenuClient(null)}
+              className="text-xs text-muted-foreground hover:text-foreground p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="text-[10px] font-bold text-slate-500 uppercase px-1 mb-1">Select reason for non-viability:</div>
+
+          <div className="space-y-0.5">
+            {EXCLUSION_REASONS.map((reason) => (
+              <button
+                key={reason}
+                type="button"
+                onClick={() => handleSelectExclusionReason(reason)}
+                className="w-full text-left px-2 py-1.5 rounded-lg hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300 text-xs font-semibold transition-colors cursor-pointer flex items-center justify-between group"
+              >
+                <span className="truncate">{reason}</span>
+                <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 text-amber-600 transition-opacity shrink-0" />
+              </button>
             ))}
           </div>
         </div>
