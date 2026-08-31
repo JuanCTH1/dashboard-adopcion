@@ -6,6 +6,7 @@ import {
   RotateCcw,
   Calendar,
   ChevronLeft,
+  ChevronRight,
   PanelLeft,
   SlidersHorizontal
 } from "lucide-react";
@@ -60,24 +61,19 @@ export function Sidebar({
       transition={SIDEBAR_SPRING}
       className="relative h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs z-40 shrink-0 select-none font-sans overflow-visible"
     >
-      {/* Botón flotante a media altura en el borde divisor para ocultar/colapsar (Estático, sin desplazamiento en hover) */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.button
-            key="collapse-handle"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={SIDEBAR_SPRING}
-            type="button"
-            onClick={onToggle}
-            className="absolute top-1/2 -translate-y-1/2 -right-3.5 z-50 w-7 h-11 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/60 transition-colors cursor-pointer"
-            title="Collapse filters sidebar"
-          >
-            <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-          </motion.button>
+      {/* Botón flotante a media altura en el borde divisor (Disponible tanto colapsado como expandido) */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="absolute top-1/2 -translate-y-1/2 -right-3.5 z-50 w-7 h-11 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/60 transition-colors cursor-pointer"
+        title={isOpen ? "Collapse filters sidebar" : "Expand filters sidebar"}
+      >
+        {isOpen ? (
+          <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-slate-600 dark:text-slate-300" />
         )}
-      </AnimatePresence>
+      </button>
 
       {/* 1. Sidebar Header */}
       <div className="h-11 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 shrink-0 overflow-hidden">
