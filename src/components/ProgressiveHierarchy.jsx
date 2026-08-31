@@ -785,7 +785,7 @@ export function ProgressiveHierarchy({
                                 <span
                                   key={pill}
                                   className={cn(
-                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shadow-2xs",
+                                    "text-xs font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
                                     pill === 'RMX'
                                       ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                       : pill === 'CEM'
@@ -804,21 +804,21 @@ export function ProgressiveHierarchy({
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{dir.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>cust</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.clientes?.pctOnboarding || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>onboard</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
                           </div>
@@ -929,7 +929,7 @@ export function ProgressiveHierarchy({
                                 <span
                                   key={pill}
                                   className={cn(
-                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shadow-2xs",
+                                    "text-xs font-black px-1.5 py-0.2 rounded border uppercase shadow-2xs",
                                     pill === 'RMX'
                                       ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                       : pill === 'CEM'
@@ -948,21 +948,21 @@ export function ProgressiveHierarchy({
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate">
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{ger.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>cust</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>cust</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.clientes?.pctOnboarding || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>onboard</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>onboard</span>
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
                               <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>
                                 <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
                               </div>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)}</span>
-                                <span className={cn("text-[10px] font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
                               </div>
                             </div>
                           </div>
@@ -1083,7 +1083,7 @@ export function ProgressiveHierarchy({
                           <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
                           <span
                             className={cn(
-                              "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
+                              "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0 shadow-2xs",
                               rep.bl === 'RMX'
                                 ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
                                 : rep.bl === 'CEM'
@@ -1100,21 +1100,21 @@ export function ProgressiveHierarchy({
                           <div className="flex items-center justify-between gap-1">
                             <div className="flex items-baseline gap-1 truncate">
                               <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{rep.metricas.clientes?.asignados || 0}</span>
-                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
+                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
                             </div>
                             <div className="flex items-baseline gap-1 shrink-0">
                               <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.clientes?.pctOnboarding || 0)}</span>
-                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
+                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
                             </div>
                           </div>
                           <div className="flex items-center justify-between gap-1">
                             <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>
                               <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
-                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
+                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
                             </div>
                             <div className="flex items-baseline gap-1 shrink-0">
                               <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
-                              <span className={cn("text-[10px] font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
+                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
                             </div>
                           </div>
                         </div>
@@ -1214,7 +1214,7 @@ export function ProgressiveHierarchy({
                               {/* Commercial Context */}
                               <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
                                 <span className={cn(
-                                  "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
+                                  "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
                                   shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                                   shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                                   "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
@@ -1245,14 +1245,14 @@ export function ProgressiveHierarchy({
                           <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50">
                             {isLowAdoption ? (
                               <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 min-w-0">
-                                <Badge variant="warning" className="text-[10px] py-0 px-1 font-bold shrink-0">
+                                <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
                                   Low Adoption
                                 </Badge>
                                 <span className="truncate"><b>{formatNumber(cli.pedidosAnalogos)}</b> offline orders/mo</span>
                               </div>
                             ) : (
                               <div className="flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300 min-w-0">
-                                <Badge variant="danger" className="text-[10px] py-0 px-1 font-bold shrink-0">
+                                <Badge variant="danger" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
                                   Not Onboarded
                                 </Badge>
                                 <span className="truncate"><b>{formatNumber(cli.potentialOrdersGain)}</b> orders/mo</span>
@@ -1363,7 +1363,7 @@ export function ProgressiveHierarchy({
                                 </div>
                                 <div className="mt-0.5 flex items-center">
                                   <span className={cn(
-                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
+                                    "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
                                     shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                                     shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                                     "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
@@ -1494,7 +1494,7 @@ export function ProgressiveHierarchy({
                 <div className="flex items-center justify-between gap-1.5 font-bold">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className={cn(
-                      "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
+                      "text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0",
                       p.bl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
                       p.bl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
                       "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"

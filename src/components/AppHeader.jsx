@@ -97,7 +97,7 @@ export function AppHeader({
 
                   {moreOpen && (
                     <div className="absolute top-full left-0 mt-1.5 p-2 bg-card dark:bg-slate-900 rounded-xl shadow-xl border-2 border-border z-50 flex flex-col gap-1.5 min-w-[160px] animate-in fade-in-0 zoom-in-95">
-                      <div className="text-[10px] font-black uppercase text-muted-foreground tracking-wider pb-1 border-b border-border">
+                      <div className="text-xs font-black uppercase text-muted-foreground tracking-wider pb-1 border-b border-border">
                         Active Filters ({activeChips.length})
                       </div>
                       {hiddenChips.map((chip) => (

@@ -19,21 +19,21 @@ const DIMENSIONS = [
 function renderRankBadge(rank) {
   if (rank === 1) {
     return (
-      <span className="text-[10px] font-black px-1 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+      <span className="text-xs font-black px-1.5 py-0.2 rounded bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
         #1
       </span>
     );
   }
   if (rank === 2) {
     return (
-      <span className="text-[10px] font-black px-1 py-0.2 rounded bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/30">
+      <span className="text-xs font-black px-1.5 py-0.2 rounded bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/30">
         #2
       </span>
     );
   }
   if (rank === 3) {
     return (
-      <span className="text-[10px] font-black px-1 py-0.2 rounded bg-amber-700/15 text-amber-800 dark:text-amber-400 border border-amber-700/30">
+      <span className="text-xs font-black px-1.5 py-0.2 rounded bg-amber-700/15 text-amber-800 dark:text-amber-400 border border-amber-700/30">
         #3
       </span>
     );
@@ -90,7 +90,7 @@ function RankingRow({ item, variant, mode, dense }) {
             {item.nombre}
           </span>
           {item.tipo === 'market_line' && item.lineaNegocio && (
-            <span className="text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 bg-slate-500/10 text-muted-foreground border-border">
+            <span className="text-xs font-black px-1.5 py-0.2 rounded border uppercase shrink-0 bg-slate-500/10 text-muted-foreground border-border">
               {BL_SHORT[item.lineaNegocio] || 'BL'}
             </span>
           )}
@@ -248,11 +248,11 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
       ? `[LIVE PULSE] August 2026 Digital Adoption & Onboarding Sprint | American Cements USA`
       : `[OFFICIAL] July 2026 Digital Adoption & Customers Onboarding Leaderboard | American Cements USA`;
 
-    const statusBanner = isLive
+    const statusBanner = targetMonth === 'Aug'
       ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-left: 4px solid #059669; border-radius: 0 6px 6px 0;">
           <tr>
             <td style="padding: 10px 14px;">
-              <strong style="color: #065f46; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">LIVE IN-PROGRESS SPRINT · AUGUST 2026</strong>
+              <strong style="color: #065f46; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">LIVE IN-PROGRESS SPRINT · AUGUST 2026</strong>
               <div style="font-size: 12px; color: #047857; margin-top: 2px;">Real-time month-to-date performance snapshot. Final official recognition locks at month close.</div>
             </td>
           </tr>
@@ -260,13 +260,12 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
       : `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #1d4ed8; border-radius: 0 6px 6px 0;">
           <tr>
             <td style="padding: 10px 14px;">
-              <strong style="color: #1e40af; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">OFFICIAL MONTHLY RESULTS · JULY 2026</strong>
+              <strong style="color: #1e40af; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">OFFICIAL MONTHLY RESULTS · JULY 2026</strong>
               <div style="font-size: 12px; color: #1e3a8a; margin-top: 2px;">Final closed and audited monthly standings & recognition.</div>
             </td>
           </tr>
         </table>`;
 
-    // 2. Build Rich HTML for Clipboard locked to 580px table width (Outlook-compatible fixed width)
     // 2. Build Rich HTML for Clipboard locked to 580px table width (Outlook-compatible fixed width)
     const richHtml = `
       <table width="580" cellpadding="0" cellspacing="0" border="0" style="width: 580px; max-width: 580px; font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; line-height: 1.6; font-size: 13px;">
@@ -501,7 +500,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
 
             {/* Dual Email Actions */}
             <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border select-none">
-              <span className="text-[10px] font-black uppercase text-muted-foreground px-1 flex items-center gap-1">
+              <span className="text-xs font-black uppercase text-muted-foreground px-1 flex items-center gap-1">
                 <Mail className="w-3 h-3 text-primary" /> Email:
               </span>
 
