@@ -577,8 +577,10 @@ export function ProgressiveHierarchy({
 
   const actionPlanData = useMemo(() => {
     const rawCart = activeContext.cartera || [];
-    // Always filter out non-viable / opted-out accounts from the Action Plan critical path
-    const cart = rawCart.filter(c => !exclusionManager.isExcluded(c.id));
+    // If SAM mode is active (excluirNoViables === true), exclude non-viable accounts.
+    // If ALL mode is active (excluirNoViables === false), include all accounts in the Action Plan.
+    const isExcluding = Boolean(filtrosCompuestos.excluirNoViables);
+    const cart = isExcluding ? rawCart.filter(c => !exclusionManager.isExcluded(c.id)) : rawCart;
 
     if (!cart.length) {
       return {
@@ -664,7 +666,7 @@ export function ProgressiveHierarchy({
       gapOrders,
       targetReached
     };
-  }, [activeContext.cartera, showAllActionPlan, exclusionsVersion]);
+  }, [activeContext.cartera, showAllActionPlan, exclusionsVersion, filtrosCompuestos.excluirNoViables]);
 
   const actionableAccountsCount = actionPlanData.totalNeededCount;
 
@@ -673,13 +675,14 @@ export function ProgressiveHierarchy({
   const handleSendRepEmail = useCallback((rep, e) => {
     e.stopPropagation();
 
-    // Get rep's cartera (excluding non-viable accounts)
+    // Get rep's cartera (respecting current target base filter)
     const rawRepCartera = adopcionRepo.getCartera(null, {
       ...filtrosCompuestos,
       vendedorIds: [rep.id]
     }) || [];
 
-    const repCartera = rawRepCartera.filter(c => !exclusionManager.isExcluded(c.id));
+    const isExcluding = Boolean(filtrosCompuestos.excluirNoViables);
+    const repCartera = isExcluding ? rawRepCartera.filter(c => !exclusionManager.isExcluded(c.id)) : rawRepCartera;
 
     let totalOrders = 0;
     let currentDigital = 0;
@@ -1484,7 +1487,13 @@ Commercial Leadership`;
 
                             {/* Direct Diagnosis & Action Row */}
                             <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50">
-                              {isLowAdoption ? (
+                              {exclusionManager.isExcluded(cli.id) ? (
+                                <div className="flex items-center gap-1.5 text-xs min-w-0">
+                                  <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 shrink-0" title={exclusionManager.getReason(cli.id)}>
+                                    Opt-Out: {exclusionManager.getReason(cli.id)}
+                                  </Badge>
+                                </div>
+                              ) : isLowAdoption ? (
                                 <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 min-w-0">
                                   <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
                                     Low Adoption
@@ -1508,32 +1517,46 @@ Commercial Leadership`;
                                   </div>
                                 </CustomTooltip>
 
-                                  {/* Opt-out / Exclude button */}
+                                {/* Opt-out / Restore button */}
+                                {exclusionManager.isExcluded(cli.id) ? (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      exclusionManager.includeClient(cli.id);
+                                    }}
+                                    className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 text-emerald-600 transition-colors cursor-pointer"
+                                    title="Restore client into active digital target portfolio"
+                                  >
+                                    <RotateCcw className="w-3.5 h-3.5" />
+                                  </button>
+                                ) : (
                                   <button
                                     type="button"
                                     onClick={(e) => handleOpenExclusionMenu(cli, e)}
                                     className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-amber-600 transition-colors cursor-pointer"
-                                    title="Opt-out non-viable client with reason (removes from Action Plan)"
+                                    title="Opt-out non-viable client with reason"
                                   >
                                     <ShieldAlert className="w-3.5 h-3.5" />
                                   </button>
+                                )}
 
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => handleCopyScript(cli)}
-                                    className={cn(
-                                      "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
-                                      isCopied
-                                        ? "bg-emerald-500 text-white border-emerald-500"
-                                        : "hover:bg-primary hover:text-primary-foreground"
-                                    )}
-                                    title="Copy 1-on-1 coaching script for sales rep"
-                                  >
-                                    {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                    <span>{isCopied ? 'Copied' : 'Script'}</span>
-                                  </Button>
-                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleCopyScript(cli)}
+                                  className={cn(
+                                    "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
+                                    isCopied
+                                      ? "bg-emerald-500 text-white border-emerald-500"
+                                      : "hover:bg-primary hover:text-primary-foreground"
+                                  )}
+                                  title="Copy 1-on-1 coaching script for sales rep"
+                                >
+                                  {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                  <span>{isCopied ? 'Copied' : 'Script'}</span>
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         );
