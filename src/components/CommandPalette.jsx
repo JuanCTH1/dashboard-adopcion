@@ -299,8 +299,8 @@ export function CommandPalette({
                 setQuery('');
                 inputRef.current?.focus();
               }}
-              className="p-1 text-muted-foreground hover:text-foreground rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
-              title="Clear search"
+              className="p-1 text-muted-foreground hover:text-foreground rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              aria-label="Clear search"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -426,7 +426,7 @@ export function CommandPalette({
                         <div className="truncate">
                           <div className="text-xs font-bold text-foreground flex items-center gap-1.5 truncate">
                             {cli.esTopPareto && (
-                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                             )}
                             <span className="truncate">{cli.nombreEmpresa || cli.id}</span>
                             <span className={cn(

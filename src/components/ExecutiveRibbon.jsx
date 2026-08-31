@@ -2,6 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Users, UserCheck, Activity, Target, ChevronRight, ChevronsRight } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
+import { CustomTooltip } from '@/components/ui/tooltip';
 
 export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) {
   if (!metricasGlobales || !metricasGlobales.actual) return null;
@@ -169,18 +170,19 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                   "shrink-0 z-10 -mx-1.5 sm:-mx-2 transition-all",
                   idx === 2 ? "self-end mb-[8px]" : "self-center"
                 )}>
-                  <div
-                    className={cn(
-                      "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",
-                      st.isBottleneck
-                        ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/30 ring-2 ring-rose-500/25 animate-pulse-subtle"
-                        : "bg-card/95 backdrop-blur-xs text-foreground border-slate-300 dark:border-slate-700 hover:border-primary/50 shadow-2xs"
-                    )}
-                    title={`Funnel conversion drop to next stage: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}
-                  >
-                    <ChevronsRight className={cn("w-3.5 h-3.5 stroke-[2.5] shrink-0", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
-                    <span className="tracking-tight">-{st.nextDrop.toFixed(0)}%</span>
-                  </div>
+                  <CustomTooltip text={`Funnel conversion drop: -${st.nextDrop.toFixed(0)}%${st.isBottleneck ? ' (Primary Bottleneck)' : ''}`}>
+                    <div
+                      className={cn(
+                        "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",
+                        st.isBottleneck
+                          ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/30 ring-2 ring-rose-500/25 animate-pulse-subtle"
+                          : "bg-card/95 backdrop-blur-xs text-foreground border-slate-300 dark:border-slate-700 hover:border-primary/50 shadow-2xs"
+                      )}
+                    >
+                      <ChevronsRight className={cn("w-3.5 h-3.5 stroke-[2.5] shrink-0", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
+                      <span className="tracking-tight">-{st.nextDrop.toFixed(0)}%</span>
+                    </div>
+                  </CustomTooltip>
                 </div>
               )}
             </React.Fragment>

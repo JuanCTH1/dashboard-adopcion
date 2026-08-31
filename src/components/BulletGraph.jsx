@@ -50,7 +50,6 @@ export function BulletGraph({
         <div
           className="absolute top-0 bottom-0 w-[2px] bg-slate-900 dark:bg-slate-100 z-20 shadow-xs"
           style={{ left: `${pctMeta}%` }}
-          title={`Meta: ${meta}%`}
         />
       </div>
 

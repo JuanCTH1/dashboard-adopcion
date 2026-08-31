@@ -952,7 +952,6 @@ Commercial Leadership`;
                   ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                   : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700"
               )}
-              title="Show all 4 hierarchy columns side-by-side"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>All Columns</span>
@@ -966,7 +965,6 @@ Commercial Leadership`;
                   ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                   : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700"
               )}
-              title="Guided: reveal one level at a time as you select"
             >
               <Workflow className="w-3.5 h-3.5" />
               <span>Guided</span>
@@ -1087,10 +1085,12 @@ Commercial Leadership`;
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
-                              </div>
+                              <CustomTooltip text={`${formatNumber(dir.metricas.pedidos?.totales || 0)} total orders`}>
+                                <div className="flex items-baseline gap-1 truncate cursor-help">
+                                  <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
+                                  <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
+                                </div>
+                              </CustomTooltip>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(dir.metricas.pedidos?.pctAdopcion || 0)}</span>
                                 <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
@@ -1215,10 +1215,12 @@ Commercial Leadership`;
                               </div>
                             </div>
                             <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
-                              </div>
+                              <CustomTooltip text={`${formatNumber(ger.metricas.pedidos?.totales || 0)} total orders`}>
+                                <div className="flex items-baseline gap-1 truncate cursor-help">
+                                  <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
+                                  <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
+                                </div>
+                              </CustomTooltip>
                               <div className="flex items-baseline gap-1 shrink-0">
                                 <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(ger.metricas.pedidos?.pctAdopcion || 0)}</span>
                                 <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
@@ -1277,20 +1279,21 @@ Commercial Leadership`;
                         <div className="flex items-center justify-between">
                           <span className="font-bold text-xs truncate">{rep.nombre}</span>
                           <div className="flex items-center gap-1 shrink-0">
-                            <span
-                              role="button"
-                              tabIndex={0}
-                              onClick={(e) => handleSendRepEmail(rep, e)}
-                              className={cn(
-                                "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                copiedEmailRepId === rep.id
-                                  ? "bg-emerald-500 text-white"
-                                  : (isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
-                              )}
-                              title={copiedEmailRepId === rep.id ? "Email copied to clipboard & opened!" : "Send 85% Target Action Plan Email to Rep"}
-                            >
-                              {copiedEmailRepId === rep.id ? <Check className="w-3 h-3 text-emerald-100" /> : <Mail className="w-3 h-3" />}
-                            </span>
+                            <CustomTooltip text={copiedEmailRepId === rep.id ? "Email copied & opened!" : "Send 85% Target Action Plan Email to Rep"}>
+                              <span
+                                role="button"
+                                tabIndex={0}
+                                onClick={(e) => handleSendRepEmail(rep, e)}
+                                className={cn(
+                                  "p-0.5 rounded transition-colors cursor-pointer shrink-0",
+                                  copiedEmailRepId === rep.id
+                                    ? "bg-emerald-500 text-white"
+                                    : (isSelected ? "hover:bg-emerald-700 text-emerald-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
+                                )}
+                              >
+                                {copiedEmailRepId === rep.id ? <Check className="w-3 h-3 text-emerald-100" /> : <Mail className="w-3 h-3" />}
+                              </span>
+                            </CustomTooltip>
 
                             <span
                               role="button"
@@ -1366,10 +1369,12 @@ Commercial Leadership`;
                             </div>
                           </div>
                           <div className="flex items-center justify-between gap-1">
-                            <div className="flex items-baseline gap-1 truncate cursor-help" title={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>
-                              <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
-                              <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
-                            </div>
+                            <CustomTooltip text={`${formatNumber(rep.metricas.pedidos?.totales || 0)} total orders`}>
+                              <div className="flex items-baseline gap-1 truncate cursor-help">
+                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
+                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
+                              </div>
+                            </CustomTooltip>
                             <div className="flex items-baseline gap-1 shrink-0">
                               <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatPct(rep.metricas.pedidos?.pctAdopcion || 0)}</span>
                               <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
@@ -1467,35 +1472,39 @@ Commercial Leadership`;
                       {/* Segmented Stacked Progress Bar */}
                       <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-800 flex overflow-hidden p-0.5 gap-0.5">
                         {orderComposition.digitalOrders > 0 && (
-                          <div
-                            style={{ width: `${orderComposition.pctDigital}%` }}
-                            className="h-full bg-emerald-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
-                            title={`Digital Adopted: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(1)}%)`}
-                          />
+                          <CustomTooltip text={`Digital Adopted: ${formatNumber(orderComposition.digitalOrders)} orders (${orderComposition.pctDigital.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctDigital}%` }}
+                              className="h-full bg-emerald-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
+                            />
+                          </CustomTooltip>
                         )}
 
                         {orderComposition.lowAdoptionOrders > 0 && (
-                          <div
-                            style={{ width: `${orderComposition.pctLowAdopt}%` }}
-                            className="h-full bg-amber-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
-                            title={`Low Adoption (Analog orders from Onboarded): ${formatNumber(orderComposition.lowAdoptionOrders)} orders (${orderComposition.pctLowAdopt.toFixed(1)}%)`}
-                          />
+                          <CustomTooltip text={`Low Adoption (Analog orders from Onboarded): ${formatNumber(orderComposition.lowAdoptionOrders)} orders (${orderComposition.pctLowAdopt.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctLowAdopt}%` }}
+                              className="h-full bg-amber-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
+                            />
+                          </CustomTooltip>
                         )}
 
                         {orderComposition.notOnboardedOrders > 0 && (
-                          <div
-                            style={{ width: `${orderComposition.pctNotOnb}%` }}
-                            className="h-full bg-rose-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
-                            title={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(1)}%)`}
-                          />
+                          <CustomTooltip text={`Not Onboarded: ${formatNumber(orderComposition.notOnboardedOrders)} orders (${orderComposition.pctNotOnb.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctNotOnb}%` }}
+                              className="h-full bg-rose-500 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
+                            />
+                          </CustomTooltip>
                         )}
 
                         {orderComposition.excludedOrders > 0 && (
-                          <div
-                            style={{ width: `${orderComposition.pctExcluded}%` }}
-                            className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90"
-                            title={`Excluded Accounts: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(1)}%)`}
-                          />
+                          <CustomTooltip text={`Excluded Accounts: ${formatNumber(orderComposition.excludedOrders)} orders (${orderComposition.pctExcluded.toFixed(1)}%)`}>
+                            <div
+                              style={{ width: `${orderComposition.pctExcluded}%` }}
+                              className="h-full bg-slate-400 dark:bg-slate-600 rounded-full transition-all duration-300 cursor-pointer hover:opacity-90 min-w-[6px]"
+                            />
+                          </CustomTooltip>
                         )}
                       </div>
 
@@ -1546,11 +1555,13 @@ Commercial Leadership`;
                               <div className="min-w-0 flex-1">
                                 <div className="flex items-center gap-1.5">
                                   <span className="text-xs font-black text-slate-400 shrink-0">#{idx + 1}</span>
-                                  <span className="font-extrabold text-foreground truncate text-xs" title={cli.nombreEmpresa}>
+                                  <span className="font-extrabold text-foreground truncate text-xs">
                                     {cli.nombreEmpresa}
                                   </span>
                                   {cli.esTopPareto && (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
+                                    <CustomTooltip text="Top 20% Pareto Customer (Volume Leader)">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 cursor-help" />
+                                    </CustomTooltip>
                                   )}
                                 </div>
 
@@ -1588,9 +1599,11 @@ Commercial Leadership`;
                             <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50">
                               {exclusionManager.isExcluded(cli.id) ? (
                                 <div className="flex items-center gap-1.5 text-xs min-w-0">
-                                  <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 shrink-0" title={exclusionManager.getReason(cli.id)}>
-                                    Excluded: {exclusionManager.getReason(cli.id)}
-                                  </Badge>
+                                  <CustomTooltip text={`Excluded: ${exclusionManager.getReason(cli.id)}`}>
+                                    <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 shrink-0 cursor-default">
+                                      Excluded: {exclusionManager.getReason(cli.id)}
+                                    </Badge>
+                                  </CustomTooltip>
                                 </div>
                               ) : isLowAdoption ? (
                                 <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 min-w-0">
@@ -1618,43 +1631,46 @@ Commercial Leadership`;
 
                                 {/* Exclude / Restore button */}
                                 {exclusionManager.isExcluded(cli.id) ? (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      exclusionManager.includeClient(cli.id);
-                                    }}
-                                    className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 text-emerald-600 transition-colors cursor-pointer"
-                                    title="Restore client into active digital target portfolio"
-                                  >
-                                    <RotateCcw className="w-3.5 h-3.5" />
-                                  </button>
+                                  <CustomTooltip text="Restore customer into active adoption targets">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        exclusionManager.includeClient(cli.id);
+                                      }}
+                                      className="p-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 text-emerald-600 transition-colors cursor-pointer"
+                                    >
+                                      <RotateCcw className="w-3.5 h-3.5" />
+                                    </button>
+                                  </CustomTooltip>
                                 ) : (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => handleOpenExclusionMenu(cli, e)}
-                                    className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-amber-600 transition-colors cursor-pointer"
-                                    title="Exclude client with reason"
-                                  >
-                                    <ShieldAlert className="w-3.5 h-3.5" />
-                                  </button>
+                                  <CustomTooltip text="Tag customer as Non-Viable / Exclude with reason">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleOpenExclusionMenu(cli, e)}
+                                      className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-amber-600 transition-colors cursor-pointer"
+                                    >
+                                      <ShieldAlert className="w-3.5 h-3.5" />
+                                    </button>
+                                  </CustomTooltip>
                                 )}
 
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => handleCopyScript(cli)}
-                                  className={cn(
-                                    "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
-                                    isCopied
-                                      ? "bg-emerald-500 text-white border-emerald-500"
-                                      : "hover:bg-primary hover:text-primary-foreground"
-                                  )}
-                                  title="Copy 1-on-1 coaching script for sales rep"
-                                >
-                                  {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                  <span>{isCopied ? 'Copied' : 'Script'}</span>
-                                </Button>
+                                <CustomTooltip text="Copy 1-on-1 coaching script for sales rep">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCopyScript(cli)}
+                                    className={cn(
+                                      "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
+                                      isCopied
+                                        ? "bg-emerald-500 text-white border-emerald-500"
+                                        : "hover:bg-primary hover:text-primary-foreground"
+                                    )}
+                                  >
+                                    {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                    <span>{isCopied ? 'Copied' : 'Script'}</span>
+                                  </Button>
+                                </CustomTooltip>
                               </div>
                             </div>
                           </div>
@@ -1684,7 +1700,6 @@ Commercial Leadership`;
                         <th
                           onClick={() => handleSort('nombreEmpresa')}
                           className="py-1.5 px-1.5 w-[42%] font-bold cursor-pointer hover:text-foreground transition-colors group"
-                          title="Sort by Customer Name (A-Z / Z-A)"
                         >
                           <div className="flex items-center gap-1 truncate">
                             <span className="truncate">Customer</span>
@@ -1694,7 +1709,6 @@ Commercial Leadership`;
                         <th
                           onClick={() => handleSort('pedidosTotales')}
                           className="py-1.5 px-1.5 w-[20%] text-right font-bold cursor-pointer hover:text-foreground transition-colors group"
-                          title="Sort by Total Orders (High to Low / Low to High)"
                         >
                           <div className="flex items-center justify-end gap-0.5">
                             <span>Orders</span>
@@ -1704,7 +1718,6 @@ Commercial Leadership`;
                         <th
                           onClick={() => handleSort('pctAdopcionPedidos')}
                           className="py-1.5 px-1.5 w-[16%] text-right font-bold cursor-pointer hover:text-foreground transition-colors group"
-                          title="Sort by Adoption (High to Low / Low to High)"
                         >
                           <div className="flex items-center justify-end gap-0.5">
                             <span>Adoption</span>
@@ -1714,7 +1727,6 @@ Commercial Leadership`;
                         <th
                           onClick={() => handleSort('status')}
                           className="py-1.5 px-1.5 w-[17%] text-center font-bold cursor-pointer hover:text-foreground transition-colors group"
-                          title="Sort by Account Status"
                         >
                           <div className="flex items-center justify-center gap-0.5">
                             <span>Status</span>
@@ -1740,9 +1752,11 @@ Commercial Leadership`;
                                 </button>
                               </td>
                               <td className="py-1.5 px-1.5 min-w-0">
-                                <div className="font-bold text-foreground flex items-center gap-1 text-xs truncate" title={cli.nombreEmpresa}>
+                                <div className="font-bold text-foreground flex items-center gap-1 text-xs truncate">
                                   {cli.esTopPareto && (
-                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
+                                    <CustomTooltip text="Top 20% Pareto Customer (Volume Leader)">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0 cursor-help" />
+                                    </CustomTooltip>
                                   )}
                                   <span className="truncate">{cli.nombreEmpresa}</span>
                                 </div>
@@ -1775,20 +1789,23 @@ Commercial Leadership`;
                                 <div className="flex items-center justify-center gap-1">
                                   {exclusionManager.isExcluded(cli.id) ? (
                                     <div className="flex items-center gap-1">
-                                      <Badge variant="warning" className="text-[10px] py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30" title={exclusionManager.getReason(cli.id)}>
-                                        Excluded
-                                      </Badge>
-                                      <button
-                                        type="button"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          exclusionManager.includeClient(cli.id);
-                                        }}
-                                        className="p-0.5 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 text-emerald-600 transition-colors cursor-pointer"
-                                        title="Restore customer into active adoption targets"
-                                      >
-                                        <RotateCcw className="w-3 h-3" />
-                                      </button>
+                                      <CustomTooltip text={`Excluded: ${exclusionManager.getReason(cli.id)}`}>
+                                        <Badge variant="warning" className="text-[10px] py-0.2 px-1.5 font-black bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 cursor-default">
+                                          Excluded
+                                        </Badge>
+                                      </CustomTooltip>
+                                      <CustomTooltip text="Restore customer into active adoption targets">
+                                        <button
+                                          type="button"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            exclusionManager.includeClient(cli.id);
+                                          }}
+                                          className="p-0.5 rounded hover:bg-emerald-100 dark:hover:bg-emerald-950/50 text-emerald-600 transition-colors cursor-pointer"
+                                        >
+                                          <RotateCcw className="w-3 h-3" />
+                                        </button>
+                                      </CustomTooltip>
                                     </div>
                                   ) : (
                                     <>
@@ -1805,14 +1822,15 @@ Commercial Leadership`;
                                           Onboarded
                                         </Badge>
                                       )}
-                                      <button
-                                        type="button"
-                                        onClick={(e) => handleOpenExclusionMenu(cli, e)}
-                                        className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-amber-600 transition-colors cursor-pointer"
-                                        title="Tag customer as Non-Viable / Exclude with reason"
-                                      >
-                                        <ShieldAlert className="w-3 h-3" />
-                                      </button>
+                                      <CustomTooltip text="Tag customer as Non-Viable / Exclude with reason">
+                                        <button
+                                          type="button"
+                                          onClick={(e) => handleOpenExclusionMenu(cli, e)}
+                                          className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-amber-600 transition-colors cursor-pointer"
+                                        >
+                                          <ShieldAlert className="w-3 h-3" />
+                                        </button>
+                                      </CustomTooltip>
                                     </>
                                   )}
                                 </div>
@@ -1978,9 +1996,9 @@ Commercial Leadership`;
                 type="button"
                 onClick={() => setExclusionMenuClient(null)}
                 className="text-xs text-muted-foreground hover:text-foreground p-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                title="Close"
+                aria-label="Close"
               >
-                ✕
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 

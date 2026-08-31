@@ -177,7 +177,7 @@ export function AdoptionFunnelStrip({ funnelSteps }) {
                       <TrendingDown className="w-3 h-3" />
                       <span>-{st.fugaCount} ({st.fugaPct.toFixed(0)}%)</span>
                     </span>
-                    <span className="text-muted-foreground truncate max-w-[120px]" title={st.fugaLabel}>
+                    <span className="text-muted-foreground truncate max-w-[120px]">
                       {st.fugaLabel}
                     </span>
                   </div>

@@ -75,7 +75,7 @@ export const AppHeader = React.memo(function AppHeader({
                       type="button"
                       onClick={() => onRemoveChip(chip.key)}
                       className="p-0.5 rounded-full hover:bg-sky-500/20 text-sky-700 dark:text-sky-300 transition-colors cursor-pointer"
-                      title="Remove filter"
+                      aria-label="Remove filter"
                     >
                       <X className="w-2.5 h-2.5" />
                     </button>
@@ -111,7 +111,7 @@ export const AppHeader = React.memo(function AppHeader({
                             type="button"
                             onClick={() => onRemoveChip(chip.key)}
                             className="p-0.5 rounded-full hover:bg-sky-500/20 text-sky-700 dark:text-sky-300 transition-colors cursor-pointer shrink-0"
-                            title="Remove filter"
+                            aria-label="Remove filter"
                           >
                             <X className="w-2.5 h-2.5" />
                           </button>
@@ -126,7 +126,6 @@ export const AppHeader = React.memo(function AppHeader({
                 type="button"
                 onClick={onClearAllChips}
                 className="text-xs text-primary hover:underline font-bold shrink-0 cursor-pointer ml-1"
-                title="Reset all filters to current month default"
               >
                 Reset
               </button>
@@ -151,7 +150,7 @@ export const AppHeader = React.memo(function AppHeader({
             size="icon"
             onClick={onToggleDark}
             className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            aria-label="Toggle Dark Mode"
           >
             {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
           </Button>

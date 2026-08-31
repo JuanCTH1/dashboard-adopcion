@@ -290,7 +290,7 @@ export function HierarchyTable({
                   <tr key={cli.id} className="hover:bg-card transition-colors">
                     <td className="py-1.5 px-2 font-bold font-mono text-foreground flex items-center gap-1">
                       {cli.esTopPareto && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Cuenta Top Pareto (20% volumen)" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
                       )}
                       <span>{cli.id}</span>
                     </td>

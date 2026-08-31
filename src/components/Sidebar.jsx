@@ -85,7 +85,7 @@ export const Sidebar = React.memo(function Sidebar({
         }}
         onClick={(e) => e.stopPropagation()}
         className="absolute top-1/2 -translate-y-1/2 -right-3.5 z-50 w-7 h-11 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/60 transition-colors cursor-pointer"
-        title={isOpen ? "Collapse filters sidebar" : "Expand filters sidebar"}
+        aria-label="Toggle Sidebar"
       >
         {isOpen ? (
           <ChevronLeft className="w-4 h-4 text-slate-600 dark:text-slate-300" />
@@ -116,7 +116,7 @@ export const Sidebar = React.memo(function Sidebar({
             }}
             onClick={(e) => e.stopPropagation()}
             className="w-full h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
-            title="Expand Filters"
+            aria-label="Expand Filters"
           >
             <PanelLeft className="w-4 h-4 text-primary" />
           </button>
@@ -169,7 +169,6 @@ export const Sidebar = React.memo(function Sidebar({
                         ? "bg-primary text-primary-foreground border-primary shadow-xs"
                         : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
                     )}
-                    title={isCurrentMonth ? "Click to deselect (Show all)" : "Filter by Current Month (Aug 2026)"}
                   >
                     <div className="flex items-center gap-1.5">
                       <span className={cn(
@@ -192,7 +191,6 @@ export const Sidebar = React.memo(function Sidebar({
                         ? "bg-primary text-primary-foreground border-primary shadow-xs"
                         : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800"
                     )}
-                    title={isPrevMonth ? "Click to deselect (Show all)" : "Filter by Previous Month (July 2026)"}
                   >
                     <div className="flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
@@ -274,7 +272,6 @@ export const Sidebar = React.memo(function Sidebar({
                         ? "bg-primary text-primary-foreground shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
                     )}
-                    title="Excludes non-viable accounts to show actionable market (SAM)"
                   >
                     Actionable
                   </button>
@@ -303,7 +300,7 @@ export const Sidebar = React.memo(function Sidebar({
                     ? "bg-primary text-primary-foreground border-primary shadow-xs ring-2 ring-primary/25"
                     : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                 )}
-                title="Filter by Current Month: August 2026 (Live Sprint)"
+                aria-label="August 2026 Live Sprint"
               >
                 <span className={cn(
                   "w-2 h-2 rounded-full shrink-0",
@@ -327,7 +324,7 @@ export const Sidebar = React.memo(function Sidebar({
                     ? "bg-primary text-primary-foreground border-primary shadow-xs ring-2 ring-primary/25"
                     : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                 )}
-                title="Filter by Previous Month: July 2026 (Official Closed)"
+                aria-label="July 2026 Closed Month"
               >
                 <Calendar className="w-3.5 h-3.5 shrink-0 opacity-80" />
                 <div className="flex flex-col items-center leading-none">
@@ -346,7 +343,7 @@ export const Sidebar = React.memo(function Sidebar({
                     ? "bg-amber-600 text-white border-amber-600 shadow-xs ring-2 ring-amber-500/25"
                     : "bg-white dark:bg-slate-900 border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                 )}
-                title={filtros.excluirNoViables ? "Currently showing Actionable Base (SAM) - Click for All Accounts" : "Currently showing All Accounts - Click for Actionable Base (SAM)"}
+                aria-label="Toggle Target Market Base"
               >
                 <span className="text-[11px] font-black leading-none">{filtros.excluirNoViables ? "SAM" : "ALL"}</span>
                 <span className={cn("text-[9px] font-semibold mt-0.5", filtros.excluirNoViables ? "text-white/80" : "text-muted-foreground")}>Base</span>
@@ -360,7 +357,7 @@ export const Sidebar = React.memo(function Sidebar({
                 type="button"
                 onClick={onToggle}
                 className="w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 bg-white dark:bg-slate-900 border border-border text-slate-700 dark:text-slate-300 hover:border-primary/50 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer shadow-2xs group"
-                title="Open full filters panel (Year, Month, Onboarded, Active, Base)"
+                aria-label="Open full filters panel"
               >
                 <SlidersHorizontal className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-bold leading-none text-muted-foreground group-hover:text-primary">More</span>
@@ -373,7 +370,7 @@ export const Sidebar = React.memo(function Sidebar({
                 type="button"
                 onClick={onResetFiltros}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
-                title="Reset all filters"
+                aria-label="Reset all filters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>

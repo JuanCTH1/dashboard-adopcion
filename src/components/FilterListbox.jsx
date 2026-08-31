@@ -140,7 +140,6 @@ export function FilterListbox({
             type="button"
             onClick={() => onChange([])}
             className="text-[12px] text-primary dark:text-sky-400 hover:underline font-bold shrink-0 cursor-pointer"
-            title={`Clear ${label} filter`}
           >
             Clear ({selectedSet.size})
           </button>
@@ -188,7 +187,6 @@ export function FilterListbox({
                   "text-center py-1 text-[12px] rounded-lg border transition-all cursor-pointer select-none",
                   btnClass
                 )}
-                title={optStr}
               >
                 {formatLabel(opt)}
               </button>
@@ -220,7 +218,6 @@ export function FilterListbox({
                   "w-full text-left px-2.5 py-1.5 text-[12px] rounded-lg border transition-all flex items-center justify-between cursor-pointer select-none",
                   btnClass
                 )}
-                title={optStr}
               >
                 <span className="truncate">{formatLabel(opt)}</span>
                 {isSelected && <Check className="w-3 h-3 text-white shrink-0" />}

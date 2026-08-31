@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Trophy, UserCheck, Target, X, List, TrendingUp, Copy, Check, Award, Mail } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
+import { CustomTooltip } from '@/components/ui/tooltip';
 
 const TOP_N = 3;
 
@@ -85,7 +86,6 @@ function RankingRow({ item, variant, mode, dense }) {
               "font-bold text-foreground truncate",
               dense ? "text-xs max-w-[110px]" : "text-xs max-w-[200px]"
             )}
-            title={item.nombre}
           >
             {item.nombre}
           </span>
@@ -95,7 +95,7 @@ function RankingRow({ item, variant, mode, dense }) {
             </span>
           )}
         </div>
-        <div className="text-muted-foreground text-xs font-medium" title={subTitle}>
+        <div className="text-muted-foreground text-xs font-medium">
           {sub}
         </div>
       </td>
@@ -449,7 +449,6 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                     ? "bg-white dark:bg-slate-700 text-foreground shadow-xs border border-border/80"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                title="View absolute standings (Top performers)"
               >
                 <span>Standings</span>
               </button>
@@ -462,7 +461,6 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                     ? "bg-white dark:bg-slate-700 text-foreground shadow-xs border border-border/80"
                     : "text-muted-foreground hover:text-foreground"
                 )}
-                title="View top movers with highest month-over-month growth"
               >
                 <TrendingUp className="w-3 h-3 text-emerald-400" />
                 <span>Most Improved</span>
@@ -501,44 +499,46 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
               </span>
 
               {/* July (Official) */}
-              <button
-                type="button"
-                onClick={() => handleSendEmail('Jul')}
-                className={cn(
-                  "px-2 py-0.5 text-xs rounded-md font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs",
-                  copiedTarget === 'Jul'
-                    ? "bg-emerald-600 text-white"
-                    : "bg-card hover:bg-slate-200 dark:hover:bg-slate-700 text-foreground border border-border"
-                )}
-                title="Copy official closed July leaderboard email"
-              >
-                {copiedTarget === 'Jul' ? (
-                  <Check className="w-3 h-3 text-white" />
-                ) : (
-                  <Award className="w-3 h-3 text-amber-500" />
-                )}
-                <span>{copiedTarget === 'Jul' ? 'Copied!' : 'July (Official)'}</span>
-              </button>
+              <CustomTooltip text="Copy official closed July leaderboard email">
+                <button
+                  type="button"
+                  onClick={() => handleSendEmail('Jul')}
+                  className={cn(
+                    "px-2 py-0.5 text-xs rounded-md font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs",
+                    copiedTarget === 'Jul'
+                      ? "bg-emerald-600 text-white"
+                      : "bg-card hover:bg-slate-200 dark:hover:bg-slate-700 text-foreground border border-border"
+                  )}
+                >
+                  {copiedTarget === 'Jul' ? (
+                    <Check className="w-3 h-3 text-white" />
+                  ) : (
+                    <Award className="w-3 h-3 text-amber-500" />
+                  )}
+                  <span>{copiedTarget === 'Jul' ? 'Copied!' : 'July (Official)'}</span>
+                </button>
+              </CustomTooltip>
 
               {/* August (Live) */}
-              <button
-                type="button"
-                onClick={() => handleSendEmail('Aug')}
-                className={cn(
-                  "px-2 py-0.5 text-xs rounded-md font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs",
-                  copiedTarget === 'Aug'
-                    ? "bg-emerald-600 text-white"
-                    : "bg-card hover:bg-slate-200 dark:hover:bg-slate-700 text-foreground border border-border"
-                )}
-                title="Copy live August sprint pulse email"
-              >
-                {copiedTarget === 'Aug' ? (
-                  <Check className="w-3 h-3 text-white" />
-                ) : (
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                )}
-                <span>{copiedTarget === 'Aug' ? 'Copied!' : 'August (Live)'}</span>
-              </button>
+              <CustomTooltip text="Copy live August sprint pulse email">
+                <button
+                  type="button"
+                  onClick={() => handleSendEmail('Aug')}
+                  className={cn(
+                    "px-2 py-0.5 text-xs rounded-md font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs",
+                    copiedTarget === 'Aug'
+                      ? "bg-emerald-600 text-white"
+                      : "bg-card hover:bg-slate-200 dark:hover:bg-slate-700 text-foreground border border-border"
+                  )}
+                >
+                  {copiedTarget === 'Aug' ? (
+                    <Check className="w-3 h-3 text-white" />
+                  ) : (
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                  )}
+                  <span>{copiedTarget === 'Aug' ? 'Copied!' : 'August (Live)'}</span>
+                </button>
+              </CustomTooltip>
             </div>
           </div>
         </div>

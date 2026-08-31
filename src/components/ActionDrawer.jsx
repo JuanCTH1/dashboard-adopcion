@@ -205,7 +205,7 @@ export function ActionDrawer({
           size="sm"
           onClick={onExportActionCsv}
           className="gap-1 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
-          title="Export CSV"
+          aria-label="Export CSV"
         >
           <Download className="w-3.5 h-3.5" />
         </Button>
