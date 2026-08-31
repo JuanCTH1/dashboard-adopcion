@@ -77,7 +77,13 @@ export const Sidebar = React.memo(function Sidebar({
       {/* Botón flotante a media altura en el borde divisor (Disponible tanto colapsado como expandido) */}
       <button
         type="button"
-        onClick={onToggle}
+        onPointerDown={(e) => {
+          if (e.button === 0) {
+            e.preventDefault();
+            onToggle();
+          }
+        }}
+        onClick={(e) => e.stopPropagation()}
         className="absolute top-1/2 -translate-y-1/2 -right-3.5 z-50 w-7 h-11 rounded-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-md flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-primary hover:border-primary/60 transition-colors cursor-pointer"
         title={isOpen ? "Collapse filters sidebar" : "Expand filters sidebar"}
       >
@@ -102,7 +108,13 @@ export const Sidebar = React.memo(function Sidebar({
         ) : (
           <button
             type="button"
-            onClick={onToggle}
+            onPointerDown={(e) => {
+              if (e.button === 0) {
+                e.preventDefault();
+                onToggle();
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
             className="w-full h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
             title="Expand Filters"
           >
@@ -120,7 +132,7 @@ export const Sidebar = React.memo(function Sidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
-            className="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-50 dark:bg-slate-950"
+            className="flex-1 flex flex-col min-h-0 overflow-hidden bg-slate-50 dark:bg-slate-950 w-[180px] shrink-0"
           >
             {/* Active Filter Counter & Reset */}
             <div className="h-7 px-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-100/80 dark:bg-slate-900/80 text-xs shrink-0">
@@ -278,7 +290,7 @@ export const Sidebar = React.memo(function Sidebar({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
-            className="flex-1 flex flex-col items-center py-3 px-2 justify-between min-h-0 overflow-hidden"
+            className="flex-1 flex flex-col items-center py-3 px-2 justify-between min-h-0 overflow-hidden w-16 shrink-0"
           >
             <div className="flex flex-col items-center gap-2.5 w-full">
               {/* Quick Button 1: August (Live Sprint / Today) */}
