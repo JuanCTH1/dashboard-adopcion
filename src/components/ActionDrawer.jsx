@@ -48,14 +48,14 @@ export function ActionDrawer({
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-[11px] font-black uppercase tracking-wider text-primary">
+            <span className="text-xs font-black uppercase tracking-wider text-primary">
               1-on-1 Commercial Sync Sheet
             </span>
           </div>
           <h2 className="text-sm font-black text-foreground mt-0.5 truncate max-w-[280px]">
             {nombreEntidad}
           </h2>
-          <div className="text-[12px] text-muted-foreground mt-0.5 font-medium">
+          <div className="text-xs text-muted-foreground mt-0.5 font-medium">
             {tipoEntidad} Scope · {formatNumber(volumenEnRiesgoTotal)} units ready for digital shift
           </div>
         </div>
@@ -76,7 +76,7 @@ export function ActionDrawer({
           <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
           <div>
             <span className="font-bold text-foreground">Immediate Quick Win Opportunity:</span>
-            <p className="text-muted-foreground mt-0.5 text-[11px] leading-relaxed">
+            <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed">
               {inactivosORevertidos.length > 0 ? (
                 <>
                   <b>{inactivosORevertidos.length} key accounts</b> already have portal accounts but continue placing orders by phone/WhatsApp. A brief reminder call from their Sales Rep can easily capture this volume.
@@ -107,7 +107,7 @@ export function ActionDrawer({
 
           {/* Tab 1: Phone / Analog Orders (Highest Priority Conversion) */}
           <TabsContent value="inactivos" className="space-y-2.5 mt-0">
-            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-border flex items-start gap-2">
+            <div className="text-xs text-muted-foreground bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-border flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <span>
                 Registered customers with offline order habit. <b>Action: Sales Rep asks customer to submit next order via app.</b>
@@ -121,19 +121,19 @@ export function ActionDrawer({
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-bold text-slate-400">#{idx + 1}</span>
+                    <span className="text-xs font-bold text-slate-400">#{idx + 1}</span>
                     <span className="font-bold text-xs text-foreground truncate">{cli.nombreEmpresa || cli.id}</span>
                   </div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                  <div className="text-xs text-muted-foreground mt-0.5 truncate">
                     {cli.lineaNegocio.toUpperCase()} · Rep: {cli.vendedorNombre} · Market: {cli.plaza}
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
                   <div className="text-xs font-bold text-foreground tabular-nums">
-                    {formatNumber(cli.volumen)} <span className="text-[11px] font-normal text-muted-foreground">{cli.unidad}</span>
+                    {formatNumber(cli.volumen)} <span className="text-xs font-normal text-muted-foreground">{cli.unidad}</span>
                   </div>
-                  <Badge variant="warning" className="text-[10px] py-0 px-1 font-bold mt-0.5">
+                  <Badge variant="warning" className="text-xs py-0.5 px-1.5 font-bold mt-0.5">
                     Phone Habit
                   </Badge>
                 </div>
@@ -143,7 +143,7 @@ export function ActionDrawer({
 
           {/* Tab 2: Customers Pending Onboarding */}
           <TabsContent value="sinIncorporar" className="space-y-2.5 mt-0">
-            <div className="text-[11px] text-muted-foreground bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-border flex items-start gap-2">
+            <div className="text-xs text-muted-foreground bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-border flex items-start gap-2">
               <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
               <span>
                 High-volume accounts pending registration. <b>Action: Sales Rep requests customer portal user setup.</b>
@@ -157,19 +157,19 @@ export function ActionDrawer({
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-bold text-slate-400">#{idx + 1}</span>
+                    <span className="text-xs font-bold text-slate-400">#{idx + 1}</span>
                     <span className="font-bold text-xs text-foreground truncate">{cli.nombreEmpresa || cli.id}</span>
                   </div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
+                  <div className="text-xs text-muted-foreground mt-0.5 truncate">
                     {cli.lineaNegocio.toUpperCase()} · Rep: {cli.vendedorNombre} · Market: {cli.plaza}
                   </div>
                 </div>
 
                 <div className="text-right shrink-0">
                   <div className="text-xs font-bold text-foreground tabular-nums">
-                    {formatNumber(cli.volumen)} <span className="text-[11px] font-normal text-muted-foreground">{cli.unidad}</span>
+                    {formatNumber(cli.volumen)} <span className="text-xs font-normal text-muted-foreground">{cli.unidad}</span>
                   </div>
-                  <Badge variant="danger" className="text-[10px] py-0 px-1 font-bold mt-0.5">
+                  <Badge variant="danger" className="text-xs py-0.5 px-1.5 font-bold mt-0.5">
                     Unregistered
                   </Badge>
                 </div>

@@ -35,11 +35,11 @@ export function CustomTooltip({ text, children, position = "top" }) {
         <div
           style={{
             position: "fixed",
-            left: `${coords.x}px`,
+            left: `${Math.max(140, Math.min(typeof window !== 'undefined' ? window.innerWidth - 140 : 500, coords.x))}px`,
             top: `${coords.y}px`,
             transform: position === "bottom" ? "translate(-50%, 0)" : "translate(-50%, -100%)"
           }}
-          className="z-[9999] pointer-events-none whitespace-nowrap rounded-lg bg-card/98 dark:bg-slate-900/98 text-foreground px-2.5 py-1 text-[12px] font-bold shadow-xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100"
+          className="z-[9999] pointer-events-none rounded-lg bg-card/98 dark:bg-slate-900/98 text-foreground px-2.5 py-1.5 text-xs font-bold shadow-xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md animate-in fade-in-0 zoom-in-95 duration-100 max-w-xs text-left leading-normal"
         >
           {text}
         </div>

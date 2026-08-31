@@ -16,62 +16,55 @@ const DIMENSIONS = [
 ];
 
 function renderRankBadge(rank) {
-  if (rank === 1) return <span className="text-[12px] font-black text-amber-500">🥇</span>;
-  if (rank === 2) return <span className="text-[12px] font-black text-slate-400">🥈</span>;
-  if (rank === 3) return <span className="text-[12px] font-black text-amber-700 dark:text-amber-500">🥉</span>;
-  return <span className="text-[12px] font-bold text-muted-foreground tabular-nums">#{rank}</span>;
+  if (rank === 1) return <span className="text-xs font-black text-amber-500">🥇</span>;
+  if (rank === 2) return <span className="text-xs font-black text-slate-400">🥈</span>;
+  if (rank === 3) return <span className="text-xs font-black text-amber-700 dark:text-amber-500">🥉</span>;
+  return <span className="text-xs font-bold text-muted-foreground tabular-nums">#{rank}</span>;
 }
 
 function renderTierBadge(tier) {
   if (tier === 'Digital Leader') {
     return (
-      <Badge variant="outline" className="text-[10px] font-extrabold px-1.5 py-0 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800">
+      <Badge variant="outline" className="text-xs font-extrabold px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800">
         Digital Leader
       </Badge>
     );
   }
   if (tier === 'Accelerating') {
     return (
-      <Badge variant="outline" className="text-[10px] font-extrabold px-1.5 py-0 bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-800">
+      <Badge variant="outline" className="text-xs font-extrabold px-1.5 py-0.5 bg-sky-50 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-800">
         Accelerating
       </Badge>
     );
   }
   return (
-    <Badge variant="outline" className="text-[10px] font-medium px-1.5 py-0 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700">
+    <Badge variant="outline" className="text-xs font-medium px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700">
       In Transition
     </Badge>
   );
 }
 
 /** Single row for ranking tables */
-function RankingRow({ item, variant, mode, onClick, dense }) {
+function RankingRow({ item, variant, mode, dense }) {
   const isMostImproved = mode === 'most_improved';
+  const pct = variant === 'onboarding' ? item.onboardingPct : item.adopcionPct;
+  const mom = variant === 'onboarding' ? (item.newOnboardedMonth ?? 0) : (item.momDeltaAdopcion ?? item.momDelta ?? 0);
   const isOnb = variant === 'onboarding';
 
-  const pct = isOnb ? item.onboardingPct : item.adopcionPct;
-  const mom = isOnb ? (item.newOnboardedMonth ?? 0) : (item.momDeltaAdopcion ?? item.momDelta ?? 0);
-
-  const sub = isOnb
+  const sub = item.persona || item.regionNombre || item.lineaNegocio || '';
+  const subTitle = isOnb
     ? `${item.onboardedCount}/${item.assignedCount} accounts`
     : `${formatCompactNumber(item.digitalOrders)}/${formatCompactNumber(item.totalOrders)} orders`;
 
-  const subTitle = isOnb
-    ? undefined
-    : `${formatNumber(item.digitalOrders)} / ${formatNumber(item.totalOrders)} digital orders`;
-
   return (
-    <tr
-      onClick={onClick}
-      className="hover:bg-card transition-colors cursor-pointer group border-b border-border/40 last:border-b-0"
-    >
-      <td className="py-1 px-1 text-center font-bold w-6">{renderRankBadge(item.rank)}</td>
-      <td className="py-1 px-1">
+    <tr className="hover:bg-card/60 transition-colors border-b border-border/40 last:border-b-0 cursor-default">
+      <td className="py-1.5 px-1 text-center font-bold w-6">{renderRankBadge(item.rank)}</td>
+      <td className="py-1.5 px-1">
         <div className="flex items-center gap-1 min-w-0">
           <span
             className={cn(
-              "font-bold text-foreground group-hover:text-primary transition-colors truncate",
-              dense ? "text-[12px] max-w-[95px]" : "text-[12px] max-w-[200px]"
+              "font-bold text-foreground truncate",
+              dense ? "text-xs max-w-[110px]" : "text-xs max-w-[200px]"
             )}
             title={item.nombre}
           >
@@ -83,30 +76,30 @@ function RankingRow({ item, variant, mode, onClick, dense }) {
             </span>
           )}
         </div>
-        <div className="text-muted-foreground font-mono text-[11px]" title={subTitle}>
+        <div className="text-muted-foreground text-xs font-medium" title={subTitle}>
           {sub}
         </div>
       </td>
-      <td className="py-1 px-1 text-right">
+      <td className="py-1.5 px-1 text-right">
         {isMostImproved ? (
           <div className="flex flex-col items-end">
-            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-[12px] flex items-center gap-0.5">
+            <span className="font-bold text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-0.5 tabular-nums">
               {isOnb ? `+${mom} new` : `▲ +${mom.toFixed(1)}%`}
             </span>
-            <span className="text-[10px] text-muted-foreground font-mono">
+            <span className="text-xs text-muted-foreground font-medium tabular-nums">
               {formatPct(pct)} total
             </span>
           </div>
         ) : (
           <div className="flex flex-col items-end">
             <span className={cn(
-              "font-mono font-bold text-[12px]",
+              "font-bold text-xs tabular-nums",
               isOnb ? "text-emerald-600 dark:text-emerald-400" : "text-primary"
             )}>
               {formatPct(pct)}
             </span>
             {mom > 0 && !isOnb && (
-              <span className="text-[10px] text-emerald-600/80 dark:text-emerald-400/80 font-mono">
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold tabular-nums">
                 ▲ +{mom.toFixed(1)}%
               </span>
             )}
@@ -118,18 +111,18 @@ function RankingRow({ item, variant, mode, onClick, dense }) {
 }
 
 /** Ranking block inside the card */
-function RankingBlock({ title, icon: Icon, accent, rows, total, variant, mode, onRowClick, onExpand }) {
+function RankingBlock({ title, icon: Icon, accent, rows, total, variant, mode, onExpand }) {
   const hidden = Math.max(0, total - TOP_N);
 
   return (
     <div className="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-border flex flex-col min-h-0">
-      <div className={cn("flex items-center justify-between pb-1.5 mb-1 border-b border-border/80 text-[12px] font-black uppercase shrink-0", accent)}>
+      <div className={cn("flex items-center justify-between pb-1.5 mb-1 border-b border-border/80 text-xs font-black uppercase tracking-wider shrink-0", accent)}>
         <div className="flex items-center gap-1.5">
           <Icon className="w-3.5 h-3.5" />
           <span>{title}</span>
         </div>
         {mode === 'most_improved' && (
-          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1 rounded border border-emerald-200 dark:border-emerald-800">
+          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
             {variant === 'onboarding' ? 'New Accounts' : 'MoM Growth'}
           </span>
         )}
@@ -144,7 +137,6 @@ function RankingBlock({ title, icon: Icon, accent, rows, total, variant, mode, o
               variant={variant}
               mode={mode}
               dense
-              onClick={() => onRowClick(item)}
             />
           ))}
         </tbody>
@@ -154,7 +146,7 @@ function RankingBlock({ title, icon: Icon, accent, rows, total, variant, mode, o
         <button
           type="button"
           onClick={onExpand}
-          className="mt-auto pt-1.5 flex items-center justify-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+          className="mt-auto pt-1.5 flex items-center justify-center gap-1 text-xs font-bold text-muted-foreground hover:text-primary transition-colors cursor-pointer"
         >
           <List className="w-3 h-3" />
           <span>View all ({total})</span>
@@ -164,7 +156,7 @@ function RankingBlock({ title, icon: Icon, accent, rows, total, variant, mode, o
   );
 }
 
-export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, onOpenActionDrawer }) {
+export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }) {
   const [dimension, setDimension] = useState('sales_reps');
   const [rankingMode, setRankingMode] = useState('standings'); // 'standings' | 'most_improved'
   const [expanded, setExpanded] = useState(null); // null | 'onboarding' | 'adoption'
@@ -208,7 +200,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
 
   const handleRowClick = (item) => {
     setExpanded(null);
-    onOpenActionDrawer?.({ nombre: item.nombre, tipo: item.lineaNegocio || 'National' }, item.id);
+    onSelectEntity?.(item);
   };
 
   const dimLabel = DIMENSIONS.find(d => d.key === dimension)?.label || 'Sales Reps';
@@ -418,7 +410,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
                 type="button"
                 onClick={() => setRankingMode('standings')}
                 className={cn(
-                  "px-2 py-0.5 text-[11px] rounded-md transition-all cursor-pointer whitespace-nowrap font-bold flex items-center gap-1",
+                  "px-2 py-0.5 text-xs rounded-md transition-all cursor-pointer whitespace-nowrap font-bold flex items-center gap-1",
                   rankingMode === 'standings'
                     ? "bg-white dark:bg-slate-700 text-foreground shadow-xs border border-border/80"
                     : "text-muted-foreground hover:text-foreground"
@@ -431,7 +423,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
                 type="button"
                 onClick={() => setRankingMode('most_improved')}
                 className={cn(
-                  "px-2 py-0.5 text-[11px] rounded-md transition-all cursor-pointer whitespace-nowrap font-bold flex items-center gap-1",
+                  "px-2 py-0.5 text-xs rounded-md transition-all cursor-pointer whitespace-nowrap font-bold flex items-center gap-1",
                   rankingMode === 'most_improved'
                     ? "bg-white dark:bg-slate-700 text-foreground shadow-xs border border-border/80"
                     : "text-muted-foreground hover:text-foreground"
@@ -453,7 +445,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
                   type="button"
                   onClick={() => setDimension(d.key)}
                   className={cn(
-                    "px-2 py-0.5 text-[11px] rounded-md transition-all cursor-pointer whitespace-nowrap font-semibold",
+                    "px-2 py-0.5 text-xs rounded-md transition-all cursor-pointer whitespace-nowrap font-semibold",
                     dimension === d.key
                       ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                       : "text-slate-700 dark:text-slate-300 hover:text-foreground hover:bg-slate-200/70 dark:hover:bg-slate-700"
@@ -473,12 +465,12 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
               {copied ? (
                 <>
                   <Check className="w-3.5 h-3.5 text-emerald-500" />
-                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Copied! Paste into Outlook (Ctrl + V)</span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Copied! Paste into Outlook (Ctrl + V)</span>
                 </>
               ) : (
                 <>
                   <Mail className="w-3 h-3 text-primary" />
-                  <span className="text-[11px] font-bold">{monthName} Leaderboard (Email)</span>
+                  <span className="text-xs font-bold">{monthName} Leaderboard (Email)</span>
                 </>
               )}
             </button>
@@ -495,7 +487,6 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
             total={activeOnboardingList.length}
             variant="onboarding"
             mode={rankingMode}
-            onRowClick={handleRowClick}
             onExpand={() => setExpanded('onboarding')}
           />
           <RankingBlock
@@ -506,7 +497,6 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
             total={activeAdoptionList.length}
             variant="adoption"
             mode={rankingMode}
-            onRowClick={handleRowClick}
             onExpand={() => setExpanded('adoption')}
           />
         </div>
@@ -542,7 +532,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
                   className="h-7 px-2.5 rounded-lg border border-border bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-primary" />}
-                  <span className="text-[11px]">{copied ? 'Copied!' : 'Copy List'}</span>
+                  <span className="text-xs">{copied ? 'Copied!' : 'Copy List'}</span>
                 </button>
                 <button
                   type="button"
@@ -559,7 +549,7 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
             <div className="overflow-y-auto scrollbar-thin px-4 py-3 flex-1">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-border text-[11px] font-bold text-muted-foreground uppercase pb-1">
+                  <tr className="border-b border-border text-xs font-bold text-muted-foreground uppercase pb-1">
                     <th className="py-1 px-1 w-8 text-center">#</th>
                     <th className="py-1 px-2">Name & Scope</th>
                     <th className="py-1 px-2">Maturity Tier</th>
@@ -570,32 +560,31 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {}, 
                   {modalRows.map(item => (
                     <tr
                       key={`modal-${item.id}`}
-                      onClick={() => handleRowClick(item)}
-                      className="hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition-colors cursor-pointer border-b border-border/40 last:border-b-0"
+                      className="hover:bg-slate-100/60 dark:hover:bg-slate-800/60 transition-colors border-b border-border/40 last:border-b-0 cursor-default"
                     >
                       <td className="py-2 px-1 text-center font-bold">{renderRankBadge(item.rank)}</td>
                       <td className="py-2 px-2">
                         <div className="font-bold text-foreground hover:text-primary transition-colors flex items-center gap-1.5">
                           <span>{item.nombre}</span>
                           {item.tipo === 'market_line' && item.lineaNegocio && (
-                            <span className="text-[10px] font-black px-1 py-0.2 rounded border uppercase bg-slate-500/10 text-muted-foreground border-border">
+                            <span className="text-xs font-black px-1 py-0.2 rounded border uppercase bg-slate-500/10 text-muted-foreground border-border">
                               {BL_SHORT[item.lineaNegocio] || 'BL'}
                             </span>
                           )}
                         </div>
-                        <div className="text-muted-foreground text-[11px]">
+                        <div className="text-muted-foreground text-xs font-medium">
                           {item.persona || `${item.onboardedCount}/${item.assignedCount} accounts`}
                         </div>
                       </td>
                       <td className="py-2 px-2">
                         {renderTierBadge(item.tier)}
                       </td>
-                      <td className="py-2 px-2 text-right font-mono">
+                      <td className="py-2 px-2 text-right">
                         <div className="font-bold text-foreground text-xs">
                           {formatPct(expanded === 'onboarding' ? item.onboardingPct : item.adopcionPct)}
                         </div>
                         {item.momDelta > 0 && (
-                          <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
+                          <div className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
                             ▲ +{item.momDelta.toFixed(1)}% MoM
                           </div>
                         )}

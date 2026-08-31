@@ -128,36 +128,36 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                   {/* Chevron Header Row */}
                   <div className="flex items-center justify-between gap-1 mb-0.5">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className={`text-[12px] font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0 shadow-2xs`}>
+                      <span className={`text-xs font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0 shadow-2xs`}>
                         {st.stepNumber}
                       </span>
-                      <span className="text-[12px] font-black uppercase tracking-wider text-foreground truncate">
+                      <span className="text-xs font-black uppercase tracking-wider text-foreground truncate">
                         {st.title}
                       </span>
                     </div>
                     <div className={`p-1 rounded-md ${st.accentBg} shrink-0`}>
-                      <Icon className="w-3 h-3" />
+                      <Icon className="w-3.5 h-3.5" />
                     </div>
                   </div>
 
                   {/* Primary Metric & Delta */}
-                  <div className="flex items-baseline gap-1 flex-wrap">
+                  <div className="flex items-baseline gap-1.5 flex-wrap">
                     <span className={cn(
                       "font-black tracking-tight tabular-nums",
-                      st.isDominant ? "text-xl text-indigo-600 dark:text-indigo-400" : "text-lg text-foreground"
+                      st.isDominant ? "text-2xl text-indigo-600 dark:text-indigo-400" : "text-xl text-foreground"
                     )}>
                       {st.primaryLabel}
                     </span>
-                    {st.primaryUnit && <span className="text-[12px] font-medium text-muted-foreground">{st.primaryUnit}</span>}
+                    {st.primaryUnit && <span className="text-xs font-medium text-muted-foreground">{st.primaryUnit}</span>}
                     {st.flowDelta && (
-                      <span className="text-[12px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded shrink-0">
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded shrink-0 tabular-nums">
                         {st.flowDelta}
                       </span>
                     )}
                   </div>
 
                   {/* Subtitle Footer */}
-                  <div className="text-[12px] font-medium text-muted-foreground truncate border-t border-border/40 pt-1">
+                  <div className="text-xs font-medium text-muted-foreground truncate border-t border-border/40 pt-1">
                     <span className="truncate">{st.secondaryLabel}</span>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export function ExecutiveRibbon({ metricasGlobales }) {
                 <div className="shrink-0 flex items-center justify-center -mx-1.5 z-10">
                   <div
                     className={cn(
-                      "flex items-center gap-1 px-2.5 py-1 rounded-lg border shadow-xs tabular-nums text-[12px] font-black font-mono shrink-0 transition-all cursor-default select-none",
+                      "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",
                       st.isBottleneck
                         ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/30 ring-2 ring-rose-500/25 animate-pulse-subtle"
                         : "bg-card/95 backdrop-blur-xs text-foreground border-border hover:border-primary/50 shadow-2xs"

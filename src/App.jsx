@@ -18,10 +18,10 @@ export function App() {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [isDark, setIsDark] = useState(false);
 
-  // 2. Multidimensional Context Filters (Sidebar)
+  // 2. Multidimensional Context Filters (Sidebar) — Default: Current Month (Aug 2026)
   const [filtrosContexto, setFiltrosContexto] = useState({
-    anios: [],
-    meses: [],
+    anios: [2026],
+    meses: ['Aug'],
     lineasNegocio: [],
     onboarded: [],
     activos: []
@@ -133,8 +133,8 @@ export function App() {
 
   const handleResetFiltros = () => {
     setFiltrosContexto({
-      anios: [],
-      meses: [],
+      anios: [2026],
+      meses: ['Aug'],
       lineasNegocio: [],
       onboarded: [],
       activos: []
@@ -151,41 +151,61 @@ export function App() {
     setFiltrosJerarquia(jerarquiaSelection);
   }, []);
 
-  // Removable Active Chips
+  // Removable Active Chips (Compact & Clean)
   const activeChips = useMemo(() => {
     const chips = [];
-    if (filtrosContexto.anios?.length) {
-      chips.push({ key: 'anios', label: 'Years', value: filtrosContexto.anios.join(', ') });
+    const isCurrentMonth = (filtrosContexto.anios?.length === 1 && filtrosContexto.anios[0] === 2026 && filtrosContexto.meses?.length === 1 && filtrosContexto.meses[0] === 'Aug');
+    const isPrevMonth = (filtrosContexto.anios?.length === 1 && filtrosContexto.anios[0] === 2026 && filtrosContexto.meses?.length === 1 && filtrosContexto.meses[0] === 'Jul');
+
+    if (isCurrentMonth) {
+      chips.push({ key: 'periodo', label: '', value: 'Current Month' });
+    } else if (isPrevMonth) {
+      chips.push({ key: 'periodo', label: '', value: 'Previous Month' });
+    } else {
+      if (filtrosContexto.anios?.length) {
+        chips.push({ key: 'anios', label: '', value: filtrosContexto.anios.join(', ') });
+      }
+      if (filtrosContexto.meses?.length) {
+        chips.push({ key: 'meses', label: '', value: filtrosContexto.meses.join(', ') });
+      }
     }
-    if (filtrosContexto.meses?.length) {
-      chips.push({ key: 'meses', label: 'Months', value: filtrosContexto.meses.join(', ') });
-    }
+
     if (filtrosContexto.lineasNegocio?.length) {
-      chips.push({ key: 'lineasNegocio', label: 'Lines', value: filtrosContexto.lineasNegocio.join(', ') });
+      chips.push({ key: 'lineasNegocio', label: '', value: filtrosContexto.lineasNegocio.join(', ') });
     }
     if (filtrosContexto.onboarded?.length) {
-      chips.push({ key: 'onboarded', label: 'Onboarded', value: filtrosContexto.onboarded.join(', ') });
+      chips.push({
+        key: 'onboarded',
+        label: '',
+        value: filtrosContexto.onboarded.includes('Yes') ? 'Onboarded' : 'Not Onboarded'
+      });
     }
     if (filtrosContexto.activos?.length) {
-      chips.push({ key: 'activos', label: 'Active', value: filtrosContexto.activos.join(', ') });
+      chips.push({
+        key: 'activos',
+        label: '',
+        value: filtrosContexto.activos.includes('Yes') ? 'Active' : 'Inactive'
+      });
     }
     if (filtrosJerarquia.vpIds?.length) {
-      chips.push({ key: 'vps', label: 'Business Line', value: `${filtrosJerarquia.vpIds.length} sel` });
+      chips.push({ key: 'vps', label: '', value: filtrosJerarquia.vpIds.length === 1 ? '1 Line' : `${filtrosJerarquia.vpIds.length} Lines` });
     }
     if (filtrosJerarquia.directorIds?.length) {
-      chips.push({ key: 'directors', label: 'Regions', value: `${filtrosJerarquia.directorIds.length} sel` });
+      chips.push({ key: 'directors', label: '', value: filtrosJerarquia.directorIds.length === 1 ? '1 Region' : `${filtrosJerarquia.directorIds.length} Regions` });
     }
     if (filtrosJerarquia.gerenteIds?.length) {
-      chips.push({ key: 'gerentes', label: 'Markets', value: `${filtrosJerarquia.gerenteIds.length} sel` });
+      chips.push({ key: 'gerentes', label: '', value: filtrosJerarquia.gerenteIds.length === 1 ? '1 Market' : `${filtrosJerarquia.gerenteIds.length} Markets` });
     }
     if (filtrosJerarquia.vendedorIds?.length) {
-      chips.push({ key: 'vendedores', label: 'Reps', value: `${filtrosJerarquia.vendedorIds.length} sel` });
+      chips.push({ key: 'vendedores', label: '', value: filtrosJerarquia.vendedorIds.length === 1 ? '1 Rep' : `${filtrosJerarquia.vendedorIds.length} Reps` });
     }
     return chips;
   }, [filtrosContexto, filtrosJerarquia]);
 
   const handleRemoveChip = (key) => {
-    if (key === 'anios') {
+    if (key === 'periodo') {
+      setFiltrosContexto(prev => ({ ...prev, anios: [], meses: [] }));
+    } else if (key === 'anios') {
       setFiltrosContexto(prev => ({ ...prev, anios: [] }));
     } else if (key === 'meses') {
       setFiltrosContexto(prev => ({ ...prev, meses: [] }));
@@ -226,8 +246,21 @@ export function App() {
   }, [filtrosCompuestos]);
 
   const leaderboardData = useMemo(() => {
-    return adopcionRepo.getLeaderboard(filtrosCompuestos);
-  }, [filtrosCompuestos]);
+    // Rankings reflect context filters (period, BL) and hierarchy down to markets (VP, Region, Market),
+    // but NEVER single sales reps, so reps are always compared with their peers.
+    const fLeaderboard = {
+      ...filtrosContexto,
+      vpIds: filtrosJerarquia.vpIds,
+      directorIds: filtrosJerarquia.directorIds,
+      gerenteIds: filtrosJerarquia.gerenteIds
+    };
+    return adopcionRepo.getLeaderboard(fLeaderboard);
+  }, [
+    filtrosContexto,
+    filtrosJerarquia.vpIds,
+    filtrosJerarquia.directorIds,
+    filtrosJerarquia.gerenteIds
+  ]);
 
   const clientesAccion = useMemo(() => {
     let fAccion = { ...filtrosCompuestos };
@@ -396,7 +429,6 @@ export function App() {
               <LeaderboardCard
                 leaderboardData={leaderboardData}
                 filtrosCompuestos={filtrosCompuestos}
-                onOpenActionDrawer={handleOpenActionDrawer}
               />
             </div>
 

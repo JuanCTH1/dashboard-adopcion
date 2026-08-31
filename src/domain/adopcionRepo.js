@@ -623,8 +623,9 @@ class AdopcionRepository {
         esTopPareto: c.esTopPareto,
         regionNombre: c.regionNombre,
         regionId: c.regionId,
-        plaza: c.plaza,
+        plaza: c.plaza || this.data.GERENTES.find(g => g.id === c.gerenteId)?.nombre || 'Market',
         vendedorId: c.vendedorId,
+        vendedorNombre: this.data.VENDEDORES.find(v => v.id === c.vendedorId)?.nombre || 'Sales Rep',
         gerenteId: c.gerenteId,
         directorId: c.directorId,
         vpId: c.vpId
@@ -744,17 +745,22 @@ class AdopcionRepository {
     this.data.VENDEDORES.forEach(v => {
       const repAcc = byRepId.get(v.id);
       const m = formatEntityMetrics(repAcc);
-      const id = `rep-${v.id}`;
-      const momDeltaAdopcion = calcMomDelta(id, 31);
-      const momDeltaOnboarding = calcMomDelta(id, 47);
-      const newOnboardedMonth = calcNewAccounts(id, 53, 7);
+      const momDeltaAdopcion = calcMomDelta(v.id, 31);
+      const momDeltaOnboarding = calcMomDelta(v.id, 47);
+      const newOnboardedMonth = calcNewAccounts(v.id, 53, 7);
 
       leaderboard.push({
-        id,
+        id: v.id,
+        vendedorId: v.id,
         tipo: 'sales_rep',
         nombre: v.nombre,
         lineaNegocio: v.lineaNegocio || 'readymix',
         persona: `${v.plaza} · ${v.gerenteId}`,
+        plaza: v.plaza,
+        regionNombre: v.regionNombre,
+        vpId: v.vpId,
+        gerenteId: v.gerenteId,
+        directorId: v.directorId,
         onboardingPct: m.clientes.pctOnboarding,
         onboardedCount: m.clientes.onboarded,
         assignedCount: m.clientes.asignados,
@@ -774,13 +780,14 @@ class AdopcionRepository {
       const mAcc = byMarketNombre.get(mktName);
       const m = formatEntityMetrics(mAcc);
       const gerentesOfMkt = this.data.GERENTES.filter(g => g.nombre === mktName);
-      const id = `mkt-${idx}`;
-      const momDeltaAdopcion = calcMomDelta(id, 31);
-      const momDeltaOnboarding = calcMomDelta(id, 47);
-      const newOnboardedMonth = calcNewAccounts(id, 53, 20) + 5;
+      const momDeltaAdopcion = calcMomDelta(mktName, 31);
+      const momDeltaOnboarding = calcMomDelta(mktName, 47);
+      const newOnboardedMonth = calcNewAccounts(mktName, 53, 20) + 5;
 
       leaderboard.push({
-        id,
+        id: mktName,
+        mktName,
+        plaza: mktName,
         tipo: 'market',
         nombre: `${mktName} Market`,
         lineaNegocio: 'multi',
@@ -804,13 +811,14 @@ class AdopcionRepository {
       const rAcc = byRegionNombre.get(regName);
       const m = formatEntityMetrics(rAcc);
       const dirsOfReg = this.data.DIRECTORES.filter(d => d.nombre === regName);
-      const id = `reg-${idx}`;
-      const momDeltaAdopcion = calcMomDelta(id, 31);
-      const momDeltaOnboarding = calcMomDelta(id, 47);
-      const newOnboardedMonth = calcNewAccounts(id, 53, 40) + 15;
+      const momDeltaAdopcion = calcMomDelta(regName, 31);
+      const momDeltaOnboarding = calcMomDelta(regName, 47);
+      const newOnboardedMonth = calcNewAccounts(regName, 53, 40) + 15;
 
       leaderboard.push({
-        id,
+        id: regName,
+        regName,
+        regionNombre: regName,
         tipo: 'region',
         nombre: `${regName} Region`,
         lineaNegocio: 'multi',
