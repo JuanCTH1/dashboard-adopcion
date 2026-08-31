@@ -37,11 +37,11 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
           <div className="flex items-center gap-1.5">
             <TrendingUp className="w-4 h-4 text-primary" />
             <h3 className="text-xs font-black uppercase tracking-wider text-foreground font-sans">
-              Tendencia de Adopción
+              Adoption Trend
             </h3>
           </div>
           <p className="text-[12px] text-muted-foreground mt-0.5 font-medium">
-            Histórico transaccional ({filteredData.length} meses)
+            Historical Trend ({filteredData.length} months)
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export function AdoptionTrendCard({ serieHistorica = [], filtros }) {
                   return (
                     <div className="bg-slate-900 text-white px-2.5 py-1.5 rounded-lg text-xs shadow-xl border border-slate-700 font-sans">
                       <div className="font-bold text-[12px] text-sky-400">{d.label}</div>
-                      <div className="text-[12px]">Adopción: <b>{d.pctAdopcionPedidos}%</b></div>
+                      <div className="text-[12px]">Adoption: <b>{d.pctAdopcionPedidos}%</b></div>
                     </div>
                   );
                 }

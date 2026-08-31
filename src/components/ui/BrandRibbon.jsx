@@ -2,8 +2,8 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * CEMEX OFFICIAL BRAND SHAPE (Ribbon A)
- * Representación vectorial del elemento icónico de marca:
+ * AMERICAN CEMENTS USA BRAND SHAPE (Ribbon A)
+ * Vector icon brand element:
  * - Trazo Diagonal Rojo (Pantone Red 032c #F22331)
  * - Trazo Diagonal Azul (Pantone 293c #002B99)
  */

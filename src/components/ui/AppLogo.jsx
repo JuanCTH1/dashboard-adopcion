@@ -18,7 +18,7 @@ export function AppLogo({ className }) {
           </span>
         </div>
         <div className="text-[12px] text-muted-foreground font-medium mt-0.5">
-          Tablero de Gestión Comercial & Digital
+          Commercial CX & Digital Adoption Platform
         </div>
       </div>
     </div>

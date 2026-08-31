@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 /**
- * PALETA DE COLOR OFICIAL CEMEX PARA DATA VISUALIZATION
+ * OFFICIAL BRAND COLOR PALETTE FOR AMERICAN CEMENTS USA DATA VISUALIZATION
  * Basada en el Brandbook Oficial:
  * - Pantone 293c (Azul Principal): #0000B3 / #002B99
  * - Pantone Red 032c (Rojo Marca & Alerta): #F22331

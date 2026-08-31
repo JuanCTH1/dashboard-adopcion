@@ -80,6 +80,34 @@ export function ProgressiveHierarchy({
 
   // Fixed body-level popover state (100% immune to clipping)
   const [hoveredPopover, setHoveredPopover] = useState(null);
+  const popoverTimerRef = useRef(null);
+
+  const clearPopoverTimer = useCallback(() => {
+    if (popoverTimerRef.current) {
+      clearTimeout(popoverTimerRef.current);
+      popoverTimerRef.current = null;
+    }
+  }, []);
+
+  const showPopoverWithDelay = useCallback((popoverData, delay = 450) => {
+    clearPopoverTimer();
+    popoverTimerRef.current = setTimeout(() => {
+      setHoveredPopover(popoverData);
+    }, delay);
+  }, [clearPopoverTimer]);
+
+  const hidePopover = useCallback(() => {
+    clearPopoverTimer();
+    setHoveredPopover(null);
+  }, [clearPopoverTimer]);
+
+  useEffect(() => {
+    return () => {
+      if (popoverTimerRef.current) {
+        clearTimeout(popoverTimerRef.current);
+      }
+    };
+  }, []);
 
   // Expandable table rows state
   const [expandedRowIds, setExpandedRowIds] = useState(new Set());
@@ -389,8 +417,10 @@ export function ProgressiveHierarchy({
     else if (selectedVpIds.length === 1) {
       singleVp = vps.find(v => v.id === selectedVpIds[0]) || null;
       titulo = singleVp ? singleVp.nombre : `${selectedVpIds.length} Business Line(s)`;
-    } else if (selectedVpIds.length > 1) {
+    } else if (selectedVpIds.length > 1 && selectedVpIds.length < vps.length) {
       titulo = `${selectedVpIds.length} Business Lines`;
+    } else {
+      titulo = "USA";
     }
 
     const cartera = adopcionRepo.getCartera(null, fNode);
@@ -502,118 +532,121 @@ export function ProgressiveHierarchy({
       {/* Top Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-700 via-indigo-500 to-sky-400" />
 
-      {/* Header — título, chips de Business Line y controles en una sola fila (fusionadas
-          para ganar altura; antes eran dos renglones separados). */}
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)_auto] items-center gap-2.5 pb-3 border-b border-border">
-        <div className="flex items-center gap-2 min-w-0">
+      {/* Header — 3 carriles fijos: Título (Izq), Business Line (Centro Anclado), Controles (Der) */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] items-center gap-3 pb-3 border-b border-border">
+        {/* CARRIL IZQUIERDO: Título y métricas */}
+        <div className="flex items-center gap-2 min-w-0 justify-self-start">
           <Layers className="w-3.5 h-3.5 text-primary shrink-0" />
-          <h2 className="text-sm font-black text-foreground tracking-tight truncate">
-            {activeContext.titulo}
+          <h2 className="text-sm font-black text-foreground tracking-tight flex items-center gap-1.5 flex-wrap">
+            <span>{activeContext.titulo}</span>
             {activeContext.singleVp ? (
-              <span className="ml-2 text-[12px] font-semibold text-muted-foreground">
+              <span className="text-[12px] font-semibold text-muted-foreground">
                 <span className="text-primary font-black">{formatPct(activeContext.singleVp.metricas.pedidos?.pctAdopcion || 0)} adopt</span>
                 {' · '}{activeContext.singleVp.persona}
               </span>
             ) : (
-              <span className="ml-2 text-[12px] font-semibold text-muted-foreground">
+              <span className="text-[12px] font-semibold text-muted-foreground whitespace-nowrap">
                 {totalesCartera?.totalClientes || 0} customers · <CustomTooltip text={formatNumber(totalesCartera?.totalPedidos || 0)}><span>{formatCompactNumber(totalesCartera?.totalPedidos || 0)} orders</span></CustomTooltip>
               </span>
             )}
           </h2>
         </div>
 
-        {/* BUSINESS LINE — lente transversal sobre la cadena Región→Mercado→Rep. Multi-selección
-            con drag (mismo mecanismo que las columnas). Sin etiqueta ni ícono: los nombres ya dicen qué son.
-            Columna de ancho flexible pero fija en su carril de grid — el título ya no la puede empujar. */}
-        <div className="flex items-center gap-1.5 flex-wrap select-none">
-          {vps.map((vp) => {
-            const isSelected = selectedVpIds.includes(vp.id);
-            return (
-              <button
-                key={vp.id}
-                onMouseDown={(e) => { if (e.button === 0) startDragSelect('vp', vp.id, selectedVpIds, handleSetVps); }}
-                onMouseEnter={(e) => {
-                  handleDragEnter('vp', vp.id, handleSetVps);
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  setHoveredPopover({
-                    title: vp.nombre,
-                    tipo: 'Business Line Leadership',
-                    personasDetalle: [{
-                      bl: BL_SHORT[vp.lineaNegocio] || 'BL',
-                      blFull: vp.nombre,
-                      persona: vp.persona,
-                      clientesAsignados: vp.metricas.clientes?.asignados,
-                      clientesOnboarded: vp.metricas.clientes?.onboarded,
-                      pctOnboarding: vp.metricas.clientes?.pctOnboarding,
-                      digitales: vp.metricas.pedidos?.digitales,
-                      totales: vp.metricas.pedidos?.totales,
-                      pctAdopcion: vp.metricas.pedidos?.pctAdopcion
-                    }],
-                    x: rect.left + rect.width / 2,
-                    y: rect.bottom + 8,
-                    pos: 'bottom'
-                  });
-                }}
-                onMouseLeave={() => setHoveredPopover(null)}
-                className={cn(
-                  "px-2.5 py-1.5 rounded-lg border transition-colors duration-150 cursor-pointer select-none",
-                  isSelected
-                    ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
-                    : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
-                )}
-              >
-                <span className="font-bold text-[12px]">{vp.nombre}</span>
-              </button>
-            );
-          })}
+        {/* CARRIL CENTRAL: Business Line — Anclado al centro para evitar cualquier brinco o movimiento */}
+        <div className="justify-self-center">
+          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-border select-none">
+            {vps.map((vp) => {
+              const isSelected = selectedVpIds.includes(vp.id);
+              return (
+                <button
+                  key={vp.id}
+                  type="button"
+                  onMouseDown={(e) => {
+                    hidePopover();
+                    if (e.button === 0) startDragSelect('vp', vp.id, selectedVpIds, handleSetVps);
+                  }}
+                  onMouseEnter={(e) => {
+                    handleDragEnter('vp', vp.id, handleSetVps);
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    showPopoverWithDelay({
+                      title: vp.nombre,
+                      tipo: 'Business Line Leadership',
+                      personasDetalle: [{
+                        bl: BL_SHORT[vp.lineaNegocio] || 'BL',
+                        blFull: vp.nombre,
+                        persona: vp.persona,
+                        clientesAsignados: vp.metricas.clientes?.asignados,
+                        clientesOnboarded: vp.metricas.clientes?.onboarded,
+                        pctOnboarding: vp.metricas.clientes?.pctOnboarding,
+                        digitales: vp.metricas.pedidos?.digitales,
+                        totales: vp.metricas.pedidos?.totales,
+                        pctAdopcion: vp.metricas.pedidos?.pctAdopcion
+                      }],
+                      x: rect.left + rect.width / 2,
+                      y: rect.bottom + 8,
+                      pos: 'bottom'
+                    }, 450);
+                  }}
+                  onMouseLeave={hidePopover}
+                  className={cn(
+                    "px-3 py-1 rounded-md text-xs font-semibold transition-all cursor-pointer select-none",
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                      : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700"
+                  )}
+                >
+                  <span>{vp.nombre}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap justify-end">
-          {/* MODE TOGGLE SWITCH: Columns: Show All | Collapse */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/90 p-1 rounded-lg border border-border">
-            <span className="text-[12px] font-extrabold uppercase text-muted-foreground px-1 select-none">Columns:</span>
-            <div className="flex items-center gap-0.5 bg-card/60 p-0.5 rounded-md border border-border/60">
-              <button
-                type="button"
-                onClick={() => setNavMode('all_columns')}
-                className={cn(
-                  "px-2.5 py-0.5 rounded text-[12px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
-                  navMode === 'all_columns'
-                    ? "bg-indigo-600 text-white shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="Show all 4 hierarchy columns side-by-side"
-              >
-                <LayoutGrid className="w-3 h-3" />
-                <span>Show All</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setNavMode('cascade')}
-                className={cn(
-                  "px-2.5 py-0.5 rounded text-[12px] font-bold transition-all flex items-center gap-1 cursor-pointer select-none",
-                  navMode === 'cascade'
-                    ? "bg-primary text-primary-foreground shadow-2xs"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="Guided: reveal one level at a time as you select"
-              >
-                <Workflow className="w-3 h-3" />
-                <span>Guided</span>
-              </button>
-            </div>
+        {/* CARRIL DERECHO: Controles de vista y enfoque */}
+        <div className="flex items-center gap-2 justify-self-end">
+          {/* MODE TOGGLE SWITCH: Columns: All Columns | Guided */}
+          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-border select-none">
+            <button
+              type="button"
+              onClick={() => setNavMode('all_columns')}
+              className={cn(
+                "px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer select-none",
+                navMode === 'all_columns'
+                  ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700"
+              )}
+              title="Show all 4 hierarchy columns side-by-side"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>All Columns</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setNavMode('cascade')}
+              className={cn(
+                "px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer select-none",
+                navMode === 'cascade'
+                  ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700"
+              )}
+              title="Guided: reveal one level at a time as you select"
+            >
+              <Workflow className="w-3.5 h-3.5" />
+              <span>Guided</span>
+            </button>
           </div>
 
+          {/* FOCUS TABLE ACTION BUTTON */}
           <Button
             variant={isFocusTableMode ? "default" : "outline"}
             size="sm"
             onClick={() => setIsFocusTableMode(!isFocusTableMode)}
-            className="gap-1.5 text-xs font-semibold shadow-xxs"
+            className="h-8 px-3 rounded-lg text-xs font-semibold gap-1.5 shadow-2xs border-border/80 cursor-pointer"
           >
             {isFocusTableMode ? (
               <>
                 <Minimize2 className="w-3.5 h-3.5" />
-                <span>Show All Columns</span>
+                <span>Show All</span>
               </>
             ) : (
               <>

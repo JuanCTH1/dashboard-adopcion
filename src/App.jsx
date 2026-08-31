@@ -395,6 +395,7 @@ export function App() {
             <div className="lg:col-span-6 flex flex-col">
               <LeaderboardCard
                 leaderboardData={leaderboardData}
+                filtrosCompuestos={filtrosCompuestos}
                 onOpenActionDrawer={handleOpenActionDrawer}
               />
             </div>

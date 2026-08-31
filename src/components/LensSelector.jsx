@@ -31,7 +31,7 @@ export function LensSelector({ activeLens, onLensChange, volumeCompatible, volum
   ];
 
   return (
-    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-border/80 select-none">
+    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-border select-none">
       <div className="text-[12px] font-bold text-muted-foreground uppercase px-2 tracking-wider hidden sm:block">
         Lente:
       </div>
@@ -50,12 +50,12 @@ export function LensSelector({ activeLens, onLensChange, volumeCompatible, volum
               className={cn(
                 "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
                 isActive
-                  ? "bg-white dark:bg-slate-900 text-foreground shadow-xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-slate-200/60 dark:hover:bg-slate-800/60",
+                  ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700 font-semibold",
                 opt.disabled && "opacity-40 cursor-not-allowed hover:bg-transparent"
               )}
             >
-              <Icon className={cn("w-3.5 h-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
+              <Icon className={cn("w-3.5 h-3.5", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
               <span>{opt.label}</span>
               {opt.disabled && <AlertCircle className="w-3 h-3 text-amber-500 ml-0.5" />}
             </button>

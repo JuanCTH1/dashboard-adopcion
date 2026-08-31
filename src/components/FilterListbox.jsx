@@ -129,7 +129,7 @@ export function FilterListbox({
   };
 
   return (
-    <div className={cn("p-2.5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 select-none shadow-2xs", className)}>
+    <div className={cn("p-1.5 bg-transparent select-none", className)}>
       {/* Cabecera sin encimarse ni tapar etiquetas */}
       <div className="flex items-center justify-between gap-1 mb-1.5 shrink-0">
         <span className="text-[12px] font-extrabold text-slate-600 dark:text-slate-400 uppercase tracking-wider truncate">
@@ -152,7 +152,7 @@ export function FilterListbox({
           <input
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder={`Buscar ${label.toLowerCase()}...`}
+            placeholder={`Search ${label.toLowerCase()}...`}
             className="w-full px-2.5 py-1 text-[12px] rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-primary shadow-xxs"
           />
         </div>
@@ -171,11 +171,11 @@ export function FilterListbox({
             const isSelected = state === "selected";
             const isExcluded = state === "excluded";
 
-            let btnClass = "bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 font-semibold";
+            let btnClass = "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700 font-semibold";
             if (isSelected) {
               btnClass = "bg-primary text-primary-foreground border-primary font-bold shadow-xs";
             } else if (isExcluded) {
-              btnClass = "bg-slate-100 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600 border-slate-200/40 dark:border-slate-900 font-normal opacity-60";
+              btnClass = "bg-slate-200/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-600 border-slate-200/40 dark:border-slate-800/40 font-normal opacity-60";
             }
 
             return (
@@ -203,11 +203,11 @@ export function FilterListbox({
             const isSelected = state === "selected";
             const isExcluded = state === "excluded";
 
-            let btnClass = "bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800 font-medium";
+            let btnClass = "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700 font-semibold";
             if (isSelected) {
               btnClass = "bg-primary text-primary-foreground border-primary font-bold shadow-xs";
             } else if (isExcluded) {
-              btnClass = "bg-slate-100 dark:bg-slate-950/40 text-slate-400 dark:text-slate-600 border-slate-200/40 dark:border-slate-900 font-normal opacity-60";
+              btnClass = "bg-slate-200/50 dark:bg-slate-900/40 text-slate-400 dark:text-slate-600 border-slate-200/40 dark:border-slate-800/40 font-normal opacity-60";
             }
 
             return (
