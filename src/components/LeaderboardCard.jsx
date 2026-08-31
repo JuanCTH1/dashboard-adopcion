@@ -250,26 +250,8 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
       ? `[LIVE PULSE] August 2026 Digital Adoption & Onboarding Sprint | American Cements USA`
       : `[OFFICIAL] July 2026 Digital Adoption & Customers Onboarding Leaderboard | American Cements USA`;
 
-    const statusBanner = isAugustLive
-      ? `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #ecfdf5; border: 1px solid #a7f3d0; border-left: 4px solid #059669; border-radius: 0 6px 6px 0;">
-          <tr>
-            <td style="padding: 10px 14px;">
-              <strong style="color: #065f46; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">LIVE IN-PROGRESS SPRINT · AUGUST 2026</strong>
-              <div style="font-size: 12px; color: #047857; margin-top: 2px;">Real-time month-to-date performance snapshot. Final official recognition locks at month close.</div>
-            </td>
-          </tr>
-        </table>`
-      : `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #1d4ed8; border-radius: 0 6px 6px 0;">
-          <tr>
-            <td style="padding: 10px 14px;">
-              <strong style="color: #1e40af; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">OFFICIAL MONTHLY RESULTS · JULY 2026</strong>
-              <div style="font-size: 12px; color: #1e3a8a; margin-top: 2px;">Final closed and audited monthly standings & recognition.</div>
-            </td>
-          </tr>
-        </table>`;
-
     const introParagraph = isAugustLive
-      ? `<p style="margin: 0 0 14px 0;">Please find below our mid-month <strong>August 2026 Live Sprint Pulse</strong> on customer digital adoption and account onboarding across <strong>American Cements USA</strong>. Great momentum so far—let's keep pushing hard through month close!</p>`
+      ? `<p style="margin: 0 0 14px 0;">Please find below our mid-month <strong>August 2026 Live Sprint Pulse</strong> on customer digital adoption and account onboarding across <strong>American Cements USA</strong>. Great momentum so far. Let's keep pushing hard through month close!</p>`
       : `<p style="margin: 0 0 14px 0;">Congratulations to our commercial teams on an outstanding performance in <strong>July 2026</strong>! Please find below the official closed standings, top performers, and recognition across <strong>American Cements USA</strong>.</p>`;
 
     const closingParagraph = isAugustLive
@@ -291,8 +273,6 @@ export function LeaderboardCard({ leaderboardData = [], filtrosCompuestos = {} }
           <td>
             <p style="margin: 0 0 10px 0;">Hello team,</p>
             ${introParagraph}
-            
-            ${statusBanner}
 
             <h3 style="color: #0000B3; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">⭐ SALES REPS SPOTLIGHT</h3>
 

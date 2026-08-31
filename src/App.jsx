@@ -14,8 +14,8 @@ export function App() {
   const filtrosDisponibles = useMemo(() => adopcionRepo.getFiltrosDisponibles(), []);
   const mainScrollRef = useRef(null);
 
-  // 1. Navigation & UI States
-  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  // 1. Navigation & UI States (Collapsed by default for maximum workstation space)
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
   // 2. Multidimensional Context Filters (Sidebar) — Default: Current Month (Aug 2026)
