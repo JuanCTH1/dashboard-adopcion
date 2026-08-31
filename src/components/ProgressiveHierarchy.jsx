@@ -521,34 +521,105 @@ export function ProgressiveHierarchy({
 
   // Integrated Right Panel State ('action_plan' | 'customer_detail')
   const [rightPanelTab, setRightPanelTab] = useState('action_plan');
+  const [showAllActionPlan, setShowAllActionPlan] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
-  const actionPlanClients = useMemo(() => {
-    if (!activeContext.cartera) return [];
+  // Reset showAllActionPlan when hierarchy selection changes
+  useEffect(() => {
+    setShowAllActionPlan(false);
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, filtrosCompuestos]);
 
-    return activeContext.cartera
-      .map(c => {
-        const potentialOrdersGain = !c.estaIncorporado
-          ? (c.pedidosTotales || c.volumenBase || 0)
-          : (c.pedidosAnalogos || 0);
-        const currentAdoption = c.pctAdopcionPedidos || 0;
+  const TARGET_ADOPTION_PCT = 85.0;
+
+  const actionPlanData = useMemo(() => {
+    const cart = activeContext.cartera || [];
+    if (!cart.length) {
+      return {
+        allNeededClients: [],
+        visibleClients: [],
+        totalNeededCount: 0,
+        currentPct: 0,
+        targetPct: TARGET_ADOPTION_PCT,
+        gapOrders: 0,
+        targetReached: true
+      };
+    }
+
+    let totalPedidos = 0;
+    let currentDigitales = 0;
+
+    const len = cart.length;
+    for (let i = 0; i < len; i++) {
+      const c = cart[i];
+      totalPedidos += (c.pedidosTotales || 0);
+      currentDigitales += (c.pedidosDigitales || 0);
+    }
+
+    const currentPct = totalPedidos > 0 ? (currentDigitales / totalPedidos) * 100 : 0;
+    const targetDigitalOrders = Math.ceil((TARGET_ADOPTION_PCT / 100) * totalPedidos);
+    const gapOrders = Math.max(0, targetDigitalOrders - currentDigitales);
+
+    // Candidates: not onboarded OR have analog orders
+    const candidates = [];
+    for (let i = 0; i < len; i++) {
+      const c = cart[i];
+      const potentialOrdersGain = !c.estaIncorporado
+        ? (c.pedidosTotales || c.volumenBase || 0)
+        : (c.pedidosAnalogos || 0);
+
+      if (potentialOrdersGain > 0) {
         const type = !c.estaIncorporado
           ? 'onboarding'
           : (c.pedidosAnalogos > 0 ? 'habit_shift' : 'retained');
 
-        return {
-          ...c,
-          potentialOrdersGain,
-          currentAdoption,
-          type
-        };
-      })
-      .filter(c => c.potentialOrdersGain > 0 && c.type !== 'retained')
-      .sort((a, b) => b.potentialOrdersGain - a.potentialOrdersGain)
-      .slice(0, 15);
-  }, [activeContext.cartera]);
+        if (type !== 'retained') {
+          candidates.push({
+            ...c,
+            potentialOrdersGain,
+            currentAdoption: c.pctAdopcionPedidos || 0,
+            type
+          });
+        }
+      }
+    }
 
-  const actionableAccountsCount = actionPlanClients.length;
+    candidates.sort((a, b) => b.potentialOrdersGain - a.potentialOrdersGain);
+
+    let allNeededClients = [];
+    let targetReached = false;
+
+    if (gapOrders === 0 || currentPct >= TARGET_ADOPTION_PCT) {
+      // Already at or above 85% -> Show Top 3 stretch accounts
+      allNeededClients = candidates.slice(0, 3);
+      targetReached = true;
+    } else {
+      // Accumulate accounts until the gap for 85% is covered
+      let accumulatedGain = 0;
+      for (let i = 0; i < candidates.length; i++) {
+        const cand = candidates[i];
+        allNeededClients.push(cand);
+        accumulatedGain += cand.potentialOrdersGain;
+        if (accumulatedGain >= gapOrders) {
+          break;
+        }
+      }
+    }
+
+    const totalNeededCount = allNeededClients.length;
+    const visibleClients = showAllActionPlan ? allNeededClients : allNeededClients.slice(0, 15);
+
+    return {
+      allNeededClients,
+      visibleClients,
+      totalNeededCount,
+      currentPct: Number(currentPct.toFixed(1)),
+      targetPct: TARGET_ADOPTION_PCT,
+      gapOrders,
+      targetReached
+    };
+  }, [activeContext.cartera, showAllActionPlan]);
+
+  const actionableAccountsCount = actionPlanData.totalNeededCount;
 
   const handleCopyScript = useCallback((client) => {
     const isHabit = client.type === 'habit_shift';
@@ -1181,112 +1252,125 @@ export function ProgressiveHierarchy({
               {/* PANEL BODY: ACTION PLAN OR CUSTOMER DETAIL */}
               {rightPanelTab === 'action_plan' ? (
                 <div className="overflow-y-auto overflow-x-hidden flex-1 min-h-0 scrollbar-thin space-y-2 pr-0.5">
-                  {actionPlanClients.length === 0 ? (
+                  {actionPlanData.visibleClients.length === 0 ? (
                     <div className="p-4 text-center text-xs text-muted-foreground bg-card rounded-xl border border-border">
                       <Sparkles className="w-6 h-6 text-emerald-500 mx-auto mb-1.5 opacity-80" />
                       <div className="font-bold text-foreground">All accounts at 100% digital adoption!</div>
                       <div className="text-muted-foreground mt-0.5">No immediate conversion gaps in this scope.</div>
                     </div>
                   ) : (
-                    actionPlanClients.map((cli, idx) => {
-                      const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
-                      const isCopied = copiedId === cli.id;
-                      const isLowAdoption = cli.type === 'habit_shift';
+                    <>
+                      {actionPlanData.visibleClients.map((cli, idx) => {
+                        const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
+                        const isCopied = copiedId === cli.id;
+                        const isLowAdoption = cli.type === 'habit_shift';
 
-                      return (
-                        <div
-                          key={cli.id}
-                          className="p-2.5 rounded-xl bg-card border border-border hover:border-primary/40 hover:shadow-xs transition-all flex flex-col gap-1.5 text-xs"
+                        return (
+                          <div
+                            key={cli.id}
+                            className="p-2.5 rounded-xl bg-card border border-border hover:border-primary/40 hover:shadow-xs transition-all flex flex-col gap-1.5 text-xs"
+                          >
+                            {/* Card Header: Rank + Customer Name + Growth Potential */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-xs font-black text-slate-400 shrink-0">#{idx + 1}</span>
+                                  <span className="font-extrabold text-foreground truncate text-xs" title={cli.nombreEmpresa}>
+                                    {cli.nombreEmpresa}
+                                  </span>
+                                  {cli.esTopPareto && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
+                                  )}
+                                </div>
+
+                                {/* Commercial Context */}
+                                <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
+                                  <span className={cn(
+                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
+                                    shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
+                                    shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
+                                    "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                  )}>
+                                    {shortBl}
+                                  </span>
+                                  <span className="truncate">Rep: <b>{cli.vendedorNombre}</b></span>
+                                  <span className="text-slate-300 dark:text-slate-600">·</span>
+                                  <span className="truncate flex items-center gap-0.5 text-slate-500 dark:text-slate-400 font-medium">
+                                    <MapPin className="w-2.5 h-2.5 text-slate-400 dark:text-slate-500 shrink-0" />
+                                    <span>{cli.plaza}</span>
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Growth / Improvement Potential Badge */}
+                              <div className="text-right shrink-0">
+                                <CustomTooltip text={`Potential gain: ${formatNumber(cli.potentialOrdersGain)} orders/mo to convert to digital`}>
+                                  <div className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1 cursor-help tabular-nums">
+                                    <Zap className="w-3 h-3 text-emerald-500" />
+                                    <span>+{formatNumber(cli.potentialOrdersGain)} ord/mo</span>
+                                  </div>
+                                </CustomTooltip>
+                              </div>
+                            </div>
+
+                            {/* Direct Diagnosis & Action Row */}
+                            <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50">
+                              {isLowAdoption ? (
+                                <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 min-w-0">
+                                  <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
+                                    Low Adoption
+                                  </Badge>
+                                  <span className="truncate"><b>{formatNumber(cli.pedidosAnalogos)}</b> offline orders/mo</span>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300 min-w-0">
+                                  <Badge variant="danger" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
+                                    Not Onboarded
+                                  </Badge>
+                                  <span className="truncate"><b>{formatNumber(cli.potentialOrdersGain)}</b> orders/mo</span>
+                                </div>
+                              )}
+
+                              {/* Action Buttons: Quick Copy Script + Tooltip Details */}
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <CustomTooltip text={`Orders: ${formatNumber(cli.pedidosDigitales)} online · ${formatNumber(cli.pedidosAnalogos)} offline (${cli.pctAdopcionPedidos}% adoption) | Volume: ${formatCompactNumber(cli.volumenMes)} ${cli.unidad || 'Tons'}`}>
+                                  <div className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-foreground cursor-help">
+                                    <Info className="w-3.5 h-3.5" />
+                                  </div>
+                                </CustomTooltip>
+
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleCopyScript(cli)}
+                                  className={cn(
+                                    "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
+                                    isCopied
+                                      ? "bg-emerald-500 text-white border-emerald-500"
+                                      : "hover:bg-primary hover:text-primary-foreground"
+                                  )}
+                                  title="Copy 1-on-1 coaching script for sales rep"
+                                >
+                                  {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                  <span>{isCopied ? 'Copied' : 'Script'}</span>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {!showAllActionPlan && actionPlanData.totalNeededCount > 15 && (
+                        <button
+                          type="button"
+                          onClick={() => setShowAllActionPlan(true)}
+                          className="w-full py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-primary flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-border mt-1"
                         >
-                          {/* Card Header: Rank + Customer Name + Growth Potential */}
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-black text-slate-400 shrink-0">#{idx + 1}</span>
-                                <span className="font-extrabold text-foreground truncate text-xs" title={cli.nombreEmpresa}>
-                                  {cli.nombreEmpresa}
-                                </span>
-                                {cli.esTopPareto && (
-                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Top 20% Pareto Customer" />
-                                )}
-                              </div>
-
-                              {/* Commercial Context */}
-                              <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
-                                <span className={cn(
-                                  "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
-                                  shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
-                                  shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
-                                  "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
-                                )}>
-                                  {shortBl}
-                                </span>
-                                <span className="truncate">Rep: <b>{cli.vendedorNombre}</b></span>
-                                <span className="text-slate-300 dark:text-slate-600">·</span>
-                                <span className="truncate flex items-center gap-0.5 text-slate-500 dark:text-slate-400 font-medium">
-                                  <MapPin className="w-2.5 h-2.5 text-slate-400 dark:text-slate-500 shrink-0" />
-                                  <span>{cli.plaza}</span>
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Growth / Improvement Potential Badge */}
-                            <div className="text-right shrink-0">
-                              <CustomTooltip text={`Potential gain: ${formatNumber(cli.potentialOrdersGain)} orders/mo to convert to digital`}>
-                                <div className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1 cursor-help tabular-nums">
-                                  <Zap className="w-3 h-3 text-emerald-500" />
-                                  <span>+{formatNumber(cli.potentialOrdersGain)} ord/mo</span>
-                                </div>
-                              </CustomTooltip>
-                            </div>
-                          </div>
-
-                          {/* Direct Diagnosis & Action Row */}
-                          <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/50">
-                            {isLowAdoption ? (
-                              <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 min-w-0">
-                                <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
-                                  Low Adoption
-                                </Badge>
-                                <span className="truncate"><b>{formatNumber(cli.pedidosAnalogos)}</b> offline orders/mo</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300 min-w-0">
-                                <Badge variant="danger" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
-                                  Not Onboarded
-                                </Badge>
-                                <span className="truncate"><b>{formatNumber(cli.potentialOrdersGain)}</b> orders/mo</span>
-                              </div>
-                            )}
-
-                            {/* Action Buttons: Quick Copy Script + Tooltip Details */}
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <CustomTooltip text={`Orders: ${formatNumber(cli.pedidosDigitales)} online · ${formatNumber(cli.pedidosAnalogos)} offline (${cli.pctAdopcionPedidos}% adoption) | Volume: ${formatCompactNumber(cli.volumenMes)} ${cli.unidad || 'Tons'}`}>
-                                <div className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-foreground cursor-help">
-                                  <Info className="w-3.5 h-3.5" />
-                                </div>
-                              </CustomTooltip>
-
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleCopyScript(cli)}
-                                className={cn(
-                                  "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
-                                  isCopied
-                                    ? "bg-emerald-500 text-white border-emerald-500"
-                                    : "hover:bg-primary hover:text-primary-foreground"
-                                )}
-                                title="Copy 1-on-1 coaching script for sales rep"
-                              >
-                                {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                <span>{isCopied ? 'Copied' : 'Script'}</span>
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
+                          <span>Show all {actionPlanData.totalNeededCount} accounts needed for 85% target</span>
+                          <ChevronDown className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               ) : (
