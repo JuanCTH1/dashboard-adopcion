@@ -126,26 +126,27 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
     return new Map(list.map(v => [v.id, v]));
   }, []);
 
-  const REGION_TO_MARKETS = useMemo(() => ({
-    'Atlantic': ['New York', 'Boston'],
-    'Sunbelt': ['Dallas', 'Houston'],
-    'Midwest': ['Chicago', 'St. Louis'],
-    'Mountain': ['Denver', 'Salt Lake'],
-    'Pacific NW': ['Los Angeles', 'Phoenix']
-  }), []);
+  // Derived from the live rep roster instead of a fixed name list, so the
+  // hierarchy cascade works for any region/market layout the data engine produces.
+  const REGION_TO_MARKETS = useMemo(() => {
+    const map = {};
+    repMap.forEach(rep => {
+      if (!rep.regionNombre || !rep.plaza) return;
+      if (!map[rep.regionNombre]) map[rep.regionNombre] = new Set();
+      map[rep.regionNombre].add(rep.plaza);
+    });
+    const out = {};
+    Object.keys(map).forEach(r => { out[r] = Array.from(map[r]); });
+    return out;
+  }, [repMap]);
 
-  const MARKET_TO_REGION = useMemo(() => ({
-    'New York': 'Atlantic',
-    'Boston': 'Atlantic',
-    'Dallas': 'Sunbelt',
-    'Houston': 'Sunbelt',
-    'Chicago': 'Midwest',
-    'St. Louis': 'Midwest',
-    'Denver': 'Mountain',
-    'Salt Lake': 'Mountain',
-    'Los Angeles': 'Pacific NW',
-    'Phoenix': 'Pacific NW'
-  }), []);
+  const MARKET_TO_REGION = useMemo(() => {
+    const out = {};
+    repMap.forEach(rep => {
+      if (rep.plaza && rep.regionNombre) out[rep.plaza] = rep.regionNombre;
+    });
+    return out;
+  }, [repMap]);
 
   useEffect(() => {
     const handleMouseUp = () => setIsDragging(false);

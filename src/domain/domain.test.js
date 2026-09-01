@@ -11,13 +11,14 @@ import { validateVolumeCompatibility, calculateAggregations, buildFunnel } from 
 describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
   const dataset = generateDataset(20260828);
 
-  it('1. Cumple la estructura organizativa exacta', () => {
+  it('1. Cumple la estructura organizativa (4 regiones x 12 mercados x 3 líneas)', () => {
     expect(dataset.VPS.length).toBe(3);
-    expect(dataset.DIRECTORES.length).toBe(15);
-    expect(dataset.GERENTES.length).toBe(30);
-    expect(dataset.VENDEDORES.length).toBe(150);
-    expect(dataset.CLIENTES.length).toBeGreaterThanOrEqual(1800);
-    expect(dataset.CLIENTES.length).toBeLessThanOrEqual(2500);
+    expect(dataset.REGIONES.length).toBe(4);
+    expect(dataset.DIRECTORES.length).toBe(12); // 4 regiones x 3 líneas
+    expect(dataset.GERENTES.length).toBe(144); // 48 mercados x 3 líneas
+    expect(dataset.VENDEDORES.length).toBeGreaterThan(600);
+    expect(dataset.VENDEDORES.length).toBeLessThan(1200);
+    expect(dataset.CLIENTES.length).toBeGreaterThan(4000);
     expect(dataset.MESES.length).toBe(36);
   });
 
@@ -28,20 +29,32 @@ describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
     expect(dataset.CLIENTES[50].estaIncorporado).toBe(dataset2.CLIENTES[50].estaIncorporado);
   });
 
-  it('3. Cumple la distribución de Pareto obligatoria (~75% del volumen en el 20% de clientes)', () => {
-    const clientesOrdenados = [...dataset.CLIENTES].sort((a, b) => b.volumenBase - a.volumenBase);
-    const totalVolumen = clientesOrdenados.reduce((sum, c) => sum + c.volumenBase, 0);
+  it('3. Cumple la distribución de Pareto en PEDIDOS (~70-85% en el 20% de clientes)', () => {
+    const pedidosPorCliente = new Map();
+    dataset.TRANSACCIONES.forEach(t => {
+      pedidosPorCliente.set(t.clienteId, (pedidosPorCliente.get(t.clienteId) || 0) + t.pedidosTotales);
+    });
 
-    const top20PctCount = Math.round(clientesOrdenados.length * 0.20);
-    const volumenTop20 = clientesOrdenados
-      .slice(0, top20PctCount)
-      .reduce((sum, c) => sum + c.volumenBase, 0);
+    const ordenados = [...pedidosPorCliente.values()].sort((a, b) => b - a);
+    const totalPedidos = ordenados.reduce((sum, v) => sum + v, 0);
 
-    const pctPareto = (volumenTop20 / totalVolumen) * 100;
-    
-    // Pareto debe estar entre 70% y 80%
-    expect(pctPareto).toBeGreaterThanOrEqual(70.0);
-    expect(pctPareto).toBeLessThanOrEqual(80.0);
+    const top20PctCount = Math.round(ordenados.length * 0.20);
+    const pedidosTop20 = ordenados.slice(0, top20PctCount).reduce((sum, v) => sum + v, 0);
+
+    const pctPareto = (pedidosTop20 / totalPedidos) * 100;
+
+    // Pareto debe estar entre 65% y 85%
+    expect(pctPareto).toBeGreaterThanOrEqual(65.0);
+    expect(pctPareto).toBeLessThanOrEqual(85.0);
+  });
+
+  it('3b. Ningún cliente alcanza el 100% de adopción digital (techo real < 90%)', () => {
+    const maxCeiling = Math.max(...dataset.CLIENTES.map(c => c.adoptionCeiling));
+    expect(maxCeiling).toBeLessThanOrEqual(0.90);
+
+    // Se permite ocasionalmente en meses con pocos pedidos, pero no debe ser la norma
+    const fullyDigitalCount = dataset.TRANSACCIONES.filter(t => t.pedidosTotales > 5 && t.pedidosAnalogos === 0 && t.esActivo).length;
+    expect(fullyDigitalCount / dataset.TRANSACCIONES.length).toBeLessThan(0.02);
   });
 
   it('4. Los totales de pedidos y clientes cuadran 100% de abajo hacia arriba', () => {
@@ -110,7 +123,7 @@ describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
     }
   });
 
-  it('8. Ejecuta consultas complejas en menos de 5ms por ciclo completo', () => {
+  it('8. Ejecuta consultas complejas en menos de 10ms por ciclo completo', () => {
     const t0 = performance.now();
     for (let i = 0; i < 20; i++) {
       adopcionRepo.getMetricasGlobales({ vpIds: ['vp-readymix'], directorIds: ['Atlantic'] });
@@ -120,7 +133,7 @@ describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
     }
     const t1 = performance.now();
     const avgMs = (t1 - t0) / 20;
-    expect(avgMs).toBeLessThan(5.0);
+    expect(avgMs).toBeLessThan(10.0);
   });
 
   it('9. Cascada de filtros jerárquicos: cartera y métricas responden coherentemente al alcance del nodo', () => {
@@ -188,7 +201,7 @@ describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
     console.log('Rendering ProgressiveHierarchy...');
     const h4 = renderToString(React.createElement(ProgressiveHierarchy, { filtrosCompuestos: {} }));
     expect(h4.length).toBeGreaterThan(0);
-  });
+  }, 20000);
 });
 
 

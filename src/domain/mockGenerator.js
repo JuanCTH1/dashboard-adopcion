@@ -1,6 +1,11 @@
 /**
  * DETERMINISTIC SYNTHETIC DATA GENERATOR FOR CX ADOPTION
  * Comprehensive Commercial Lifecycle Engine (36 Months: 2024 - 2026)
+ *
+ * v2: Realistic hierarchy scale, orders-driven Pareto (client-level, long-tail
+ * order frequency), individual adoption ceilings (<=90%), and a correlated
+ * market-month random-walk so adoption growth is organic instead of a smooth
+ * synchronized ramp.
  */
 
 function mulberry32(a) {
@@ -10,6 +15,41 @@ function mulberry32(a) {
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+// Standard normal via Box-Muller, driven by the same seeded rand() stream.
+function gaussian(rand) {
+  const u1 = Math.max(rand(), 1e-9);
+  const u2 = rand();
+  return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
+
+function lognormal(rand, mu, sigma) {
+  return Math.exp(mu + sigma * gaussian(rand));
+}
+
+function clamp(v, lo, hi) {
+  return Math.min(hi, Math.max(lo, v));
+}
+
+// Fisher-Yates shuffle driven by the seeded rand() stream (keeps determinism).
+function shuffle(arr, rand) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function weightedPick(rand, options, weights) {
+  const total = weights.reduce((s, w) => s + w, 0);
+  let r = rand() * total;
+  for (let i = 0; i < options.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return options[i];
+  }
+  return options[options.length - 1];
 }
 
 export function generateDataset(seed = 20260828) {
@@ -35,30 +75,53 @@ export function generateDataset(seed = 20260828) {
   });
 
   const periodoActual = '2026-08';
-  const periodoActualIdx = MESES.findIndex(m => m.key === periodoActual); // 31 (Aug 2026)
+  const periodoActualIdx = MESES.findIndex(m => m.key === periodoActual);
 
-  // 2. GEOGRAPHIC REGIONS & PHYSICAL MARKETS WITH MARKET TIERS
-  const REGIONES = [
-    { id: 'reg-1', nombre: 'Atlantic', plazas: ['New York', 'Boston'] },
-    { id: 'reg-2', nombre: 'Sunbelt', plazas: ['Dallas', 'Houston'] },
-    { id: 'reg-3', nombre: 'Midwest', plazas: ['Chicago', 'St. Louis'] },
-    { id: 'reg-4', nombre: 'Mountain', plazas: ['Denver', 'Salt Lake'] },
-    { id: 'reg-5', nombre: 'Pacific NW', plazas: ['Los Angeles', 'Phoenix'] }
-  ];
-
-  // Market Scale Tiers: Megamarkets (Tier 1), Large Metros (Tier 2), Regional Hubs (Tier 3)
-  const MARKET_TIERS = {
-    'Dallas': { tier: 1, baseVolMult: 1.45, repLoadMult: 1.35, adoptionPace: 0.04 },
-    'Houston': { tier: 1, baseVolMult: 1.40, repLoadMult: 1.30, adoptionPace: 0.03 },
-    'Los Angeles': { tier: 1, baseVolMult: 1.35, repLoadMult: 1.25, adoptionPace: 0.03 },
-    'Phoenix': { tier: 1, baseVolMult: 1.30, repLoadMult: 1.20, adoptionPace: 0.05 },
-    'New York': { tier: 2, baseVolMult: 1.15, repLoadMult: 1.05, adoptionPace: -0.02 },
-    'Chicago': { tier: 2, baseVolMult: 1.10, repLoadMult: 1.00, adoptionPace: 0.00 },
-    'Denver': { tier: 2, baseVolMult: 1.05, repLoadMult: 0.95, adoptionPace: 0.02 },
-    'Boston': { tier: 3, baseVolMult: 0.85, repLoadMult: 0.80, adoptionPace: -0.03 },
-    'St. Louis': { tier: 3, baseVolMult: 0.80, repLoadMult: 0.75, adoptionPace: -0.04 },
-    'Salt Lake': { tier: 3, baseVolMult: 0.75, repLoadMult: 0.70, adoptionPace: 0.01 }
+  // 2. GEOGRAPHIC REGIONS & MARKETS
+  // Tier: 5 = megamarket, 1 = small regional hub. Loosely mirrors real US metro scale.
+  const REGION_CITY_TIERS = {
+    'Atlantic': [
+      ['New York', 5], ['Philadelphia', 4], ['Boston', 4], ['Newark', 3],
+      ['Pittsburgh', 3], ['Baltimore', 3], ['Providence', 2], ['Hartford', 2],
+      ['Albany', 2], ['Buffalo', 2], ['Portland (ME)', 1], ['Burlington', 1]
+    ],
+    'Sunbelt': [
+      ['Dallas', 5], ['Houston', 5], ['Atlanta', 4], ['Miami', 4],
+      ['Charlotte', 3], ['Nashville', 3], ['Austin', 3], ['San Antonio', 3],
+      ['Orlando', 2], ['Tampa', 2], ['Memphis', 2], ['Birmingham', 1]
+    ],
+    'Midwest': [
+      ['Chicago', 5], ['Detroit', 4], ['Columbus', 4], ['Indianapolis', 3],
+      ['Milwaukee', 3], ['St. Louis', 3], ['Kansas City', 3], ['Minneapolis', 3],
+      ['Cincinnati', 2], ['Cleveland', 2], ['Omaha', 1], ['Des Moines', 1]
+    ],
+    'West': [
+      ['Los Angeles', 5], ['Phoenix', 4], ['Denver', 4], ['Seattle', 4],
+      ['Las Vegas', 3], ['Salt Lake', 3], ['San Diego', 3], ['Portland (OR)', 3],
+      ['Sacramento', 2], ['Albuquerque', 2], ['Boise', 1], ['Tucson', 1]
+    ]
   };
+
+  const REGIONES = Object.keys(REGION_CITY_TIERS).map((nombre, idx) => ({
+    id: `reg-${idx + 1}`,
+    nombre,
+    plazas: REGION_CITY_TIERS[nombre].map(([city]) => city)
+  }));
+
+  const TIER_SPECS = {
+    5: { repRange: [8, 10], freqMult: 1.55, adoptionPace: 0.045 },
+    4: { repRange: [6, 8], freqMult: 1.30, adoptionPace: 0.030 },
+    3: { repRange: [4, 6], freqMult: 1.05, adoptionPace: 0.010 },
+    2: { repRange: [3, 5], freqMult: 0.90, adoptionPace: -0.010 },
+    1: { repRange: [3, 4], freqMult: 0.75, adoptionPace: -0.025 }
+  };
+
+  const MARKET_TIERS = {};
+  REGIONES.forEach(r => {
+    REGION_CITY_TIERS[r.nombre].forEach(([city, tier]) => {
+      MARKET_TIERS[city] = { tier, ...TIER_SPECS[tier] };
+    });
+  });
 
   // 3. BUSINESS LINES
   const VPS = [
@@ -67,240 +130,204 @@ export function generateDataset(seed = 20260828) {
     { id: 'vp-agregados', nombre: 'Aggregates', persona: 'David Miller', lineaNegocio: 'agregados', unidad: 'tons' }
   ];
 
-  // Business Line Scale & Behavioral Traits
+  // Order-frequency (per week) & behavioral traits per business line.
   const LINEAS_CONFIG = {
     readymix: {
-      label: 'Readymix',
-      unidad: 'cu yd',
-      accountDensity: 1.25,
-      orderFreqRange: [8, 26],
-      avgOrderSize: 18,
-      baseVolRange: [150, 2200],
-      topVolRange: [3000, 9500],
-      channelMix: { web: 0.50, app: 0.42, edi: 0.08 }
+      label: 'Readymix', unidad: 'cu yd',
+      clientDensity: [7, 13], freqMu: Math.log(1.2), freqSigma: 1.55,
+      avgOrderSize: 18, channelMix: { web: 0.50, app: 0.42, edi: 0.08 }
     },
     cemento: {
-      label: 'Cement',
-      unidad: 'tons',
-      accountDensity: 0.65,
-      orderFreqRange: [2, 9],
-      avgOrderSize: 220,
-      baseVolRange: [400, 4500],
-      topVolRange: [8000, 32000],
-      channelMix: { web: 0.35, app: 0.12, edi: 0.53 }
+      label: 'Cement', unidad: 'tons',
+      clientDensity: [4, 8], freqMu: Math.log(0.42), freqSigma: 1.45,
+      avgOrderSize: 220, channelMix: { web: 0.35, app: 0.12, edi: 0.53 }
     },
     agregados: {
-      label: 'Aggregates',
-      unidad: 'tons',
-      accountDensity: 0.95,
-      orderFreqRange: [10, 34],
-      avgOrderSize: 45,
-      baseVolRange: [350, 3800],
-      topVolRange: [5500, 18000],
-      channelMix: { web: 0.52, app: 0.33, edi: 0.15 }
+      label: 'Aggregates', unidad: 'tons',
+      clientDensity: [6, 11], freqMu: Math.log(0.80), freqSigma: 1.50,
+      avgOrderSize: 45, channelMix: { web: 0.52, app: 0.33, edi: 0.15 }
     }
   };
 
-  // 4. REGIONAL DIRECTORS (5 Regions per Business Line)
-  const DIRECTORES = [
-    // VP Readymix Concrete Dedicated Regional Directors
-    { id: 'dir-rm-east', nombre: 'Atlantic', persona: 'Robert Vance', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
-    { id: 'dir-rm-sunbelt', nombre: 'Sunbelt', persona: 'Elena Rostova', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
-    { id: 'dir-rm-midwest', nombre: 'Midwest', persona: 'Marcus Thorne', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-    { id: 'dir-rm-mountain', nombre: 'Mountain', persona: 'Jennifer Hayes', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
-    { id: 'dir-rm-pacific', nombre: 'Pacific NW', persona: 'Carlos Mendez', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-5' },
-
-    // VP Bulk Cement Dedicated Regional Directors
-    { id: 'dir-cem-atlantic', nombre: 'Atlantic', persona: 'William Baxter', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-    { id: 'dir-cem-gulf', nombre: 'Sunbelt', persona: 'Patricia Sterling', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
-    { id: 'dir-cem-greatlakes', nombre: 'Midwest', persona: 'Arthur Pendelton', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-    { id: 'dir-cem-plains', nombre: 'Mountain', persona: 'Karen O\'Connor', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
-    { id: 'dir-cem-northwest', nombre: 'Pacific NW', persona: 'Daniel Kim', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-5' },
-
-    // VP Quarries & Aggregates Dedicated Regional Directors
-    { id: 'dir-agg-northeast', nombre: 'Atlantic', persona: 'George Hamilton', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
-    { id: 'dir-agg-southeast', nombre: 'Sunbelt', persona: 'Sandra Bullock', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-    { id: 'dir-agg-central', nombre: 'Midwest', persona: 'Richard Gere', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
-    { id: 'dir-agg-texas', nombre: 'Mountain', persona: 'Charles Walker', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' },
-    { id: 'dir-agg-westcoast', nombre: 'Pacific NW', persona: 'Victoria Beckham', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-5' }
+  // 4. NAME POOLS (large enough that directors + managers + reps never repeat)
+  const FIRST_NAMES = [
+    'James', 'Maria', 'Robert', 'Linda', 'Michael', 'Elena', 'William', 'Jennifer',
+    'David', 'Patricia', 'Carlos', 'Susan', 'Daniel', 'Karen', 'Matthew', 'Nancy',
+    'Anthony', 'Sofia', 'Mark', 'Rebecca', 'Steven', 'Laura', 'Paul', 'Michelle',
+    'Andrew', 'Amanda', 'Joshua', 'Melissa', 'Kevin', 'Stephanie', 'Brian', 'Angela',
+    'George', 'Rachel', 'Edward', 'Samantha', 'Ronald', 'Kimberly', 'Timothy', 'Emily',
+    'Jason', 'Nicole', 'Jeffrey', 'Heather', 'Ryan', 'Cynthia', 'Jacob', 'Amy',
+    'Gary', 'Katherine', 'Nathan', 'Christina', 'Eric', 'Diana', 'Stephen', 'Julia',
+    'Larry', 'Victoria', 'Justin', 'Gloria', 'Scott', 'Teresa', 'Brandon', 'Sara',
+    'Benjamin', 'Janet', 'Samuel', 'Rosa', 'Gregory', 'Alicia', 'Alexander', 'Jasmine',
+    'Frank', 'Brenda', 'Raymond', 'Pamela', 'Jack', 'Debra', 'Dennis', 'Sharon'
+  ];
+  const LAST_NAMES = [
+    'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis',
+    'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Wilson', 'Anderson', 'Thomas', 'Taylor',
+    'Moore', 'Jackson', 'Martin', 'Lee', 'Perez', 'Thompson', 'White', 'Harris',
+    'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson', 'Walker', 'Young', 'Allen',
+    'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores', 'Green',
+    'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter',
+    'Roberts', 'Gomez', 'Phillips', 'Evans', 'Turner', 'Diaz', 'Parker', 'Cruz',
+    'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy', 'Cook'
   ];
 
-  // 5. MARKET MANAGERS (10 Physical Markets per Business Line)
-  const GERENTES = [
-    // Readymix Dedicated Managers
-    { id: 'ger-1', nombre: 'New York', persona: 'Kevin Stewart', directorId: 'dir-rm-east', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
-    { id: 'ger-2', nombre: 'Boston', persona: 'Amanda Garcia', directorId: 'dir-rm-east', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-1' },
-    { id: 'ger-3', nombre: 'Dallas', persona: 'Christopher Harris', directorId: 'dir-rm-sunbelt', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
-    { id: 'ger-4', nombre: 'Houston', persona: 'Stephanie Rodriguez', directorId: 'dir-rm-sunbelt', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-2' },
-    { id: 'ger-5', nombre: 'Chicago', persona: 'Matthew Thompson', directorId: 'dir-rm-midwest', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-    { id: 'ger-6', nombre: 'St. Louis', persona: 'Nicole Lee', directorId: 'dir-rm-midwest', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-3' },
-    { id: 'ger-7', nombre: 'Denver', persona: 'Steven Hernandez', directorId: 'dir-rm-mountain', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
-    { id: 'ger-8', nombre: 'Salt Lake', persona: 'Rachel Young', directorId: 'dir-rm-mountain', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-4' },
-    { id: 'ger-9', nombre: 'Los Angeles', persona: 'Ashley Robinson', directorId: 'dir-rm-pacific', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-5' },
-    { id: 'ger-10', nombre: 'Phoenix', persona: 'Joseph Clark', directorId: 'dir-rm-pacific', vpId: 'vp-readymix', lineaNegocio: 'readymix', regionId: 'reg-5' },
+  const namePool = [];
+  FIRST_NAMES.forEach(f => LAST_NAMES.forEach(l => namePool.push(`${f} ${l}`)));
+  const shuffledNames = shuffle(namePool, rand);
+  let nameCursor = 0;
+  const nextPersonaName = () => shuffledNames[nameCursor++ % shuffledNames.length];
 
-    // Cement Dedicated Managers
-    { id: 'ger-11', nombre: 'New York', persona: 'Paul Wright', directorId: 'dir-cem-atlantic', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-    { id: 'ger-12', nombre: 'Boston', persona: 'Melissa Lopez', directorId: 'dir-cem-atlantic', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-1' },
-    { id: 'ger-13', nombre: 'Dallas', persona: 'Mark Hill', directorId: 'dir-cem-gulf', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
-    { id: 'ger-14', nombre: 'Houston', persona: 'Michelle Scott', directorId: 'dir-cem-gulf', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-2' },
-    { id: 'ger-15', nombre: 'Chicago', persona: 'Donald Green', directorId: 'dir-cem-greatlakes', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-    { id: 'ger-16', nombre: 'St. Louis', persona: 'Kimberly Adams', directorId: 'dir-cem-greatlakes', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-3' },
-    { id: 'ger-17', nombre: 'Denver', persona: 'George Baker', directorId: 'dir-cem-plains', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
-    { id: 'ger-18', nombre: 'Salt Lake', persona: 'Amy Gonzalez', directorId: 'dir-cem-plains', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-4' },
-    { id: 'ger-19', nombre: 'Los Angeles', persona: 'Kenneth Nelson', directorId: 'dir-cem-northwest', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-5' },
-    { id: 'ger-20', nombre: 'Phoenix', persona: 'Angela Carter', directorId: 'dir-cem-northwest', vpId: 'vp-cemento', lineaNegocio: 'cemento', regionId: 'reg-5' },
+  // 5. HIERARCHY: DIRECTORS (per region x BL), MANAGERS (per market x BL)
+  const DIRECTORES = [];
+  REGIONES.forEach(region => {
+    VPS.forEach(vp => {
+      DIRECTORES.push({
+        id: `dir-${region.id}-${vp.lineaNegocio}`,
+        nombre: region.nombre,
+        persona: nextPersonaName(),
+        vpId: vp.id,
+        lineaNegocio: vp.lineaNegocio,
+        regionId: region.id
+      });
+    });
+  });
 
-    // Aggregates Dedicated Managers
-    { id: 'ger-21', nombre: 'New York', persona: 'Steven Mitchell', directorId: 'dir-agg-northeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
-    { id: 'ger-22', nombre: 'Boston', persona: 'Edward Roberts', directorId: 'dir-agg-northeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-1' },
-    { id: 'ger-23', nombre: 'Dallas', persona: 'Pamela Turner', directorId: 'dir-agg-southeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-    { id: 'ger-24', nombre: 'Houston', persona: 'Brian Phillips', directorId: 'dir-agg-southeast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-2' },
-    { id: 'ger-25', nombre: 'Chicago', persona: 'Emma Campbell', directorId: 'dir-agg-central', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
-    { id: 'ger-26', nombre: 'St. Louis', persona: 'Ronald Parker', directorId: 'dir-agg-central', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-3' },
-    { id: 'ger-27', nombre: 'Denver', persona: 'Rebecca Evans', directorId: 'dir-agg-texas', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' },
-    { id: 'ger-28', nombre: 'Salt Lake', persona: 'Anthony Edwards', directorId: 'dir-agg-texas', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-4' },
-    { id: 'ger-29', nombre: 'Los Angeles', persona: 'Laura Collins', directorId: 'dir-agg-westcoast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-5' },
-    { id: 'ger-30', nombre: 'Phoenix', persona: 'Cynthia Sánchez', directorId: 'dir-agg-westcoast', vpId: 'vp-agregados', lineaNegocio: 'agregados', regionId: 'reg-5' }
-  ];
+  const GERENTES = [];
+  REGIONES.forEach(region => {
+    REGION_CITY_TIERS[region.nombre].forEach(([city]) => {
+      VPS.forEach(vp => {
+        const dir = DIRECTORES.find(d => d.regionId === region.id && d.vpId === vp.id);
+        GERENTES.push({
+          id: `ger-${city.replace(/[^a-zA-Z]/g, '')}-${vp.lineaNegocio}`,
+          nombre: city,
+          persona: nextPersonaName(),
+          directorId: dir.id,
+          vpId: vp.id,
+          lineaNegocio: vp.lineaNegocio,
+          regionId: region.id,
+          regionNombre: region.nombre
+        });
+      });
+    });
+  });
 
-  const NOMBRES_VENDEDORES = [
-    'John Smith', 'Michael Johnson', 'David Miller', 'Emily Davis', 'James Wilson',
-    'Sarah Taylor', 'Robert Anderson', 'Jennifer Thomas', 'William Jackson', 'Elizabeth White',
-    'Christopher Harris', 'Jessica Martin', 'Matthew Thompson', 'Amanda Garcia', 'Daniel Martinez',
-    'Ashley Robinson', 'Joseph Clark', 'Stephanie Rodriguez', 'Richard Lewis', 'Nicole Lee',
-    'Charles Walker', 'Samantha Hall', 'Thomas Allen', 'Rachel Young', 'Steven Hernandez',
-    'Heather King', 'Paul Wright', 'Melissa Lopez', 'Mark Hill', 'Michelle Scott',
-    'Donald Green', 'Kimberly Adams', 'George Baker', 'Amy Gonzalez', 'Kenneth Nelson',
-    'Angela Carter', 'Steven Mitchell', 'Brenda Pérez', 'Edward Roberts', 'Pamela Turner',
-    'Brian Phillips', 'Emma Campbell', 'Ronald Parker', 'Rebecca Evans', 'Anthony Edwards',
-    'Laura Collins', 'Kevin Stewart', 'Cynthia Sánchez', 'Jason Morris', 'Kathleen Rogers',
-    'Gary Reed', 'Timothy Cook', 'Frank Morgan', 'Shirley Bell', 'Sharon Murphy'
-  ];
-
-  // 6. 5 COMMERCIAL ARCHETYPES WITH AUTHENTIC FUNNEL BEHAVIORS
+  // 6. 5 COMMERCIAL ARCHETYPES (weighted, non-uniform assignment)
   const REP_ARCHETYPES = [
-    // Onboarder: 94% Onboarding | 44% Adoption (High registration, moderate digital conversion)
-    { type: 'Onboarder', onboardingTarget: 0.94, activeConversionTarget: 0.60, adoptionTarget: 0.44 },
-    // DigitalChampion: 68% Onboarding | 86% Adoption (Intense digital push on registered accounts)
-    { type: 'DigitalChampion', onboardingTarget: 0.68, activeConversionTarget: 0.94, adoptionTarget: 0.86 },
-    // ActiveConverter: 72% Onboarding | 68% Adoption (Balanced conversion)
-    { type: 'ActiveConverter', onboardingTarget: 0.72, activeConversionTarget: 0.90, adoptionTarget: 0.68 },
-    // Traditionalist: 52% Onboarding | 38% Adoption (High phone reliance, resistance to portal)
-    { type: 'Traditionalist', onboardingTarget: 0.52, activeConversionTarget: 0.55, adoptionTarget: 0.38 },
-    // HighAdopter: 90% Onboarding | 84% Adoption (Elite performance across all metrics)
-    { type: 'HighAdopter', onboardingTarget: 0.90, activeConversionTarget: 0.92, adoptionTarget: 0.84 }
+    { type: 'Onboarder', onboardingTarget: 0.95, activeConversionTarget: 0.74, adoptionTarget: 0.58, weight: 25 },
+    { type: 'DigitalChampion', onboardingTarget: 0.76, activeConversionTarget: 0.94, adoptionTarget: 0.87, weight: 15 },
+    { type: 'ActiveConverter', onboardingTarget: 0.80, activeConversionTarget: 0.90, adoptionTarget: 0.80, weight: 28 },
+    { type: 'Traditionalist', onboardingTarget: 0.60, activeConversionTarget: 0.68, adoptionTarget: 0.50, weight: 20 },
+    { type: 'HighAdopter', onboardingTarget: 0.93, activeConversionTarget: 0.92, adoptionTarget: 0.85, weight: 12 }
   ];
+  const archetypeOptions = REP_ARCHETYPES;
+  const archetypeWeights = REP_ARCHETYPES.map(a => a.weight);
 
-  // 7. BUILD 150 SALES REPS WITH ARCHETYPES AND MARKET ASYMMETRY
+  // 7. SALES REPS (variable per market by tier: small markets 3-4, megamarkets 8-10)
   const VENDEDORES = [];
   let vIdx = 0;
   GERENTES.forEach(ger => {
-    const numReps = 5;
-    const dirObj = DIRECTORES.find(d => d.id === ger.directorId);
-    const regionObj = REGIONES.find(r => r.id === ger.regionId);
-    const marketTier = MARKET_TIERS[ger.nombre] || { tier: 2, repLoadMult: 1.0, adoptionPace: 0.0 };
-    const marketBias = (ger.id.charCodeAt(ger.id.length - 1) % 5);
+    const marketTier = MARKET_TIERS[ger.nombre];
+    const [repMin, repMax] = marketTier.repRange;
+    const numReps = repMin + Math.floor(rand() * (repMax - repMin + 1));
 
     for (let i = 0; i < numReps; i++) {
-      const nameIndex = (vIdx % NOMBRES_VENDEDORES.length);
-      const nameSuffix = Math.floor(vIdx / NOMBRES_VENDEDORES.length) > 0 ? ` Jr.` : '';
-      const repName = `${NOMBRES_VENDEDORES[nameIndex]}${nameSuffix}`;
-      const profileIndex = (marketBias + i) % REP_ARCHETYPES.length;
-      const profile = REP_ARCHETYPES[profileIndex];
-
+      const profile = weightedPick(rand, archetypeOptions, archetypeWeights);
+      vIdx++;
       VENDEDORES.push({
-        id: `rep-${vIdx + 1}`,
-        nombre: repName,
+        id: `rep-${vIdx}`,
+        nombre: nextPersonaName(),
         gerenteId: ger.id,
         directorId: ger.directorId,
         vpId: ger.vpId,
         lineaNegocio: ger.lineaNegocio,
         regionId: ger.regionId,
-        regionNombre: dirObj?.nombre || regionObj?.nombre || 'Atlantic',
+        regionNombre: ger.regionNombre,
         plaza: ger.nombre,
         marketTier: marketTier.tier,
         marketPace: marketTier.adoptionPace,
-        repLoadMult: marketTier.repLoadMult,
+        freqMult: marketTier.freqMult,
         profile
       });
-      vIdx++;
     }
   });
 
-  // 8. BUILD CUSTOMER ACCOUNTS (Pareto 80/20 Volume & Lifecycle State Machine)
+  // 8. CUSTOMER ACCOUNTS
+  // Accounts never "die" — they persist for the full horizon. What varies is how
+  // often each one orders (order frequency, long-tailed) and how far its digital
+  // adoption can climb (an individual ceiling, always < 100%).
   const BASE_COMPANY_NAMES = [
-    'Apex Construction LLC', 'Turner Heavy Infra', 'Skanska USA Built', 'Bechtel Concrete Works',
-    'PCL Construction Corp', 'Fluor Industrial Inc', 'Kiewit Infrastructure', 'Walsh Heavy Materials',
-    'Balfour Beatty US', 'Gilbane Building Co', 'AECOM Structures', 'Mortenson Construction',
-    'Hensel Phelps Builders', 'Clark Construction Group', 'Suffolk Heavy Build', 'Whiting-Turner Co',
-    'Granite Construction', 'Structure Tone Global', 'Clayco Commercial Works', 'Sundt Infrastructure',
-    'Austin Commercial LLC', 'Webcor Builders', 'McCarthy Building Co', 'Lendlease Americas',
-    'DPR Construction', 'Brasfield & Gorrie', 'JE Dunn Construction', 'Rodgers Builders Inc',
-    'Robins & Morton', 'Barton Malow Co', 'Swinerton Heavy Builders', 'Sundt Metro LLC',
-    'Flatiron Constructors', 'Archer Western Contractors', 'Traylor Bros Heavy', 'Lane Construction'
+    'Apex Construction', 'Turner Heavy Infra', 'Skanska Built Works', 'Bechtel Concrete',
+    'PCL Construction', 'Fluor Industrial', 'Kiewit Infrastructure', 'Walsh Heavy Materials',
+    'Balfour Beatty', 'Gilbane Building Co', 'AECOM Structures', 'Mortenson Construction',
+    'Hensel Phelps', 'Clark Construction Group', 'Suffolk Heavy Build', 'Whiting-Turner Co',
+    'Granite Construction', 'Structure Tone', 'Clayco Commercial', 'Sundt Infrastructure',
+    'Austin Commercial', 'Webcor Builders', 'McCarthy Building Co', 'Lendlease Americas',
+    'DPR Construction', 'Brasfield & Gorrie', 'JE Dunn Construction', 'Rodgers Builders',
+    'Robins & Morton', 'Barton Malow Co', 'Swinerton Builders', 'Sundt Metro',
+    'Flatiron Constructors', 'Archer Western', 'Traylor Bros Heavy', 'Lane Construction',
+    'Ridgeline Contractors', 'Cornerstone Civil Works', 'Summit Grading Co', 'Ironclad Builders',
+    'Vantage Site Works', 'Pinnacle Infrastructure', 'Meridian Heavy Civil', 'Redstone Contracting',
+    'Harbor Point Builders', 'Keystone Paving Group', 'Northgate Construction', 'Bluepeak Civil',
+    'Anchor Concrete Works', 'Foundry Street Builders'
   ];
 
   const COMPANY_SUFFIXES = [
     'East Site', 'West Div', 'Metro Project', 'Plant #2', 'Hub', 'Venture', 'Site A', 'South Park',
-    'North Terminal', 'Central Plant', 'Highway Div', 'Industrial Yard', 'Bay Area Site', 'Downtown Highrise'
+    'North Terminal', 'Central Plant', 'Highway Div', 'Industrial Yard', 'Bay Area Site', 'Downtown Highrise',
+    'Site B', 'Logistics Yard', 'Distribution Hub', 'Corridor Project', 'Riverside Site', 'Overpass Div'
   ];
 
   const CLIENTES = [];
   let cIdx = 1;
 
   VENDEDORES.forEach(rep => {
-    const blCfg = LINEAS_CONFIG[rep.lineaNegocio] || LINEAS_CONFIG.readymix;
-    const baseRepLoad = Math.round(14 * blCfg.accountDensity * rep.repLoadMult);
-    const numClientes = Math.max(7, baseRepLoad + Math.floor((rand() - 0.5) * 6));
+    const blCfg = LINEAS_CONFIG[rep.lineaNegocio];
+    const [densMin, densMax] = blCfg.clientDensity;
+    const numClientes = densMin + Math.floor(rand() * (densMax - densMin + 1));
     const p = rep.profile;
 
     for (let i = 0; i < numClientes; i++) {
       const cId = `CLI-${String(cIdx).padStart(5, '0')}`;
-      const baseComp = BASE_COMPANY_NAMES[(cIdx - 1) % BASE_COMPANY_NAMES.length];
+      const baseComp = BASE_COMPANY_NAMES[Math.floor(rand() * BASE_COMPANY_NAMES.length)];
       const suff = COMPANY_SUFFIXES[Math.floor(rand() * COMPANY_SUFFIXES.length)];
-      const nombreEmpresa = `${baseComp} (${suff})`;
+      const nombreEmpresa = `${baseComp} — ${rep.plaza} ${suff}`;
       cIdx++;
 
-      // Pareto Distribution: Top 20% generate ~78% of volume
-      const u = rand();
-      const isTopPareto = u > 0.80;
-      const isMidPareto = !isTopPareto && u > 0.50;
-
-      let volumenBase = 0;
-      if (isTopPareto) {
-        volumenBase = Math.floor(blCfg.topVolRange[0] + rand() * (blCfg.topVolRange[1] - blCfg.topVolRange[0]));
-      } else if (isMidPareto) {
-        volumenBase = Math.floor(blCfg.baseVolRange[0] * 1.8 + rand() * (blCfg.baseVolRange[1] - blCfg.baseVolRange[0]));
-      } else {
-        volumenBase = Math.floor(blCfg.baseVolRange[0] + rand() * (blCfg.baseVolRange[0] * 1.5));
-      }
+      // LONG-TAIL ORDER FREQUENCY (per week): this is the real Pareto driver.
+      // Most clients sit low (finishing small jobs), a long tail of "whales"
+      // orders daily-plus.
+      const weeklyOrderFreq = clamp(
+        lognormal(rand, blCfg.freqMu, blCfg.freqSigma) * rep.freqMult,
+        0.35, 26
+      );
 
       // CLIENT LIFECYCLE ONBOARDING STATE MACHINE
-      // Determine if customer ever onboards in the 36-month horizon based on rep archetype
-      const clientOnboardPropensity = Math.min(0.98, Math.max(0.20, p.onboardingTarget + ((rand() - 0.5) * 0.18)));
+      const clientOnboardPropensity = clamp(p.onboardingTarget + ((rand() - 0.5) * 0.18), 0.20, 0.98);
       const everOnboards = rand() < clientOnboardPropensity;
 
       let onboardingMonthIndex = null;
       if (everOnboards) {
-        // Ramp distribution: Some in 2024 (months 0-11), more in 2025 (months 12-23), latecomers in 2026 (months 24-35)
         const cohortRand = rand();
         if (cohortRand < 0.40) {
-          onboardingMonthIndex = Math.floor(rand() * 12); // 2024 (0 - 11)
+          onboardingMonthIndex = Math.floor(rand() * 12);
         } else if (cohortRand < 0.78) {
-          onboardingMonthIndex = 12 + Math.floor(rand() * 12); // 2025 (12 - 23)
+          onboardingMonthIndex = 12 + Math.floor(rand() * 12);
         } else {
-          onboardingMonthIndex = 24 + Math.floor(rand() * 10); // 2026 (24 - 33)
+          onboardingMonthIndex = 24 + Math.floor(rand() * 10);
         }
       }
 
-      // First Time To Value (days)
       const fttv = everOnboards ? Math.floor(rand() * 24) + 3 : null;
 
-      // Base client digital adoption propensity
-      const basePropensity = Math.min(0.96, Math.max(0.15, p.adoptionTarget + rep.marketPace + ((rand() - 0.5) * 0.22)));
+      // INDIVIDUAL ADOPTION CEILING — nobody reaches 100%. Best-in-class
+      // accounts top out around 85-90%; most sit well below that.
+      const adoptionCeiling = clamp(
+        p.adoptionTarget * 0.92 + rep.marketPace + ((rand() - 0.5) * 0.20),
+        0.15, 0.90
+      );
 
-      // Primary Channel Selection based on BL mix
       const cMix = blCfg.channelMix;
       const cRand = rand();
       let canalPreferido = 'web';
@@ -308,10 +335,14 @@ export function generateDataset(seed = 20260828) {
       else if (cRand < cMix.web + cMix.app) canalPreferido = 'app';
       else canalPreferido = 'edi';
 
-      // Current snapshot status (at periodoActualIdx = Aug 2026)
       const estaIncorporadoActual = onboardingMonthIndex !== null && onboardingMonthIndex <= periodoActualIdx;
-      const esActivoActual = estaIncorporadoActual && (rand() < (p.activeConversionTarget * 0.95));
+      const esActivoActual = estaIncorporadoActual && (rand() < (p.activeConversionTarget * 0.9));
       const esRevertidoActual = estaIncorporadoActual && !esActivoActual;
+
+      // volumenBase kept only as a secondary, derived display figure (orders
+      // are the real unit of analysis now) — proportional to order frequency
+      // so it doesn't fight the Pareto distribution that matters.
+      const volumenBase = Math.round(weeklyOrderFreq * 52 * blCfg.avgOrderSize * (0.85 + rand() * 0.3));
 
       CLIENTES.push({
         id: cId,
@@ -326,150 +357,122 @@ export function generateDataset(seed = 20260828) {
         lineaNegocio: rep.lineaNegocio,
         lineaLabel: blCfg.label,
         unidad: blCfg.unidad,
+        weeklyOrderFreq,
         volumenBase,
-        isTopPareto,
-        esTopPareto: isTopPareto,
+        isTopPareto: false, // computed below once global freq distribution is known
+        esTopPareto: false,
         onboardingMonthIndex,
         estaIncorporado: estaIncorporadoActual,
         esActivo: esActivoActual,
         esRevertido: esRevertidoActual,
         fttv,
-        basePropensity,
-        digitalShare: esActivoActual ? basePropensity : 0,
+        adoptionCeiling,
+        basePropensity: adoptionCeiling,
+        digitalShare: esActivoActual ? adoptionCeiling : 0,
         canalPreferido,
         profile: p,
-        marketPace: rep.marketPace
+        marketPace: rep.marketPace,
+        _adopt: null // running random-walk state, mutated during transaction generation
       });
     }
   });
 
-  // 9. 36-MONTH MACRO GROWTH & TRANSACTIONS GENERATION
-  // 2024 (~32.5% avg base), 2025 (~53.7% avg base), 2026 (~74.9% avg base)
-  const BASE_CURVE_36M = [
-    // 2024 (Jan - Dec): Clear ~32.5% avg base with natural non-linear monthly ups/downs
-    0.24, 0.28, 0.26, 0.31, 0.35, 0.33, 0.37, 0.39, 0.34, 0.40, 0.36, 0.33,
-    // 2025 (Jan - Dec): Strong YoY growth (~53.7% avg base) with natural monthly ups/downs
-    0.43, 0.47, 0.45, 0.52, 0.57, 0.54, 0.59, 0.62, 0.56, 0.63, 0.61, 0.55,
-    // 2026 (Jan - Dec): Solid YoY growth (~74.9% avg base) with natural monthly ups/downs
-    0.65, 0.69, 0.66, 0.73, 0.79, 0.76, 0.81, 0.84, 0.77, 0.85, 0.82, 0.77
-  ];
+  // Mark top-20%-by-order-frequency clients (this is what should carry ~75-80%
+  // of total orders once transactions are summed).
+  const freqSorted = [...CLIENTES].sort((a, b) => b.weeklyOrderFreq - a.weeklyOrderFreq);
+  const top20Count = Math.round(freqSorted.length * 0.20);
+  const top20Ids = new Set(freqSorted.slice(0, top20Count).map(c => c.id));
+  CLIENTES.forEach(c => {
+    c.isTopPareto = top20Ids.has(c.id);
+    c.esTopPareto = c.isTopPareto;
+  });
 
-  // Business Line Quarterly Shifts (+/- 15% to 25% organic oscillations)
-  const BL_MONTHLY_SHIFTS = {
-    readymix: [
-      -0.03,  0.04, -0.04,  0.05,  0.06, -0.03,  0.04, -0.02,  0.05, -0.04,  0.03, -0.05,
-      -0.04,  0.05, -0.05,  0.06,  0.07, -0.04,  0.05, -0.03,  0.06, -0.04,  0.04, -0.06,
-      -0.05,  0.06, -0.06,  0.07,  0.08, -0.04,  0.06, -0.03,  0.06, -0.05,  0.04, -0.06
-    ],
-    cemento: [
-       0.04, -0.03,  0.05, -0.02,  0.04,  0.03, -0.04,  0.06, -0.03,  0.05, -0.03,  0.02,
-       0.04, -0.04,  0.06, -0.03,  0.05,  0.04, -0.05,  0.07, -0.03,  0.06, -0.04,  0.03,
-       0.05, -0.04,  0.07, -0.03,  0.06,  0.04, -0.05,  0.07, -0.04,  0.06, -0.04,  0.03
-    ],
-    agregados: [
-      -0.02, -0.04,  0.05, -0.04,  0.03,  0.05, -0.05,  0.03, -0.04,  0.06, -0.03, -0.03,
-      -0.03, -0.05,  0.06, -0.04,  0.04,  0.06, -0.06,  0.04, -0.04,  0.07, -0.04, -0.04,
-      -0.03, -0.05,  0.07, -0.05,  0.05,  0.07, -0.06,  0.05, -0.05,  0.07, -0.04, -0.04
-    ]
-  };
-
-  // Funnel Step Shifts: Alternating weakest links between Step 2 (Onboarding), Step 3 (Active), Step 4 (Adoption)
-  const MONTHLY_FUNNEL_SHIFTS = [
-    // 2024:
-    { activeShift: -0.16, adoptShift:  0.03 }, // Step 3 bottleneck
-    { activeShift:  0.12, adoptShift: -0.18 }, // Step 4 bottleneck
-    { activeShift:  0.10, adoptShift: -0.20 }, // Step 4 bottleneck
-    { activeShift: -0.14, adoptShift:  0.12 }, // Step 3 bottleneck
-    { activeShift: -0.18, adoptShift:  0.04 }, // Step 3 bottleneck
-    { activeShift:  0.12, adoptShift: -0.20 }, // Step 4 bottleneck
-    { activeShift:  0.10, adoptShift:  0.06 },
-    { activeShift: -0.15, adoptShift:  0.04 },
-    { activeShift:  0.09, adoptShift: -0.16 },
-    { activeShift:  0.11, adoptShift:  0.05 },
-    { activeShift: -0.17, adoptShift:  0.06 },
-    { activeShift:  0.08, adoptShift: -0.17 },
-    // 2025:
-    { activeShift: -0.17, adoptShift:  0.04 },
-    { activeShift:  0.13, adoptShift: -0.19 },
-    { activeShift:  0.11, adoptShift: -0.19 },
-    { activeShift: -0.15, adoptShift:  0.14 },
-    { activeShift: -0.19, adoptShift:  0.05 },
-    { activeShift:  0.13, adoptShift: -0.21 },
-    { activeShift:  0.11, adoptShift:  0.07 },
-    { activeShift: -0.16, adoptShift:  0.05 },
-    { activeShift:  0.10, adoptShift: -0.17 },
-    { activeShift:  0.12, adoptShift:  0.06 },
-    { activeShift: -0.18, adoptShift:  0.07 },
-    { activeShift:  0.09, adoptShift: -0.18 },
-    // 2026:
-    { activeShift: -0.18, adoptShift:  0.05 },
-    { activeShift:  0.14, adoptShift: -0.20 },
-    { activeShift:  0.12, adoptShift: -0.20 },
-    { activeShift: -0.16, adoptShift:  0.15 },
-    { activeShift: -0.20, adoptShift:  0.06 },
-    { activeShift:  0.14, adoptShift: -0.22 },
-    { activeShift:  0.12, adoptShift:  0.08 },
-    { activeShift: -0.17, adoptShift:  0.06 },
-    { activeShift:  0.11, adoptShift: -0.18 },
-    { activeShift:  0.13, adoptShift:  0.07 },
-    { activeShift: -0.19, adoptShift:  0.08 },
-    { activeShift:  0.10, adoptShift: -0.19 }
-  ];
-
+  // 9. 36-MONTH TRANSACTION GENERATION
+  // Growth over the horizon is emergent, not a scripted curve:
+  //  - more accounts onboard/activate as months pass (cohort ramp, above)
+  //  - each active client's adoption rate follows a bounded random walk with a
+  //    small positive drift + reversion toward its own ceiling
+  //  - every (market, month) pair gets a SHARED shock so dips/spikes show up
+  //    at the market level instead of averaging away across thousands of
+  //    independent clients
   const TRANSACCIONES = [];
+  const plazas = REGIONES.flatMap(r => r.plazas);
 
   MESES.forEach((m, mIdx) => {
-    const baseMacroRate = BASE_CURVE_36M[mIdx] || 0.55;
-    const funnelShift = MONTHLY_FUNNEL_SHIFTS[mIdx] || { activeShift: 0, adoptShift: 0 };
-    const seasonality = 1 + (Math.sin((m.mesNum - 2) * 0.52) * 0.12); // Winter dip in Jan/Feb, summer peak
+    const seasonality = 1 + (Math.sin((m.mesNum - 2) * 0.52) * 0.10);
+    const globalDrift = 0.014 - (mIdx / 35) * 0.007; // ~0.014 early -> ~0.007 late
+
+    // Company-wide monthly shock: hits every client the same month, on top of
+    // the local market shock below. Without this, aggregating dozens of
+    // markets averages the local noise away and the NATIONAL line looks
+    // suspiciously smooth/linear even though individual markets wobble —
+    // exactly the "se promedia todo" problem, one level up. A bad quarter,
+    // a platform outage, a slow holiday stretch — some months the whole
+    // company dips together, not just one market.
+    const nationalRoll = rand();
+    let nationalShock;
+    if (nationalRoll < 0.15) nationalShock = -(0.035 + rand() * 0.06);      // company-wide bad month
+    else if (nationalRoll > 0.90) nationalShock = (0.02 + rand() * 0.035); // company-wide good month
+    else nationalShock = (rand() - 0.5) * 0.01;
+
+    // Shared market-month shock: this is what lets a single market visibly
+    // dip or spike in a given month without the aggregate averaging it out.
+    const marketShock = new Map();
+    plazas.forEach(plaza => {
+      const roll = rand();
+      let shock;
+      if (roll < 0.12) shock = -(0.06 + rand() * 0.09);       // bad month
+      else if (roll > 0.94) shock = (0.03 + rand() * 0.06);   // good month
+      else shock = (rand() - 0.5) * 0.02;                     // ambient noise
+      marketShock.set(plaza, shock);
+    });
 
     CLIENTES.forEach(cli => {
-      const blShifts = BL_MONTHLY_SHIFTS[cli.lineaNegocio] || [];
-      const blShift = blShifts[mIdx] || 0;
-      const blCfg = LINEAS_CONFIG[cli.lineaNegocio] || LINEAS_CONFIG.readymix;
-      const p = cli.profile;
-
-      // 1. Lifecycle Onboarding Check
       const estaIncorporadoMes = (cli.onboardingMonthIndex !== null) && (mIdx >= cli.onboardingMonthIndex);
 
-      // 2. Active Status in Month m
       let esActivoMes = false;
       let esRevertidoMes = false;
-
       if (estaIncorporadoMes) {
-        // Active conversion target with monthly noise and funnel shift
-        const activeTarget = Math.min(0.96, Math.max(0.25, p.activeConversionTarget + funnelShift.activeShift + ((rand() - 0.5) * 0.16)));
+        const activeTarget = clamp(cli.profile.activeConversionTarget + ((rand() - 0.5) * 0.16), 0.20, 0.96);
         esActivoMes = rand() < activeTarget;
         esRevertidoMes = !esActivoMes;
       }
 
-      // 3. Orders & Volume for Month m
-      const volMes = Math.max(15, Math.round(cli.volumenBase * seasonality * (rand() * 0.28 + 0.86)));
-      const avgOrderSize = cli.isTopPareto ? blCfg.avgOrderSize * 1.8 : blCfg.avgOrderSize;
-      const baseOrders = Math.max(1, Math.round(volMes / avgOrderSize));
-      const pedidosTotales = Math.max(1, Math.round(baseOrders * (rand() * 0.30 + 0.85)));
+      // Orders this month: weekly frequency * ~4.345 weeks, with organic jitter.
+      const weeksInMonth = 4.345;
+      const rawOrders = cli.weeklyOrderFreq * weeksInMonth * seasonality * (rand() * 0.30 + 0.85);
+      const pedidosTotales = Math.max(1, Math.round(rawOrders));
 
       let pedidosDigitales = 0;
       let pedidosAnalogos = pedidosTotales;
       let volDigital = 0;
-      let volAnalogo = volMes;
+      let volAnalogo = cli.volumenBase;
 
       if (estaIncorporadoMes && esActivoMes) {
-        // Organic volatility per client (+/- 12% to +/- 24%)
-        const clientVol = (rand() - 0.5) * 0.22;
-        const targetRate = baseMacroRate + blShift + funnelShift.adoptShift + cli.marketPace;
-        const clientAdoptionRate = Math.min(0.98, Math.max(0.12, (targetRate * 0.55) + (cli.basePropensity * 0.45) + clientVol));
+        if (cli._adopt === null) {
+          // Adopters ramp up fast once they start (matches the fttv concept:
+          // most value is realized within the first few weeks/months).
+          cli._adopt = cli.adoptionCeiling * (0.40 + rand() * 0.15);
+        }
+        const shock = nationalShock + (marketShock.get(cli.plaza) || 0);
+        const noise = gaussian(rand) * 0.035;
+        // Fast reversion toward (near) their own ceiling: ~3-4 month half-life,
+        // so adoption plateaus near the ceiling instead of crawling toward it
+        // over the full 3-year horizon.
+        const reversion = (cli.adoptionCeiling * 0.95 - cli._adopt) * 0.22;
+        cli._adopt = clamp(cli._adopt + globalDrift + noise + shock + reversion, 0.05, cli.adoptionCeiling);
 
-        pedidosDigitales = Math.round(pedidosTotales * clientAdoptionRate);
+        pedidosDigitales = Math.round(pedidosTotales * cli._adopt);
         if (pedidosDigitales > pedidosTotales) pedidosDigitales = pedidosTotales;
-        if (pedidosDigitales === 0 && pedidosTotales > 0) pedidosDigitales = 1; // At least 1 order if active
         pedidosAnalogos = pedidosTotales - pedidosDigitales;
 
+        const volMes = Math.round(cli.volumenBase / 12 * seasonality * (rand() * 0.28 + 0.86));
         volDigital = Math.round(volMes * (pedidosDigitales / pedidosTotales));
-        volAnalogo = volMes - volDigital;
+        volAnalogo = Math.max(0, volMes - volDigital);
+      } else {
+        volAnalogo = Math.round(cli.volumenBase / 12 * seasonality * (rand() * 0.28 + 0.86));
       }
 
-      // 4. Channel Breakdown for Digital Orders
       let pedidosWeb = 0;
       let pedidosApp = 0;
       let pedidosEdi = 0;
@@ -507,7 +510,7 @@ export function generateDataset(seed = 20260828) {
         pedidosWeb,
         pedidosApp,
         pedidosEdi,
-        volumenTotal: volMes,
+        volumenTotal: volDigital + volAnalogo,
         volumenDigital: volDigital,
         volumenAnalogo: volAnalogo
       });

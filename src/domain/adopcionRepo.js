@@ -14,22 +14,6 @@ const BL_SHORT = {
   agregados: 'AGG'
 };
 
-const REGION_NAME_TO_ID = {
-  'Atlantic': 'reg-1',
-  'Sunbelt': 'reg-2',
-  'Midwest': 'reg-3',
-  'Mountain': 'reg-5',
-  'Pacific NW': 'reg-4'
-};
-
-const REGION_TO_MARKETS = {
-  'Atlantic': ['New York', 'Boston'],
-  'Sunbelt': ['Dallas', 'Houston'],
-  'Midwest': ['Chicago', 'St. Louis'],
-  'Mountain': ['Denver', 'Salt Lake'],
-  'Pacific NW': ['Los Angeles', 'Phoenix']
-};
-
 const ALL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 class AdopcionRepository {
@@ -70,11 +54,12 @@ class AdopcionRepository {
     this.gerMap = new Map(this.data.GERENTES.map(g => [g.id, g]));
     this.repMap = new Map(this.data.VENDEDORES.map(v => [v.id, v]));
 
-    // Unique standardized regions (5)
-    this.standardRegions = ['Atlantic', 'Sunbelt', 'Midwest', 'Mountain', 'Pacific NW'];
+    // Derived from the generated dataset (no fixed count/name assumptions).
+    this.standardRegions = this.data.REGIONES.map(r => r.nombre);
+    this.standardMarkets = Array.from(new Set(this.data.GERENTES.map(g => g.nombre)));
 
-    // Unique standardized markets (10)
-    this.standardMarkets = ['New York', 'Boston', 'Dallas', 'Houston', 'Chicago', 'St. Louis', 'Denver', 'Salt Lake', 'Los Angeles', 'Phoenix'];
+    this.regionNameToId = new Map(this.data.REGIONES.map(r => [r.nombre, r.id]));
+    this.regionToMarkets = new Map(this.data.REGIONES.map(r => [r.nombre, r.plazas]));
 
     // LRU / Memoization Cache
     this.cache = new Map();
@@ -160,7 +145,7 @@ class AdopcionRepository {
     if (hasDirs) {
       dirMatchSet = new Set(directorIds);
       directorIds.forEach(d => {
-        if (REGION_NAME_TO_ID[d]) dirMatchSet.add(REGION_NAME_TO_ID[d]);
+        if (this.regionNameToId.has(d)) dirMatchSet.add(this.regionNameToId.get(d));
       });
     }
 
@@ -696,9 +681,9 @@ class AdopcionRepository {
         exclusionDetails: exclusionManager.getDetails(c.id),
         regionNombre: c.regionNombre,
         regionId: c.regionId,
-        plaza: c.plaza || this.data.GERENTES.find(g => g.id === c.gerenteId)?.nombre || 'Market',
+        plaza: c.plaza || this.gerMap.get(c.gerenteId)?.nombre || 'Market',
         vendedorId: c.vendedorId,
-        vendedorNombre: this.data.VENDEDORES.find(v => v.id === c.vendedorId)?.nombre || 'Sales Rep',
+        vendedorNombre: this.repMap.get(c.vendedorId)?.nombre || 'Sales Rep',
         gerenteId: c.gerenteId,
         directorId: c.directorId,
         vpId: c.vpId
@@ -1117,7 +1102,7 @@ class AdopcionRepository {
           blPills: Array.from(new Set(personasDetalle.map(p => p.bl))),
           isSingleVp,
           tipo: 'Director',
-          regionId: REGION_NAME_TO_ID[regionName] || 'reg-1',
+          regionId: this.regionNameToId.get(regionName) || 'reg-1',
           lineasLabel: personasDetalle.map(p => p.bl).join(' · '),
           metricas,
           deltaPedidosMoM: 3.2,
@@ -1137,7 +1122,7 @@ class AdopcionRepository {
       if (parentSet.size > 0) {
         const allowedMarkets = new Set();
         parentSet.forEach(pId => {
-          const mList = REGION_TO_MARKETS[pId];
+          const mList = this.regionToMarkets.get(pId);
           if (mList) mList.forEach(m => allowedMarkets.add(m));
           else allowedMarkets.add(pId);
         });
@@ -1226,9 +1211,10 @@ class AdopcionRepository {
         if (activeVpIds.length > 0 && !activeVpIds.includes(v.vpId)) return false;
 
         if (activeDirIds.length > 0) {
+          const vRegionId = this.regionNameToId.get(v.regionNombre);
           const matchDir = activeDirIds.includes(v.directorId) ||
                            activeDirIds.includes(v.regionNombre) ||
-                           (REGION_NAME_TO_ID[v.regionNombre] && activeDirIds.includes(REGION_NAME_TO_ID[v.regionNombre]));
+                           (vRegionId && activeDirIds.includes(vRegionId));
           if (!matchDir) return false;
         }
 

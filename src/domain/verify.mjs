@@ -7,12 +7,13 @@ console.log('--- VERIFICACION DE RENDIMIENTO Y CAPA DE DOMINIO ---');
 // 1. Estructura
 const dataset = generateDataset(20260828);
 console.log('VPs:', dataset.VPS.length, '(esperado 3)');
-console.log('Directores:', dataset.DIRECTORES.length, '(esperado 15)');
-console.log('Gerentes:', dataset.GERENTES.length, '(esperado 30)');
-console.log('Vendedores:', dataset.VENDEDORES.length, '(esperado 150)');
-console.log('Clientes:', dataset.CLIENTES.length, '(esperado ~2250)');
+console.log('Regiones:', dataset.REGIONES.length, '(esperado 4)');
+console.log('Directores:', dataset.DIRECTORES.length, '(esperado 12)');
+console.log('Gerentes:', dataset.GERENTES.length, '(esperado 144, 48 mercados x 3 lineas)');
+console.log('Vendedores:', dataset.VENDEDORES.length, '(variable por tier de mercado)');
+console.log('Clientes:', dataset.CLIENTES.length, '(variable)');
 console.log('Meses:', dataset.MESES.length, '(esperado 36)');
-console.log('Transacciones:', dataset.TRANSACCIONES.length, '(esperado ~81,000)');
+console.log('Transacciones:', dataset.TRANSACCIONES.length);
 
 // 2. Determinismo
 const dataset2 = generateDataset(20260828);
@@ -26,7 +27,20 @@ const totalVol = clientesOrdenados.reduce((s, c) => s + c.volumenBase, 0);
 const top20Count = Math.round(clientesOrdenados.length * 0.20);
 const volTop20 = clientesOrdenados.slice(0, top20Count).reduce((s, c) => s + c.volumenBase, 0);
 const pctPareto = ((volTop20 / totalVol) * 100).toFixed(1);
-console.log('Distribucion Pareto (Top 20%):', pctPareto + '% del volumen total (esperado 70%-80%)');
+console.log('Distribucion Pareto Volumen (Top 20%):', pctPareto + '% del volumen total (esperado ~70-80%)');
+
+const pedidosPorCliente = new Map();
+dataset.TRANSACCIONES.forEach(t => {
+  pedidosPorCliente.set(t.clienteId, (pedidosPorCliente.get(t.clienteId) || 0) + t.pedidosTotales);
+});
+const pedidosOrdenados = [...pedidosPorCliente.values()].sort((a, b) => b - a);
+const totalPedidosGen = pedidosOrdenados.reduce((s, v) => s + v, 0);
+const top20CountPedidos = Math.round(pedidosOrdenados.length * 0.20);
+const pedidosTop20 = pedidosOrdenados.slice(0, top20CountPedidos).reduce((s, v) => s + v, 0);
+console.log('Distribucion Pareto Pedidos (Top 20% clientes):', ((pedidosTop20 / totalPedidosGen) * 100).toFixed(1) + '% de los pedidos totales (esperado ~65-85%)');
+
+const maxCeiling = Math.max(...dataset.CLIENTES.map(c => c.adoptionCeiling));
+console.log('Techo maximo de adopcion individual:', (maxCeiling * 100).toFixed(1) + '% (esperado <= 90%)');
 
 // 4. Sumas de abajo hacia arriba
 const nac = adopcionRepo.getMetricasGlobales();
