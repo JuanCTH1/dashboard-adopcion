@@ -63,7 +63,10 @@ class AdopcionRepository {
 
     // LRU / Memoization Cache
     this.cache = new Map();
-    this.maxCacheSize = 300;
+    // Each entry retains per-client accumulators for the whole filtered universe
+    // (~5 MB with the current dataset). 300 of them is >1 GB of heap and the GC
+    // pressure that comes with it; a dozen covers every realistic filter cycle.
+    this.maxCacheSize = 12;
 
     // Invalidate cache on client exclusion change
     exclusionManager.subscribe(() => {
@@ -210,7 +213,11 @@ class AdopcionRepository {
   _getUnifiedAggregate(filtros = {}) {
     const cacheKey = this._getCacheKey(filtros);
     if (this.cache.has(cacheKey)) {
-      return this.cache.get(cacheKey);
+      // Touch: re-insert so Map iteration order is real LRU, not insertion order.
+      const hit = this.cache.get(cacheKey);
+      this.cache.delete(cacheKey);
+      this.cache.set(cacheKey, hit);
+      return hit;
     }
 
     // 1. FILTER CLIENTS
@@ -240,7 +247,6 @@ class AdopcionRepository {
     };
 
     const globalDigitalClientIds = new Set();
-    const globalPeriodClientIds = new Set();
     const globalOnboardedClientIds = new Set();
     const globalRevertidosClientIds = new Set();
 
@@ -256,9 +262,7 @@ class AdopcionRepository {
         volumenConcreto: 0,
         volumenCemento: 0,
         volumenAgregados: 0,
-        digitalClients: new Set(),
-        periodClients: new Set(),
-        onboardedClients: new Set()
+        digitalClients: 0
       });
     });
 
@@ -290,11 +294,12 @@ class AdopcionRepository {
       pedidosActivosTotales: 0,
       volumenTotal: 0,
       volumenDigital: 0,
-      clientesAsignados: new Set(),
-      clientesOnboarded: new Set(),
-      clientesActivos: new Set(),
-      clientesRevertidos: new Set(),
-      periodClients: new Set()
+      // Counters, not Sets: every client is credited to each accumulator at most
+      // once, and only the cardinality is ever read.
+      clientesAsignados: 0,
+      clientesOnboarded: 0,
+      clientesActivos: 0,
+      clientesRevertidos: 0
     });
 
     const byVp = new Map();
@@ -318,22 +323,22 @@ class AdopcionRepository {
     // Record assigned universe for each entity from filtered clients
     filteredClients.forEach(c => {
       const vAcc = byVp.get(c.vpId);
-      if (vAcc) vAcc.clientesAsignados.add(c.id);
+      if (vAcc) vAcc.clientesAsignados++;
 
       const rAcc = byRegionNombre.get(c.regionNombre);
-      if (rAcc) rAcc.clientesAsignados.add(c.id);
+      if (rAcc) rAcc.clientesAsignados++;
 
       const rvAcc = byRegionAndVp.get(`${c.regionNombre}_${c.vpId}`);
-      if (rvAcc) rvAcc.clientesAsignados.add(c.id);
+      if (rvAcc) rvAcc.clientesAsignados++;
 
       const mAcc = byMarketNombre.get(c.plaza);
-      if (mAcc) mAcc.clientesAsignados.add(c.id);
+      if (mAcc) mAcc.clientesAsignados++;
 
       const mvAcc = byMarketAndVp.get(`${c.plaza}_${c.vpId}`);
-      if (mvAcc) mvAcc.clientesAsignados.add(c.id);
+      if (mvAcc) mvAcc.clientesAsignados++;
 
       const repAcc = byRepId.get(c.vendedorId);
-      if (repAcc) repAcc.clientesAsignados.add(c.id);
+      if (repAcc) repAcc.clientesAsignados++;
     });
 
     // 3. FAST PASS OVER FILTERED CLIENT TRANSACTIONS IN ACTIVE FILTER PERIOD
@@ -363,8 +368,6 @@ class AdopcionRepository {
         globalOrders.web += t.pedidosWeb;
         globalOrders.app += t.pedidosApp;
         globalOrders.edi += t.pedidosEdi;
-
-        globalPeriodClientIds.add(t.clienteId);
 
         if (t.lineaNegocio === 'readymix') {
           globalVol.concretoTotal += t.volumenTotal;
@@ -401,7 +404,6 @@ class AdopcionRepository {
           vAcc.pedidosEdi += t.pedidosEdi;
           vAcc.volumenTotal += t.volumenTotal;
           vAcc.volumenDigital += t.volumenDigital;
-          vAcc.periodClients.add(t.clienteId);
         }
         if (rAcc) {
           rAcc.pedidosTotales += t.pedidosTotales;
@@ -412,7 +414,6 @@ class AdopcionRepository {
           rAcc.pedidosEdi += t.pedidosEdi;
           rAcc.volumenTotal += t.volumenTotal;
           rAcc.volumenDigital += t.volumenDigital;
-          rAcc.periodClients.add(t.clienteId);
         }
         if (rvAcc) {
           rvAcc.pedidosTotales += t.pedidosTotales;
@@ -423,7 +424,6 @@ class AdopcionRepository {
           rvAcc.pedidosEdi += t.pedidosEdi;
           rvAcc.volumenTotal += t.volumenTotal;
           rvAcc.volumenDigital += t.volumenDigital;
-          rvAcc.periodClients.add(t.clienteId);
         }
         if (mAcc) {
           mAcc.pedidosTotales += t.pedidosTotales;
@@ -434,7 +434,6 @@ class AdopcionRepository {
           mAcc.pedidosEdi += t.pedidosEdi;
           mAcc.volumenTotal += t.volumenTotal;
           mAcc.volumenDigital += t.volumenDigital;
-          mAcc.periodClients.add(t.clienteId);
         }
         if (mvAcc) {
           mvAcc.pedidosTotales += t.pedidosTotales;
@@ -445,7 +444,6 @@ class AdopcionRepository {
           mvAcc.pedidosEdi += t.pedidosEdi;
           mvAcc.volumenTotal += t.volumenTotal;
           mvAcc.volumenDigital += t.volumenDigital;
-          mvAcc.periodClients.add(t.clienteId);
         }
         if (repAcc) {
           repAcc.pedidosTotales += t.pedidosTotales;
@@ -456,7 +454,6 @@ class AdopcionRepository {
           repAcc.pedidosEdi += t.pedidosEdi;
           repAcc.volumenTotal += t.volumenTotal;
           repAcc.volumenDigital += t.volumenDigital;
-          repAcc.periodClients.add(t.clienteId);
         }
       }
     }
@@ -473,9 +470,7 @@ class AdopcionRepository {
           mObj.pedidosTotales += t.pedidosTotales;
           mObj.pedidosDigitales += t.pedidosDigitales;
           mObj.pedidosAnalogos += t.pedidosAnalogos;
-          mObj.periodClients.add(t.clienteId);
-          if (t.pedidosDigitales > 0) mObj.digitalClients.add(t.clienteId);
-          if (t.estaIncorporado) mObj.onboardedClients.add(t.clienteId);
+          if (t.pedidosDigitales > 0) mObj.digitalClients++;
 
           if (t.lineaNegocio === 'readymix') mObj.volumenConcreto += t.volumenDigital;
           else if (t.lineaNegocio === 'cemento') mObj.volumenCemento += t.volumenDigital;
@@ -505,32 +500,32 @@ class AdopcionRepository {
 
       if (isOb) {
         globalOnboardedClientIds.add(c.id);
-        const vAcc = byVp.get(c.vpId); if (vAcc) vAcc.clientesOnboarded.add(c.id);
-        const rAcc = byRegionNombre.get(c.regionNombre); if (rAcc) rAcc.clientesOnboarded.add(c.id);
-        const rvAcc = byRegionAndVp.get(`${c.regionNombre}_${c.vpId}`); if (rvAcc) rvAcc.clientesOnboarded.add(c.id);
-        const mAcc = byMarketNombre.get(c.plaza); if (mAcc) mAcc.clientesOnboarded.add(c.id);
-        const mvAcc = byMarketAndVp.get(`${c.plaza}_${c.vpId}`); if (mvAcc) mvAcc.clientesOnboarded.add(c.id);
-        const repAcc = byRepId.get(c.vendedorId); if (repAcc) repAcc.clientesOnboarded.add(c.id);
+        const vAcc = byVp.get(c.vpId); if (vAcc) vAcc.clientesOnboarded++;
+        const rAcc = byRegionNombre.get(c.regionNombre); if (rAcc) rAcc.clientesOnboarded++;
+        const rvAcc = byRegionAndVp.get(`${c.regionNombre}_${c.vpId}`); if (rvAcc) rvAcc.clientesOnboarded++;
+        const mAcc = byMarketNombre.get(c.plaza); if (mAcc) mAcc.clientesOnboarded++;
+        const mvAcc = byMarketAndVp.get(`${c.plaza}_${c.vpId}`); if (mvAcc) mvAcc.clientesOnboarded++;
+        const repAcc = byRepId.get(c.vendedorId); if (repAcc) repAcc.clientesOnboarded++;
       }
 
       if (isAct) {
         globalDigitalClientIds.add(c.id);
-        const vAcc = byVp.get(c.vpId); if (vAcc) vAcc.clientesActivos.add(c.id);
-        const rAcc = byRegionNombre.get(c.regionNombre); if (rAcc) rAcc.clientesActivos.add(c.id);
-        const rvAcc = byRegionAndVp.get(`${c.regionNombre}_${c.vpId}`); if (rvAcc) rvAcc.clientesActivos.add(c.id);
-        const mAcc = byMarketNombre.get(c.plaza); if (mAcc) mAcc.clientesActivos.add(c.id);
-        const mvAcc = byMarketAndVp.get(`${c.plaza}_${c.vpId}`); if (mvAcc) mvAcc.clientesActivos.add(c.id);
-        const repAcc = byRepId.get(c.vendedorId); if (repAcc) repAcc.clientesActivos.add(c.id);
+        const vAcc = byVp.get(c.vpId); if (vAcc) vAcc.clientesActivos++;
+        const rAcc = byRegionNombre.get(c.regionNombre); if (rAcc) rAcc.clientesActivos++;
+        const rvAcc = byRegionAndVp.get(`${c.regionNombre}_${c.vpId}`); if (rvAcc) rvAcc.clientesActivos++;
+        const mAcc = byMarketNombre.get(c.plaza); if (mAcc) mAcc.clientesActivos++;
+        const mvAcc = byMarketAndVp.get(`${c.plaza}_${c.vpId}`); if (mvAcc) mvAcc.clientesActivos++;
+        const repAcc = byRepId.get(c.vendedorId); if (repAcc) repAcc.clientesActivos++;
       }
 
       if (isRev) {
         globalRevertidosClientIds.add(c.id);
-        const vAcc = byVp.get(c.vpId); if (vAcc) vAcc.clientesRevertidos.add(c.id);
-        const rAcc = byRegionNombre.get(c.regionNombre); if (rAcc) rAcc.clientesRevertidos.add(c.id);
-        const rvAcc = byRegionAndVp.get(`${c.regionNombre}_${c.vpId}`); if (rvAcc) rvAcc.clientesRevertidos.add(c.id);
-        const mAcc = byMarketNombre.get(c.plaza); if (mAcc) mAcc.clientesRevertidos.add(c.id);
-        const mvAcc = byMarketAndVp.get(`${c.plaza}_${c.vpId}`); if (mvAcc) mvAcc.clientesRevertidos.add(c.id);
-        const repAcc = byRepId.get(c.vendedorId); if (repAcc) repAcc.clientesRevertidos.add(c.id);
+        const vAcc = byVp.get(c.vpId); if (vAcc) vAcc.clientesRevertidos++;
+        const rAcc = byRegionNombre.get(c.regionNombre); if (rAcc) rAcc.clientesRevertidos++;
+        const rvAcc = byRegionAndVp.get(`${c.regionNombre}_${c.vpId}`); if (rvAcc) rvAcc.clientesRevertidos++;
+        const mAcc = byMarketNombre.get(c.plaza); if (mAcc) mAcc.clientesRevertidos++;
+        const mvAcc = byMarketAndVp.get(`${c.plaza}_${c.vpId}`); if (mvAcc) mvAcc.clientesRevertidos++;
+        const repAcc = byRepId.get(c.vendedorId); if (repAcc) repAcc.clientesRevertidos++;
       }
     });
 
@@ -586,7 +581,7 @@ class AdopcionRepository {
       const pTot = mObj ? mObj.pedidosTotales : 0;
       const pDig = mObj ? mObj.pedidosDigitales : 0;
       const cTot = totalAsignados;
-      const cAct = mObj ? mObj.digitalClients.size : 0;
+      const cAct = mObj ? mObj.digitalClients : 0;
 
       const pctAdopt = pTot > 0 ? (pDig / pTot) * 100 : 0;
       const pctClientAdopt = cTot > 0 ? (cAct / cTot) * 100 : 0;
@@ -625,8 +620,11 @@ class AdopcionRepository {
       sparklineCemento: serieHistorica.map(s => s.volumenCemento)
     };
 
-    // Build Cartera (Enriched customer list)
-    const cartera = filteredClients.map(c => {
+    // Build Cartera (Enriched customer list).
+    // Lazy: only getCartera() / getTopClientesAccion() need it, and it allocates
+    // one object per filtered client. Building it eagerly on every aggregate was
+    // the bulk of both the compute time and the memory retained by the cache.
+    const buildCartera = () => filteredClients.map(c => {
       const tx = byClient.get(c.id) || {
         pedidosTotales: 0,
         pedidosDigitales: 0,
@@ -690,32 +688,34 @@ class AdopcionRepository {
       };
     });
 
-    // Top action clients
-    const sinIncorporar = cartera
-      .filter(c => !c.estaIncorporado)
-      .sort((a, b) => b.volumenMes - a.volumenMes)
-      .slice(0, 10);
+    // Top action clients (derived from the cartera, so equally lazy)
+    const buildTopClientesAccion = (cartera) => {
+      const sinIncorporar = cartera
+        .filter(c => !c.estaIncorporado)
+        .sort((a, b) => b.volumenMes - a.volumenMes)
+        .slice(0, 10);
 
-    const inactivosORevertidos = cartera
-      .filter(c => c.estaIncorporado && (!c.esActivo || c.esRevertido))
-      .sort((a, b) => b.volumenMes - a.volumenMes)
-      .slice(0, 10);
+      const inactivosORevertidos = cartera
+        .filter(c => c.estaIncorporado && (!c.esActivo || c.esRevertido))
+        .sort((a, b) => b.volumenMes - a.volumenMes)
+        .slice(0, 10);
 
-    const topClientesAccion = {
-      sinIncorporar,
-      inactivosORevertidos,
-      volumenEnRiesgoTotal: sinIncorporar.reduce((sum, c) => sum + c.volumenMes, 0) +
-                             inactivosORevertidos.reduce((sum, c) => sum + c.volumenMes, 0)
+      return {
+        sinIncorporar,
+        inactivosORevertidos,
+        volumenEnRiesgoTotal: sinIncorporar.reduce((sum, c) => sum + c.volumenMes, 0) +
+                               inactivosORevertidos.reduce((sum, c) => sum + c.volumenMes, 0)
+      };
     };
 
     // Helper to format entity metrics
     const formatEntityMetrics = (acc) => {
       const pTot = acc ? acc.pedidosTotales : 0;
       const pDig = acc ? acc.pedidosDigitales : 0;
-      const cTot = acc ? acc.clientesAsignados.size : 0;
-      const cOnb = acc ? acc.clientesOnboarded.size : 0;
-      const cAct = acc ? acc.clientesActivos.size : 0;
-      const cRev = acc ? acc.clientesRevertidos.size : 0;
+      const cTot = acc ? acc.clientesAsignados : 0;
+      const cOnb = acc ? acc.clientesOnboarded : 0;
+      const cAct = acc ? acc.clientesActivos : 0;
+      const cRev = acc ? acc.clientesRevertidos : 0;
 
       const pctAdopt = pTot > 0 ? (pDig / pTot) * 100 : 0;
       const pctOnb = cTot > 0 ? (cOnb / cTot) * 100 : 0;
@@ -901,8 +901,6 @@ class AdopcionRepository {
       validMonthKeys,
       metricasGlobales,
       serieHistorica,
-      cartera,
-      topClientesAccion,
       leaderboard,
       byVp,
       byRegionNombre,
@@ -913,9 +911,28 @@ class AdopcionRepository {
       formatEntityMetrics
     };
 
-    if (this.cache.size >= this.maxCacheSize) {
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+    let carteraMemo = null;
+    let topAccionMemo = null;
+    Object.defineProperties(result, {
+      cartera: {
+        enumerable: true,
+        get() {
+          if (carteraMemo === null) carteraMemo = buildCartera();
+          return carteraMemo;
+        }
+      },
+      topClientesAccion: {
+        enumerable: true,
+        get() {
+          if (topAccionMemo === null) topAccionMemo = buildTopClientesAccion(this.cartera);
+          return topAccionMemo;
+        }
+      }
+    });
+
+    while (this.cache.size >= this.maxCacheSize) {
+      const oldestKey = this.cache.keys().next().value;
+      this.cache.delete(oldestKey);
     }
     this.cache.set(cacheKey, result);
 
@@ -1080,10 +1097,10 @@ class AdopcionRepository {
               pTot += rvAcc.pedidosTotales;
               pDig += rvAcc.pedidosDigitales;
               pAna += rvAcc.pedidosAnalogos;
-              cTot += rvAcc.clientesAsignados.size;
-              cOnb += rvAcc.clientesOnboarded.size;
-              cAct += rvAcc.clientesActivos.size;
-              cRev += rvAcc.clientesRevertidos.size;
+              cTot += rvAcc.clientesAsignados;
+              cOnb += rvAcc.clientesOnboarded;
+              cAct += rvAcc.clientesActivos;
+              cRev += rvAcc.clientesRevertidos;
             }
           });
           const pctAdopt = pTot > 0 ? (pDig / pTot) * 100 : 0;
@@ -1171,10 +1188,10 @@ class AdopcionRepository {
               pTot += mvAcc.pedidosTotales;
               pDig += mvAcc.pedidosDigitales;
               pAna += mvAcc.pedidosAnalogos;
-              cTot += mvAcc.clientesAsignados.size;
-              cOnb += mvAcc.clientesOnboarded.size;
-              cAct += mvAcc.clientesActivos.size;
-              cRev += mvAcc.clientesRevertidos.size;
+              cTot += mvAcc.clientesAsignados;
+              cOnb += mvAcc.clientesOnboarded;
+              cAct += mvAcc.clientesActivos;
+              cRev += mvAcc.clientesRevertidos;
             }
           });
           const pctAdopt = pTot > 0 ? (pDig / pTot) * 100 : 0;

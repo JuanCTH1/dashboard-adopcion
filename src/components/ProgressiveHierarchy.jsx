@@ -73,6 +73,8 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   const selectedDirIds = useMemo(() => filtrosCompuestos?.directorIds || [], [filtrosCompuestos?.directorIds]);
   const selectedGerIds = useMemo(() => filtrosCompuestos?.gerenteIds || [], [filtrosCompuestos?.gerenteIds]);
   const selectedRepIds = useMemo(() => filtrosCompuestos?.vendedorIds || [], [filtrosCompuestos?.vendedorIds]);
+  const selectedGerIdSet = useMemo(() => new Set(selectedGerIds), [selectedGerIds]);
+  const selectedRepIdSet = useMemo(() => new Set(selectedRepIds), [selectedRepIds]);
 
   // Table sorting state: key, direction ('asc' | 'desc')
   const [sortConfig, setSortConfig] = useState({
@@ -1159,9 +1161,9 @@ Commercial Leadership`;
 
                 <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                   {gerentes.map((ger) => {
-                    const isSelected = selectedGerIds.includes(ger.id);
+                    const isSelected = selectedGerIdSet.has(ger.id);
                     return (
-                      <div key={ger.id} className="relative group">
+                      <div key={ger.id} className="relative group" style={{ contentVisibility: "auto", containIntrinsicSize: "90px" }}>
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('gerente', ger.id, selectedGerIds, handleSetGers); }}
                           onMouseEnter={() => handleDragEnter('gerente', ger.id, handleSetGers)}
@@ -1289,9 +1291,9 @@ Commercial Leadership`;
 
                 <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
                   {vendedores.map(rep => {
-                    const isSelected = selectedRepIds.includes(rep.id);
+                    const isSelected = selectedRepIdSet.has(rep.id);
                     return (
-                      <div key={rep.id} className="relative group">
+                      <div key={rep.id} className="relative group" style={{ contentVisibility: "auto", containIntrinsicSize: "90px" }}>
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
                           onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
