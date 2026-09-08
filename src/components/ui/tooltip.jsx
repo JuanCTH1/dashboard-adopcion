@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react"
+import { createPortal } from "react-dom"
 import { HelpCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -43,7 +44,7 @@ export function CustomTooltip({ text, content, children, position = "top", delay
         {children}
       </span>
 
-      {isVisible && (
+      {isVisible && typeof document !== 'undefined' && createPortal(
         <div
           style={{
             position: "fixed",
@@ -54,7 +55,8 @@ export function CustomTooltip({ text, content, children, position = "top", delay
           className="z-[999999] pointer-events-none rounded-xl bg-card/98 dark:bg-slate-900/98 text-foreground dark:text-slate-100 px-3 py-2 text-xs font-semibold shadow-2xl border-2 border-slate-300 dark:border-slate-600 backdrop-blur-md max-w-xs text-left leading-snug select-none font-sans transition-opacity duration-100"
         >
           {content || text}
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

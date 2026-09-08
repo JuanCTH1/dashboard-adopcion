@@ -18,10 +18,10 @@ export function App() {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
-  // 2. Multidimensional Context Filters (Sidebar) — Default: Current Month (Aug 2026)
+  // 2. Multidimensional Context Filters (Sidebar) — Default: Current Month (Sep 2026)
   const [filtrosContexto, setFiltrosContexto] = useState({
     anios: [2026],
-    meses: ['Aug'],
+    meses: ['Sep'],
     lineasNegocio: [],
     onboarded: [],
     activos: [],
@@ -139,7 +139,7 @@ export function App() {
   const handleResetFiltros = () => {
     setFiltrosContexto({
       anios: [2026],
-      meses: ['Aug'],
+      meses: ['Sep'],
       lineasNegocio: [],
       onboarded: [],
       activos: [],
@@ -160,8 +160,8 @@ export function App() {
   // Removable Active Chips (Compact & Clean)
   const activeChips = useMemo(() => {
     const chips = [];
-    const isCurrentMonth = (filtrosContexto.anios?.length === 1 && filtrosContexto.anios[0] === 2026 && filtrosContexto.meses?.length === 1 && filtrosContexto.meses[0] === 'Aug');
-    const isPrevMonth = (filtrosContexto.anios?.length === 1 && filtrosContexto.anios[0] === 2026 && filtrosContexto.meses?.length === 1 && filtrosContexto.meses[0] === 'Jul');
+    const isCurrentMonth = (filtrosContexto.anios?.length === 1 && filtrosContexto.anios[0] === 2026 && filtrosContexto.meses?.length === 1 && filtrosContexto.meses[0] === 'Sep');
+    const isPrevMonth = (filtrosContexto.anios?.length === 1 && filtrosContexto.anios[0] === 2026 && filtrosContexto.meses?.length === 1 && filtrosContexto.meses[0] === 'Aug');
 
     if (isCurrentMonth) {
       chips.push({ key: 'periodo', label: '', value: 'Current Month' });

@@ -81,14 +81,6 @@ export function calculateAggregations(transacciones = [], clientes = []) {
     }
   });
 
-  // Calculate total orders (digital + analog) placed by Active Customers
-  let pedidosActivosTotales = 0;
-  transacciones.forEach(t => {
-    if (digitalClientIds.has(t.clienteId)) {
-      pedidosActivosTotales += t.pedidosTotales;
-    }
-  });
-
   const hasTxFilter = transacciones.length > 0;
 
   const onboardedClientIds = new Set();
@@ -100,6 +92,18 @@ export function calculateAggregations(transacciones = [], clientes = []) {
       if (t.esRevertido) revertidosClientIds.add(t.clienteId);
     });
   }
+
+  // Calculate total orders placed by Onboarded & Active Customers
+  let pedidosActivosTotales = 0;
+  let pedidosOnboardedTotales = 0;
+  transacciones.forEach(t => {
+    if (t.estaIncorporado || onboardedClientIds.has(t.clienteId)) {
+      pedidosOnboardedTotales += t.pedidosTotales;
+    }
+    if (digitalClientIds.has(t.clienteId)) {
+      pedidosActivosTotales += t.pedidosTotales;
+    }
+  });
 
   const filteredClientsInPeriod = (hasTxFilter && periodClientIds.size < clientes.length)
     ? clientes.filter(c => periodClientIds.has(c.id))
@@ -122,6 +126,7 @@ export function calculateAggregations(transacciones = [], clientes = []) {
       web: pedidosWeb,
       app: pedidosApp,
       edi: pedidosEdi,
+      onboardedTotales: pedidosOnboardedTotales || Math.round(pedidosTotales * (pctOnboarding / 100)),
       activosTotales: pedidosActivosTotales || pedidosTotales,
       pctAdopcion: Number(pctAdopcionPedidos.toFixed(1))
     },

@@ -19,7 +19,9 @@ import {
   Calendar,
   Check,
   Clock,
-  Laptop
+  Laptop,
+  MapPin,
+  Globe
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
@@ -131,6 +133,27 @@ export function CommandPalette({
     onClose();
   };
 
+  // Deduplicate markets and regions for geographic hierarchy
+  const uniqueMarkets = useMemo(() => {
+    const map = new Map();
+    (data.gerentes || []).forEach(g => {
+      if (g.nombre && !map.has(g.nombre)) {
+        map.set(g.nombre, g);
+      }
+    });
+    return Array.from(map.values());
+  }, [data.gerentes]);
+
+  const uniqueRegions = useMemo(() => {
+    const map = new Map();
+    (data.directores || []).forEach(d => {
+      if (d.nombre && !map.has(d.nombre)) {
+        map.set(d.nombre, d);
+      }
+    });
+    return Array.from(map.values());
+  }, [data.directores]);
+
   // Filter items based on query and active tab
   const q = query.toLowerCase().trim();
 
@@ -138,10 +161,8 @@ export function CommandPalette({
     const res = {
       actions: [],
       clientes: [],
-      vendedores: [],
-      gerentes: [],
-      directores: [],
-      vps: []
+      people: [],
+      geography: []
     };
 
     // 1. Actions & Presets
@@ -170,62 +191,160 @@ export function CommandPalette({
       }
     }
 
-    // 3. Sales Reps
-    if (activeTab === 'all' || activeTab === 'team') {
+    // 3. People & Commercial Team (Sales Reps, Market Managers, Regional Directors, VPs)
+    if (activeTab === 'all' || activeTab === 'people') {
+      const peopleList = [];
+
+      // VPs / Leadership
+      (data.vps || []).forEach(vp => {
+        if (!q ? peopleList.length < 1 : ((vp.persona && vp.persona.toLowerCase().includes(q)) || vp.nombre.toLowerCase().includes(q))) {
+          peopleList.push({
+            tipo: 'vp',
+            id: vp.id,
+            nombre: vp.persona || `${vp.nombre} VP`,
+            rol: 'Vice President',
+            rolBadgeColor: 'bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30',
+            subtitle: `${vp.nombre} Division · Commercial Executive`,
+            bl: vp.nombre,
+            raw: vp
+          });
+        }
+      });
+
+      // Regional Directors (match by director's personal name or region)
+      (data.directores || []).forEach(dir => {
+        const matchesPersona = dir.persona && dir.persona.toLowerCase().includes(q);
+        const matchesRegion = dir.nombre && dir.nombre.toLowerCase().includes(q);
+        if (!q ? peopleList.length < 3 : (matchesPersona || matchesRegion)) {
+          if (!peopleList.some(p => p.nombre === dir.persona)) {
+            peopleList.push({
+              tipo: 'director',
+              id: dir.id,
+              nombre: dir.persona || `${dir.nombre} Director`,
+              rol: 'Regional Director',
+              rolBadgeColor: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
+              subtitle: `${dir.nombre} Region · Regional Director`,
+              bl: dir.lineaNegocio?.toUpperCase(),
+              raw: dir
+            });
+          }
+        }
+      });
+
+      // Market Managers (match by manager's personal name or market city)
+      (data.gerentes || []).forEach(ger => {
+        const matchesPersona = ger.persona && ger.persona.toLowerCase().includes(q);
+        const matchesMarket = ger.nombre && ger.nombre.toLowerCase().includes(q);
+        if (!q ? peopleList.length < 5 : (matchesPersona || matchesMarket)) {
+          if (!peopleList.some(p => p.nombre === ger.persona)) {
+            peopleList.push({
+              tipo: 'gerente',
+              id: ger.id,
+              nombre: ger.persona || `${ger.nombre} Manager`,
+              rol: 'Market Manager',
+              rolBadgeColor: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30',
+              subtitle: `${ger.nombre} Market · ${ger.regionNombre || ''}`,
+              bl: ger.lineaNegocio?.toUpperCase(),
+              raw: ger
+            });
+          }
+        }
+      });
+
+      // Sales Representatives (match by rep name, city, id, region)
       const reps = data.vendedores || [];
-      if (!q) {
-        res.vendedores = reps.slice(0, 4);
-      } else {
-        res.vendedores = reps.filter(v => {
-          return (
-            v.nombre.toLowerCase().includes(q) ||
-            v.plaza.toLowerCase().includes(q) ||
-            v.id.toLowerCase().includes(q) ||
-            (v.regionNombre && v.regionNombre.toLowerCase().includes(q))
-          );
-        }).slice(0, MAX_RESULTS_PER_SECTION);
-      }
+      const matchedReps = !q
+        ? reps.slice(0, 4)
+        : reps.filter(v => {
+            return (
+              v.nombre.toLowerCase().includes(q) ||
+              v.plaza.toLowerCase().includes(q) ||
+              v.id.toLowerCase().includes(q) ||
+              (v.regionNombre && v.regionNombre.toLowerCase().includes(q))
+            );
+          }).slice(0, 8);
+
+      matchedReps.forEach(rep => {
+        peopleList.push({
+          tipo: 'vendedor',
+          id: rep.id,
+          nombre: rep.nombre,
+          rol: 'Sales Rep',
+          rolBadgeColor: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30',
+          subtitle: `${rep.plaza} · ${rep.regionNombre} · ${rep.id}`,
+          bl: rep.bl || 'BL',
+          raw: rep
+        });
+      });
+
+      res.people = peopleList.slice(0, activeTab === 'people' ? 15 : 8);
     }
 
-    // 4. Markets / Gerentes
-    if (activeTab === 'all' || activeTab === 'team') {
-      const gers = data.gerentes || [];
-      res.gerentes = gers.filter(g => {
-        if (!q) return false;
-        return g.nombre.toLowerCase().includes(q) || (g.persona && g.persona.toLowerCase().includes(q));
-      }).slice(0, 4);
-    }
+    // 4. Geography & Hierarchy (Markets/Plazas, Regions, Divisions)
+    if (activeTab === 'all' || activeTab === 'geography') {
+      const geoList = [];
 
-    // 5. Regions / Directores
-    if (activeTab === 'all' || activeTab === 'team') {
-      const dirs = data.directores || [];
-      res.directores = dirs.filter(d => {
-        if (!q) return false;
-        return d.nombre.toLowerCase().includes(q) || (d.persona && d.persona.toLowerCase().includes(q));
-      }).slice(0, 4);
-    }
+      // Markets / Plazas
+      uniqueMarkets.forEach(mkt => {
+        if (!q || mkt.nombre.toLowerCase().includes(q) || (mkt.regionNombre && mkt.regionNombre.toLowerCase().includes(q))) {
+          geoList.push({
+            tipo: 'gerente',
+            id: mkt.id,
+            nombre: `${mkt.nombre} Market`,
+            rol: 'Market',
+            rolBadgeColor: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30',
+            subtitle: `${mkt.regionNombre || ''} Region · Commercial Plaza`,
+            icon: MapPin,
+            raw: mkt
+          });
+        }
+      });
 
-    // 6. Business Lines / VPs
-    if (activeTab === 'all' || activeTab === 'team') {
-      const vps = data.vps || [];
-      res.vps = vps.filter(v => {
-        if (!q) return false;
-        return v.nombre.toLowerCase().includes(q) || (v.persona && v.persona.toLowerCase().includes(q));
-      }).slice(0, 3);
+      // Regions
+      uniqueRegions.forEach(reg => {
+        if (!q || reg.nombre.toLowerCase().includes(q)) {
+          geoList.push({
+            tipo: 'director',
+            id: reg.id,
+            nombre: `${reg.nombre} Region`,
+            rol: 'Region',
+            rolBadgeColor: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
+            subtitle: 'Commercial Territory · American Cements USA',
+            icon: Globe,
+            raw: reg
+          });
+        }
+      });
+
+      // Business Lines
+      (data.vps || []).forEach(vp => {
+        if (!q || vp.nombre.toLowerCase().includes(q)) {
+          geoList.push({
+            tipo: 'vp',
+            id: vp.id,
+            nombre: `${vp.nombre} Division`,
+            rol: 'Division',
+            rolBadgeColor: 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30',
+            subtitle: 'Business Line Operations',
+            icon: Layers,
+            raw: vp
+          });
+        }
+      });
+
+      res.geography = geoList.slice(0, activeTab === 'geography' ? 15 : 6);
     }
 
     return res;
-  }, [q, activeTab, data]);
+  }, [q, activeTab, data, uniqueMarkets, uniqueRegions]);
 
   // Flatten active result items for keyboard arrow navigation
   const flatItems = useMemo(() => {
     const items = [];
     filteredResults.actions.forEach(a => items.push({ tipo: 'action', data: a }));
     filteredResults.clientes.forEach(c => items.push({ tipo: 'cliente', data: c }));
-    filteredResults.vendedores.forEach(v => items.push({ tipo: 'vendedor', data: v }));
-    filteredResults.gerentes.forEach(g => items.push({ tipo: 'gerente', data: g }));
-    filteredResults.directores.forEach(d => items.push({ tipo: 'director', data: d }));
-    filteredResults.vps.forEach(v => items.push({ tipo: 'vp', data: v }));
+    filteredResults.people.forEach(p => items.push({ tipo: p.tipo, data: p.raw || p }));
+    filteredResults.geography.forEach(g => items.push({ tipo: g.tipo, data: g.raw || g }));
     return items;
   }, [filteredResults]);
 
@@ -251,7 +370,7 @@ export function CommandPalette({
         }
       } else if (e.key === 'Tab') {
         e.preventDefault();
-        const tabs = ['all', 'customers', 'team', 'actions'];
+        const tabs = ['all', 'people', 'geography', 'customers', 'actions'];
         const nextTabIdx = (tabs.indexOf(activeTab) + 1) % tabs.length;
         setActiveTab(tabs[nextTabIdx]);
         setSelectedIndex(0);
@@ -317,9 +436,10 @@ export function CommandPalette({
         <div className="flex items-center gap-1 px-3 py-1.5 border-b border-border/60 bg-slate-100/60 dark:bg-slate-900/40 text-xs shrink-0 overflow-x-auto scrollbar-none">
           {[
             { id: 'all', label: 'All Results' },
+            { id: 'people', label: '👤 People & Team' },
+            { id: 'geography', label: '📍 Geography & Markets' },
             { id: 'customers', label: '🏢 Customers' },
-            { id: 'team', label: '👥 Hierarchy & Team' },
-            { id: 'actions', label: '⚡ Actions & Presets' }
+            { id: 'actions', label: '⚡ Actions' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -477,24 +597,27 @@ export function CommandPalette({
             </div>
           )}
 
-          {/* C. SALES REPS */}
-          {filteredResults.vendedores.length > 0 && (
+          {/* C. PEOPLE & COMMERCIAL TEAM (Sales Reps, Market Managers, Regional Directors, VPs) */}
+          {filteredResults.people.length > 0 && (
             <div>
               <div className="text-[12px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 px-2 py-1 flex items-center justify-between">
-                <span>Sales Representatives</span>
-                <span className="text-[12px] font-mono">{filteredResults.vendedores.length}</span>
+                <span className="flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  <span>People & Commercial Team</span>
+                </span>
+                <span className="text-[12px] font-mono">{filteredResults.people.length}</span>
               </div>
               <div className="space-y-1">
-                {filteredResults.vendedores.map(rep => {
+                {filteredResults.people.map(person => {
                   const idx = currentGlobalIndex++;
                   const isHighlighted = selectedIndex === idx;
 
                   return (
                     <button
-                      key={rep.id}
+                      key={`${person.tipo}-${person.id}-${person.nombre}`}
                       data-index={idx}
                       type="button"
-                      onClick={() => handleSelect('vendedor', rep)}
+                      onClick={() => handleSelect(person.tipo, person.raw)}
                       onMouseEnter={() => setSelectedIndex(idx)}
                       className={cn(
                         "w-full flex items-center justify-between p-2 rounded-xl transition-all text-left cursor-pointer border",
@@ -504,20 +627,33 @@ export function CommandPalette({
                       )}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0">
+                        <div className={cn(
+                          "w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0",
+                          person.tipo === 'vendedor' ? "bg-emerald-500/10 text-emerald-600" :
+                          person.tipo === 'gerente' ? "bg-sky-500/10 text-sky-600" :
+                          person.tipo === 'director' ? "bg-indigo-500/10 text-indigo-600" :
+                          "bg-purple-500/10 text-purple-600"
+                        )}>
                           <User className="w-3.5 h-3.5" />
                         </div>
                         <div className="truncate">
-                          <div className="text-xs font-bold text-foreground truncate">{rep.nombre}</div>
-                          <div className="text-[12px] text-muted-foreground truncate">
-                            {rep.plaza} · {rep.regionNombre} · {rep.id}
+                          <div className="text-xs font-bold text-foreground flex items-center gap-1.5 truncate">
+                            <span className="truncate">{person.nombre}</span>
+                            <Badge variant="outline" className={cn("text-[10px] font-extrabold px-1.5 py-0", person.rolBadgeColor)}>
+                              {person.rol}
+                            </Badge>
+                          </div>
+                          <div className="text-[12px] text-muted-foreground truncate mt-0.5">
+                            {person.subtitle}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        <Badge variant="outline" className="text-[12px] font-bold">
-                          {rep.bl || 'BL'}
-                        </Badge>
+                        {person.bl && (
+                          <Badge variant="outline" className="text-[11px] font-bold">
+                            {person.bl}
+                          </Badge>
+                        )}
                         {isHighlighted && (
                           <span className="text-[12px] font-mono font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
                             Filter <CornerDownLeft className="w-3 h-3" />
@@ -531,24 +667,28 @@ export function CommandPalette({
             </div>
           )}
 
-          {/* D. MARKETS */}
-          {filteredResults.gerentes.length > 0 && (
+          {/* D. GEOGRAPHY & MARKETS (Markets/Plazas, Regions, Divisions) */}
+          {filteredResults.geography.length > 0 && (
             <div>
               <div className="text-[12px] font-extrabold uppercase tracking-wider text-sky-600 dark:text-sky-400 px-2 py-1 flex items-center justify-between">
-                <span>Markets & Plazas</span>
-                <span className="text-[12px] font-mono">{filteredResults.gerentes.length}</span>
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Geography & Markets</span>
+                </span>
+                <span className="text-[12px] font-mono">{filteredResults.geography.length}</span>
               </div>
               <div className="space-y-1">
-                {filteredResults.gerentes.map(ger => {
+                {filteredResults.geography.map(geo => {
                   const idx = currentGlobalIndex++;
                   const isHighlighted = selectedIndex === idx;
+                  const GeoIcon = geo.icon || MapPin;
 
                   return (
                     <button
-                      key={ger.id || ger.nombre}
+                      key={`${geo.tipo}-${geo.id}-${geo.nombre}`}
                       data-index={idx}
                       type="button"
-                      onClick={() => handleSelect('gerente', ger)}
+                      onClick={() => handleSelect(geo.tipo, geo.raw)}
                       onMouseEnter={() => setSelectedIndex(idx)}
                       className={cn(
                         "w-full flex items-center justify-between p-2 rounded-xl transition-all text-left cursor-pointer border",
@@ -559,114 +699,21 @@ export function CommandPalette({
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-600 flex items-center justify-center font-bold text-xs shrink-0">
-                          <Users className="w-3.5 h-3.5" />
+                          <GeoIcon className="w-3.5 h-3.5" />
                         </div>
                         <div className="truncate">
-                          <div className="text-xs font-bold text-foreground truncate">{ger.nombre} Market</div>
-                          <div className="text-[12px] text-muted-foreground truncate">{ger.persona || 'Market Manager'}</div>
+                          <div className="text-xs font-bold text-foreground flex items-center gap-1.5 truncate">
+                            <span className="truncate">{geo.nombre}</span>
+                            <Badge variant="outline" className={cn("text-[10px] font-extrabold px-1.5 py-0", geo.rolBadgeColor)}>
+                              {geo.rol}
+                            </Badge>
+                          </div>
+                          <div className="text-[12px] text-muted-foreground truncate mt-0.5">{geo.subtitle}</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {isHighlighted && (
                           <span className="text-[12px] font-mono font-bold text-sky-600 dark:text-sky-400 flex items-center gap-0.5">
-                            Filter <CornerDownLeft className="w-3 h-3" />
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* E. REGIONS */}
-          {filteredResults.directores.length > 0 && (
-            <div>
-              <div className="text-[12px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 px-2 py-1 flex items-center justify-between">
-                <span>Regions</span>
-                <span className="text-[12px] font-mono">{filteredResults.directores.length}</span>
-              </div>
-              <div className="space-y-1">
-                {filteredResults.directores.map(dir => {
-                  const idx = currentGlobalIndex++;
-                  const isHighlighted = selectedIndex === idx;
-
-                  return (
-                    <button
-                      key={dir.id || dir.nombre}
-                      data-index={idx}
-                      type="button"
-                      onClick={() => handleSelect('director', dir)}
-                      onMouseEnter={() => setSelectedIndex(idx)}
-                      className={cn(
-                        "w-full flex items-center justify-between p-2 rounded-xl transition-all text-left cursor-pointer border",
-                        isHighlighted
-                          ? "bg-indigo-500/10 border-indigo-500/40 text-foreground shadow-2xs"
-                          : "bg-card border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/80 text-foreground"
-                      )}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0">
-                          <Briefcase className="w-3.5 h-3.5" />
-                        </div>
-                        <div className="truncate">
-                          <div className="text-xs font-bold text-foreground truncate">{dir.nombre} Region</div>
-                          <div className="text-[12px] text-muted-foreground truncate">{dir.persona || 'Regional Director'}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        {isHighlighted && (
-                          <span className="text-[12px] font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5">
-                            Filter <CornerDownLeft className="w-3 h-3" />
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* F. BUSINESS LINES */}
-          {filteredResults.vps.length > 0 && (
-            <div>
-              <div className="text-[12px] font-extrabold uppercase tracking-wider text-primary px-2 py-1 flex items-center justify-between">
-                <span>Business Lines</span>
-                <span className="text-[12px] font-mono">{filteredResults.vps.length}</span>
-              </div>
-              <div className="space-y-1">
-                {filteredResults.vps.map(vp => {
-                  const idx = currentGlobalIndex++;
-                  const isHighlighted = selectedIndex === idx;
-
-                  return (
-                    <button
-                      key={vp.id}
-                      data-index={idx}
-                      type="button"
-                      onClick={() => handleSelect('vp', vp)}
-                      onMouseEnter={() => setSelectedIndex(idx)}
-                      className={cn(
-                        "w-full flex items-center justify-between p-2 rounded-xl transition-all text-left cursor-pointer border",
-                        isHighlighted
-                          ? "bg-primary/10 border-primary/40 text-foreground shadow-2xs"
-                          : "bg-card border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/80 text-foreground"
-                      )}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">
-                          <Building className="w-3.5 h-3.5" />
-                        </div>
-                        <div className="truncate">
-                          <div className="text-xs font-bold text-foreground truncate">{vp.nombre} Business Line</div>
-                          <div className="text-[12px] text-muted-foreground truncate">{vp.persona || 'VP Leadership'}</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        {isHighlighted && (
-                          <span className="text-[12px] font-mono font-bold text-primary flex items-center gap-0.5">
                             Filter <CornerDownLeft className="w-3 h-3" />
                           </span>
                         )}

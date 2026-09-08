@@ -74,7 +74,7 @@ export function generateDataset(seed = 20260828) {
     });
   });
 
-  const periodoActual = '2026-08';
+  const periodoActual = '2026-09';
   const periodoActualIdx = MESES.findIndex(m => m.key === periodoActual);
 
   // 2. GEOGRAPHIC REGIONS & MARKETS

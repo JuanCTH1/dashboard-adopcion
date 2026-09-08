@@ -12,7 +12,7 @@ const TOP_N = 3;
 const BL_SHORT = { readymix: 'RMX', cemento: 'CEM', agregados: 'AGG' };
 
 const DIMENSIONS = [
-  { key: 'sales_reps', label: 'Sales Reps', tipo: 'sales_rep' },
+  { key: 'sales_reps', label: 'Reps', fullLabel: 'Sales Reps', tipo: 'sales_rep' },
   { key: 'markets', label: 'Markets', tipo: 'market' },
   { key: 'regions', label: 'Regions', tipo: 'region' }
 ];
@@ -220,15 +220,14 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
     ? (rankingMode === 'most_improved' ? 'Top Movers: Customers Onboarding (New Accounts)' : 'Customers Onboarding Standings')
     : (rankingMode === 'most_improved' ? 'Top Movers: Digital Orders Adoption (MoM)' : 'Digital Orders Adoption Standings');
 
-  // Trigger Outlook Email & Copy Styled Rich HTML Table to Clipboard (Dual Mode: July Official vs August Live)
-  const handleSendEmail = (targetMonth = 'Jul') => {
-    const isJuly = targetMonth === 'Jul';
-    const monthLabel = isJuly ? 'July 2026' : 'August 2026';
-    const isLive = !isJuly;
+  // Trigger Outlook Email & Copy Styled Rich HTML Table to Clipboard (Dual Mode: August Official vs September Live)
+  const handleSendEmail = (targetMonth = 'Aug') => {
+    const isOfficial = targetMonth === 'Aug';
+    const isLive = !isOfficial;
 
-    const data = isJuly
-      ? adopcionRepo.getLeaderboard({ anios: [2026], meses: ['Jul'] })
-      : adopcionRepo.getLeaderboard({ anios: [2026], meses: ['Aug'] });
+    const data = isOfficial
+      ? adopcionRepo.getLeaderboard({ anios: [2026], meses: ['Aug'] })
+      : adopcionRepo.getLeaderboard({ anios: [2026], meses: ['Sep'] });
 
     const allReps = (data || []).filter(i => i.tipo === 'sales_rep');
     const allMkts = (data || []).filter(i => i.tipo === 'market');
@@ -244,17 +243,17 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
     const topMktAdop = rank(allMkts, 'adopcionPct')[0];
     const topMktMover = rank(allMkts, 'momDeltaAdopcion')[0];
 
-    const isAugustLive = targetMonth === 'Aug';
+    const isSeptemberLive = targetMonth === 'Sep';
 
-    const subject = isAugustLive
-      ? `[LIVE PULSE] August 2026 Digital Adoption & Onboarding Sprint | American Cements USA`
-      : `[OFFICIAL] July 2026 Digital Adoption & Customers Onboarding Leaderboard | American Cements USA`;
+    const subject = isSeptemberLive
+      ? `[LIVE PULSE] September 2026 Digital Adoption & Onboarding Sprint | American Cements USA`
+      : `[OFFICIAL] August 2026 Digital Adoption & Customers Onboarding Leaderboard | American Cements USA`;
 
-    const introParagraph = isAugustLive
-      ? `<p style="margin: 0 0 14px 0;">Please find below our mid-month <strong>August 2026 Live Sprint Pulse</strong> on customer digital adoption and account onboarding across <strong>American Cements USA</strong>. Great momentum so far. Let's keep pushing hard through month close!</p>`
-      : `<p style="margin: 0 0 14px 0;">Congratulations to our commercial teams on an outstanding performance in <strong>July 2026</strong>! Please find below the official closed standings, top performers, and recognition across <strong>American Cements USA</strong>.</p>`;
+    const introParagraph = isSeptemberLive
+      ? `<p style="margin: 0 0 14px 0;">Please find below our mid-month <strong>September 2026 Live Sprint Pulse</strong> on customer digital adoption and account onboarding across <strong>American Cements USA</strong>. Great momentum so far. Let's keep pushing hard through month close!</p>`
+      : `<p style="margin: 0 0 14px 0;">Congratulations to our commercial teams on an outstanding performance in <strong>August 2026</strong>! Please find below the official closed standings, top performers, and recognition across <strong>American Cements USA</strong>.</p>`;
 
-    const closingParagraph = isAugustLive
+    const closingParagraph = isSeptemberLive
       ? `<p style="margin-top: 20px; font-size: 13px; color: #475569;">
           Let's keep up the great energy, continue engaging our customers, and close this sprint strong!<br/><br/>
           <strong style="color: #0f172a;">Commercial Leadership Team</strong><br/>
@@ -400,9 +399,9 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
     `;
 
     // Plain text fallback
-    const plainFallback = isAugustLive
-      ? `Hello team,\n\nPlease find attached our August 2026 mid-month sprint pulse on customer digital adoption and onboarding across American Cements USA. Let's close strong!\n(Paste with Ctrl + V to view full styled cards).`
-      : `Hello team,\n\nCongratulations to our commercial teams on July 2026 results! Attached is the official closed leaderboard for customer digital adoption and onboarding across American Cements USA.\n(Paste with Ctrl + V to view full styled cards).`;
+    const plainFallback = isSeptemberLive
+      ? `Hello team,\n\nPlease find attached our September 2026 mid-month sprint pulse on customer digital adoption and onboarding across American Cements USA. Let's close strong!\n(Paste with Ctrl + V to view full styled cards).`
+      : `Hello team,\n\nCongratulations to our commercial teams on August 2026 results! Attached is the official closed leaderboard for customer digital adoption and onboarding across American Cements USA.\n(Paste with Ctrl + V to view full styled cards).`;
 
     // Write rich HTML to clipboard immediately
     try {
@@ -430,15 +429,15 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-amber-500 via-primary to-emerald-500" />
 
         {/* Card Header with Dual Switcher & Email Action */}
-        <div className="flex items-center justify-between pb-2 mb-2 border-b border-border gap-2 shrink-0 flex-wrap">
+        <div className="flex items-center justify-between pb-2 mb-2 border-b border-border gap-2 shrink-0 flex-nowrap min-w-0">
           {/* Title + Mode Switcher */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="flex items-center gap-1.5">
               <Trophy className="w-4 h-4 text-amber-500 shrink-0" />
               <h3 className="text-xs font-black uppercase tracking-wider text-foreground">Rankings</h3>
             </div>
 
-            {/* Standings vs Most Improved Toggle */}
+            {/* Standings vs Improvement Toggle */}
             <div className="inline-flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border select-none">
               <button
                 type="button"
@@ -463,13 +462,13 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                 )}
               >
                 <TrendingUp className="w-3 h-3 text-emerald-400" />
-                <span>Most Improved</span>
+                <span>Improvement</span>
               </button>
             </div>
           </div>
 
           {/* Dimension Selector + Dual Email Actions (Zero Emojis, Pure Vectors) */}
-          <div className="flex items-center gap-2 ml-auto shrink-0">
+          <div className="flex items-center gap-1.5 ml-auto shrink-0">
             {/* Dimension Pills */}
             <div className="flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border select-none">
               {DIMENSIONS.map(d => (
@@ -494,33 +493,12 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
 
             {/* Dual Email Actions */}
             <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg border border-border select-none">
-              <span className="text-xs font-black uppercase text-muted-foreground px-1 flex items-center gap-1">
-                <Mail className="w-3 h-3 text-primary" /> Email:
+              <span className="px-1 flex items-center text-primary" title="Export leaderboard via email">
+                <Mail className="w-3.5 h-3.5" />
               </span>
 
-              {/* July (Official) */}
-              <CustomTooltip text="Copy official closed July leaderboard email">
-                <button
-                  type="button"
-                  onClick={() => handleSendEmail('Jul')}
-                  className={cn(
-                    "px-2 py-0.5 text-xs rounded-md font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs",
-                    copiedTarget === 'Jul'
-                      ? "bg-emerald-600 text-white"
-                      : "bg-card hover:bg-slate-200 dark:hover:bg-slate-700 text-foreground border border-border"
-                  )}
-                >
-                  {copiedTarget === 'Jul' ? (
-                    <Check className="w-3 h-3 text-white" />
-                  ) : (
-                    <Award className="w-3 h-3 text-amber-500" />
-                  )}
-                  <span>{copiedTarget === 'Jul' ? 'Copied!' : 'July (Official)'}</span>
-                </button>
-              </CustomTooltip>
-
-              {/* August (Live) */}
-              <CustomTooltip text="Copy live August sprint pulse email">
+              {/* August (Official) */}
+              <CustomTooltip text="Copy official closed August leaderboard email">
                 <button
                   type="button"
                   onClick={() => handleSendEmail('Aug')}
@@ -534,9 +512,30 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                   {copiedTarget === 'Aug' ? (
                     <Check className="w-3 h-3 text-white" />
                   ) : (
+                    <Award className="w-3 h-3 text-amber-500" />
+                  )}
+                  <span>{copiedTarget === 'Aug' ? 'Copied!' : 'AUG'}</span>
+                </button>
+              </CustomTooltip>
+
+              {/* September (Live) */}
+              <CustomTooltip text="Copy live September sprint pulse email">
+                <button
+                  type="button"
+                  onClick={() => handleSendEmail('Sep')}
+                  className={cn(
+                    "px-2 py-0.5 text-xs rounded-md font-bold transition-all cursor-pointer flex items-center gap-1 shadow-2xs",
+                    copiedTarget === 'Sep'
+                      ? "bg-emerald-600 text-white"
+                      : "bg-card hover:bg-slate-200 dark:hover:bg-slate-700 text-foreground border border-border"
+                  )}
+                >
+                  {copiedTarget === 'Sep' ? (
+                    <Check className="w-3 h-3 text-white" />
+                  ) : (
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                   )}
-                  <span>{copiedTarget === 'Aug' ? 'Copied!' : 'August (Live)'}</span>
+                  <span>{copiedTarget === 'Sep' ? 'Copied!' : 'SEP'}</span>
                 </button>
               </CustomTooltip>
             </div>

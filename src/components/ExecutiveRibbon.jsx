@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { Users, UserCheck, Activity, Target, ChevronRight, ChevronsRight } from 'lucide-react';
+import { Users, UserCheck, Activity, Target, ChevronRight, ChevronsRight, AlertCircle } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { CustomTooltip } from '@/components/ui/tooltip';
 
@@ -8,21 +8,54 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
   if (!metricasGlobales || !metricasGlobales.actual) return null;
 
   const { actual, deltas } = metricasGlobales;
-  const c = actual.clientes;
-  const p = actual.pedidos;
+  const c = actual.clientes || {};
+  const p = actual.pedidos || {};
 
-  // Drop-off calculations between stages
-  const dropOffStage1 = c.asignados > 0 ? ((c.asignados - c.onboarded) / c.asignados) * 100 : 0;
-  const dropOffStage2 = c.onboarded > 0 ? ((c.onboarded - c.activos) / c.onboarded) * 100 : 0;
-  const activeOrders = p.activosTotales > 0 ? p.activosTotales : p.digitales;
-  const dropOffStage3 = activeOrders > 0 ? Math.max(0, ((activeOrders - p.digitales) / activeOrders) * 100) : 0;
+  // Orders at each funnel stage
+  const totalOrders = p.totales || 0;
+  const onboardedOrders = p.onboardedTotales || Math.round(totalOrders * ((c.onboarded || 0) / Math.max(1, c.asignados || 1)));
+  const activeOrders = p.activosTotales > 0 ? p.activosTotales : (p.digitales || 0);
+  const digitalOrders = p.digitales || 0;
+
+  // Consistent Orders Drop-offs between consecutive stages
+  // Step 1 -> Step 2: Orders locked in non-onboarded accounts
+  const ordersDrop1 = Math.max(0, totalOrders - onboardedOrders);
+  const dropOffStage1 = totalOrders > 0 ? (ordersDrop1 / totalOrders) * 100 : 0;
+  const custDrop1 = Math.max(0, (c.asignados || 0) - (c.onboarded || 0));
+
+  // Step 2 -> Step 3: Orders from onboarded accounts with zero digital activity
+  const ordersDrop2 = Math.max(0, onboardedOrders - activeOrders);
+  const dropOffStage2 = onboardedOrders > 0 ? (ordersDrop2 / onboardedOrders) * 100 : 0;
+  const custDrop2 = Math.max(0, (c.onboarded || 0) - (c.activos || 0));
+
+  // Step 3 -> Step 4: Analog/offline orders placed by active accounts
+  const ordersDrop3 = Math.max(0, activeOrders - digitalOrders);
+  const dropOffStage3 = activeOrders > 0 ? (ordersDrop3 / activeOrders) * 100 : 0;
+  const custDrop3 = c.activos || 0;
 
   const maxDrop = Math.max(dropOffStage1, dropOffStage2, dropOffStage3);
   let worstBottleneck = 1;
   if (maxDrop === dropOffStage2) worstBottleneck = 2;
   if (maxDrop === dropOffStage3) worstBottleneck = 3;
 
-  const onboardedOrders = Math.round(p.totales * (c.pctOnboarding / 100));
+  const renderDropTooltip = (ordersDrop, dropOffStage, custDrop, custLabel, isBottleneck, isOffline = false) => (
+    <div className="flex flex-col items-center text-center gap-0.5 whitespace-nowrap py-0.5">
+      <div className="flex items-center justify-center gap-1.5">
+        <span className={cn("font-extrabold", isBottleneck ? "text-rose-500 dark:text-rose-400" : "text-amber-500 dark:text-amber-400")}>
+          -{formatCompactNumber(ordersDrop)} {isOffline ? 'offline orders' : 'orders'}
+        </span>
+        <span className={cn(
+          "font-bold text-xs",
+          isBottleneck ? "text-rose-500 dark:text-rose-400" : "text-amber-500 dark:text-amber-400"
+        )}>
+          (-{dropOffStage.toFixed(0)}%)
+        </span>
+      </div>
+      <div className="text-[11px] text-muted-foreground text-center">
+        <span className="font-bold text-foreground dark:text-slate-200">{formatNumber(custDrop)}</span> {custLabel}
+      </div>
+    </div>
+  );
 
   const STAGES = [
     {
@@ -31,14 +64,15 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
       title: isActionableBase ? 'Viable Customers (SAM)' : 'Total Customers',
       primaryLabel: `${formatNumber(c.asignados)}`,
       primaryUnit: 'customers',
-      secondaryLabel: `${formatCompactNumber(p.totales)} ${isActionableBase ? 'viable orders' : 'total orders'}`,
-      exactTooltip: `${formatNumber(p.totales)} total orders ${isActionableBase ? '(Actionable SAM Base)' : ''}`,
+      secondaryLabel: `${formatCompactNumber(totalOrders)} ${isActionableBase ? 'viable orders' : 'total orders'}`,
+      exactTooltip: `${formatNumber(totalOrders)} total orders ${isActionableBase ? '(Actionable SAM Base)' : ''}`,
       icon: Users,
       colorGrad: 'from-blue-600 to-indigo-700',
       accentBg: 'bg-blue-600/10 text-blue-700 dark:text-blue-400',
       badgeBg: 'bg-blue-600 text-white',
       nextDrop: dropOffStage1,
-      nextDropText: `${formatNumber(c.asignados - c.onboarded)} customers not onboarded`,
+      nextDropContent: renderDropTooltip(ordersDrop1, dropOffStage1, custDrop1, 'unonboarded customers', worstBottleneck === 1),
+      nextDropText: `-${formatCompactNumber(ordersDrop1)} orders (-${dropOffStage1.toFixed(0)}%) · ${formatNumber(custDrop1)} unonboarded customers`,
       isBottleneck: worstBottleneck === 1
     },
     {
@@ -47,15 +81,16 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
       title: 'Onboarded Customers',
       primaryLabel: `${formatNumber(c.onboarded)}`,
       primaryUnit: 'customers',
-      secondaryLabel: `${formatCompactNumber(p.totales)} orders`,
-      exactTooltip: `${formatNumber(p.totales)} orders`,
+      secondaryLabel: `${formatCompactNumber(onboardedOrders)} orders`,
+      exactTooltip: `${formatNumber(onboardedOrders)} orders from onboarded accounts`,
       icon: UserCheck,
       colorGrad: 'from-emerald-600 to-teal-700',
       accentBg: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-400',
       badgeBg: 'bg-emerald-600 text-white',
       flowDelta: `▲+${deltas?.clientesMoMNetos || 48} this month`,
       nextDrop: dropOffStage2,
-      nextDropText: `${formatNumber(c.onboarded - c.activos)} onboarded customers without digital orders`,
+      nextDropContent: renderDropTooltip(ordersDrop2, dropOffStage2, custDrop2, 'inactive onboarded customers', worstBottleneck === 2),
+      nextDropText: `-${formatCompactNumber(ordersDrop2)} orders (-${dropOffStage2.toFixed(0)}%) · ${formatNumber(custDrop2)} inactive onboarded customers`,
       isBottleneck: worstBottleneck === 2
     },
     {
@@ -64,15 +99,16 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
       title: 'Active Customers',
       primaryLabel: `${formatNumber(c.activos)}`,
       primaryUnit: 'customers',
-      secondaryLabel: `${formatCompactNumber(p.activosTotales || p.digitales)} orders`,
-      exactTooltip: `${formatNumber(p.activosTotales || p.digitales)} total orders of active customers`,
+      secondaryLabel: `${formatCompactNumber(activeOrders)} orders`,
+      exactTooltip: `${formatNumber(activeOrders)} total orders of active customers`,
       icon: Activity,
       colorGrad: 'from-sky-500 to-blue-600',
       accentBg: 'bg-sky-500/10 text-sky-700 dark:text-sky-400',
       badgeBg: 'bg-sky-500 text-white',
       flowDelta: `▲+${deltas?.activosMoMNetos || 18} this month`,
       nextDrop: dropOffStage3,
-      nextDropText: `${formatNumber(activeOrders - p.digitales)} analog orders from active customers to convert`,
+      nextDropContent: renderDropTooltip(ordersDrop3, dropOffStage3, custDrop3, 'active customers', worstBottleneck === 3, true),
+      nextDropText: `-${formatCompactNumber(ordersDrop3)} offline orders (-${dropOffStage3.toFixed(0)}%) · ${formatNumber(custDrop3)} active customers`,
       isBottleneck: worstBottleneck === 3
     },
     {
@@ -81,8 +117,8 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
       title: isActionableBase ? 'Actionable Adoption (SAM)' : 'Orders Adoption',
       primaryLabel: `${formatPct(p.pctAdopcion)}`,
       primaryUnit: '',
-      secondaryLabel: `${formatCompactNumber(p.digitales)} orders`,
-      exactTooltip: `${formatNumber(p.digitales)} adopted digital orders (out of ${formatNumber(p.totales)} ${isActionableBase ? 'viable' : 'total'})`,
+      secondaryLabel: `${formatCompactNumber(digitalOrders)} orders`,
+      exactTooltip: `${formatNumber(digitalOrders)} adopted digital orders (out of ${formatNumber(totalOrders)} ${isActionableBase ? 'viable' : 'total'})`,
       icon: Target,
       colorGrad: 'from-indigo-600 to-violet-600',
       accentBg: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400',
@@ -169,14 +205,11 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
 
               {/* DIRECTIONAL FLOW VECTOR BADGE IN THE SEPARATION GAP */}
               {!isLast && st.nextDrop !== undefined && (
-                <div className={cn(
-                  "shrink-0 z-30 -mx-1.5 sm:-mx-2 transition-all",
-                  idx === 2 ? "self-end mb-[8px]" : "self-center"
-                )}>
+                <div className="shrink-0 z-30 -mx-1.5 sm:-mx-2 transition-all self-center">
                   <CustomTooltip
                     position="top"
-                    offsetY={-65}
-                    text={`${st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}${st.isBottleneck ? ' · Primary Bottleneck' : ''}`}
+                    content={st.nextDropContent}
+                    text={st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}
                   >
                     <div
                       className={cn(
@@ -186,7 +219,11 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                           : "bg-card/95 backdrop-blur-xs text-foreground border-slate-300 dark:border-slate-700 hover:border-primary/50 shadow-2xs"
                       )}
                     >
-                      <ChevronsRight className={cn("w-3.5 h-3.5 stroke-[2.5] shrink-0", st.isBottleneck ? "text-white" : "text-primary dark:text-sky-400")} />
+                      {st.isBottleneck ? (
+                        <AlertCircle className="w-3.5 h-3.5 text-white shrink-0" />
+                      ) : (
+                        <ChevronsRight className="w-3.5 h-3.5 stroke-[2.5] shrink-0 text-primary dark:text-sky-400" />
+                      )}
                       <span className="tracking-tight">-{st.nextDrop.toFixed(0)}%</span>
                     </div>
                   </CustomTooltip>

@@ -540,12 +540,20 @@ class AdopcionRepository {
     const pctAdopcionClientes = totalAsignados > 0 ? (totalActivos / totalAsignados) * 100 : 0;
     const pctOnboarding = totalAsignados > 0 ? (totalOnboarded / totalAsignados) * 100 : 0;
 
-    // Active customer total orders
+    // Onboarded & Active customer total orders
+    let pedidosOnboardedTotales = 0;
     let pedidosActivosTotales = 0;
     filteredClients.forEach(c => {
-      if (globalDigitalClientIds.has(c.id)) {
-        const cAcc = byClient.get(c.id);
-        if (cAcc) pedidosActivosTotales += cAcc.pedidosTotales;
+      const cAcc = byClient.get(c.id);
+      const orders = cAcc ? cAcc.pedidosTotales : (c.pedidosTotales || c.volumenBase || 0);
+      const isOnb = hasTx ? globalOnboardedClientIds.has(c.id) : c.estaIncorporado;
+      const isAct = hasTx ? globalDigitalClientIds.has(c.id) : c.esActivo;
+
+      if (isOnb) {
+        pedidosOnboardedTotales += orders;
+      }
+      if (isAct) {
+        pedidosActivosTotales += orders;
       }
     });
 
@@ -557,6 +565,7 @@ class AdopcionRepository {
         web: globalOrders.web,
         app: globalOrders.app,
         edi: globalOrders.edi,
+        onboardedTotales: pedidosOnboardedTotales || Math.round(globalOrders.totales * (pctOnboarding / 100)),
         activosTotales: pedidosActivosTotales || globalOrders.totales,
         pctAdopcion: Number(pctAdopcionPedidos.toFixed(1))
       },

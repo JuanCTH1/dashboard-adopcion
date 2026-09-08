@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef, useDeferredValue } from 'react';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,9 @@ import {
   Mail,
   ShieldAlert,
   RotateCcw,
-  MoreVertical
+  MoreVertical,
+  X,
+  UserMinus
 } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
@@ -68,6 +70,8 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   onOpenActionDrawer,
   onExportCsv
 }) {
+  const deferredFiltrosCompuestos = useDeferredValue(filtrosCompuestos);
+
   // Multidimensional selection states derived directly from active filters (0ms sync latency)
   const selectedVpIds = useMemo(() => filtrosCompuestos?.vpIds || [], [filtrosCompuestos?.vpIds]);
   const selectedDirIds = useMemo(() => filtrosCompuestos?.directorIds || [], [filtrosCompuestos?.directorIds]);
@@ -398,14 +402,14 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   // Base context filters (temporal/business line scope) to share single cached aggregate across all levels
   const baseContextFilters = useMemo(() => {
     return {
-      anios: filtrosCompuestos.anios,
-      meses: filtrosCompuestos.meses,
-      lineasNegocio: filtrosCompuestos.lineasNegocio,
-      onboarded: filtrosCompuestos.onboarded,
-      activos: filtrosCompuestos.activos,
-      excluirNoViables: filtrosCompuestos.excluirNoViables
+      anios: deferredFiltrosCompuestos.anios,
+      meses: deferredFiltrosCompuestos.meses,
+      lineasNegocio: deferredFiltrosCompuestos.lineasNegocio,
+      onboarded: deferredFiltrosCompuestos.onboarded,
+      activos: deferredFiltrosCompuestos.activos,
+      excluirNoViables: deferredFiltrosCompuestos.excluirNoViables
     };
-  }, [filtrosCompuestos.anios, filtrosCompuestos.meses, filtrosCompuestos.lineasNegocio, filtrosCompuestos.onboarded, filtrosCompuestos.activos, filtrosCompuestos.excluirNoViables]);
+  }, [deferredFiltrosCompuestos.anios, deferredFiltrosCompuestos.meses, deferredFiltrosCompuestos.lineasNegocio, deferredFiltrosCompuestos.onboarded, deferredFiltrosCompuestos.activos, deferredFiltrosCompuestos.excluirNoViables]);
 
   // Instant 0ms Hierarchy queries
   const vps = useMemo(() => {
@@ -418,18 +422,86 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   }, [selectedVpIds, baseContextFilters, navMode]);
 
   const gerentes = useMemo(() => {
-    if (selectedDirIds.length === 0 && navMode !== 'all_columns') return [];
+    // Scoped: require at least one region/director selected to prevent loading 144 markets at once
+    if (selectedDirIds.length === 0) return [];
     return adopcionRepo.getJerarquia('director', selectedDirIds, { ...baseContextFilters, vpIds: selectedVpIds });
-  }, [selectedDirIds, selectedVpIds, baseContextFilters, navMode]);
+  }, [selectedDirIds, selectedVpIds, baseContextFilters]);
 
   const vendedores = useMemo(() => {
-    if (selectedGerIds.length === 0 && navMode !== 'all_columns') return [];
+    // Scoped: require at least one market/gerente selected to prevent loading 766 sales reps at once
+    if (selectedGerIds.length === 0) return [];
     return adopcionRepo.getJerarquia('gerente', selectedGerIds, { ...baseContextFilters, vpIds: selectedVpIds, directorIds: selectedDirIds });
-  }, [selectedGerIds, selectedDirIds, selectedVpIds, baseContextFilters, navMode]);
+  }, [selectedGerIds, selectedDirIds, selectedVpIds, baseContextFilters]);
+
+  // Column sorting modes: 'adop-desc' (Highest adoption first) | 'adop-asc' (Laggards first) | 'name-asc' (A-Z)
+  const [sortDirMode, setSortDirMode] = useState('adop-desc');
+  const [sortGerMode, setSortGerMode] = useState('adop-desc');
+  const [sortRepMode, setSortRepMode] = useState('adop-desc');
+
+  const getSortDetails = (mode) => {
+    if (mode === 'adop-desc') return { label: 'Adop ↓', tooltip: 'Adoption: High to Low' };
+    if (mode === 'adop-asc') return { label: 'Adop ↑', tooltip: 'Adoption: Low to High' };
+    return { label: 'A-Z', tooltip: 'Name: A to Z' };
+  };
+
+  const cycleSortMode = (currentMode) => {
+    if (currentMode === 'adop-desc') return 'adop-asc';
+    if (currentMode === 'adop-asc') return 'name-asc';
+    return 'adop-desc';
+  };
+
+  const sortedDirectores = useMemo(() => {
+    if (!directores || directores.length <= 1) return directores;
+    const list = [...directores];
+    if (sortDirMode === 'adop-desc') {
+      list.sort((a, b) => (b.metricas?.pedidos?.pctAdopcion || 0) - (a.metricas?.pedidos?.pctAdopcion || 0));
+    } else if (sortDirMode === 'adop-asc') {
+      list.sort((a, b) => (a.metricas?.pedidos?.pctAdopcion || 0) - (b.metricas?.pedidos?.pctAdopcion || 0));
+    } else if (sortDirMode === 'name-asc') {
+      list.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    }
+    return list;
+  }, [directores, sortDirMode]);
+
+  const sortedGerentes = useMemo(() => {
+    if (!gerentes || gerentes.length <= 1) return gerentes;
+    const list = [...gerentes];
+    if (sortGerMode === 'adop-desc') {
+      list.sort((a, b) => (b.metricas?.pedidos?.pctAdopcion || 0) - (a.metricas?.pedidos?.pctAdopcion || 0));
+    } else if (sortGerMode === 'adop-asc') {
+      list.sort((a, b) => (a.metricas?.pedidos?.pctAdopcion || 0) - (b.metricas?.pedidos?.pctAdopcion || 0));
+    } else if (sortGerMode === 'name-asc') {
+      list.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    }
+    return list;
+  }, [gerentes, sortGerMode]);
+
+  const sortedVendedores = useMemo(() => {
+    if (!vendedores || vendedores.length <= 1) return vendedores;
+    const list = [...vendedores];
+    if (sortRepMode === 'adop-desc') {
+      list.sort((a, b) => (b.metricas?.pedidos?.pctAdopcion || 0) - (a.metricas?.pedidos?.pctAdopcion || 0));
+    } else if (sortRepMode === 'adop-asc') {
+      list.sort((a, b) => (a.metricas?.pedidos?.pctAdopcion || 0) - (b.metricas?.pedidos?.pctAdopcion || 0));
+    } else if (sortRepMode === 'name-asc') {
+      list.sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    }
+    return list;
+  }, [vendedores, sortRepMode]);
+
+  const [visibleRepLimit, setVisibleRepLimit] = useState(35);
+
+  useEffect(() => {
+    setVisibleRepLimit(35);
+  }, [selectedGerIds]);
+
+  const displayedVendedores = useMemo(() => {
+    return sortedVendedores.slice(0, visibleRepLimit);
+  }, [sortedVendedores, visibleRepLimit]);
 
   const activeContext = useMemo(() => {
     let fNode = {
-      ...filtrosCompuestos,
+      ...deferredFiltrosCompuestos,
       vpIds: selectedVpIds,
       directorIds: selectedDirIds,
       gerenteIds: selectedGerIds,
@@ -886,13 +958,43 @@ Commercial Leadership`;
   const handleCopyScript = useCallback((client) => {
     const isHabit = client.type === 'habit_shift';
     const repName = client.vendedorNombre || 'your sales rep';
-    const script = isHabit
-      ? `Hi ${client.nombreEmpresa}, this is ${repName} from Cemex. I noticed you've been placing orders via phone recently. Let's place your next order through the mobile app together in 30 seconds to save you time and get real-time tracking!`
-      : `Hi ${client.nombreEmpresa}, this is ${repName} from Cemex. We have your digital ordering portal ready for you to place and track all orders 24/7 with zero waiting. Let me send your 1-click invite!`;
 
-    navigator.clipboard.writeText(script);
+    const subject = isHabit
+      ? `Action Plan: Shift Orders to Digital | ${client.nombreEmpresa}`
+      : `Action Plan: Digital Ordering Activation | ${client.nombreEmpresa}`;
+
+    const body = isHabit
+      ? `Hi ${client.nombreEmpresa},
+
+This is ${repName} from American Cements.
+
+I noticed you've been placing orders via phone recently (${formatNumber(client.pedidosAnalogos || 0)} offline orders/month). We would love to help you shift your orders through our digital portal and mobile app to save you time, track shipments in real-time, and get instant delivery confirmations.
+
+Let's place your next order together through the mobile app in 30 seconds!
+
+Best regards,
+${repName}
+American Cements USA`
+      : `Hi ${client.nombreEmpresa},
+
+This is ${repName} from American Cements.
+
+We have your digital ordering portal ready for you to place and track all orders 24/7 with zero waiting.
+
+Let me know if you would like me to resend your 1-click invite or walk you through your account activation today.
+
+Best regards,
+${repName}
+American Cements USA`;
+
+    // 1. Copy to clipboard
+    navigator.clipboard.writeText(body);
     setCopiedId(client.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    setTimeout(() => setCopiedId(null), 2500);
+
+    // 2. Open email client with mailto
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoUrl;
   }, []);
 
   const renderSortIcon = useCallback((columnKey) => {
@@ -1030,20 +1132,48 @@ Commercial Leadership`;
                 transition={FLIP_TRANSITION}
                 className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-full text-[12px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border">
-                  <div className="flex items-center gap-1">
-                    <Briefcase className="w-3 h-3" />
-                    <span>Regions</span>
+                <div className="w-full text-[12px] font-bold uppercase text-indigo-600 dark:text-indigo-400 flex items-center justify-between pb-1 border-b border-border gap-1">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Briefcase className="w-3 h-3 shrink-0" />
+                    <span className="truncate">Regions</span>
+                    {directores.length > 0 && (
+                      <CustomTooltip text={selectedDirIds.length > 0 ? `${selectedDirIds.length} of ${directores.length} selected` : `${directores.length} regions`}>
+                        <span
+                          className={cn(
+                            "text-[10px] px-1.5 py-0.2 rounded font-bold tabular-nums shrink-0 leading-tight cursor-default",
+                            selectedDirIds.length > 0
+                              ? "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30"
+                              : "bg-slate-200/70 dark:bg-slate-800 text-muted-foreground"
+                          )}
+                        >
+                          {selectedDirIds.length > 0 ? `${selectedDirIds.length}/${directores.length}` : directores.length}
+                        </span>
+                      </CustomTooltip>
+                    )}
                   </div>
-                  {selectedDirIds.length > 0 && (
-                    <button onClick={handleClearDirs} className="text-[12px] text-indigo-600 hover:underline font-bold cursor-pointer">
-                      Clear
-                    </button>
-                  )}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {directores.length > 1 && (
+                      <CustomTooltip text={getSortDetails(sortDirMode).tooltip}>
+                        <button
+                          type="button"
+                          onClick={() => setSortDirMode(cycleSortMode(sortDirMode))}
+                          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border transition-colors cursor-pointer shadow-2xs"
+                        >
+                          <ArrowUpDown className="w-2.5 h-2.5 text-indigo-500" />
+                          <span>{getSortDetails(sortDirMode).label}</span>
+                        </button>
+                      </CustomTooltip>
+                    )}
+                    {selectedDirIds.length > 0 && (
+                      <button onClick={handleClearDirs} className="text-[11px] text-indigo-600 hover:underline font-bold cursor-pointer">
+                        Clear
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
-                  {directores.map((dir) => {
+                  {sortedDirectores.map((dir) => {
                     const isSelected = selectedDirIds.includes(dir.id);
                     return (
                       <div key={dir.id} className="relative group">
@@ -1160,20 +1290,59 @@ Commercial Leadership`;
                 transition={FLIP_TRANSITION}
                 className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-full text-[12px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border">
-                  <div className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    <span>Markets</span>
+                <div className="w-full text-[12px] font-bold uppercase text-sky-600 dark:text-sky-400 flex items-center justify-between pb-1 border-b border-border gap-1">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Users className="w-3 h-3 shrink-0" />
+                    <span className="truncate">Markets</span>
+                    {gerentes.length > 0 && (
+                      <CustomTooltip text={selectedGerIds.length > 0 ? `${selectedGerIds.length} of ${gerentes.length} selected` : `${gerentes.length} markets`}>
+                        <span
+                          className={cn(
+                            "text-[10px] px-1.5 py-0.2 rounded font-bold tabular-nums shrink-0 leading-tight cursor-default",
+                            selectedGerIds.length > 0
+                              ? "bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-500/30"
+                              : "bg-slate-200/70 dark:bg-slate-800 text-muted-foreground"
+                          )}
+                        >
+                          {selectedGerIds.length > 0 ? `${selectedGerIds.length}/${gerentes.length}` : gerentes.length}
+                        </span>
+                      </CustomTooltip>
+                    )}
                   </div>
-                  {selectedGerIds.length > 0 && (
-                    <button onClick={handleClearGers} className="text-[12px] text-sky-600 hover:underline font-bold cursor-pointer">
-                      Clear
-                    </button>
-                  )}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {gerentes.length > 1 && (
+                      <CustomTooltip text={getSortDetails(sortGerMode).tooltip}>
+                        <button
+                          type="button"
+                          onClick={() => setSortGerMode(cycleSortMode(sortGerMode))}
+                          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border transition-colors cursor-pointer shadow-2xs"
+                        >
+                          <ArrowUpDown className="w-2.5 h-2.5 text-sky-500" />
+                          <span>{getSortDetails(sortGerMode).label}</span>
+                        </button>
+                      </CustomTooltip>
+                    )}
+                    {selectedGerIds.length > 0 && (
+                      <button onClick={handleClearGers} className="text-[11px] text-sky-600 hover:underline font-bold cursor-pointer">
+                        Clear
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
-                  {gerentes.map((ger) => {
+                  {gerentes.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center p-4 text-center select-none text-muted-foreground my-auto">
+                      <div className="w-9 h-9 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center mb-2 shadow-2xs">
+                        <Building className="w-4.5 h-4.5" />
+                      </div>
+                      <span className="text-xs font-bold text-foreground">Select a Region</span>
+                      <span className="text-[11px] text-muted-foreground mt-0.5 leading-snug max-w-[160px]">
+                        Pick a region on the left to view and filter its markets
+                      </span>
+                    </div>
+                  ) : (
+                    sortedGerentes.map((ger) => {
                     const isSelected = selectedGerIdSet.has(ger.id);
                     return (
                       <div key={ger.id} className="relative group">
@@ -1272,7 +1441,8 @@ Commercial Leadership`;
                         </button>
                       </div>
                     );
-                  })}
+                  })
+                )}
                 </div>
               </motion.div>
             )}
@@ -1290,20 +1460,60 @@ Commercial Leadership`;
                 transition={FLIP_TRANSITION}
                 className="min-w-[180px] max-w-[245px] flex-1 h-[365px] bg-slate-100/90 dark:bg-slate-950/45 p-2 rounded-xl border border-slate-200/90 dark:border-slate-800/80 flex flex-col shadow-2xs overflow-hidden"
               >
-                <div className="w-full text-[12px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border">
-                  <div className="flex items-center gap-1">
-                    <User className="w-3 h-3" />
-                    <span>Sales Reps</span>
+                <div className="w-full text-[12px] font-bold uppercase text-emerald-600 dark:text-emerald-400 flex items-center justify-between pb-1 border-b border-border gap-1">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <User className="w-3 h-3 shrink-0" />
+                    <span className="truncate">Sales Reps</span>
+                    {vendedores.length > 0 && (
+                      <CustomTooltip text={selectedRepIds.length > 0 ? `${selectedRepIds.length} of ${vendedores.length} selected` : `${vendedores.length} sales reps`}>
+                        <span
+                          className={cn(
+                            "text-[10px] px-1.5 py-0.2 rounded font-bold tabular-nums shrink-0 leading-tight cursor-default",
+                            selectedRepIds.length > 0
+                              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+                              : "bg-slate-200/70 dark:bg-slate-800 text-muted-foreground"
+                          )}
+                        >
+                          {selectedRepIds.length > 0 ? `${selectedRepIds.length}/${vendedores.length}` : vendedores.length}
+                        </span>
+                      </CustomTooltip>
+                    )}
                   </div>
-                  {selectedRepIds.length > 0 && (
-                    <button onClick={handleClearReps} className="text-[12px] text-emerald-600 hover:underline font-bold cursor-pointer">
-                      Clear
-                    </button>
-                  )}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {vendedores.length > 1 && (
+                      <CustomTooltip text={getSortDetails(sortRepMode).tooltip}>
+                        <button
+                          type="button"
+                          onClick={() => setSortRepMode(cycleSortMode(sortRepMode))}
+                          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border transition-colors cursor-pointer shadow-2xs"
+                        >
+                          <ArrowUpDown className="w-2.5 h-2.5 text-emerald-500" />
+                          <span>{getSortDetails(sortRepMode).label}</span>
+                        </button>
+                      </CustomTooltip>
+                    )}
+                    {selectedRepIds.length > 0 && (
+                      <button onClick={handleClearReps} className="text-[11px] text-emerald-600 hover:underline font-bold cursor-pointer">
+                        Clear
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="w-full flex-1 flex flex-col justify-start space-y-1 py-1.5 overflow-y-auto scrollbar-thin select-none max-h-[305px] min-h-0">
-                  {vendedores.map(rep => {
+                  {vendedores.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center p-4 text-center select-none text-muted-foreground my-auto">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-2 shadow-2xs">
+                        <Users className="w-4.5 h-4.5" />
+                      </div>
+                      <span className="text-xs font-bold text-foreground">Select a Market</span>
+                      <span className="text-[11px] text-muted-foreground mt-0.5 leading-snug max-w-[160px]">
+                        Pick a market on the left to inspect its sales reps
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      {displayedVendedores.map(rep => {
                     const isSelected = selectedRepIdSet.has(rep.id);
                     return (
                       <div key={rep.id} className="relative group">
@@ -1423,6 +1633,18 @@ Commercial Leadership`;
                       </div>
                     );
                   })}
+                  {vendedores.length > visibleRepLimit && (
+                    <button
+                      type="button"
+                      onClick={() => setVisibleRepLimit(l => l + 35)}
+                      className="w-full py-1.5 px-2 rounded-lg bg-slate-200/80 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold text-primary flex items-center justify-center gap-1 transition-colors cursor-pointer border border-border mt-1"
+                    >
+                      <span>Show {Math.min(35, vendedores.length - visibleRepLimit)} more reps</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                  )}
+                    </>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -1685,7 +1907,7 @@ Commercial Leadership`;
 
                                 {/* Exclude / Restore button */}
                                 {exclusionManager.isExcluded(cli.id) ? (
-                                  <CustomTooltip text="Restore customer into active adoption targets">
+                                  <CustomTooltip text="Restore account">
                                     <button
                                       type="button"
                                       onClick={(e) => {
@@ -1698,32 +1920,31 @@ Commercial Leadership`;
                                     </button>
                                   </CustomTooltip>
                                 ) : (
-                                  <CustomTooltip text="Tag customer as Non-Viable / Exclude with reason">
+                                  <CustomTooltip text="Exclude account">
                                     <button
                                       type="button"
                                       onClick={(e) => handleOpenExclusionMenu(cli, e)}
-                                      className="p-1 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-amber-600 transition-colors cursor-pointer"
+                                      className="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 text-muted-foreground hover:text-rose-600 transition-colors cursor-pointer"
                                     >
-                                      <ShieldAlert className="w-3.5 h-3.5" />
+                                      <UserMinus className="w-3.5 h-3.5" />
                                     </button>
                                   </CustomTooltip>
                                 )}
 
-                                <CustomTooltip text="Copy 1-on-1 coaching script for sales rep">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
+                                <CustomTooltip text={isCopied ? "Copied!" : "Send coaching email"}>
+                                  <button
+                                    type="button"
                                     onClick={() => handleCopyScript(cli)}
                                     className={cn(
-                                      "h-6 px-2 text-xs font-bold gap-1 cursor-pointer transition-all shadow-2xs",
+                                      "p-1 rounded transition-colors cursor-pointer shrink-0 border border-border shadow-2xs",
                                       isCopied
                                         ? "bg-emerald-500 text-white border-emerald-500"
-                                        : "hover:bg-primary hover:text-primary-foreground"
+                                        : "bg-white dark:bg-slate-900 hover:bg-primary hover:text-primary-foreground text-slate-600 dark:text-slate-300"
                                     )}
+                                    aria-label="Send coaching email"
                                   >
-                                    {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                                    <span>{isCopied ? 'Copied' : 'Script'}</span>
-                                  </Button>
+                                    {isCopied ? <Check className="w-3.5 h-3.5" /> : <Mail className="w-3.5 h-3.5" />}
+                                  </button>
                                 </CustomTooltip>
                               </div>
                             </div>
@@ -1851,7 +2072,7 @@ Commercial Leadership`;
                                           Excluded
                                         </Badge>
                                       </CustomTooltip>
-                                      <CustomTooltip text="Restore customer into active adoption targets">
+                                      <CustomTooltip text="Restore">
                                         <button
                                           type="button"
                                           onClick={(e) => {
@@ -1879,13 +2100,13 @@ Commercial Leadership`;
                                           Onboarded
                                         </Badge>
                                       )}
-                                      <CustomTooltip text="Tag customer as Non-Viable / Exclude with reason">
+                                      <CustomTooltip text="Exclude">
                                         <button
                                           type="button"
                                           onClick={(e) => handleOpenExclusionMenu(cli, e)}
-                                          className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-amber-600 transition-colors cursor-pointer"
+                                          className="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                                         >
-                                          <ShieldAlert className="w-3 h-3" />
+                                          <UserMinus className="w-3 h-3" />
                                         </button>
                                       </CustomTooltip>
                                     </>
