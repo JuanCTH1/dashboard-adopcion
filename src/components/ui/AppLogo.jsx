@@ -1,12 +1,11 @@
 import React from 'react';
-import { Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AppLogo({ className }) {
   return (
     <div className={cn("flex items-center gap-2.5 select-none", className)}>
-      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary via-blue-700 to-indigo-800 text-white flex items-center justify-center shadow-xs">
-        <Layers className="w-4 h-4" />
+      <div className="w-7 h-7 shrink-0 rounded-lg bg-gradient-to-br from-primary via-blue-700 to-indigo-800 shadow-xs overflow-hidden">
+        <img src="/favicon.svg" alt="" className="w-full h-full" />
       </div>
       <div>
         <div className="flex items-center gap-1.5 leading-none">

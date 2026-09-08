@@ -83,7 +83,7 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   });
 
   // Navigation mode: 'all_columns' (default) | 'cascade'
-  const [navMode, setNavMode] = useState('all_columns');
+  const [navMode, setNavMode] = useState('cascade');
 
   // Drag-to-select state
   const [isDragging, setIsDragging] = useState(false);
@@ -545,7 +545,12 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
 
   // Integrated Right Panel State ('action_plan' | 'customer_detail')
   const [rightPanelTab, setRightPanelTab] = useState('action_plan');
-  const [showAllActionPlan, setShowAllActionPlan] = useState(false);
+  // Batches of 50: rendering all ~1000+ needed accounts in one shot froze the tab
+  // for multiple seconds (each row carries tooltips/buttons of its own).
+  const ACTION_PLAN_BATCH = 50;
+  const [actionPlanVisibleCount, setActionPlanVisibleCount] = useState(15);
+  const CUSTOMER_DETAIL_BATCH = 50;
+  const [customerDetailVisibleCount, setCustomerDetailVisibleCount] = useState(CUSTOMER_DETAIL_BATCH);
   const [copiedId, setCopiedId] = useState(null);
 
   // Exclusion Menu State & Reactive Sync
@@ -629,14 +634,21 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
     }
   };
 
-  // Reset showAllActionPlan when hierarchy selection changes
+  // Reset the Action Plan batch when hierarchy selection changes
   useEffect(() => {
-    setShowAllActionPlan(false);
+    setActionPlanVisibleCount(15);
   }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, filtrosCompuestos]);
+
+  // Reset the Customer Detail batch when the sort or hierarchy selection changes
+  useEffect(() => {
+    setCustomerDetailVisibleCount(CUSTOMER_DETAIL_BATCH);
+  }, [selectedVpIds, selectedDirIds, selectedGerIds, selectedRepIds, filtrosCompuestos, sortConfig]);
 
   const TARGET_ADOPTION_PCT = 85.0;
 
-  const actionPlanData = useMemo(() => {
+  // Heavy part (scan + sort the whole cartera): independent of how many rows are
+  // actually rendered, so it must NOT depend on actionPlanVisibleCount.
+  const actionPlanBase = useMemo(() => {
     const rawCart = activeContext.cartera || [];
     // If SAM mode is active (excluirNoViables === true), exclude non-viable accounts.
     // If ALL mode is active (excluirNoViables === false), include all accounts in the Action Plan.
@@ -646,7 +658,6 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
     if (!cart.length) {
       return {
         allNeededClients: [],
-        visibleClients: [],
         totalNeededCount: 0,
         currentPct: 0,
         targetPct: TARGET_ADOPTION_PCT,
@@ -715,19 +726,21 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
       }
     }
 
-    const totalNeededCount = allNeededClients.length;
-    const visibleClients = showAllActionPlan ? allNeededClients : allNeededClients.slice(0, 15);
-
     return {
       allNeededClients,
-      visibleClients,
-      totalNeededCount,
+      totalNeededCount: allNeededClients.length,
       currentPct: Number(currentPct.toFixed(1)),
       targetPct: TARGET_ADOPTION_PCT,
       gapOrders,
       targetReached
     };
-  }, [activeContext.cartera, showAllActionPlan, exclusionsVersion, filtrosCompuestos.excluirNoViables]);
+  }, [activeContext.cartera, exclusionsVersion, filtrosCompuestos.excluirNoViables]);
+
+  // Cheap part: just a slice, so growing the batch never re-runs the scan/sort above.
+  const actionPlanData = useMemo(() => ({
+    ...actionPlanBase,
+    visibleClients: actionPlanBase.allNeededClients.slice(0, actionPlanVisibleCount)
+  }), [actionPlanBase, actionPlanVisibleCount]);
 
   const actionableAccountsCount = actionPlanData.totalNeededCount;
 
@@ -1163,7 +1176,7 @@ Commercial Leadership`;
                   {gerentes.map((ger) => {
                     const isSelected = selectedGerIdSet.has(ger.id);
                     return (
-                      <div key={ger.id} className="relative group" style={{ contentVisibility: "auto", containIntrinsicSize: "90px" }}>
+                      <div key={ger.id} className="relative group">
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('gerente', ger.id, selectedGerIds, handleSetGers); }}
                           onMouseEnter={() => handleDragEnter('gerente', ger.id, handleSetGers)}
@@ -1293,7 +1306,7 @@ Commercial Leadership`;
                   {vendedores.map(rep => {
                     const isSelected = selectedRepIdSet.has(rep.id);
                     return (
-                      <div key={rep.id} className="relative group" style={{ contentVisibility: "auto", containIntrinsicSize: "90px" }}>
+                      <div key={rep.id} className="relative group">
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
                           onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
@@ -1467,17 +1480,12 @@ Commercial Leadership`;
                 </div>
 
                 {/* ACTION PLAN CONTEXT LABEL */}
-                {rightPanelTab === 'action_plan' ? (
+                {rightPanelTab === 'action_plan' && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground font-medium pr-1">
                     <Target className="w-3.5 h-3.5 text-primary shrink-0" />
-                    <span className="hidden sm:inline">Action items to reach</span>
                     <span className="font-extrabold text-foreground bg-primary/10 text-primary dark:text-sky-400 px-1.5 py-0.2 rounded border border-primary/25 text-[11px]">
                       85% adoption
                     </span>
-                  </div>
-                ) : (
-                  <div className="text-xs text-muted-foreground font-medium pr-1 hidden sm:block">
-                    Full Customer Portfolio
                   </div>
                 )}
               </div>
@@ -1723,13 +1731,16 @@ Commercial Leadership`;
                         );
                       })}
 
-                      {!showAllActionPlan && actionPlanData.totalNeededCount > 15 && (
+                      {actionPlanData.visibleClients.length < actionPlanData.totalNeededCount && (
                         <button
                           type="button"
-                          onClick={() => setShowAllActionPlan(true)}
+                          onClick={() => setActionPlanVisibleCount(c => c + ACTION_PLAN_BATCH)}
                           className="w-full py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-primary flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-border mt-1"
                         >
-                          <span>Show all {actionPlanData.totalNeededCount} accounts needed for 85% target</span>
+                          <span>
+                            Show {Math.min(ACTION_PLAN_BATCH, actionPlanData.totalNeededCount - actionPlanData.visibleClients.length)} more
+                            {' '}(of {actionPlanData.totalNeededCount} accounts needed for 85% target)
+                          </span>
                           <ChevronDown className="w-3.5 h-3.5" />
                         </button>
                       )}
@@ -1782,7 +1793,7 @@ Commercial Leadership`;
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border/60">
-                      {sortedCartera.slice(0, 50).map(cli => {
+                      {sortedCartera.slice(0, customerDetailVisibleCount).map(cli => {
                         const isExpanded = expandedRowIds.has(cli.id);
                         const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
 
@@ -1920,6 +1931,23 @@ Commercial Leadership`;
                           </React.Fragment>
                         );
                       })}
+                      {customerDetailVisibleCount < sortedCartera.length && (
+                        <tr>
+                          <td colSpan={5} className="py-1.5 px-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setCustomerDetailVisibleCount(c => c + CUSTOMER_DETAIL_BATCH)}
+                              className="w-full py-1.5 px-3 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-primary flex items-center justify-center gap-1.5 transition-colors cursor-pointer border border-border"
+                            >
+                              <span>
+                                Show {Math.min(CUSTOMER_DETAIL_BATCH, sortedCartera.length - customerDetailVisibleCount)} more
+                                {' '}(of {formatNumber(sortedCartera.length)})
+                              </span>
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
 
                     {/* FOOTER ROW FOR WEIGHTED TOTALS */}
