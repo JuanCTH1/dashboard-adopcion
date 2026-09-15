@@ -87,7 +87,7 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   });
 
   // Navigation mode: 'all_columns' (default) | 'cascade'
-  const [navMode, setNavMode] = useState('cascade');
+  const [navMode, setNavMode] = useState('all_columns');
 
   // Drag-to-select state
   const [isDragging, setIsDragging] = useState(false);
