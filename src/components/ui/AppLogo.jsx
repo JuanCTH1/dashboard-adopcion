@@ -16,9 +16,6 @@ export function AppLogo({ className }) {
             PRO
           </span>
         </div>
-        <div className="text-[12px] text-muted-foreground font-medium mt-0.5">
-          Commercial CX & Digital Adoption Platform
-        </div>
       </div>
     </div>
   );

@@ -42,7 +42,8 @@ import {
   RotateCcw,
   MoreVertical,
   X,
-  UserMinus
+  UserMinus,
+  SlidersHorizontal
 } from 'lucide-react';
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { adopcionRepo } from '@/domain/adopcionRepo';
@@ -68,7 +69,9 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
   filtrosCompuestos = {},
   onHierarchyFilterChange,
   onOpenActionDrawer,
-  onExportCsv
+  onExportCsv,
+  densityMode: propDensityMode,
+  onToggleDensity: propOnToggleDensity
 }) {
   const deferredFiltrosCompuestos = useDeferredValue(filtrosCompuestos);
 
@@ -88,6 +91,30 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
 
   // Navigation mode: 'all_columns' (default) | 'cascade'
   const [navMode, setNavMode] = useState('all_columns');
+
+  // Density mode: controlled by parent prop or fallback to local state
+  const [internalDensityMode, setInternalDensityMode] = useState(() => {
+    try {
+      return localStorage.getItem('dashboard_density_mode') || 'comfortable';
+    } catch {
+      return 'comfortable';
+    }
+  });
+
+  const densityMode = propDensityMode !== undefined ? propDensityMode : internalDensityMode;
+
+  const handleToggleDensity = useCallback((mode) => {
+    if (propOnToggleDensity) {
+      propOnToggleDensity(mode);
+    } else {
+      setInternalDensityMode(mode);
+      try {
+        localStorage.setItem('dashboard_density_mode', mode);
+      } catch {
+        // ignore
+      }
+    }
+  }, [propOnToggleDensity]);
 
   // Drag-to-select state
   const [isDragging, setIsDragging] = useState(false);
@@ -114,6 +141,86 @@ export const ProgressiveHierarchy = React.memo(function ProgressiveHierarchy({
     clearPopoverTimer();
     setHoveredPopover(null);
   }, [clearPopoverTimer]);
+
+  const renderCardBottomMetrics = useCallback((metricas, isSelected, themeColor) => {
+    const borderMap = {
+      indigo: "border-indigo-400/30 text-indigo-100",
+      sky: "border-sky-400/30 text-sky-100",
+      emerald: "border-emerald-400/30 text-emerald-100"
+    };
+    const textMap = {
+      indigo: "text-indigo-200",
+      sky: "text-sky-200",
+      emerald: "text-emerald-200"
+    };
+
+    if (densityMode === 'comfortable') {
+      const pct = Math.round(metricas?.pedidos?.pctAdopcion || 0);
+      const isGood = pct >= 60;
+      const isMid = pct >= 40;
+      return (
+        <div className={cn("pt-1 border-t flex flex-col gap-1 text-xs font-sans leading-tight", isSelected ? borderMap[themeColor] : "border-border/60 text-foreground")}>
+          <div className="flex items-baseline justify-between gap-1">
+            <span className={cn(
+              "text-[14px] font-black tabular-nums tracking-tight",
+              isSelected
+                ? "text-white"
+                : isGood
+                ? "text-emerald-600 dark:text-emerald-400"
+                : isMid
+                ? "text-indigo-600 dark:text-indigo-400"
+                : "text-amber-600 dark:text-amber-400"
+            )}>
+              {pct}%
+            </span>
+            <span className={cn("text-[10.5px] tabular-nums font-medium truncate", isSelected ? textMap[themeColor] : "text-muted-foreground")}>
+              {metricas?.clientes?.asignados || 0} cl · {formatCompactNumber(metricas?.pedidos?.totales || 0)} ord
+            </span>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-slate-200/80 dark:bg-slate-700/80 overflow-hidden">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all duration-300",
+                isSelected
+                  ? "bg-white"
+                  : isGood
+                  ? "bg-emerald-500"
+                  : isMid
+                  ? "bg-indigo-500"
+                  : "bg-amber-500"
+              )}
+              style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-xs font-sans leading-tight", isSelected ? borderMap[themeColor] : "border-border/60 text-foreground")}>
+        <div className="flex items-center justify-between gap-1">
+          <div className="flex items-baseline gap-1 truncate">
+            <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{metricas?.clientes?.asignados || 0}</span>
+            <span className={cn("text-xs font-medium", isSelected ? textMap[themeColor] : "text-muted-foreground")}>cust</span>
+          </div>
+          <div className="flex items-baseline gap-1 shrink-0">
+            <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(metricas?.clientes?.pctOnboarding || 0)}%</span>
+            <span className={cn("text-xs font-medium", isSelected ? textMap[themeColor] : "text-muted-foreground")}>onboard</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-1">
+          <div className="flex items-baseline gap-1 truncate">
+            <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(metricas?.pedidos?.totales || 0)}</span>
+            <span className={cn("text-xs font-medium", isSelected ? textMap[themeColor] : "text-muted-foreground")}>orders</span>
+          </div>
+          <div className="flex items-baseline gap-1 shrink-0">
+            <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(metricas?.pedidos?.pctAdopcion || 0)}%</span>
+            <span className={cn("text-xs font-medium", isSelected ? textMap[themeColor] : "text-muted-foreground")}>adopt</span>
+          </div>
+        </div>
+      </div>
+    );
+  }, [densityMode]);
 
   useEffect(() => {
     return () => {
@@ -1085,6 +1192,36 @@ American Cements USA`;
 
         {/* CARRIL DERECHO: Controles de vista y enfoque */}
         <div className="flex items-center gap-2 justify-self-end">
+          {/* DENSITY TOGGLE SWITCH: Cómodo | Detallado */}
+          <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-border select-none">
+            <button
+              type="button"
+              onClick={() => handleToggleDensity('comfortable')}
+              className={cn(
+                "px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer select-none",
+                densityMode === 'comfortable'
+                  ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700"
+              )}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Cómodo</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleToggleDensity('detailed')}
+              className={cn(
+                "px-2.5 py-1 rounded-md text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer select-none",
+                densityMode === 'detailed'
+                  ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                  : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/70 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-700"
+              )}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Detallado</span>
+            </button>
+          </div>
+
           {/* MODE TOGGLE SWITCH: Columns: All Columns | Guided */}
           <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-border select-none">
             <button
@@ -1157,15 +1294,28 @@ American Cements USA`;
                         <button
                           type="button"
                           onClick={() => setSortDirMode(cycleSortMode(sortDirMode))}
-                          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border transition-colors cursor-pointer shadow-2xs"
+                          className={cn(
+                            "flex items-center transition-colors cursor-pointer",
+                            densityMode === 'comfortable'
+                              ? "p-1 rounded text-muted-foreground hover:text-foreground hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                              : "gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border shadow-2xs"
+                          )}
                         >
-                          <ArrowUpDown className="w-2.5 h-2.5 text-indigo-500" />
-                          <span>{getSortDetails(sortDirMode).label}</span>
+                          <ArrowUpDown className={cn(densityMode === 'comfortable' ? "w-3 h-3" : "w-2.5 h-2.5", "text-indigo-500")} />
+                          {densityMode !== 'comfortable' && <span>{getSortDetails(sortDirMode).label}</span>}
                         </button>
                       </CustomTooltip>
                     )}
                     {selectedDirIds.length > 0 && (
-                      <button onClick={handleClearDirs} className="text-[11px] text-indigo-600 hover:underline font-bold cursor-pointer">
+                      <button
+                        onClick={handleClearDirs}
+                        className={cn(
+                          "cursor-pointer transition-colors",
+                          densityMode === 'comfortable'
+                            ? "text-[10px] text-muted-foreground hover:text-foreground px-1 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-800 font-medium"
+                            : "text-[11px] text-indigo-600 hover:underline font-bold"
+                        )}
+                      >
                         Clear
                       </button>
                     )}
@@ -1180,6 +1330,7 @@ American Cements USA`;
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('director', dir.id, selectedDirIds, handleSetDirs); }}
                           onMouseEnter={() => handleDragEnter('director', dir.id, handleSetDirs)}
+                          title={densityMode === 'comfortable' ? `${dir.nombre} · Asignados: ${dir.metricas.clientes?.asignados || 0} (${Math.round(dir.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Pedidos: ${formatCompactNumber(dir.metricas.pedidos?.totales || 0)} (${Math.round(dir.metricas.pedidos?.pctAdopcion || 0)}% Adopción)` : undefined}
                           className={cn(
                             "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
@@ -1211,7 +1362,11 @@ American Cements USA`;
                                 })}
                                 className={cn(
                                   "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                  isSelected ? "hover:bg-indigo-700 text-indigo-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
+                                  isSelected
+                                    ? "hover:bg-indigo-700 text-indigo-200"
+                                    : (densityMode === 'comfortable'
+                                      ? "opacity-0 group-hover:opacity-100 hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary transition-opacity"
+                                      : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
                                 )}
                               >
                                 <Info className="w-3 h-3" />
@@ -1221,7 +1376,11 @@ American Cements USA`;
 
                           {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
                           <div className="h-[17px] flex items-center justify-between text-xs overflow-hidden">
-                            {dir.isSingleVp ? (
+                            {densityMode === 'comfortable' ? (
+                              <span className={cn("truncate text-[11px] font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
+                                {dir.persona || '3 Líneas'}
+                              </span>
+                            ) : dir.isSingleVp ? (
                               <span className={cn("truncate font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
                                 {dir.persona}
                               </span>
@@ -1246,29 +1405,8 @@ American Cements USA`;
                             )}
                           </div>
 
-                          {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-xs font-sans leading-tight", isSelected ? "border-indigo-400/30 text-indigo-100" : "border-border/60 text-foreground")}>
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate">
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{dir.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>cust</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.clientes?.pctOnboarding || 0)}%</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>onboard</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate">
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(dir.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>orders</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(dir.metricas.pedidos?.pctAdopcion || 0)}%</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-indigo-200" : "text-muted-foreground")}>adopt</span>
-                              </div>
-                            </div>
-                          </div>
+                          {/* RENGLÓN 3: METRICS */}
+                          {renderCardBottomMetrics(dir.metricas, isSelected, 'indigo')}
                         </button>
                       </div>
                     );
@@ -1315,15 +1453,28 @@ American Cements USA`;
                         <button
                           type="button"
                           onClick={() => setSortGerMode(cycleSortMode(sortGerMode))}
-                          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border transition-colors cursor-pointer shadow-2xs"
+                          className={cn(
+                            "flex items-center transition-colors cursor-pointer",
+                            densityMode === 'comfortable'
+                              ? "p-1 rounded text-muted-foreground hover:text-foreground hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                              : "gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border shadow-2xs"
+                          )}
                         >
-                          <ArrowUpDown className="w-2.5 h-2.5 text-sky-500" />
-                          <span>{getSortDetails(sortGerMode).label}</span>
+                          <ArrowUpDown className={cn(densityMode === 'comfortable' ? "w-3 h-3" : "w-2.5 h-2.5", "text-sky-500")} />
+                          {densityMode !== 'comfortable' && <span>{getSortDetails(sortGerMode).label}</span>}
                         </button>
                       </CustomTooltip>
                     )}
                     {selectedGerIds.length > 0 && (
-                      <button onClick={handleClearGers} className="text-[11px] text-sky-600 hover:underline font-bold cursor-pointer">
+                      <button
+                        onClick={handleClearGers}
+                        className={cn(
+                          "cursor-pointer transition-colors",
+                          densityMode === 'comfortable'
+                            ? "text-[10px] text-muted-foreground hover:text-foreground px-1 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-800 font-medium"
+                            : "text-[11px] text-sky-600 hover:underline font-bold"
+                        )}
+                      >
                         Clear
                       </button>
                     )}
@@ -1349,6 +1500,7 @@ American Cements USA`;
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('gerente', ger.id, selectedGerIds, handleSetGers); }}
                           onMouseEnter={() => handleDragEnter('gerente', ger.id, handleSetGers)}
+                          title={densityMode === 'comfortable' ? `${ger.nombre} · Asignados: ${ger.metricas.clientes?.asignados || 0} (${Math.round(ger.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Pedidos: ${formatCompactNumber(ger.metricas.pedidos?.totales || 0)} (${Math.round(ger.metricas.pedidos?.pctAdopcion || 0)}% Adopción)` : undefined}
                           className={cn(
                             "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
@@ -1380,7 +1532,11 @@ American Cements USA`;
                                 })}
                                 className={cn(
                                   "p-0.5 rounded transition-colors cursor-pointer shrink-0",
-                                  isSelected ? "hover:bg-sky-700 text-sky-200" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary"
+                                  isSelected
+                                    ? "hover:bg-sky-700 text-sky-200"
+                                    : (densityMode === 'comfortable'
+                                      ? "opacity-0 group-hover:opacity-100 hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary transition-opacity"
+                                      : "hover:bg-slate-200 dark:hover:bg-slate-700 text-muted-foreground hover:text-primary")
                                 )}
                               >
                                 <Info className="w-3 h-3" />
@@ -1390,7 +1546,11 @@ American Cements USA`;
 
                           {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
                           <div className="h-[17px] flex items-center justify-between text-xs overflow-hidden">
-                            {ger.isSingleVp ? (
+                            {densityMode === 'comfortable' ? (
+                              <span className={cn("truncate text-[11px] font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
+                                {ger.persona || '3 Líneas'}
+                              </span>
+                            ) : ger.isSingleVp ? (
                               <span className={cn("truncate font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
                                 {ger.persona}
                               </span>
@@ -1415,29 +1575,8 @@ American Cements USA`;
                             )}
                           </div>
 
-                          {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-xs font-sans leading-tight", isSelected ? "border-sky-400/30 text-sky-100" : "border-border/60 text-foreground")}>
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate">
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{ger.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>cust</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.clientes?.pctOnboarding || 0)}%</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>onboard</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate">
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(ger.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>orders</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(ger.metricas.pedidos?.pctAdopcion || 0)}%</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-sky-200" : "text-muted-foreground")}>adopt</span>
-                              </div>
-                            </div>
-                          </div>
+                          {/* RENGLÓN 3: METRICS */}
+                          {renderCardBottomMetrics(ger.metricas, isSelected, 'sky')}
                         </button>
                       </div>
                     );
@@ -1485,15 +1624,28 @@ American Cements USA`;
                         <button
                           type="button"
                           onClick={() => setSortRepMode(cycleSortMode(sortRepMode))}
-                          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border transition-colors cursor-pointer shadow-2xs"
+                          className={cn(
+                            "flex items-center transition-colors cursor-pointer",
+                            densityMode === 'comfortable'
+                              ? "p-1 rounded text-muted-foreground hover:text-foreground hover:bg-slate-200/60 dark:hover:bg-slate-800"
+                              : "gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-white dark:bg-slate-900 hover:bg-slate-200/70 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-border shadow-2xs"
+                          )}
                         >
-                          <ArrowUpDown className="w-2.5 h-2.5 text-emerald-500" />
-                          <span>{getSortDetails(sortRepMode).label}</span>
+                          <ArrowUpDown className={cn(densityMode === 'comfortable' ? "w-3 h-3" : "w-2.5 h-2.5", "text-emerald-500")} />
+                          {densityMode !== 'comfortable' && <span>{getSortDetails(sortRepMode).label}</span>}
                         </button>
                       </CustomTooltip>
                     )}
                     {selectedRepIds.length > 0 && (
-                      <button onClick={handleClearReps} className="text-[11px] text-emerald-600 hover:underline font-bold cursor-pointer">
+                      <button
+                        onClick={handleClearReps}
+                        className={cn(
+                          "cursor-pointer transition-colors",
+                          densityMode === 'comfortable'
+                            ? "text-[10px] text-muted-foreground hover:text-foreground px-1 py-0.5 rounded hover:bg-slate-200/60 dark:hover:bg-slate-800 font-medium"
+                            : "text-[11px] text-emerald-600 hover:underline font-bold"
+                        )}
+                      >
                         Clear
                       </button>
                     )}
@@ -1520,6 +1672,7 @@ American Cements USA`;
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
                           onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
+                          title={densityMode === 'comfortable' ? `${rep.nombre} (${rep.plaza}) · Asignados: ${rep.metricas.clientes?.asignados || 0} (${Math.round(rep.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Pedidos: ${formatCompactNumber(rep.metricas.pedidos?.totales || 0)} (${Math.round(rep.metricas.pedidos?.pctAdopcion || 0)}% Adopción)` : undefined}
                           className={cn(
                             "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
@@ -1530,7 +1683,10 @@ American Cements USA`;
                           {/* RENGLÓN 1: NOMBRE + ACCIONES (EMAIL & INFO) */}
                           <div className="flex items-center justify-between h-[18px]">
                             <span className="font-bold text-[12.5px] truncate">{rep.nombre}</span>
-                            <div className="flex items-center gap-1 shrink-0">
+                            <div className={cn(
+                              "flex items-center gap-1 shrink-0",
+                              densityMode === 'comfortable' && !isSelected && "opacity-0 group-hover:opacity-100 transition-opacity"
+                            )}>
                               <span
                                 role="button"
                                 tabIndex={0}
@@ -1592,43 +1748,28 @@ American Cements USA`;
                           {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
                           <div className="h-[17px] flex items-center justify-between gap-1 text-xs overflow-hidden">
                             <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
-                            <span
-                              className={cn(
-                                "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 shadow-2xs leading-tight",
-                                rep.bl === 'RMX'
-                                  ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
-                                  : rep.bl === 'CEM'
-                                  ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
-                                  : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
-                              )}
-                            >
-                              {rep.bl}
-                            </span>
+                            {densityMode === 'comfortable' ? (
+                              <span className={cn("text-[11px] font-medium shrink-0", isSelected ? "text-emerald-100" : "text-muted-foreground")}>
+                                {rep.bl}
+                              </span>
+                            ) : (
+                              <span
+                                className={cn(
+                                  "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0 shadow-2xs leading-tight",
+                                  rep.bl === 'RMX'
+                                    ? (isSelected ? "bg-sky-300 text-slate-950 border-white/40" : "bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30")
+                                    : rep.bl === 'CEM'
+                                    ? (isSelected ? "bg-purple-300 text-slate-950 border-white/40" : "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-500/30")
+                                    : (isSelected ? "bg-amber-300 text-slate-950 border-white/40" : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30")
+                                )}
+                              >
+                                {rep.bl}
+                              </span>
+                            )}
                           </div>
 
-                          {/* RENGLÓN 3: 2 COMPACT LINES (CUSTOMERS & ORDERS) */}
-                          <div className={cn("pt-1 border-t flex flex-col gap-0.5 text-xs font-sans leading-tight", isSelected ? "border-emerald-400/30 text-emerald-100" : "border-border/60 text-foreground")}>
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate">
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{rep.metricas.clientes?.asignados || 0}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>cust</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.clientes?.pctOnboarding || 0)}%</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>onboard</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between gap-1">
-                              <div className="flex items-baseline gap-1 truncate">
-                                <span className={cn("font-bold tabular-nums", isSelected ? "text-white" : "text-foreground")}>{formatCompactNumber(rep.metricas.pedidos?.totales || 0)}</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>orders</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 shrink-0">
-                                <span className={cn("font-bold text-xs tabular-nums", isSelected ? "text-white" : "text-foreground")}>{Math.round(rep.metricas.pedidos?.pctAdopcion || 0)}%</span>
-                                <span className={cn("text-xs font-medium", isSelected ? "text-emerald-200" : "text-muted-foreground")}>adopt</span>
-                              </div>
-                            </div>
-                          </div>
+                          {/* RENGLÓN 3: METRICS */}
+                          {renderCardBottomMetrics(rep.metricas, isSelected, 'emerald')}
                         </button>
                       </div>
                     );
@@ -1808,7 +1949,7 @@ American Cements USA`;
                         return (
                           <div
                             key={cli.id}
-                            className="p-2.5 rounded-xl bg-card border border-border hover:border-primary/40 hover:shadow-xs transition-all flex flex-col gap-1.5 text-xs"
+                            className="group p-2.5 rounded-xl bg-card border border-border hover:border-primary/40 hover:shadow-xs transition-all flex flex-col gap-1.5 text-xs"
                           >
                             {/* Card Header: Rank + Customer Name + Growth Potential */}
                             <div className="flex items-start justify-between gap-2">
@@ -1827,14 +1968,20 @@ American Cements USA`;
 
                                 {/* Commercial Context */}
                                 <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground">
-                                  <span className={cn(
-                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
-                                    shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
-                                    shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
-                                    "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
-                                  )}>
-                                    {shortBl}
-                                  </span>
+                                  {densityMode === 'comfortable' ? (
+                                    <span className="text-[11px] font-semibold text-muted-foreground shrink-0">
+                                      {shortBl}
+                                    </span>
+                                  ) : (
+                                    <span className={cn(
+                                      "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
+                                      shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
+                                      shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
+                                      "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                    )}>
+                                      {shortBl}
+                                    </span>
+                                  )}
                                   <span className="truncate">Rep: <b>{cli.vendedorNombre}</b></span>
                                   <span className="text-slate-300 dark:text-slate-600">·</span>
                                   <span className="truncate flex items-center gap-0.5 text-slate-500 dark:text-slate-400 font-medium">
@@ -1867,22 +2014,39 @@ American Cements USA`;
                                 </div>
                               ) : isLowAdoption ? (
                                 <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 min-w-0">
-                                  <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
-                                    Low Adoption
-                                  </Badge>
+                                  {densityMode === 'comfortable' ? (
+                                    <span className="flex items-center gap-1 font-semibold text-[11px] text-amber-600 dark:text-amber-400 shrink-0">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                      Low Adoption
+                                    </span>
+                                  ) : (
+                                    <Badge variant="warning" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
+                                      Low Adoption
+                                    </Badge>
+                                  )}
                                   <span className="truncate"><b>{formatNumber(cli.pedidosAnalogos)}</b> offline orders/mo</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300 min-w-0">
-                                  <Badge variant="danger" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
-                                    Not Onboarded
-                                  </Badge>
+                                  {densityMode === 'comfortable' ? (
+                                    <span className="flex items-center gap-1 font-semibold text-[11px] text-rose-600 dark:text-rose-400 shrink-0">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                                      Not Onboarded
+                                    </span>
+                                  ) : (
+                                    <Badge variant="danger" className="text-xs py-0.2 px-1.5 font-bold shrink-0">
+                                      Not Onboarded
+                                    </Badge>
+                                  )}
                                   <span className="truncate"><b>{formatNumber(cli.potentialOrdersGain)}</b> orders/mo</span>
                                 </div>
                               )}
 
                               {/* Action Buttons: Quick Copy Script + Tooltip Details */}
-                              <div className="flex items-center gap-1.5 shrink-0">
+                              <div className={cn(
+                                "flex items-center gap-1.5 shrink-0",
+                                densityMode === 'comfortable' && "opacity-0 group-hover:opacity-100 transition-opacity"
+                              )}>
                                 <CustomTooltip
                                   content={
                                     <div className="p-1 space-y-1.5 min-w-[170px]">
@@ -2039,14 +2203,20 @@ American Cements USA`;
                                   <span className="truncate">{cli.nombreEmpresa}</span>
                                 </div>
                                 <div className="mt-0.5 flex items-center">
-                                  <span className={cn(
-                                    "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
-                                    shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
-                                    shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
-                                    "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
-                                  )}>
-                                    {shortBl}
-                                  </span>
+                                  {densityMode === 'comfortable' ? (
+                                    <span className="text-[11px] font-semibold text-muted-foreground shrink-0">
+                                      {shortBl}
+                                    </span>
+                                  ) : (
+                                    <span className={cn(
+                                      "text-[10px] font-black px-1 py-0.2 rounded border uppercase shrink-0",
+                                      shortBl === 'RMX' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30" :
+                                      shortBl === 'CEM' ? "bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30" :
+                                      "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30"
+                                    )}>
+                                      {shortBl}
+                                    </span>
+                                  )}
                                 </div>
                               </td>
                               <td className="py-1.5 px-1.5 text-right font-bold tabular-nums text-foreground text-xs whitespace-nowrap">

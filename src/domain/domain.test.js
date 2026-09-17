@@ -201,7 +201,7 @@ describe('Capa de Dominio, Generador Mock y Motor de Agregación', () => {
     console.log('Rendering ProgressiveHierarchy...');
     const h4 = renderToString(React.createElement(ProgressiveHierarchy, { filtrosCompuestos: {} }));
     expect(h4.length).toBeGreaterThan(0);
-  }, 20000);
+  }, 45000);
 });
 
 

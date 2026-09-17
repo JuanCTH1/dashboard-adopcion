@@ -4,7 +4,7 @@ import { Users, UserCheck, Activity, Target, ChevronRight, ChevronsRight, AlertC
 import { formatNumber, formatCompactNumber, formatPct, cn } from '@/lib/utils';
 import { CustomTooltip } from '@/components/ui/tooltip';
 
-export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlobales, isActionableBase = false }) {
+export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlobales, isActionableBase = false, densityMode = 'comfortable' }) {
   if (!metricasGlobales || !metricasGlobales.actual) return null;
 
   const { actual, deltas } = metricasGlobales;
@@ -146,7 +146,10 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
             <React.Fragment key={st.id}>
               {/* TRUE CHEVRON STAGE CARD */}
               <div
-                className="flex-1 min-w-0 h-[100px] relative transition-all filter drop-shadow-xs hover:drop-shadow-sm"
+                className={cn(
+                  "flex-1 min-w-0 relative transition-all filter drop-shadow-xs hover:drop-shadow-sm",
+                  densityMode === 'comfortable' ? "h-[78px]" : "h-[100px]"
+                )}
               >
                 {/* Outlined Chevron Layer */}
                 <div
@@ -168,10 +171,15 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                   {/* Chevron Header Row */}
                   <div className="flex items-center justify-between gap-1 mb-0.5">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className={`text-xs font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0 shadow-2xs`}>
-                        {st.stepNumber}
-                      </span>
-                      <span className="text-xs font-black uppercase tracking-wider text-foreground truncate">
+                      {densityMode === 'detailed' && (
+                        <span className={`text-xs font-black px-1.5 py-0.5 rounded ${st.badgeBg} shrink-0 shadow-2xs`}>
+                          {st.stepNumber}
+                        </span>
+                      )}
+                      <span className={cn(
+                        "uppercase tracking-wider text-foreground truncate font-black",
+                        densityMode === 'comfortable' ? "text-[11px]" : "text-xs"
+                      )}>
                         {st.title}
                       </span>
                     </div>
@@ -181,25 +189,48 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                   </div>
 
                   {/* Primary Metric & Delta */}
-                  <div className="flex items-baseline gap-1.5 flex-wrap">
-                    <span className={cn(
-                      "font-black tracking-tight tabular-nums",
-                      st.isDominant ? "text-2xl text-indigo-600 dark:text-indigo-400" : "text-xl text-foreground"
-                    )}>
-                      {st.primaryLabel}
-                    </span>
-                    {st.primaryUnit && <span className="text-xs font-medium text-muted-foreground">{st.primaryUnit}</span>}
-                    {st.flowDelta && (
-                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded shrink-0 tabular-nums">
-                        {st.flowDelta}
+                  {densityMode === 'comfortable' ? (
+                    <div className="flex items-baseline gap-2 flex-wrap mb-1">
+                      <span className={cn(
+                        "font-black tracking-tight tabular-nums text-2xl",
+                        st.isDominant ? "text-indigo-600 dark:text-indigo-400" : "text-foreground"
+                      )}>
+                        {st.primaryLabel}
                       </span>
-                    )}
-                  </div>
+                      {st.primaryUnit && <span className="text-xs font-medium text-muted-foreground">{st.primaryUnit}</span>}
+                      {st.flowDelta && (
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded shrink-0 tabular-nums">
+                          {st.flowDelta}
+                        </span>
+                      )}
+                      <span className="text-xs text-slate-300 dark:text-slate-600">·</span>
+                      <span className="text-xs text-muted-foreground font-semibold truncate">
+                        {st.secondaryLabel}
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-baseline gap-1.5 flex-wrap">
+                        <span className={cn(
+                          "font-black tracking-tight tabular-nums",
+                          st.isDominant ? "text-2xl text-indigo-600 dark:text-indigo-400" : "text-xl text-foreground"
+                        )}>
+                          {st.primaryLabel}
+                        </span>
+                        {st.primaryUnit && <span className="text-xs font-medium text-muted-foreground">{st.primaryUnit}</span>}
+                        {st.flowDelta && (
+                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded shrink-0 tabular-nums">
+                            {st.flowDelta}
+                          </span>
+                        )}
+                      </div>
 
-                  {/* Subtitle Footer with clear visual lane divider across all stages */}
-                  <div className="text-xs font-semibold truncate pt-1 border-t-2 border-slate-300/90 dark:border-slate-700 text-muted-foreground transition-colors text-right flex justify-end">
-                    <span className="truncate">{st.secondaryLabel}</span>
-                  </div>
+                      {/* Subtitle Footer with clear visual lane divider across all stages */}
+                      <div className="text-xs font-semibold truncate pt-1 border-t-2 border-slate-300/90 dark:border-slate-700 text-muted-foreground transition-colors text-right flex justify-end">
+                        <span className="truncate">{st.secondaryLabel}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -211,21 +242,34 @@ export const ExecutiveRibbon = React.memo(function ExecutiveRibbon({ metricasGlo
                     content={st.nextDropContent}
                     text={st.nextDropText || `-${st.nextDrop.toFixed(0)}%`}
                   >
-                    <div
-                      className={cn(
-                        "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",
-                        st.isBottleneck
-                          ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/30 ring-2 ring-rose-500/25 animate-pulse-subtle"
-                          : "bg-card/95 backdrop-blur-xs text-foreground border-slate-300 dark:border-slate-700 hover:border-primary/50 shadow-2xs"
-                      )}
-                    >
-                      {st.isBottleneck ? (
-                        <AlertCircle className="w-3.5 h-3.5 text-white shrink-0" />
+                    {densityMode === 'comfortable' ? (
+                      st.isBottleneck ? (
+                        <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-xs font-black shrink-0 cursor-default select-none shadow-2xs">
+                          <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                          <span className="tracking-tight">-{st.nextDrop.toFixed(0)}%</span>
+                        </div>
                       ) : (
-                        <ChevronsRight className="w-3.5 h-3.5 stroke-[2.5] shrink-0 text-primary dark:text-sky-400" />
-                      )}
-                      <span className="tracking-tight">-{st.nextDrop.toFixed(0)}%</span>
-                    </div>
+                        <div className="p-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors cursor-default select-none">
+                          <ChevronsRight className="w-4 h-4 stroke-[2] shrink-0" />
+                        </div>
+                      )
+                    ) : (
+                      <div
+                        className={cn(
+                          "flex items-center gap-1 px-2 py-0.5 rounded-lg border shadow-xs tabular-nums text-xs font-black shrink-0 transition-all cursor-default select-none",
+                          st.isBottleneck
+                            ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/30 ring-2 ring-rose-500/25 animate-pulse-subtle"
+                            : "bg-card/95 backdrop-blur-xs text-foreground border-slate-300 dark:border-slate-700 hover:border-primary/50 shadow-2xs"
+                        )}
+                      >
+                        {st.isBottleneck ? (
+                          <AlertCircle className="w-3.5 h-3.5 text-white shrink-0" />
+                        ) : (
+                          <ChevronsRight className="w-3.5 h-3.5 stroke-[2.5] shrink-0 text-primary dark:text-sky-400" />
+                        )}
+                        <span className="tracking-tight">-{st.nextDrop.toFixed(0)}%</span>
+                      </div>
+                    )}
                   </CustomTooltip>
                 </div>
               )}

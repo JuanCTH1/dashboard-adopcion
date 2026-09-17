@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Sun, Moon, Download, X, Filter, ChevronDown } from 'lucide-react';
+import { Search, Sun, Moon, Download, X, Filter, ChevronDown, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AppLogo } from '@/components/ui/AppLogo';
@@ -14,7 +14,9 @@ export const AppHeader = React.memo(function AppHeader({
   onOpenSearch,
   isDark,
   onToggleDark,
-  onExportCsv
+  onExportCsv,
+  densityMode = 'comfortable',
+  onToggleDensity
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
@@ -49,8 +51,7 @@ export const AppHeader = React.memo(function AppHeader({
             className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200/80 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-medium border border-border transition-all cursor-pointer shadow-xxs shrink-0"
           >
             <Search className="w-3.5 h-3.5 text-primary" />
-            <span className="hidden lg:inline">Search people, market, customer...</span>
-            <span className="lg:hidden">Search...</span>
+            <span>Smart Search</span>
             <kbd className="text-[12px] bg-card px-1 py-0.5 rounded border border-border text-muted-foreground font-mono ml-1 shadow-xxs hidden xl:inline">
               Ctrl+K
             </kbd>
@@ -135,6 +136,20 @@ export const AppHeader = React.memo(function AppHeader({
 
         {/* Right Actions */}
         <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onToggleDensity?.(densityMode === 'comfortable' ? 'detailed' : 'comfortable')}
+            className="h-8 w-8 text-muted-foreground hover:text-foreground hidden md:flex cursor-pointer"
+            title={densityMode === 'comfortable' ? 'Modo Cómodo activo (clic para modo Detallado)' : 'Modo Detallado activo (clic para modo Cómodo)'}
+          >
+            {densityMode === 'comfortable' ? (
+              <Sparkles className="w-4 h-4 text-indigo-500" />
+            ) : (
+              <SlidersHorizontal className="w-4 h-4 text-indigo-500" />
+            )}
+          </Button>
+
           <Button
             variant="outline"
             size="sm"

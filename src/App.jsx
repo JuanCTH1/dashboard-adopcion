@@ -18,6 +18,24 @@ export function App() {
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
+  // Density Mode: 'comfortable' (default) | 'detailed'
+  const [densityMode, setDensityMode] = useState(() => {
+    try {
+      return localStorage.getItem('dashboard_density_mode') || 'comfortable';
+    } catch {
+      return 'comfortable';
+    }
+  });
+
+  const handleToggleDensity = useCallback((mode) => {
+    setDensityMode(mode);
+    try {
+      localStorage.setItem('dashboard_density_mode', mode);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   // 2. Multidimensional Context Filters (Sidebar) — Default: Current Month (Sep 2026)
   const [filtrosContexto, setFiltrosContexto] = useState({
     anios: [2026],
@@ -408,6 +426,8 @@ export function App() {
           isDark={isDark}
           onToggleDark={() => setIsDark(!isDark)}
           onExportCsv={handleExportGlobalCsv}
+          densityMode={densityMode}
+          onToggleDensity={handleToggleDensity}
         />
 
         {/* WORKSTATION CANVAS */}
@@ -416,6 +436,7 @@ export function App() {
           <ExecutiveRibbon
             metricasGlobales={metricasGlobales}
             isActionableBase={Boolean(filtrosCompuestos.excluirNoViables)}
+            densityMode={densityMode}
           />
 
           {/* ROW 2: CASCADED HIERARCHY EXPLORER + EXPANDABLE ACCOUNT PORTFOLIO TABLE */}
@@ -424,6 +445,8 @@ export function App() {
             onHierarchyFilterChange={handleHierarchyFilterChange}
             onOpenActionDrawer={handleOpenActionDrawer}
             onExportCsv={handleExportGlobalCsv}
+            densityMode={densityMode}
+            onToggleDensity={handleToggleDensity}
           />
 
           {/* ROW 3: DUAL COLUMNS (LEFT: COMMERCIAL RANKING, RIGHT: HISTORICAL ADOPTION TREND) */}

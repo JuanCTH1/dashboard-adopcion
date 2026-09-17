@@ -70,8 +70,10 @@ function RankingRow({ item, variant, mode, dense }) {
   const pct = variant === 'onboarding' ? item.onboardingPct : item.adopcionPct;
   const mom = variant === 'onboarding' ? (item.newOnboardedMonth ?? 0) : (item.momDeltaAdopcion ?? item.momDelta ?? 0);
   const isOnb = variant === 'onboarding';
-
-  const sub = item.persona || item.regionNombre || item.lineaNegocio || '';
+  const blDisplay = BL_SHORT[item.lineaNegocio] || item.lineaNegocio;
+  const sub = item.tipo === 'sales_rep'
+    ? `${item.plaza || ''}${blDisplay ? ` · ${blDisplay}` : ''}`
+    : (item.persona?.replace(/ger-[A-Za-z0-9]+-/g, '') || item.regionNombre || blDisplay || '');
   const subTitle = isOnb
     ? `${item.onboardedCount}/${item.assignedCount} accounts`
     : `${formatCompactNumber(item.digitalOrders)}/${formatCompactNumber(item.totalOrders)} orders`;
@@ -638,7 +640,9 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                           )}
                         </div>
                         <div className="text-muted-foreground text-xs font-medium">
-                          {item.persona || `${item.onboardedCount}/${item.assignedCount} accounts`}
+                          {item.tipo === 'sales_rep'
+                            ? `${item.plaza || ''}${item.lineaNegocio ? ` · ${BL_SHORT[item.lineaNegocio] || item.lineaNegocio}` : ''}`
+                            : (item.persona?.replace(/ger-[A-Za-z0-9]+-/g, '') || `${item.onboardedCount}/${item.assignedCount} accounts`)}
                         </div>
                       </td>
                       <td className="py-2 px-2">
