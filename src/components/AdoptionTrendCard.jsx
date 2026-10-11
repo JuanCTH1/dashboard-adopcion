@@ -20,7 +20,7 @@ export const AdoptionTrendCard = React.memo(function AdoptionTrendCard({ serieHi
     });
   }, [serieHistorica, filtros]);
 
-  const strokeColor = isDark ? '#38bdf8' : '#0000B3';
+  const strokeColor = isDark ? '#38bdf8' : '#4338CA';
   const last = filteredData[filteredData.length - 1];
   const first = filteredData[0];
   const trendUp = last && first ? last.pctAdopcionPedidos >= first.pctAdopcionPedidos : true;

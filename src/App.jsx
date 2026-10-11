@@ -8,6 +8,7 @@ import { LeaderboardCard } from '@/components/LeaderboardCard';
 import { ProgressiveHierarchy } from '@/components/ProgressiveHierarchy';
 import { ActionDrawer } from '@/components/ActionDrawer';
 import { CommandPalette } from '@/components/CommandPalette';
+import { DemoBanner } from '@/components/DemoBanner';
 import { exportToCsv } from '@/lib/exportCsv';
 
 export function App() {
@@ -59,7 +60,7 @@ export function App() {
   const [isActionDrawerOpen, setIsActionDrawerOpen] = useState(false);
   const [nodoAccion, setNodoAccion] = useState(null);
 
-  // Combinación unificada de filtros para todo el tablero
+  // Unified filter combination for the whole dashboard
   const filtrosCompuestos = useMemo(() => {
     return {
       ...filtrosContexto,
@@ -317,9 +318,9 @@ export function App() {
   const commandPaletteData = useMemo(() => {
     return {
       vps: [
-        { id: 'vp-readymix', nombre: 'Ready Mix', persona: 'VP Roberto Garza' },
-        { id: 'vp-cemento', nombre: 'Cemento', persona: 'VP Alejandro Domínguez' },
-        { id: 'vp-agregados', nombre: 'Agregados', persona: 'VP Mariana Treviño' }
+        { id: 'vp-readymix', nombre: 'Readymix', persona: 'Sarah Jenkins' },
+        { id: 'vp-cement', nombre: 'Cement', persona: 'Michael Chang' },
+        { id: 'vp-aggregates', nombre: 'Aggregates', persona: 'David Miller' }
       ],
       directores: filtrosDisponibles.directores || [],
       gerentes: filtrosDisponibles.gerentes || [],
@@ -358,8 +359,8 @@ export function App() {
         'New York': 'Atlantic', 'Boston': 'Atlantic',
         'Dallas': 'Sunbelt', 'Houston': 'Sunbelt',
         'Chicago': 'Midwest', 'St. Louis': 'Midwest',
-        'Denver': 'Mountain', 'Salt Lake': 'Mountain',
-        'Los Angeles': 'Pacific NW', 'Phoenix': 'Pacific NW'
+        'Denver': 'West', 'Salt Lake': 'West',
+        'Los Angeles': 'West', 'Phoenix': 'West'
       };
       const region = marketRegionMap[item.nombre] || item.regionNombre;
 
@@ -402,7 +403,9 @@ export function App() {
   }, [handleExportGlobalCsv]);
 
   return (
-    <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-background text-foreground font-sans transition-colors duration-150 select-none">
+    <div className="flex flex-col h-screen h-[100dvh] w-full overflow-hidden bg-background text-foreground font-sans transition-colors duration-150 select-none">
+      <DemoBanner />
+      <div className="flex flex-1 min-h-0 w-full overflow-hidden">
       {/* 1. SIDEBAR WITH GLOBAL CONTEXT FILTERS */}
       <Sidebar
         isOpen={desktopSidebarOpen}
@@ -450,8 +453,8 @@ export function App() {
           />
 
           {/* ROW 3: DUAL COLUMNS (LEFT: COMMERCIAL RANKING, RIGHT: HISTORICAL ADOPTION TREND) */}
-          {/* Ranking va primero (izquierda = se lee primero): es el lever de comportamiento
-              que confirmamos apalancar — el trend chart es contexto, no la prioridad. */}
+          {/* Ranking goes first (left = read first): it is the behavior lever we chose
+              to push — the trend chart is context, not the priority. */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
             {/* Left Column (6 of 12 Cols): Commercial Ranking */}
             <div className="lg:col-span-6 flex flex-col">
@@ -488,6 +491,7 @@ export function App() {
         data={commandPaletteData}
         onSelectItem={handleSelectCommand}
       />
+      </div>
     </div>
   );
 }

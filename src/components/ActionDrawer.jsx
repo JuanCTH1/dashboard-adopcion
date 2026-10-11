@@ -42,7 +42,7 @@ export function ActionDrawer({
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-card border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 font-sans select-none">
+    <div className="fixed top-7 bottom-0 right-0 z-50 w-full max-w-md bg-card border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 font-sans select-none">
       {/* Header */}
       <div className="p-4 border-b border-border bg-slate-50/80 dark:bg-slate-800/80 flex items-start justify-between gap-3 shrink-0">
         <div>

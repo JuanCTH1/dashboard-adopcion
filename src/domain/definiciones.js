@@ -37,16 +37,16 @@ export const LINEAS_NEGOCIO = {
     id: 'readymix',
     label: 'Readymix Concrete',
     unidad: 'cu yd',
-    color: '#002B99'
+    color: '#3730A3'
   },
-  cemento: {
-    id: 'cemento',
+  cement: {
+    id: 'cement',
     label: 'Bulk Cement',
     unidad: 'tons',
     color: '#10b981'
   },
-  agregados: {
-    id: 'agregados',
+  aggregates: {
+    id: 'aggregates',
     label: 'Aggregates & Quarries',
     unidad: 'tons',
     color: '#f59e0b'

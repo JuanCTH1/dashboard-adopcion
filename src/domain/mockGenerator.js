@@ -126,8 +126,8 @@ export function generateDataset(seed = 20260828) {
   // 3. BUSINESS LINES
   const VPS = [
     { id: 'vp-readymix', nombre: 'Readymix', persona: 'Sarah Jenkins', lineaNegocio: 'readymix', unidad: 'cu yd' },
-    { id: 'vp-cemento', nombre: 'Cement', persona: 'Michael Chang', lineaNegocio: 'cemento', unidad: 'tons' },
-    { id: 'vp-agregados', nombre: 'Aggregates', persona: 'David Miller', lineaNegocio: 'agregados', unidad: 'tons' }
+    { id: 'vp-cement', nombre: 'Cement', persona: 'Michael Chang', lineaNegocio: 'cement', unidad: 'tons' },
+    { id: 'vp-aggregates', nombre: 'Aggregates', persona: 'David Miller', lineaNegocio: 'aggregates', unidad: 'tons' }
   ];
 
   // Order-frequency (per week) & behavioral traits per business line.
@@ -137,12 +137,12 @@ export function generateDataset(seed = 20260828) {
       clientDensity: [7, 13], freqMu: Math.log(1.2), freqSigma: 1.55,
       avgOrderSize: 18, channelMix: { web: 0.50, app: 0.42, edi: 0.08 }
     },
-    cemento: {
+    cement: {
       label: 'Cement', unidad: 'tons',
       clientDensity: [4, 8], freqMu: Math.log(0.42), freqSigma: 1.45,
       avgOrderSize: 220, channelMix: { web: 0.35, app: 0.12, edi: 0.53 }
     },
-    agregados: {
+    aggregates: {
       label: 'Aggregates', unidad: 'tons',
       clientDensity: [6, 11], freqMu: Math.log(0.80), freqSigma: 1.50,
       avgOrderSize: 45, channelMix: { web: 0.52, app: 0.33, edi: 0.15 }
@@ -253,24 +253,24 @@ export function generateDataset(seed = 20260828) {
     }
   });
 
-  // 8. CUSTOMER ACCOUNTS
+  // 8. CUSTOMER ACCOUNTS (all company names below are invented)
   // Accounts never "die" — they persist for the full horizon. What varies is how
   // often each one orders (order frequency, long-tailed) and how far its digital
   // adoption can climb (an individual ceiling, always < 100%).
   const BASE_COMPANY_NAMES = [
-    'Apex Construction', 'Turner Heavy Infra', 'Skanska Built Works', 'Bechtel Concrete',
-    'PCL Construction', 'Fluor Industrial', 'Kiewit Infrastructure', 'Walsh Heavy Materials',
-    'Balfour Beatty', 'Gilbane Building Co', 'AECOM Structures', 'Mortenson Construction',
-    'Hensel Phelps', 'Clark Construction Group', 'Suffolk Heavy Build', 'Whiting-Turner Co',
-    'Granite Construction', 'Structure Tone', 'Clayco Commercial', 'Sundt Infrastructure',
-    'Austin Commercial', 'Webcor Builders', 'McCarthy Building Co', 'Lendlease Americas',
-    'DPR Construction', 'Brasfield & Gorrie', 'JE Dunn Construction', 'Rodgers Builders',
-    'Robins & Morton', 'Barton Malow Co', 'Swinerton Builders', 'Sundt Metro',
-    'Flatiron Constructors', 'Archer Western', 'Traylor Bros Heavy', 'Lane Construction',
-    'Ridgeline Contractors', 'Cornerstone Civil Works', 'Summit Grading Co', 'Ironclad Builders',
-    'Vantage Site Works', 'Pinnacle Infrastructure', 'Meridian Heavy Civil', 'Redstone Contracting',
-    'Harbor Point Builders', 'Keystone Paving Group', 'Northgate Construction', 'Bluepeak Civil',
-    'Anchor Concrete Works', 'Foundry Street Builders'
+    'Aldervane Construction', 'Brindlemoor Heavy Civil', 'Calvane Structural Group', 'Dunmarrow Builders',
+    'Eskerton Infrastructure', 'Fallowmere Contracting', 'Garnetwick Construction', 'Halvorne Site Works',
+    'Ironvale Civil Group', 'Jessamyn Ridge Builders', 'Kestrelbrook Construction', 'Lorrimar Heavy Build',
+    'Marrowgate Infrastructure', 'Northvane Contractors', 'Oakhollow Civil Works', 'Pellimore Construction',
+    'Quillfeather Builders', 'Ravenscroft Paving Group', 'Saltmarsh Structures', 'Tamsworth Heavy Civil',
+    'Umberfield Construction', 'Valdermoor Builders', 'Wexcombe Infrastructure', 'Yarrowdale Contracting',
+    'Zephyrine Site Works', 'Ashenfold Builders', 'Bramblewick Civil', 'Corvane Concrete Works',
+    'Drumlin Ridge Construction', 'Emberfall Contractors', 'Fernhaven Construction', 'Glimmerton Builders',
+    'Harrowgate Heavy Build', 'Ivorwood Infrastructure', 'Juniper Cairn Construction', 'Kelvanor Civil Group',
+    'Larkspur Ridge Builders', 'Mossbank Contractors', 'Nettlebrook Construction', 'Orrinhall Heavy Civil',
+    'Pennyfeld Builders', 'Quarrowby Infrastructure', 'Rookhaven Construction', 'Stonemarten Builders',
+    'Thistledown Civil', 'Uldrick Heavy Build', 'Vexford Construction', 'Willowmere Contractors',
+    'Xandermoor Civil', 'Yewbridge Builders'
   ];
 
   const COMPANY_SUFFIXES = [

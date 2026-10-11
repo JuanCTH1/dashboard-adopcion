@@ -70,11 +70,11 @@ export const Sidebar = React.memo(function Sidebar({
   return (
     <aside
       className={cn(
-        "relative h-screen h-[100dvh] flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs z-40 shrink-0 select-none font-sans overflow-visible transition-[width] duration-200 ease-in-out will-change-[width]",
+        "relative h-full flex flex-col bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 shadow-xs z-40 shrink-0 select-none font-sans overflow-visible transition-[width] duration-200 ease-in-out will-change-[width]",
         isOpen ? "w-[180px]" : "w-16"
       )}
     >
-      {/* Botón flotante a media altura en el borde divisor (Disponible tanto colapsado como expandido) */}
+      {/* Floating mid-height button on the divider edge (available collapsed or expanded) */}
       <button
         type="button"
         onPointerDown={(e) => {

@@ -62,7 +62,7 @@ export function CustomTooltip({ text, content, children, position = "top", delay
   );
 }
 
-export function MetricInfoTooltip({ titulo, descripcion, tipo = "propuesta" }) {
+export function MetricInfoTooltip({ titulo, descripcion, tipo = "proposed" }) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
@@ -74,7 +74,7 @@ export function MetricInfoTooltip({ titulo, descripcion, tipo = "propuesta" }) {
         onFocus={() => setIsVisible(true)}
         onBlur={() => setIsVisible(false)}
         className="inline-flex items-center text-slate-400 hover:text-primary transition-colors cursor-help p-0.5"
-        aria-label="Ver definición"
+        aria-label="View definition"
       >
         <HelpCircle className="w-3.5 h-3.5" />
       </button>
@@ -88,10 +88,10 @@ export function MetricInfoTooltip({ titulo, descripcion, tipo = "propuesta" }) {
             </div>
           )}
           <div className="text-[12px] text-muted-foreground leading-normal">{descripcion}</div>
-          {tipo === "propuesta" && (
+          {tipo === "proposed" && (
             <div className="mt-2 pt-1.5 border-t border-border/60 text-[11px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1">
               <span>⚡</span>
-              <span>Definición propuesta pendiente de ratificar</span>
+              <span>Proposed definition pending ratification</span>
             </div>
           )}
         </div>

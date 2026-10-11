@@ -5,13 +5,13 @@
 export function validateVolumeCompatibility(transacciones = []) {
   const lineas = new Set(transacciones.map(t => t.lineaNegocio).filter(Boolean));
   const hasReadymix = lineas.has('readymix');
-  const hasToneladas = lineas.has('cemento') || lineas.has('agregados');
+  const hasToneladas = lineas.has('cement') || lineas.has('aggregates');
 
   if (hasReadymix && hasToneladas) {
     return {
       compatible: false,
       unidad: null,
-      mensaje: 'Incompatibilidad de unidades: no se pueden sumar m³ de Readymix con toneladas de Cemento/Agregados.'
+      mensaje: 'Unit mismatch: cannot add cu yd of Readymix to tons of Cement/Aggregates.'
     };
   }
 
@@ -19,22 +19,22 @@ export function validateVolumeCompatibility(transacciones = []) {
     return {
       compatible: true,
       unidad: 'cu yd',
-      mensaje: 'Volumen compatible en cu yd (m³).'
+      mensaje: 'Compatible volume in cu yd.'
     };
   }
 
   if (hasToneladas) {
     return {
       compatible: true,
-      unidad: 'toneladas',
-      mensaje: 'Volumen compatible en toneladas métricas (tons).'
+      unidad: 'tons',
+      mensaje: 'Compatible volume in tons.'
     };
   }
 
   return {
     compatible: true,
     unidad: '',
-    mensaje: 'Sin transacciones.'
+    mensaje: 'No transactions.'
   };
 }
 
@@ -72,10 +72,10 @@ export function calculateAggregations(transacciones = [], clientes = []) {
     if (t.lineaNegocio === 'readymix') {
       volConcretoTotal += t.volumenTotal;
       volConcretoDig += t.volumenDigital;
-    } else if (t.lineaNegocio === 'cemento') {
+    } else if (t.lineaNegocio === 'cement') {
       volCementoTotal += t.volumenTotal;
       volCementoDig += t.volumenDigital;
-    } else if (t.lineaNegocio === 'agregados') {
+    } else if (t.lineaNegocio === 'aggregates') {
       volAgregadosTotal += t.volumenTotal;
       volAgregadosDig += t.volumenDigital;
     }
@@ -140,8 +140,8 @@ export function calculateAggregations(transacciones = [], clientes = []) {
     },
     volumen: {
       concreto: { total: volConcretoTotal, digital: volConcretoDig, unidad: 'cu yd' },
-      cemento: { total: volCementoTotal, digital: volCementoDig, unidad: 'tons' },
-      agregados: { total: volAgregadosTotal, digital: volAgregadosDig, unidad: 'tons' }
+      cement: { total: volCementoTotal, digital: volCementoDig, unidad: 'tons' },
+      aggregates: { total: volAgregadosTotal, digital: volAgregadosDig, unidad: 'tons' }
     }
   };
 }

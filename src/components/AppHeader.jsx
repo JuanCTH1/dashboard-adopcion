@@ -141,7 +141,7 @@ export const AppHeader = React.memo(function AppHeader({
             size="icon"
             onClick={() => onToggleDensity?.(densityMode === 'comfortable' ? 'detailed' : 'comfortable')}
             className="h-8 w-8 text-muted-foreground hover:text-foreground hidden md:flex cursor-pointer"
-            title={densityMode === 'comfortable' ? 'Modo Cómodo activo (clic para modo Detallado)' : 'Modo Detallado activo (clic para modo Cómodo)'}
+            title={densityMode === 'comfortable' ? 'Comfortable mode active (click for Detailed mode)' : 'Detailed mode active (click for Comfortable mode)'}
           >
             {densityMode === 'comfortable' ? (
               <Sparkles className="w-4 h-4 text-indigo-500" />

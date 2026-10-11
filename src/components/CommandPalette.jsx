@@ -293,7 +293,7 @@ export function CommandPalette({
             nombre: `${mkt.nombre} Market`,
             rol: 'Market',
             rolBadgeColor: 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30',
-            subtitle: `${mkt.regionNombre || ''} Region · Commercial Plaza`,
+            subtitle: `${mkt.regionNombre || ''} Region · Commercial Market`,
             icon: MapPin,
             raw: mkt
           });
@@ -309,7 +309,7 @@ export function CommandPalette({
             nombre: `${reg.nombre} Region`,
             rol: 'Region',
             rolBadgeColor: 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border-indigo-500/30',
-            subtitle: 'Commercial Territory · American Cements USA',
+            subtitle: 'Commercial Territory · Demo Materials Co.',
             icon: Globe,
             raw: reg
           });
@@ -394,7 +394,7 @@ export function CommandPalette({
   let currentGlobalIndex = 0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center pt-12 md:pt-20 px-3 sm:px-4 animate-in fade-in-0 duration-150 select-none font-sans">
+    <div className="fixed inset-x-0 bottom-0 top-7 z-50 bg-slate-950/70 backdrop-blur-xs flex items-start justify-center pt-12 md:pt-20 px-3 sm:px-4 animate-in fade-in-0 duration-150 select-none font-sans">
       <div className="w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-150 max-h-[82vh]">
         {/* 1. SEARCH INPUT HEADER */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/80 bg-slate-50/80 dark:bg-slate-900/80 shrink-0">
@@ -523,7 +523,7 @@ export function CommandPalette({
                 {filteredResults.clientes.map(cli => {
                   const idx = currentGlobalIndex++;
                   const isHighlighted = selectedIndex === idx;
-                  const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
+                  const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cement' ? 'CEM' : 'AGG';
 
                   return (
                     <button

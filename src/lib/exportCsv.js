@@ -1,5 +1,5 @@
 /**
- * UTILIDAD DE EXPORTACIÓN A CSV CON COMPATIBILIDAD UTF-8 EXCEL
+ * CSV EXPORT UTILITY WITH UTF-8 EXCEL COMPATIBILITY
  */
 
 export function exportToCsv(filename, rows = [], headers = []) {

@@ -9,7 +9,7 @@ import { CustomTooltip } from '@/components/ui/tooltip';
 const TOP_N = 3;
 
 /** Short business line badge */
-const BL_SHORT = { readymix: 'RMX', cemento: 'CEM', agregados: 'AGG' };
+const BL_SHORT = { readymix: 'RMX', cement: 'CEM', aggregates: 'AGG' };
 
 const DIMENSIONS = [
   { key: 'sales_reps', label: 'Reps', fullLabel: 'Sales Reps', tipo: 'sales_rep' },
@@ -248,23 +248,23 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
     const isSeptemberLive = targetMonth === 'Sep';
 
     const subject = isSeptemberLive
-      ? `[LIVE PULSE] September 2026 Digital Adoption & Onboarding Sprint | American Cements USA`
-      : `[OFFICIAL] August 2026 Digital Adoption & Customers Onboarding Leaderboard | American Cements USA`;
+      ? `[LIVE PULSE] September 2026 Digital Adoption & Onboarding Sprint | Demo Materials Co.`
+      : `[OFFICIAL] August 2026 Digital Adoption & Customers Onboarding Leaderboard | Demo Materials Co.`;
 
     const introParagraph = isSeptemberLive
-      ? `<p style="margin: 0 0 14px 0;">Please find below our mid-month <strong>September 2026 Live Sprint Pulse</strong> on customer digital adoption and account onboarding across <strong>American Cements USA</strong>. Great momentum so far. Let's keep pushing hard through month close!</p>`
-      : `<p style="margin: 0 0 14px 0;">Congratulations to our commercial teams on an outstanding performance in <strong>August 2026</strong>! Please find below the official closed standings, top performers, and recognition across <strong>American Cements USA</strong>.</p>`;
+      ? `<p style="margin: 0 0 14px 0;">Please find below our mid-month <strong>September 2026 Live Sprint Pulse</strong> on customer digital adoption and account onboarding across <strong>Demo Materials Co.</strong>. Great momentum so far. Let's keep pushing hard through month close!</p>`
+      : `<p style="margin: 0 0 14px 0;">Congratulations to our commercial teams on an outstanding performance in <strong>August 2026</strong>! Please find below the official closed standings, top performers, and recognition across <strong>Demo Materials Co.</strong>.</p>`;
 
     const closingParagraph = isSeptemberLive
       ? `<p style="margin-top: 20px; font-size: 13px; color: #475569;">
           Let's keep up the great energy, continue engaging our customers, and close this sprint strong!<br/><br/>
           <strong style="color: #0f172a;">Commercial Leadership Team</strong><br/>
-          American Cements USA
+          Demo Materials Co.
         </p>`
       : `<p style="margin-top: 20px; font-size: 13px; color: #475569;">
           Congratulations once again to all our top performers for driving customer digital transformation!<br/><br/>
           <strong style="color: #0f172a;">Commercial Leadership Team</strong><br/>
-          American Cements USA
+          Demo Materials Co.
         </p>`;
 
     // 2. Build Rich HTML for Clipboard locked to 580px table width (Outlook-compatible fixed width)
@@ -275,7 +275,7 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
             <p style="margin: 0 0 10px 0;">Hello team,</p>
             ${introParagraph}
 
-            <h3 style="color: #0000B3; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">⭐ SALES REPS SPOTLIGHT</h3>
+            <h3 style="color: #4338CA; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">⭐ SALES REPS SPOTLIGHT</h3>
 
             <!-- Card 1: Customers Onboarding -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -308,7 +308,7 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                       <tr>
                         <td width="28" style="width: 28px; padding: 3px 0; vertical-align: middle;">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</td>
                         <td style="padding: 3px 0; vertical-align: middle;"><strong>#${i + 1} ${r.nombre}</strong></td>
-                        <td align="right" style="text-align: right; padding: 3px 0; vertical-align: middle; white-space: nowrap; color: #0000B3; font-weight: bold;">
+                        <td align="right" style="text-align: right; padding: 3px 0; vertical-align: middle; white-space: nowrap; color: #4338CA; font-weight: bold;">
                           ${formatPct(r.adopcionPct)} Digital Orders
                         </td>
                       </tr>
@@ -340,7 +340,7 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
             </table>
 
             <!-- Title: Regions & Markets (outside the card) -->
-            <h3 style="color: #0000B3; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">🏢 REGIONS & MARKETS</h3>
+            <h3 style="color: #4338CA; margin: 20px 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">🏢 REGIONS & MARKETS</h3>
 
             <!-- Card 4: Regions & Markets -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
@@ -352,7 +352,7 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                       <tr>
                         <td width="100" style="width: 100px; padding: 2px 0;">🥇 Leader:</td>
                         <td style="padding: 2px 0;"><strong>${topRegAdop?.nombre || 'Sunbelt Region'}</strong></td>
-                        <td align="right" style="text-align: right; padding: 2px 0; color: #0000B3; font-weight: bold;">(${formatPct(topRegAdop?.adopcionPct || 0)})</td>
+                        <td align="right" style="text-align: right; padding: 2px 0; color: #4338CA; font-weight: bold;">(${formatPct(topRegAdop?.adopcionPct || 0)})</td>
                       </tr>
                       <tr>
                         <td width="100" style="width: 100px; padding: 2px 0;">🚀 Top Mover:</td>
@@ -368,7 +368,7 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
                       <tr>
                         <td width="100" style="width: 100px; padding: 2px 0;">🥇 Leader:</td>
                         <td style="padding: 2px 0;"><strong>${topMktAdop?.nombre || 'Salt Lake Market'}</strong></td>
-                        <td align="right" style="text-align: right; padding: 2px 0; color: #0000B3; font-weight: bold;">(${formatPct(topMktAdop?.adopcionPct || 0)})</td>
+                        <td align="right" style="text-align: right; padding: 2px 0; color: #4338CA; font-weight: bold;">(${formatPct(topMktAdop?.adopcionPct || 0)})</td>
                       </tr>
                       <tr>
                         <td width="100" style="width: 100px; padding: 2px 0;">🚀 Top Mover:</td>
@@ -382,10 +382,10 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
             </table>
 
             <!-- Card 5: Focus for this month -->
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 18px; background-color: #eff6ff; border-left: 4px solid #0000B3; border-radius: 0 8px 8px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 18px; background-color: #eff6ff; border-left: 4px solid #4338CA; border-radius: 0 8px 8px 0;">
               <tr>
                 <td style="padding: 12px 16px;">
-                  <strong style="color: #0000B3; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">FOCUS FOR THIS PERIOD:</strong>
+                  <strong style="color: #4338CA; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">FOCUS FOR THIS PERIOD:</strong>
                   <p style="margin: 4px 0 0 0; font-size: 12px; color: #334155;">
                     • <strong>Priority 1 (Onboarding):</strong> Ensure any new or active accounts have active digital credentials.<br/>
                     • <strong>Priority 2 (Habit Shift):</strong> Touch base with registered accounts that placed orders by phone this past month to walk them through their next online order.
@@ -402,8 +402,8 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
 
     // Plain text fallback
     const plainFallback = isSeptemberLive
-      ? `Hello team,\n\nPlease find attached our September 2026 mid-month sprint pulse on customer digital adoption and onboarding across American Cements USA. Let's close strong!\n(Paste with Ctrl + V to view full styled cards).`
-      : `Hello team,\n\nCongratulations to our commercial teams on August 2026 results! Attached is the official closed leaderboard for customer digital adoption and onboarding across American Cements USA.\n(Paste with Ctrl + V to view full styled cards).`;
+      ? `Hello team,\n\nPlease find attached our September 2026 mid-month sprint pulse on customer digital adoption and onboarding across Demo Materials Co.. Let's close strong!\n(Paste with Ctrl + V to view full styled cards).`
+      : `Hello team,\n\nCongratulations to our commercial teams on August 2026 results! Attached is the official closed leaderboard for customer digital adoption and onboarding across Demo Materials Co..\n(Paste with Ctrl + V to view full styled cards).`;
 
     // Write rich HTML to clipboard immediately
     try {
@@ -572,7 +572,7 @@ export const LeaderboardCard = React.memo(function LeaderboardCard({ leaderboard
       {/* MODAL: Full Standings Table */}
       {expanded && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm p-4 font-sans select-none"
+          className="fixed inset-x-0 bottom-0 top-7 z-[60] flex items-center justify-center bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-sm p-4 font-sans select-none"
           onClick={() => setExpanded(null)}
         >
           <div

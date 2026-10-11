@@ -58,8 +58,8 @@ const FLIP_TRANSITION = {
 
 const BL_SHORT = {
   'readymix': 'RMX',
-  'cemento': 'CEM',
-  'agregados': 'AGG',
+  'cement': 'CEM',
+  'aggregates': 'AGG',
   'Ready-Mix Concrete': 'RMX',
   'Cement Bulk': 'CEM',
   'Aggregates': 'AGG'
@@ -1073,7 +1073,7 @@ Commercial Leadership`;
     const body = isHabit
       ? `Hi ${client.nombreEmpresa},
 
-This is ${repName} from American Cements.
+This is ${repName} from Demo Materials.
 
 I noticed you've been placing orders via phone recently (${formatNumber(client.pedidosAnalogos || 0)} offline orders/month). We would love to help you shift your orders through our digital portal and mobile app to save you time, track shipments in real-time, and get instant delivery confirmations.
 
@@ -1081,10 +1081,10 @@ Let's place your next order together through the mobile app in 30 seconds!
 
 Best regards,
 ${repName}
-American Cements USA`
+Demo Materials Co.`
       : `Hi ${client.nombreEmpresa},
 
-This is ${repName} from American Cements.
+This is ${repName} from Demo Materials.
 
 We have your digital ordering portal ready for you to place and track all orders 24/7 with zero waiting.
 
@@ -1092,7 +1092,7 @@ Let me know if you would like me to resend your 1-click invite or walk you throu
 
 Best regards,
 ${repName}
-American Cements USA`;
+Demo Materials Co.`;
 
     // 1. Copy to clipboard
     navigator.clipboard.writeText(body);
@@ -1120,9 +1120,9 @@ American Cements USA`;
       {/* Top Accent Line */}
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-blue-700 via-indigo-500 to-sky-400" />
 
-      {/* Header — 3 carriles fijos: Título (Izq), Business Line (Centro Anclado), Controles (Der) */}
+      {/* Header — 3 fixed lanes: Title (left), Business Line (center, anchored), Controls (right) */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] items-center gap-3 pb-3 border-b border-border">
-        {/* CARRIL IZQUIERDO: Título y métricas */}
+        {/* LEFT LANE: title and metrics */}
         <div className="flex items-center gap-2 min-w-0 justify-self-start">
           <Layers className="w-3.5 h-3.5 text-primary shrink-0" />
           <h2 className="text-sm font-black text-foreground tracking-tight flex items-center gap-1.5 flex-wrap">
@@ -1140,7 +1140,7 @@ American Cements USA`;
           </h2>
         </div>
 
-        {/* CARRIL CENTRAL: Business Line — Anclado al centro para evitar cualquier brinco o movimiento */}
+        {/* CENTER LANE: Business Line — anchored to the center to prevent any jumping */}
         <div className="justify-self-center">
           <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-border select-none">
             {vps.map((vp) => {
@@ -1190,9 +1190,9 @@ American Cements USA`;
           </div>
         </div>
 
-        {/* CARRIL DERECHO: Controles de vista y enfoque */}
+        {/* RIGHT LANE: view and focus controls */}
         <div className="flex items-center gap-2 justify-self-end">
-          {/* DENSITY TOGGLE SWITCH: Cómodo | Detallado */}
+          {/* DENSITY TOGGLE SWITCH: Comfortable | Detailed */}
           <div className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-border select-none">
             <button
               type="button"
@@ -1205,7 +1205,7 @@ American Cements USA`;
               )}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Cómodo</span>
+              <span>Comfortable</span>
             </button>
             <button
               type="button"
@@ -1218,7 +1218,7 @@ American Cements USA`;
               )}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Detallado</span>
+              <span>Detailed</span>
             </button>
           </div>
 
@@ -1330,7 +1330,7 @@ American Cements USA`;
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('director', dir.id, selectedDirIds, handleSetDirs); }}
                           onMouseEnter={() => handleDragEnter('director', dir.id, handleSetDirs)}
-                          title={densityMode === 'comfortable' ? `${dir.nombre} · Asignados: ${dir.metricas.clientes?.asignados || 0} (${Math.round(dir.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Pedidos: ${formatCompactNumber(dir.metricas.pedidos?.totales || 0)} (${Math.round(dir.metricas.pedidos?.pctAdopcion || 0)}% Adopción)` : undefined}
+                          title={densityMode === 'comfortable' ? `${dir.nombre} · Assigned: ${dir.metricas.clientes?.asignados || 0} (${Math.round(dir.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Orders: ${formatCompactNumber(dir.metricas.pedidos?.totales || 0)} (${Math.round(dir.metricas.pedidos?.pctAdopcion || 0)}% Adoption)` : undefined}
                           className={cn(
                             "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
@@ -1338,7 +1338,7 @@ American Cements USA`;
                               : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
                           )}
                         >
-                          {/* RENGLÓN 1: NOMBRE + INFO */}
+                          {/* ROW 1: NAME + INFO */}
                           <div className="flex items-center justify-between h-[18px]">
                             <span className="font-bold text-xs truncate">{dir.nombre}</span>
                             <div className="flex items-center gap-1 shrink-0">
@@ -1374,11 +1374,11 @@ American Cements USA`;
                             </div>
                           </div>
 
-                          {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
+                          {/* ROW 2: PERSON OR PER-LINE PILLS */}
                           <div className="h-[17px] flex items-center justify-between text-xs overflow-hidden">
                             {densityMode === 'comfortable' ? (
                               <span className={cn("truncate text-[11px] font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
-                                {dir.persona || '3 Líneas'}
+                                {dir.persona || '3 Lines'}
                               </span>
                             ) : dir.isSingleVp ? (
                               <span className={cn("truncate font-medium", isSelected ? "text-indigo-100" : "text-muted-foreground")}>
@@ -1405,7 +1405,7 @@ American Cements USA`;
                             )}
                           </div>
 
-                          {/* RENGLÓN 3: METRICS */}
+                          {/* ROW 3: METRICS */}
                           {renderCardBottomMetrics(dir.metricas, isSelected, 'indigo')}
                         </button>
                       </div>
@@ -1500,7 +1500,7 @@ American Cements USA`;
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('gerente', ger.id, selectedGerIds, handleSetGers); }}
                           onMouseEnter={() => handleDragEnter('gerente', ger.id, handleSetGers)}
-                          title={densityMode === 'comfortable' ? `${ger.nombre} · Asignados: ${ger.metricas.clientes?.asignados || 0} (${Math.round(ger.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Pedidos: ${formatCompactNumber(ger.metricas.pedidos?.totales || 0)} (${Math.round(ger.metricas.pedidos?.pctAdopcion || 0)}% Adopción)` : undefined}
+                          title={densityMode === 'comfortable' ? `${ger.nombre} · Assigned: ${ger.metricas.clientes?.asignados || 0} (${Math.round(ger.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Orders: ${formatCompactNumber(ger.metricas.pedidos?.totales || 0)} (${Math.round(ger.metricas.pedidos?.pctAdopcion || 0)}% Adoption)` : undefined}
                           className={cn(
                             "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
@@ -1508,7 +1508,7 @@ American Cements USA`;
                               : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
                           )}
                         >
-                          {/* RENGLÓN 1: NOMBRE + INFO */}
+                          {/* ROW 1: NAME + INFO */}
                           <div className="flex items-center justify-between h-[18px]">
                             <span className="font-bold text-[12.5px] truncate">{ger.nombre}</span>
                             <div className="flex items-center gap-1 shrink-0">
@@ -1544,11 +1544,11 @@ American Cements USA`;
                             </div>
                           </div>
 
-                          {/* RENGLÓN 2: PERSONA O PILLS POR LÍNEA */}
+                          {/* ROW 2: PERSON OR PER-LINE PILLS */}
                           <div className="h-[17px] flex items-center justify-between text-xs overflow-hidden">
                             {densityMode === 'comfortable' ? (
                               <span className={cn("truncate text-[11px] font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
-                                {ger.persona || '3 Líneas'}
+                                {ger.persona || '3 Lines'}
                               </span>
                             ) : ger.isSingleVp ? (
                               <span className={cn("truncate font-medium", isSelected ? "text-sky-100" : "text-muted-foreground")}>
@@ -1575,7 +1575,7 @@ American Cements USA`;
                             )}
                           </div>
 
-                          {/* RENGLÓN 3: METRICS */}
+                          {/* ROW 3: METRICS */}
                           {renderCardBottomMetrics(ger.metricas, isSelected, 'sky')}
                         </button>
                       </div>
@@ -1672,7 +1672,7 @@ American Cements USA`;
                         <button
                           onMouseDown={(e) => { if (e.button === 0) startDragSelect('vendedor', rep.id, selectedRepIds, handleSetReps); }}
                           onMouseEnter={() => handleDragEnter('vendedor', rep.id, handleSetReps)}
-                          title={densityMode === 'comfortable' ? `${rep.nombre} (${rep.plaza}) · Asignados: ${rep.metricas.clientes?.asignados || 0} (${Math.round(rep.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Pedidos: ${formatCompactNumber(rep.metricas.pedidos?.totales || 0)} (${Math.round(rep.metricas.pedidos?.pctAdopcion || 0)}% Adopción)` : undefined}
+                          title={densityMode === 'comfortable' ? `${rep.nombre} (${rep.plaza}) · Assigned: ${rep.metricas.clientes?.asignados || 0} (${Math.round(rep.metricas.clientes?.pctOnboarding || 0)}% Onboard) · Orders: ${formatCompactNumber(rep.metricas.pedidos?.totales || 0)} (${Math.round(rep.metricas.pedidos?.pctAdopcion || 0)}% Adoption)` : undefined}
                           className={cn(
                             "w-full h-[90px] min-h-[90px] text-left p-1.5 rounded-lg border transition-colors duration-150 flex flex-col justify-between cursor-pointer text-xs select-none",
                             isSelected
@@ -1680,7 +1680,7 @@ American Cements USA`;
                               : "bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-foreground border-border font-medium"
                           )}
                         >
-                          {/* RENGLÓN 1: NOMBRE + ACCIONES (EMAIL & INFO) */}
+                          {/* ROW 1: NAME + ACTIONS (EMAIL & INFO) */}
                           <div className="flex items-center justify-between h-[18px]">
                             <span className="font-bold text-[12.5px] truncate">{rep.nombre}</span>
                             <div className={cn(
@@ -1745,7 +1745,7 @@ American Cements USA`;
                             </div>
                           </div>
 
-                          {/* RENGLÓN 2: PLAZA Y BL MICRO-PILL */}
+                          {/* ROW 2: MARKET AND BL MICRO-PILL */}
                           <div className="h-[17px] flex items-center justify-between gap-1 text-xs overflow-hidden">
                             <span className={cn("truncate font-semibold", isSelected ? "text-white/90" : "text-muted-foreground")}>{rep.plaza}</span>
                             {densityMode === 'comfortable' ? (
@@ -1768,7 +1768,7 @@ American Cements USA`;
                             )}
                           </div>
 
-                          {/* RENGLÓN 3: METRICS */}
+                          {/* ROW 3: METRICS */}
                           {renderCardBottomMetrics(rep.metricas, isSelected, 'emerald')}
                         </button>
                       </div>
@@ -1942,7 +1942,7 @@ American Cements USA`;
                   ) : (
                     <>
                       {actionPlanData.visibleClients.map((cli, idx) => {
-                        const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
+                        const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cement' ? 'CEM' : 'AGG';
                         const isCopied = copiedId === cli.id;
                         const isLowAdoption = cli.type === 'habit_shift';
 
@@ -2180,7 +2180,7 @@ American Cements USA`;
                     <tbody className="divide-y divide-border/60">
                       {sortedCartera.slice(0, customerDetailVisibleCount).map(cli => {
                         const isExpanded = expandedRowIds.has(cli.id);
-                        const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cemento' ? 'CEM' : 'AGG';
+                        const shortBl = cli.lineaNegocio === 'readymix' ? 'RMX' : cli.lineaNegocio === 'cement' ? 'CEM' : 'AGG';
 
                         return (
                           <React.Fragment key={cli.id}>

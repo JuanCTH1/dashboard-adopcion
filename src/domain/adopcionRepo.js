@@ -10,8 +10,8 @@ import { exclusionManager } from './exclusionManager.js';
 
 const BL_SHORT = {
   readymix: 'RMX',
-  cemento: 'CEM',
-  agregados: 'AGG'
+  cement: 'CEM',
+  aggregates: 'AGG'
 };
 
 const ALL_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -372,10 +372,10 @@ class AdopcionRepository {
         if (t.lineaNegocio === 'readymix') {
           globalVol.concretoTotal += t.volumenTotal;
           globalVol.concretoDig += t.volumenDigital;
-        } else if (t.lineaNegocio === 'cemento') {
+        } else if (t.lineaNegocio === 'cement') {
           globalVol.cementoTotal += t.volumenTotal;
           globalVol.cementoDig += t.volumenDigital;
-        } else if (t.lineaNegocio === 'agregados') {
+        } else if (t.lineaNegocio === 'aggregates') {
           globalVol.agregadosTotal += t.volumenTotal;
           globalVol.agregadosDig += t.volumenDigital;
         }
@@ -473,8 +473,8 @@ class AdopcionRepository {
           if (t.pedidosDigitales > 0) mObj.digitalClients++;
 
           if (t.lineaNegocio === 'readymix') mObj.volumenConcreto += t.volumenDigital;
-          else if (t.lineaNegocio === 'cemento') mObj.volumenCemento += t.volumenDigital;
-          else if (t.lineaNegocio === 'agregados') mObj.volumenAgregados += t.volumenDigital;
+          else if (t.lineaNegocio === 'cement') mObj.volumenCemento += t.volumenDigital;
+          else if (t.lineaNegocio === 'aggregates') mObj.volumenAgregados += t.volumenDigital;
         }
       }
     }
@@ -579,8 +579,8 @@ class AdopcionRepository {
       },
       volumen: {
         concreto: { total: globalVol.concretoTotal, digital: globalVol.concretoDig, unidad: 'cu yd' },
-        cemento: { total: globalVol.cementoTotal, digital: globalVol.cementoDig, unidad: 'tons' },
-        agregados: { total: globalVol.agregadosTotal, digital: globalVol.agregadosDig, unidad: 'tons' }
+        cement: { total: globalVol.cementoTotal, digital: globalVol.cementoDig, unidad: 'tons' },
+        aggregates: { total: globalVol.agregadosTotal, digital: globalVol.agregadosDig, unidad: 'tons' }
       }
     };
 
